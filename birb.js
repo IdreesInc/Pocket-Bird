@@ -10,35 +10,114 @@
 
 // @ts-check
 
-const idle = [
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 3, 4, 4, 4, 0, 0, 0, 0, 0, 0],
-	[0, 2, 3, 1, 4, 4, 5, 5, 0, 0, 0, 0],
-	[0, 0, 3, 3, 4, 5, 5, 5, 5, 5, 0, 0],
-	[0, 0, 0, 3, 3, 2, 5, 5, 5, 0, 0, 0],
-	[0, 0, 0, 3, 3, 3, 2, 2, 2, 0, 0, 0],
-	[0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0],
-	[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0]
-];
+class Frame {
+	/**
+	 * @param {number[][]} pixels
+	 */
+	constructor(pixels) {
+		this.pixels = pixels;
+	}
 
-const bob = [
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 3, 4, 4, 4, 5, 5, 0, 0, 0, 0],
-	[0, 2, 3, 1, 4, 5, 5, 5, 5, 5, 0, 0],
-	[0, 0, 3, 3, 3, 2, 5, 5, 5, 0, 0, 0],
-	[0, 0, 0, 3, 3, 3, 2, 2, 2, 0, 0, 0],
-	[0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0],
-	[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0]
-];
+	/**
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {number} direction
+	 */
+	draw(ctx, direction) {
+		for (let y = 0; y < this.pixels.length; y++) {
+			const row = this.pixels[y];
+			for (let x = 0; x < this.pixels[y].length; x++) {
+				const cell = direction === Directions.LEFT ? row[x] : row[this.pixels[y].length - x - 1];
+				ctx.fillStyle = colors[cell];
+				ctx.fillRect(x * CANVAS_PIXEL_SIZE, y * CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE);
+			};
+		};
+	}
+}
+
+class Anim {
+	/**
+	 * @param {Frame[]} frames
+	 * @param {number[]} durations
+	 * @param {boolean} loop
+	 */
+	constructor(frames, durations, loop = true) {
+		this.frames = frames;
+		this.durations = durations;
+		this.loop = loop;
+	}
+
+	getAnimationDuration() {
+		return this.durations.reduce((a, b) => a + b, 0);
+	}
+
+	/**
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {number} direction
+	 * @param {number} timeStart The start time of the animation in milliseconds
+	 * @returns {boolean} Whether the animation is complete
+	 */
+	draw(ctx, direction, timeStart) {
+		let time = Date.now() - timeStart;
+		const duration = this.getAnimationDuration();
+		if (this.loop) {
+			time %= duration;
+		}
+		let totalDuration = 0;
+		for (let i = 0; i < this.durations.length; i++) {
+			totalDuration += this.durations[i];
+			if (time < totalDuration) {
+				this.frames[i].draw(ctx, direction);
+				return false;
+			}
+		}
+		// Draw the last frame if the animation is complete
+		this.frames[this.frames.length - 1].draw(ctx, direction);
+		return true;
+	}
+}
+
+const sharedFrames = {
+	base: new Frame([
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 3, 4, 4, 4, 0, 0, 0, 0, 0, 0],
+		[0, 2, 3, 1, 4, 4, 5, 5, 0, 0, 0, 0],
+		[0, 0, 3, 3, 4, 5, 5, 5, 5, 5, 0, 0],
+		[0, 0, 0, 3, 3, 2, 5, 5, 5, 0, 0, 0],
+		[0, 0, 0, 3, 3, 3, 2, 2, 2, 0, 0, 0],
+		[0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0],
+		[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0]
+	]),
+	headDown: new Frame([
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 3, 4, 4, 4, 5, 5, 0, 0, 0, 0],
+		[0, 2, 3, 1, 4, 5, 5, 5, 5, 5, 0, 0],
+		[0, 0, 3, 3, 3, 2, 5, 5, 5, 0, 0, 0],
+		[0, 0, 0, 3, 3, 3, 2, 2, 2, 0, 0, 0],
+		[0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0],
+		[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0]
+	]),
+};
+
+const Animations = {
+	STILL: new Anim([sharedFrames.base], [1000]),
+	IDLE: new Anim([
+		sharedFrames.base,
+		sharedFrames.headDown
+	], [
+		750,
+		250
+	]),
+};
+
 
 const colors = {
 	0: "transparent",
@@ -50,7 +129,8 @@ const colors = {
 };
 
 // Number of pixels per unit
-const PIXEL_SIZE = 4;
+const CANVAS_PIXEL_SIZE = 6;
+const WINDOW_PIXEL_SIZE =  CANVAS_PIXEL_SIZE / 2;
 
 const styles = `
 	canvas {
@@ -69,8 +149,8 @@ document.head.appendChild(styleElement);
 
 // Insert a canvas element into the body with the same dimensions as the 2D array
 const canvas = document.createElement("canvas");
-canvas.width = idle[0].length * PIXEL_SIZE;
-canvas.height = idle.length * PIXEL_SIZE;
+canvas.width = sharedFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
+canvas.height = sharedFrames.base.pixels.length * CANVAS_PIXEL_SIZE;
 document.body.appendChild(canvas);
 
 /** @type {CanvasRenderingContext2D} */
@@ -87,14 +167,15 @@ const States = {
 	HOP: "hop",
 };
 
-const HOP_HEIGHT = PIXEL_SIZE * 3;
+const HOP_HEIGHT = CANVAS_PIXEL_SIZE * 2;
 const MAX_HOP_TICKS = 24;
 
 let direction = Directions.RIGHT;
 let state = States.IDLE;
 let ticks = 0;
 let hopTicks = 0;
-let sprite = idle;
+let animStart = Date.now();
+let currentAnimation = Animations.IDLE;
 let modY = 0;
 let modX = 0;
 
@@ -104,23 +185,18 @@ function update() {
 	if (state === States.IDLE) {
 		if (Math.random() < 0.0025) {
 			state = States.HOP;
-			sprite = idle;
+			setAnimation(Animations.STILL);
 			console.log("Hopping");
-		} else if (ticks % 60 < 12) {
-			sprite = bob;
-		} else {
-			sprite = idle;
 		}
 	} else if (state === States.HOP) {
 		hopTicks++;
 		if (hopTicks >= MAX_HOP_TICKS) {
 			state = States.IDLE;
 			hopTicks = 0;
+			setAnimation(Animations.IDLE);
 		}
 		modX += 1.4 * direction;
 		modY = Math.sin(hopTicks / MAX_HOP_TICKS * Math.PI) * HOP_HEIGHT;
-		// Round to the nearest scale
-		modY = Math.round(modY / PIXEL_SIZE) * PIXEL_SIZE;
 	}
 }
 
@@ -131,17 +207,10 @@ function draw() {
 	// Clear the canvas
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	// Draw the bird
-	for (let y = 0; y < sprite.length; y++) {
-		const row = sprite[y];
-		for (let x = 0; x < sprite[y].length; x++) {
-			const cell = direction === Directions.LEFT ? row[x] : row[sprite[y].length - x - 1];
-			ctx.fillStyle = colors[cell];
-			ctx.fillRect(x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
-		};
-	};
-	// Modify canvas position by modY
-	canvas.style.bottom = `${modY}px`;
-	canvas.style.left = `${modX}px`;
+	currentAnimation.draw(ctx, direction, animStart);
+	// Update position
+	setX(modX);
+	setY(roundToPixel(modY));
 }
 
 draw();
@@ -149,7 +218,37 @@ draw();
 canvas.addEventListener("click", () => {
 	if (state === States.IDLE) {
 		state = States.HOP;
-		sprite = idle;
+		setAnimation(Animations.STILL);
 		hopTicks = 0;
 	}
 });
+
+/**
+ * Set the current animation and reset the animation timer
+ * @param {Anim} animation
+ */
+function setAnimation(animation) {
+	currentAnimation = animation;
+	animStart = Date.now();
+}
+
+/**
+ * @param {number} value
+ */
+function roundToPixel(value) {
+	return Math.round(value / WINDOW_PIXEL_SIZE) * WINDOW_PIXEL_SIZE;
+}
+
+/**
+ * @param {number} x
+ */
+function setX(x) {
+	canvas.style.left = `${x}px`;
+}
+
+/**
+ * @param {number} y
+ */
+function setY(y) {
+	canvas.style.bottom = `${y}px`;
+}
