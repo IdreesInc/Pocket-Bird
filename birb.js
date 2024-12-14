@@ -105,6 +105,20 @@ const sharedFrames = {
 		[0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0],
 		[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0]
 	]),
+	wingsUp: new Frame([
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 4, 4, 0, 0, 5, 5, 5, 0, 0],
+		[0, 0, 3, 4, 4, 4, 5, 5, 5, 5, 0, 0],
+		[0, 2, 3, 1, 4, 5, 5, 5, 5, 0, 0, 0],
+		[0, 0, 3, 3, 3, 2, 5, 5, 2, 0, 0, 0],
+		[0, 0, 0, 3, 3, 3, 2, 2, 3, 0, 0, 0],
+		[0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0],
+		[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0]
+	]),
 };
 
 const Animations = {
@@ -115,6 +129,13 @@ const Animations = {
 	], [
 		750,
 		250
+	]),
+	FLYING: new Anim([
+		sharedFrames.headDown,
+		sharedFrames.wingsUp
+	], [
+		100,
+		100
 	]),
 };
 
@@ -167,7 +188,7 @@ const States = {
 	HOP: "hop",
 };
 
-const HOP_HEIGHT = CANVAS_PIXEL_SIZE * 2;
+const HOP_HEIGHT = CANVAS_PIXEL_SIZE * 3;
 const MAX_HOP_TICKS = 24;
 
 let direction = Directions.RIGHT;
@@ -184,9 +205,7 @@ function update() {
 	modY = 0;
 	if (state === States.IDLE) {
 		if (Math.random() < 0.0025) {
-			state = States.HOP;
-			setAnimation(Animations.STILL);
-			console.log("Hopping");
+			hop();
 		}
 	} else if (state === States.HOP) {
 		hopTicks++;
@@ -215,12 +234,16 @@ function draw() {
 
 draw();
 
-canvas.addEventListener("click", () => {
+function hop() {
 	if (state === States.IDLE) {
 		state = States.HOP;
-		setAnimation(Animations.STILL);
+		setAnimation(Animations.FLYING);
 		hopTicks = 0;
 	}
+}
+
+canvas.addEventListener("click", () => {
+	hop();
 });
 
 /**
