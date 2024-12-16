@@ -10,6 +10,8 @@
 
 // @ts-check
 
+const CSS_SCALE = 0.5;
+
 class Frame {
 	/**
 	 * @param {number[][]} pixels
@@ -78,46 +80,46 @@ class Anim {
 
 const sharedFrames = {
 	base: new Frame([
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 3, 4, 4, 4, 0, 0, 0, 0, 0, 0],
-		[0, 2, 3, 1, 4, 4, 5, 5, 0, 0, 0, 0],
-		[0, 0, 3, 3, 4, 5, 5, 5, 5, 5, 0, 0],
-		[0, 0, 0, 3, 3, 2, 5, 5, 5, 0, 0, 0],
-		[0, 0, 0, 3, 3, 3, 2, 2, 2, 0, 0, 0],
-		[0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0],
-		[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0]
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0],
+		[0, 0, 3, 4, 4, 4, 0, 0, 0, 0, 0],
+		[0, 2, 3, 1, 4, 4, 5, 5, 0, 0, 0],
+		[0, 0, 3, 3, 4, 5, 5, 5, 5, 5, 0],
+		[0, 0, 0, 3, 3, 2, 5, 5, 5, 0, 0],
+		[0, 0, 0, 3, 3, 3, 2, 2, 2, 0, 0],
+		[0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0],
+		[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0]
 	]),
 	headDown: new Frame([
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 3, 4, 4, 4, 5, 5, 0, 0, 0, 0],
-		[0, 2, 3, 1, 4, 5, 5, 5, 5, 5, 0, 0],
-		[0, 0, 3, 3, 3, 2, 5, 5, 5, 0, 0, 0],
-		[0, 0, 0, 3, 3, 3, 2, 2, 2, 0, 0, 0],
-		[0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0],
-		[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0]
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0],
+		[0, 0, 3, 4, 4, 4, 5, 5, 0, 0, 0],
+		[0, 2, 3, 1, 4, 5, 5, 5, 5, 5, 0],
+		[0, 0, 3, 3, 3, 2, 5, 5, 5, 0, 0],
+		[0, 0, 0, 3, 3, 3, 2, 2, 2, 0, 0],
+		[0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0],
+		[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0]
 	]),
 	wingsUp: new Frame([
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 4, 4, 0, 0, 5, 5, 5, 0, 0],
-		[0, 0, 3, 4, 4, 4, 5, 5, 5, 5, 0, 0],
-		[0, 2, 3, 1, 4, 5, 5, 5, 5, 0, 0, 0],
-		[0, 0, 3, 3, 3, 2, 5, 5, 2, 0, 0, 0],
-		[0, 0, 0, 3, 3, 3, 2, 2, 3, 0, 0, 0],
-		[0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0],
-		[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0]
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 4, 4, 0, 0, 5, 5, 5, 0],
+		[0, 0, 3, 4, 4, 4, 5, 5, 5, 5, 0],
+		[0, 2, 3, 1, 4, 5, 5, 5, 5, 0, 0],
+		[0, 0, 3, 3, 3, 2, 5, 5, 2, 0, 0],
+		[0, 0, 0, 3, 3, 3, 2, 2, 3, 0, 0],
+		[0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0],
+		[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0]
 	]),
 };
 
@@ -151,7 +153,7 @@ const colors = {
 
 // Number of pixels per unit
 const CANVAS_PIXEL_SIZE = 6;
-const WINDOW_PIXEL_SIZE =  CANVAS_PIXEL_SIZE / 2;
+const WINDOW_PIXEL_SIZE =  CANVAS_PIXEL_SIZE * CSS_SCALE;
 
 const styles = `
 	canvas {
@@ -159,8 +161,9 @@ const styles = `
 		position: fixed;
 		bottom: 0;
 		filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.25));
-		transform: scale(0.5);
+		transform: scale(${CSS_SCALE});
 		transform-origin: bottom;
+		z-index: 999999999;
 	}
 `;
 
@@ -186,64 +189,189 @@ const Directions = {
 const States = {
 	IDLE: "idle",
 	HOP: "hop",
+	FLYING: "flying",
 };
 
-const HOP_HEIGHT = CANVAS_PIXEL_SIZE * 3;
-const MAX_HOP_TICKS = 24;
-
-let direction = Directions.RIGHT;
-let state = States.IDLE;
-let ticks = 0;
-let hopTicks = 0;
+let stateStart = Date.now();
+let startX = 0;
+let startY = 0;
+let currentState = States.IDLE;
 let animStart = Date.now();
 let currentAnimation = Animations.IDLE;
-let modY = 0;
-let modX = 0;
+let direction = Directions.RIGHT;
+let ticks = 0;
+// Bird's current position
+let birdY = 0;
+let birdX = 0;
+// Bird's target position (when flying)
+let targetX = 0;
+let targetY = 0;
+/** @type {HTMLElement|null} */
+let focusedElement = null;
 
 function update() {
 	ticks++;
-	modY = 0;
-	if (state === States.IDLE) {
-		if (Math.random() < 0.0025) {
+	if (currentState === States.IDLE) {
+		if (Math.random() < 0.025) {
 			hop();
 		}
-	} else if (state === States.HOP) {
-		hopTicks++;
-		if (hopTicks >= MAX_HOP_TICKS) {
-			state = States.IDLE;
-			hopTicks = 0;
-			setAnimation(Animations.IDLE);
+	} else if (currentState === States.HOP) {
+		if (updateParabolicPath(0.05)) {
+			setState(States.IDLE);
 		}
-		modX += 1.4 * direction;
-		modY = Math.sin(hopTicks / MAX_HOP_TICKS * Math.PI) * HOP_HEIGHT;
 	}
 }
 
 setInterval(update, 1000 / 60);
 
+/**
+ * @param {number} start
+ * @param {number} end
+ * @param {number} amount
+ * @returns {number}
+ */
+function linearLerp(start, end, amount) {
+	return start + (end - start) * amount;
+}
+
+/**
+ * Update the birds location from the start to the target location on a parabolic path
+ * @param {number} speed The speed of the bird along the path
+ * @param {number} [intensity] The intensity of the parabolic path
+ * @returns {boolean} Whether the bird has reached the target location
+ */
+function updateParabolicPath(speed, intensity = 3) {
+	const dx = targetX - startX;
+	const dy = targetY - startY;
+	const distance = Math.sqrt(dx * dx + dy * dy);
+	const time = Date.now() - stateStart;
+	const amount = Math.min(1, time / (distance / speed));
+	const { x, y } = parabolicLerp(startX, startY, targetX, targetY, amount, intensity);
+	birdX = x;
+	birdY = y;
+	direction = targetX > birdX ? Directions.RIGHT : Directions.LEFT;
+	const complete = Math.abs(birdX - targetX) < 1 && Math.abs(birdY - targetY) < 1;
+	if (complete) {
+		birdX = targetX;
+		birdY = targetY;
+	}
+	return complete;
+}
+
+/**
+ * @param {number} startX
+ * @param {number} startY
+ * @param {number} endX
+ * @param {number} endY
+ * @param {number} amount
+ * @param {number} [intensity]
+ * @returns {{x: number, y: number}}
+ */
+function parabolicLerp(startX, startY, endX, endY, amount, intensity = 1.2) {
+	const dx = endX - startX;
+	const dy = endY - startY;
+	const distance = Math.sqrt(dx * dx + dy * dy);
+	const angle = Math.atan2(dy, dx);
+	const midX = startX + Math.cos(angle) * distance / 2;
+	const midY = startY + Math.sin(angle) * distance / 2 + distance / 4 * intensity;
+	const t = amount;
+	const x = (1 - t) ** 2 * startX + 2 * (1 - t) * t * midX + t ** 2 * endX;
+	const y = (1 - t) ** 2 * startY + 2 * (1 - t) * t * midY + t ** 2 * endY;
+	return { x, y };
+}
+
+function locateTargets() {
+	// Find all images on the page
+	const images = document.querySelectorAll("img");
+	const MIN_SIZE = 100;
+	// Filter out images that are too small
+	const largeImages = Array.from(images).filter((img) => img.width >= MIN_SIZE && img.height >= MIN_SIZE);
+	// Pick a random image
+	const randomImage = largeImages[Math.floor(Math.random() * largeImages.length)];
+	// Get the top left coordinates of the image relative to the window
+	const rect = randomImage.getBoundingClientRect();
+	const x = rect.left;
+	const y = window.innerHeight - rect.top;
+	focusedElement = randomImage;
+	// Move the bird to the top left of the image
+	flyTo(x, y);
+}
+
 function draw() {
 	requestAnimationFrame(draw);
+
+	if (currentState === States.FLYING) {
+		// Fly to target location (even if in the air)
+		if (updateParabolicPath(0.3)) {
+			setState(States.IDLE);
+		}
+	}
+
 	// Clear the canvas
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	// Draw the bird
 	currentAnimation.draw(ctx, direction, animStart);
 	// Update position
-	setX(modX);
-	setY(roundToPixel(modY));
+	setX(birdX);
+	setY(birdY);
 }
 
 draw();
 
+function getCanvasWidth() {
+	return canvas.width * CSS_SCALE
+}
+
+function getCanvasHeight() {
+	return canvas.height * CSS_SCALE
+}
+
 function hop() {
-	if (state === States.IDLE) {
-		state = States.HOP;
+	if (currentState === States.IDLE) {
+		// Determine bounds for hopping
+		let minX = 0;
+		let maxX = window.innerWidth;
+		let y = 0;
+		if (focusedElement !== null) {
+			// Hop on the element
+			const rect = focusedElement.getBoundingClientRect();
+			minX = rect.left;
+			maxX = rect.right;
+			y = window.innerHeight - rect.top;
+		}
+		setState(States.HOP);
 		setAnimation(Animations.FLYING);
-		hopTicks = 0;
+		const HOP_DISTANCE = 60 * CSS_SCALE;
+		if ((Math.random() < 0.5 && birdX - HOP_DISTANCE > minX) || birdX + HOP_DISTANCE > maxX) {
+			targetX = birdX - HOP_DISTANCE;
+		} else {
+			targetX = birdX + HOP_DISTANCE;
+		}
+		targetY = y;
 	}
 }
 
 canvas.addEventListener("click", () => {
 	hop();
+});
+
+/**
+ * @param {number} x
+ * @param {number} y
+ */
+function flyTo(x, y) {
+	targetX = x;
+	targetY = y;
+	setState(States.FLYING);
+	setAnimation(Animations.FLYING);
+}
+
+// Detect any click on the page and print the coordinates
+document.addEventListener("click", (e) => {
+	// const x = e.clientX;
+	// const y = window.innerHeight - e.clientY;
+	// flyTo(x, y);
+	locateTargets();
 });
 
 /**
@@ -253,6 +381,20 @@ canvas.addEventListener("click", () => {
 function setAnimation(animation) {
 	currentAnimation = animation;
 	animStart = Date.now();
+}
+
+/**
+ * Set the current state and reset the state timer
+ * @param {string} state
+ */
+function setState(state) {
+	stateStart = Date.now();
+	startX = birdX;
+	startY = birdY;
+	currentState = state;
+	if (state === States.IDLE) {
+		setAnimation(Animations.IDLE);
+	}
 }
 
 /**
@@ -266,6 +408,7 @@ function roundToPixel(value) {
  * @param {number} x
  */
 function setX(x) {
+	x = x - getCanvasWidth() - WINDOW_PIXEL_SIZE / 2;
 	canvas.style.left = `${x}px`;
 }
 
