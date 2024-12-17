@@ -10,8 +10,8 @@
 
 // @ts-check
 
-const CSS_SCALE = 1;
-const CANVAS_PIXEL_SIZE = 3;
+const CSS_SCALE = 0.5;
+const CANVAS_PIXEL_SIZE = 6;
 const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * CSS_SCALE;
 
 const styles = `
@@ -19,7 +19,7 @@ const styles = `
 		image-rendering: pixelated;
 		position: fixed;
 		bottom: 0;
-		filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.25));
+		filter: drop-shadow(0px 0px 1px #a1a1a1);
 		transform: scale(${CSS_SCALE});
 		transform-origin: bottom;
 		z-index: 999999999;
@@ -93,19 +93,65 @@ class Anim {
 }
 
 const ___ = 0;
-const TOP = 1;
-const EDG = 2;
-const SHD = 3;
+// Top of head
+const HED = 1;
+// Beak
+const BEK = 2;
+// Belly
+const BLY = 3;
+// Eye
 const EYE = 4;
-const WNG = 5;
+// Wing feathers
+const W11 = 5;
+const W12 = 6;
+const W21 = 7;
+const W22 = 8;
+const W23 = 9;
+const W24 = 10;
+const W31 = 11;
+const W32 = 12;
+const W33 = 13;
+const W34 = 14;
+const W41 = 15;
+const W42 = 16;
+const W43 = 17;
+const W51 = 18;
+// Front of head
+const FRN = 19;
+// Back of underside
+const BUM = 20;
+// Underside wing feather (revealed when flying)
+const UND = 21;
+// Leg
+const LEG = 22;
+// Toe
+const TOE = 23;
 
 const colors = {
 	[___]: "transparent",
-	[TOP]: "#ffffff",
-	[EDG]: "#5f5f5f",
-	[SHD]: "#cecece",
+	[HED]: "#ffffff",
+	[BEK]: "#5f5f5f",
+	[BLY]: "#cecece",
 	[EYE]: "#000000",
-	[WNG]: "#d39d83",
+	[W11]: "#a4a4a4",
+	[W12]: "#49413d",
+	[W21]: "#a4a4a4",
+	[W22]: "#bfbfbf",
+	[W23]: "#adadad",
+	[W24]: "#5b4c45",
+	[W31]: "#929292",
+	[W32]: "#adadad",
+	[W33]: "#929292",
+	[W34]: "#64524a",
+	[W41]: "#9b908b",
+	[W42]: "#807069",
+	[W43]: "#adadad",
+	[W51]: "#807069",
+	[FRN]: "#e4e4e4",
+	[BUM]: "#b7bcbf",
+	[UND]: "#cecece",
+	[LEG]: "#000000",
+	[TOE]: "#5f5f5f",
 };
 
 const sharedFrames = {
@@ -114,14 +160,14 @@ const sharedFrames = {
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-		[___, ___, ___, TOP, TOP, ___, ___, ___, ___, ___, ___],
-		[___, ___, SHD, TOP, TOP, TOP, ___, ___, ___, ___, ___],
-		[___, EDG, SHD, EYE, TOP, TOP, WNG, WNG, ___, ___, ___],
-		[___, ___, SHD, SHD, TOP, WNG, WNG, WNG, WNG, WNG, ___],
-		[___, ___, ___, SHD, SHD, EDG, WNG, WNG, WNG, ___, ___],
-		[___, ___, ___, SHD, SHD, SHD, EDG, EDG, EDG, ___, ___],
-		[___, ___, ___, ___, SHD, SHD, SHD, SHD, ___, ___, ___],
-		[___, ___, ___, ___, EDG, EYE, ___, ___, ___, ___, ___]
+		[___, ___, ___, HED, HED, ___, ___, ___, ___, ___, ___],
+		[___, ___, FRN, HED, HED, HED, ___, ___, ___, ___, ___],
+		[___, BEK, FRN, EYE, HED, HED, W21, W31, ___, ___, ___],
+		[___, ___, BLY, BLY, HED, W11, W22, W32, W41, W51, ___],
+		[___, ___, ___, BLY, BLY, W12, W23, W33, W42, ___, ___],
+		[___, ___, ___, BLY, BLY, BLY, W24, W34, W43, ___, ___],
+		[___, ___, ___, ___, BLY, BLY, BUM, BUM, ___, ___, ___],
+		[___, ___, ___, ___, TOE, LEG, ___, ___, ___, ___, ___]
 	]),
 	headDown: new Frame([
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
@@ -129,13 +175,13 @@ const sharedFrames = {
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-		[___, ___, ___, TOP, TOP, ___, ___, ___, ___, ___, ___],
-		[___, ___, SHD, TOP, TOP, TOP, WNG, WNG, ___, ___, ___],
-		[___, EDG, SHD, EYE, TOP, WNG, WNG, WNG, WNG, WNG, ___],
-		[___, ___, SHD, SHD, SHD, EDG, WNG, WNG, WNG, ___, ___],
-		[___, ___, ___, SHD, SHD, SHD, EDG, EDG, EDG, ___, ___],
-		[___, ___, ___, ___, SHD, SHD, SHD, SHD, ___, ___, ___],
-		[___, ___, ___, ___, EDG, EYE, ___, ___, ___, ___, ___]
+		[___, ___, ___, HED, HED, ___, ___, ___, ___, ___, ___],
+		[___, ___, FRN, HED, HED, HED, W21, W31, ___, ___, ___],
+		[___, BEK, FRN, EYE, HED, W11, W22, W32, W41, W51, ___],
+		[___, ___, BLY, BLY, BLY, W12, W23, W33, W42, ___, ___],
+		[___, ___, ___, BLY, BLY, BLY, W24, W34, W43, ___, ___],
+		[___, ___, ___, ___, BLY, BLY, BUM, BUM, ___, ___, ___],
+		[___, ___, ___, ___, TOE, LEG, ___, ___, ___, ___, ___]
 	]),
 	wingsUp: new Frame([
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
@@ -143,26 +189,37 @@ const sharedFrames = {
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-		[___, ___, ___, TOP, TOP, ___, ___, WNG, WNG, WNG, ___],
-		[___, ___, SHD, TOP, TOP, TOP, WNG, WNG, WNG, WNG, ___],
-		[___, EDG, SHD, EYE, TOP, WNG, WNG, WNG, WNG, ___, ___],
-		[___, ___, SHD, SHD, SHD, EDG, WNG, WNG, EDG, ___, ___],
-		[___, ___, ___, SHD, SHD, SHD, EDG, EDG, SHD, ___, ___],
-		[___, ___, ___, ___, SHD, SHD, SHD, SHD, ___, ___, ___],
-		[___, ___, ___, ___, EDG, EYE, ___, ___, ___, ___, ___]
+		[___, ___, ___, HED, HED, ___, ___, W31, W32, W51, ___],
+		[___, ___, FRN, HED, HED, HED, W31, W32, W33, W43, ___],
+		[___, BEK, FRN, EYE, HED, W21, W22, W33, W42, ___, ___],
+		[___, ___, BLY, BLY, BLY, W11, W23, W34, W34, ___, ___],
+		[___, ___, ___, BLY, BLY, BLY, W12, W24, UND, ___, ___],
+		[___, ___, ___, ___, BLY, BLY, BUM, BUM, ___, ___, ___],
+		[___, ___, ___, ___, TOE, LEG, ___, ___, ___, ___, ___]
 	]),
 };
 
 
 const Animations = {
 	STILL: new Anim([sharedFrames.base], [1000]),
-	IDLE: new Anim([
+	BOB: new Anim([
 		sharedFrames.base,
 		sharedFrames.headDown
 	], [
-		750,
+		1200,
 		250
 	]),
+	FLAP: new Anim([
+		sharedFrames.base,
+		sharedFrames.wingsUp,
+		sharedFrames.base,
+		sharedFrames.wingsUp,
+	], [
+		2000,
+		100,
+		50,
+		100
+	], false),
 	FLYING: new Anim([
 		sharedFrames.headDown,
 		sharedFrames.wingsUp
@@ -206,7 +263,7 @@ let startX = 0;
 let startY = 0;
 let currentState = States.IDLE;
 let animStart = Date.now();
-let currentAnimation = Animations.IDLE;
+let currentAnimation = Animations.BOB;
 let direction = Directions.RIGHT;
 let ticks = 0;
 // Bird's current position
@@ -221,8 +278,14 @@ let focusedElement = null;
 function update() {
 	ticks++;
 	if (currentState === States.IDLE) {
-		if (Math.random() < 0.005) {
+		if (Math.random() < 1 / (60 * 5)) {
 			hop();
+		} else if (Math.random() < 1 / (60 * 60) ) {
+			if (Math.random() < 0.5) {
+				focusOnElement();
+			} else {
+				focusOnGround();
+			}
 		}
 	} else if (currentState === States.HOP) {
 		if (updateParabolicPath(0.075)) {
@@ -232,6 +295,39 @@ function update() {
 }
 
 setInterval(update, 1000 / 60);
+
+function draw() {
+	requestAnimationFrame(draw);
+	if (currentState === States.IDLE) {
+		if (focusedElement !== null) {
+			birdY = getFocusedElementY();
+		}
+	} else if (currentState === States.FLYING) {
+		// Fly to target location (even if in the air)
+		if (updateParabolicPath(0.3)) {
+			setState(States.IDLE);
+		}
+	}
+
+	// Fly to ground if the focused element moves out of bounds
+	if (focusedElement !== null) {
+		targetY = getFocusedElementY();
+		if (targetY < 0 || targetY > window.innerHeight) {
+			focusOnGround();
+		}
+	}
+
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	if (currentAnimation.draw(ctx, direction, animStart)) {
+		setAnimation(Animations.STILL);
+	}
+
+	// Update HTML element position
+	setX(birdX);
+	setY(birdY);
+}
+
+draw();
 
 /**
  * @param {number} start
@@ -254,15 +350,19 @@ function updateParabolicPath(speed, intensity = 3) {
 	const dy = targetY - startY;
 	const distance = Math.sqrt(dx * dx + dy * dy);
 	const time = Date.now() - stateStart;
+	if (distance > Math.max(window.innerWidth, window.innerHeight) / 2) {
+		speed *= 1.3;
+	}
 	const amount = Math.min(1, time / (distance / speed));
 	const { x, y } = parabolicLerp(startX, startY, targetX, targetY, amount, intensity);
 	birdX = x;
 	birdY = y;
-	direction = targetX > birdX ? Directions.RIGHT : Directions.LEFT;
 	const complete = Math.abs(birdX - targetX) < 1 && Math.abs(birdY - targetY) < 1;
 	if (complete) {
 		birdX = targetX;
 		birdY = targetY;
+	} else {
+		direction = targetX > birdX ? Directions.RIGHT : Directions.LEFT;
 	}
 	return complete;
 }
@@ -298,6 +398,9 @@ function getFocusedElementY() {
 }
 
 function focusOnGround() {
+	if (focusedElement === null) {
+		return;
+	}
 	focusedElement = null;
 	flyTo(Math.random() * window.innerWidth, 0);
 }
@@ -319,37 +422,6 @@ function focusOnElement() {
 	const x = Math.random() * (rect.right - rect.left) + rect.left;
 	flyTo(x, getFocusedElementY());
 }
-
-function draw() {
-	requestAnimationFrame(draw);
-	if (currentState === States.IDLE) {
-		if (focusedElement !== null) {
-			birdY = getFocusedElementY();
-		}
-	} else if (currentState === States.FLYING) {
-		// Fly to target location (even if in the air)
-		if (updateParabolicPath(0.3)) {
-			setState(States.IDLE);
-		}
-	}
-
-	// Fly to ground if the focused element moves out of bounds
-	if (focusedElement !== null) {
-		targetY = getFocusedElementY();
-		if (targetY < 0 || targetY > window.innerHeight) {
-			focusOnGround();
-		}
-	}
-
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	currentAnimation.draw(ctx, direction, animStart);
-
-	// Update HTML element position
-	setX(birdX);
-	setY(birdY);
-}
-
-draw();
 
 function getCanvasWidth() {
 	return canvas.width * CSS_SCALE
@@ -426,7 +498,7 @@ function setState(state) {
 	startY = birdY;
 	currentState = state;
 	if (state === States.IDLE) {
-		setAnimation(Animations.IDLE);
+		setAnimation(Animations.BOB);
 	}
 }
 
