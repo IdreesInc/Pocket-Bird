@@ -10,7 +10,21 @@
 
 // @ts-check
 
-const CSS_SCALE = 0.5;
+const CSS_SCALE = 1;
+const CANVAS_PIXEL_SIZE = 3;
+const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * CSS_SCALE;
+
+const styles = `
+	canvas {
+		image-rendering: pixelated;
+		position: fixed;
+		bottom: 0;
+		filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.25));
+		transform: scale(${CSS_SCALE});
+		transform-origin: bottom;
+		z-index: 999999999;
+	}
+`;
 
 class Frame {
 	/**
@@ -78,6 +92,15 @@ class Anim {
 	}
 }
 
+const colors = {
+	0: "transparent",
+	1: "#000000",
+	2: "#5f5f5f",
+	3: "#cecece",
+	4: "#ffffff",
+	5: "#d39d83",
+};
+
 const sharedFrames = {
 	base: new Frame([
 		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -141,41 +164,19 @@ const Animations = {
 	]),
 };
 
-
-const colors = {
-	0: "transparent",
-	1: "#000000",
-	2: "#5f5f5f",
-	3: "#cecece",
-	4: "#ffffff",
-	5: "#d39d83",
-};
-
-// Number of pixels per unit
-const CANVAS_PIXEL_SIZE = 6;
-const WINDOW_PIXEL_SIZE =  CANVAS_PIXEL_SIZE * CSS_SCALE;
-
-const styles = `
-	canvas {
-		image-rendering: pixelated;
-		position: fixed;
-		bottom: 0;
-		filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.25));
-		transform: scale(${CSS_SCALE});
-		transform-origin: bottom;
-		z-index: 999999999;
-	}
-`;
-
 const styleElement = document.createElement("style");
-styleElement.innerHTML = styles;
-document.head.appendChild(styleElement);
-
-// Insert a canvas element into the body with the same dimensions as the 2D array
 const canvas = document.createElement("canvas");
-canvas.width = sharedFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
-canvas.height = sharedFrames.base.pixels.length * CANVAS_PIXEL_SIZE;
-document.body.appendChild(canvas);
+
+// Install if not within an iframe
+if (window === window.top) {
+	styleElement.innerHTML = styles;
+	document.head.appendChild(styleElement);
+	
+	// Insert a canvas element into the body with the same dimensions as the 2D array
+	canvas.width = sharedFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
+	canvas.height = sharedFrames.base.pixels.length * CANVAS_PIXEL_SIZE;
+	document.body.appendChild(canvas);	
+}
 
 /** @type {CanvasRenderingContext2D} */
 // @ts-ignore
@@ -212,11 +213,11 @@ let focusedElement = null;
 function update() {
 	ticks++;
 	if (currentState === States.IDLE) {
-		if (Math.random() < 0.025) {
+		if (Math.random() < 0.005) {
 			hop();
 		}
 	} else if (currentState === States.HOP) {
-		if (updateParabolicPath(0.05)) {
+		if (updateParabolicPath(0.075)) {
 			setState(States.IDLE);
 		}
 	}
@@ -280,38 +281,62 @@ function parabolicLerp(startX, startY, endX, endY, amount, intensity = 1.2) {
 	return { x, y };
 }
 
-function locateTargets() {
-	// Find all images on the page
+function getFocusedElementY() {
+	if (focusedElement === null) {
+		return 0;
+	}
+	const rect = focusedElement.getBoundingClientRect();
+	return window.innerHeight - rect.top;
+}
+
+function focusOnGround() {
+	focusedElement = null;
+	flyTo(Math.random() * window.innerWidth, 0);
+}
+
+function focusOnElement() {
 	const images = document.querySelectorAll("img");
+	const inWindow = Array.from(images).filter((img) => {
+		const rect = img.getBoundingClientRect();
+		return rect.left >= 0 && rect.top >= 0 && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
+	});
 	const MIN_SIZE = 100;
-	// Filter out images that are too small
-	const largeImages = Array.from(images).filter((img) => img.width >= MIN_SIZE && img.height >= MIN_SIZE);
-	// Pick a random image
+	const largeImages = Array.from(inWindow).filter((img) => img !== focusedElement && img.width >= MIN_SIZE && img.height >= MIN_SIZE);
+	if (largeImages.length === 0) {
+		return;
+	}
 	const randomImage = largeImages[Math.floor(Math.random() * largeImages.length)];
-	// Get the top left coordinates of the image relative to the window
-	const rect = randomImage.getBoundingClientRect();
-	const x = rect.left;
-	const y = window.innerHeight - rect.top;
 	focusedElement = randomImage;
-	// Move the bird to the top left of the image
-	flyTo(x, y);
+	const rect = randomImage.getBoundingClientRect();
+	const x = Math.random() * (rect.right - rect.left) + rect.left;
+	flyTo(x, getFocusedElementY());
 }
 
 function draw() {
 	requestAnimationFrame(draw);
-
-	if (currentState === States.FLYING) {
+	if (currentState === States.IDLE) {
+		if (focusedElement !== null) {
+			birdY = getFocusedElementY();
+		}
+	} else if (currentState === States.FLYING) {
 		// Fly to target location (even if in the air)
 		if (updateParabolicPath(0.3)) {
 			setState(States.IDLE);
 		}
 	}
 
-	// Clear the canvas
+	// Fly to ground if the focused element moves out of bounds
+	if (focusedElement !== null) {
+		targetY = getFocusedElementY();
+		if (targetY < 0 || targetY > window.innerHeight) {
+			focusOnGround();
+		}
+	}
+
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	// Draw the bird
 	currentAnimation.draw(ctx, direction, animStart);
-	// Update position
+
+	// Update HTML element position
 	setX(birdX);
 	setY(birdY);
 }
@@ -371,7 +396,7 @@ document.addEventListener("click", (e) => {
 	// const x = e.clientX;
 	// const y = window.innerHeight - e.clientY;
 	// flyTo(x, y);
-	locateTargets();
+	focusOnElement();
 });
 
 /**
