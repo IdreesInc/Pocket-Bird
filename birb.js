@@ -10,9 +10,30 @@
 
 // @ts-check
 
-const CSS_SCALE = 0.5;
-const CANVAS_PIXEL_SIZE = 6;
+const sharedSettings = {
+	cssScale: 0.5,
+	canvasPixelSize: 4,
+	hopSpeed: 0.07,
+	hopDistance: 45,
+};
+
+
+let desktopSettings = {
+	flySpeed: 0.2,
+};
+
+let mobileSettings = {
+	flySpeed: 0.125,
+};
+
+const settings = { ...sharedSettings, ...isMobile() ? mobileSettings : desktopSettings };
+
+const CSS_SCALE = settings.cssScale;
+const CANVAS_PIXEL_SIZE = settings.canvasPixelSize;
 const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * CSS_SCALE;
+const HOP_SPEED = settings.hopSpeed;
+const FLY_SPEED = settings.flySpeed;
+const HOP_DISTANCE = settings.hopDistance;
 
 const styles = `
 	canvas {
@@ -268,7 +289,7 @@ let direction = Directions.RIGHT;
 let ticks = 0;
 // Bird's current position
 let birdY = 0;
-let birdX = 0;
+let birdX = 20;
 // Bird's target position (when flying)
 let targetX = 0;
 let targetY = 0;
@@ -288,11 +309,18 @@ function update() {
 			}
 		}
 	} else if (currentState === States.HOP) {
-		if (updateParabolicPath(0.075)) {
+		if (updateParabolicPath(HOP_SPEED)) {
 			setState(States.IDLE);
 		}
 	}
 }
+
+window.addEventListener("scroll", () => {
+	// Can't keep up with scrolling on mobile devices so fly down instead
+	if (isMobile()) {
+		focusOnGround();
+	}
+});
 
 setInterval(update, 1000 / 60);
 
@@ -304,7 +332,7 @@ function draw() {
 		}
 	} else if (currentState === States.FLYING) {
 		// Fly to target location (even if in the air)
-		if (updateParabolicPath(0.3)) {
+		if (updateParabolicPath(FLY_SPEED)) {
 			setState(States.IDLE);
 		}
 	}
@@ -345,7 +373,7 @@ function linearLerp(start, end, amount) {
  * @param {number} [intensity] The intensity of the parabolic path
  * @returns {boolean} Whether the bird has reached the target location
  */
-function updateParabolicPath(speed, intensity = 3) {
+function updateParabolicPath(speed, intensity = 2.5) {
 	const dx = targetX - startX;
 	const dy = targetY - startY;
 	const distance = Math.sqrt(dx * dx + dy * dy);
@@ -409,7 +437,7 @@ function focusOnElement() {
 	const images = document.querySelectorAll("img");
 	const inWindow = Array.from(images).filter((img) => {
 		const rect = img.getBoundingClientRect();
-		return rect.left >= 0 && rect.top >= 0 && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
+		return rect.left >= 0 && rect.top >= 0 + 100 && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
 	});
 	const MIN_SIZE = 100;
 	const largeImages = Array.from(inWindow).filter((img) => img !== focusedElement && img.width >= MIN_SIZE && img.height >= MIN_SIZE);
@@ -446,7 +474,6 @@ function hop() {
 		}
 		setState(States.HOP);
 		setAnimation(Animations.FLYING);
-		const HOP_DISTANCE = 60 * CSS_SCALE;
 		if ((Math.random() < 0.5 && birdX - HOP_DISTANCE > minX) || birdX + HOP_DISTANCE > maxX) {
 			targetX = birdX - HOP_DISTANCE;
 		} else {
@@ -457,7 +484,7 @@ function hop() {
 }
 
 canvas.addEventListener("click", () => {
-	hop();
+	focusOnElement();
 });
 
 /**
@@ -471,12 +498,11 @@ function flyTo(x, y) {
 	setAnimation(Animations.FLYING);
 }
 
-// Detect any click on the page and print the coordinates
 document.addEventListener("click", (e) => {
 	// const x = e.clientX;
 	// const y = window.innerHeight - e.clientY;
 	// flyTo(x, y);
-	focusOnElement();
+	// focusOnElement();
 });
 
 /**
@@ -522,4 +548,12 @@ function setX(x) {
  */
 function setY(y) {
 	canvas.style.bottom = `${y}px`;
+}
+
+
+/**
+ * @returns {boolean} Whether the user is on a mobile device
+ */
+function isMobile() {
+	return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
