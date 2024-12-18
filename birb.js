@@ -34,6 +34,8 @@ const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * CSS_SCALE;
 const HOP_SPEED = settings.hopSpeed;
 const FLY_SPEED = settings.flySpeed;
 const HOP_DISTANCE = settings.hopDistance;
+// Time in milliseconds until the user is considered AFK
+const AFK_TIME = 1000 * 20;
 
 const styles = `
 	canvas {
@@ -280,8 +282,6 @@ const States = {
 };
 
 let stateStart = Date.now();
-let startX = 0;
-let startY = 0;
 let currentState = States.IDLE;
 let animStart = Date.now();
 let currentAnimation = Animations.BOB;
@@ -290,23 +290,22 @@ let ticks = 0;
 // Bird's current position
 let birdY = 0;
 let birdX = 20;
+// Bird's starting position (when flying)
+let startX = 0;
+let startY = 0;
 // Bird's target position (when flying)
 let targetX = 0;
 let targetY = 0;
 /** @type {HTMLElement|null} */
 let focusedElement = null;
+// Time of the user's last action on the page
+let timeOfLastAction = Date.now();
 
 function update() {
 	ticks++;
 	if (currentState === States.IDLE) {
-		if (Math.random() < 1 / (60 * 5)) {
+		if (Math.random() < 1 / (60 * 3)) {
 			hop();
-		} else if (Math.random() < 1 / (60 * 60) ) {
-			if (Math.random() < 0.5) {
-				focusOnElement();
-			} else {
-				focusOnGround();
-			}
 		}
 	} else if (currentState === States.HOP) {
 		if (updateParabolicPath(HOP_SPEED)) {
@@ -316,16 +315,27 @@ function update() {
 }
 
 window.addEventListener("scroll", () => {
+	timeOfLastAction = Date.now();
 	// Can't keep up with scrolling on mobile devices so fly down instead
 	if (isMobile()) {
 		focusOnGround();
 	}
 });
 
+document.addEventListener("click", (e) => {
+	timeOfLastAction = Date.now();
+	// const x = e.clientX;
+	// const y = window.innerHeight - e.clientY;
+	// flyTo(x, y);
+	// focusOnElement();
+});
+
 setInterval(update, 1000 / 60);
 
 function draw() {
 	requestAnimationFrame(draw);
+
+	// Update the bird's position
 	if (currentState === States.IDLE) {
 		if (focusedElement !== null) {
 			birdY = getFocusedElementY();
@@ -337,10 +347,16 @@ function draw() {
 		}
 	}
 
-	// Fly to ground if the focused element moves out of bounds
-	if (focusedElement !== null) {
+	if (focusedElement === null) {
+		if (Date.now() - timeOfLastAction > AFK_TIME) {
+			// Fly to an element if the user is AFK
+			focusOnElement();
+			timeOfLastAction = Date.now();
+		}
+	} else if (focusedElement !== null) {
 		targetY = getFocusedElementY();
 		if (targetY < 0 || targetY > window.innerHeight) {
+			// Fly to ground if the focused element moves out of bounds
 			focusOnGround();
 		}
 	}
@@ -497,13 +513,6 @@ function flyTo(x, y) {
 	setState(States.FLYING);
 	setAnimation(Animations.FLYING);
 }
-
-document.addEventListener("click", (e) => {
-	// const x = e.clientX;
-	// const y = window.innerHeight - e.clientY;
-	// flyTo(x, y);
-	// focusOnElement();
-});
 
 /**
  * Set the current animation and reset the animation timer
