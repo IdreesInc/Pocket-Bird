@@ -38,7 +38,7 @@ const HOP_DISTANCE = settings.hopDistance;
 const AFK_TIME = 1000 * 20;
 
 const styles = `
-	canvas {
+	#birb {
 		image-rendering: pixelated;
 		position: fixed;
 		bottom: 0;
@@ -261,6 +261,7 @@ if (window === window.top) {
 	document.head.appendChild(styleElement);
 	
 	// Insert a canvas element into the body with the same dimensions as the 2D array
+	canvas.id = "birb";
 	canvas.width = sharedFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
 	canvas.height = sharedFrames.base.pixels.length * CANVAS_PIXEL_SIZE;
 	document.body.appendChild(canvas);	
@@ -332,9 +333,11 @@ document.addEventListener("click", (e) => {
 
 setInterval(update, 1000 / 60);
 
-function draw() {
-	requestAnimationFrame(draw);
+function requestDraw() {
+	requestAnimationFrame(requestDraw);
+}
 
+function draw() {
 	// Update the bird's position
 	if (currentState === States.IDLE) {
 		if (focusedElement !== null) {
@@ -371,7 +374,7 @@ function draw() {
 	setY(birdY);
 }
 
-draw();
+requestDraw();
 
 /**
  * @param {number} start
