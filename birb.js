@@ -49,12 +49,32 @@ const styles = `
 	}
 `;
 
-class Frame {
+class Layer {
 	/**
 	 * @param {number[][]} pixels
 	 */
 	constructor(pixels) {
 		this.pixels = pixels;
+	}
+}
+
+class Frame {
+	/**
+	 * @param {Layer[]} layers
+	 */
+	constructor(layers) {
+		this.pixels = layers[0].pixels.map(row => row.slice());
+		for (let i = 1; i < layers.length; i++) {
+			let layerPixels = layers[i].pixels;
+			for (let y = 0; y < layerPixels.length; y++) {
+				for (let x = 0; x < layerPixels[y].length; x++) {
+					if (this.pixels[y] === undefined) {
+						this.pixels[y] = [];
+					}
+					this.pixels[y][x] = layerPixels[y][x];
+				}
+			}
+		}
 	}
 
 	/**
@@ -178,7 +198,7 @@ const colors = {
 };
 
 const sharedFrames = {
-	base: new Frame([
+	base: new Frame([new Layer([
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
@@ -191,8 +211,8 @@ const sharedFrames = {
 		[___, ___, ___, BLY, BLY, BLY, W24, W34, W43, ___, ___],
 		[___, ___, ___, ___, BLY, BLY, BUM, BUM, ___, ___, ___],
 		[___, ___, ___, ___, TOE, LEG, ___, ___, ___, ___, ___]
-	]),
-	headDown: new Frame([
+	])]),
+	headDown: new Frame([new Layer([
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
@@ -205,8 +225,8 @@ const sharedFrames = {
 		[___, ___, ___, BLY, BLY, BLY, W24, W34, W43, ___, ___],
 		[___, ___, ___, ___, BLY, BLY, BUM, BUM, ___, ___, ___],
 		[___, ___, ___, ___, TOE, LEG, ___, ___, ___, ___, ___]
-	]),
-	wingsUp: new Frame([
+	])]),
+	wingsUp: new Frame([new Layer([
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 		[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
@@ -219,7 +239,7 @@ const sharedFrames = {
 		[___, ___, ___, BLY, BLY, BLY, W12, W24, UND, ___, ___],
 		[___, ___, ___, ___, BLY, BLY, BUM, BUM, ___, ___, ___],
 		[___, ___, ___, ___, TOE, LEG, ___, ___, ___, ___, ___]
-	]),
+	])]),
 };
 
 
