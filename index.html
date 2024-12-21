@@ -73,6 +73,25 @@
             color: black;
         }
 
+        .window-title {
+            text-align: center;
+            flex-grow: 1;
+            user-select: none;
+            color: #ffecda;
+        }
+        
+        .window-close {
+            position: absolute;
+            top: 0;
+            right: var(--double-border-size);
+            opacity: 0.35;
+            user-select: none;
+        }
+
+        .window-close:hover {
+            opacity: 1;
+        }
+
         .window-content {
             box-sizing: border-box;
             background-color: #ffecda;
@@ -81,7 +100,8 @@
             flex-grow: 1;    
             box-shadow:
                 var(--border-size) 0 #ffecda, 
-                var(--neg-border-size) 0 #ffecda, 
+                var(--neg-border-size) 0 #ffecda,
+                0 var(--border-size) #ffecda,
                 0 var(--neg-border-size) black,
                 0 var(--border-size) black;
         }
@@ -103,7 +123,7 @@
     </div>
     <div class="window">
         <div class="window-header">
-            <div class="window-title">Birb Sandbox</div>
+            <div class="window-title">settings</div>
             <div class="window-close">x</div>
         </div>
         <div class="window-content">
