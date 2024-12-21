@@ -35,7 +35,8 @@ const HOP_SPEED = settings.hopSpeed;
 const FLY_SPEED = settings.flySpeed;
 const HOP_DISTANCE = settings.hopDistance;
 // Time in milliseconds until the user is considered AFK
-const AFK_TIME = 1000 * 20;
+const AFK_TIME = 1000 * 30;
+const MAX_HEIGHT = 32;
 
 const styles = `
 	#birb {
@@ -45,6 +46,7 @@ const styles = `
 		transform: scale(${CSS_SCALE});
 		transform-origin: bottom;
 		z-index: 999999999;
+		cursor: pointer;
 	}
 `;
 
@@ -62,13 +64,19 @@ class Frame {
 	 * @param {Layer[]} layers
 	 */
 	constructor(layers) {
-		// Combine layers
+		let maxHeight = layers.reduce((max, layer) => Math.max(max, layer.pixels.length), 0);
 		this.pixels = layers[0].pixels.map(row => row.slice());
+		// Pad from top with transparent pixels
+		while (this.pixels.length < maxHeight) {
+			this.pixels.unshift(new Array(this.pixels[0].length).fill(___));
+		}
+		// Combine layers
 		for (let i = 1; i < layers.length; i++) {
 			let layerPixels = layers[i].pixels;
+			let topMargin = maxHeight - layerPixels.length;
 			for (let y = 0; y < layerPixels.length; y++) {
 				for (let x = 0; x < layerPixels[y].length; x++) {
-					this.pixels[y][x] = layerPixels[y][x] !== ___ ? layerPixels[y][x] : this.pixels[y][x];
+					this.pixels[y + topMargin][x] = layerPixels[y][x] !== ___ ? layerPixels[y][x] : this.pixels[y + topMargin][x];
 				}
 			}
 		}
@@ -104,9 +112,10 @@ class Frame {
 		for (let y = 0; y < this.pixels.length; y++) {
 			const row = this.pixels[y];
 			for (let x = 0; x < this.pixels[y].length; x++) {
+				let topMargin = MAX_HEIGHT - this.pixels.length;
 				const cell = direction === Directions.LEFT ? row[x] : row[this.pixels[y].length - x - 1];
 				ctx.fillStyle = colors[cell];
-				ctx.fillRect(x * CANVAS_PIXEL_SIZE, y * CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE);
+				ctx.fillRect(x * CANVAS_PIXEL_SIZE, (y + topMargin) * CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE);
 			};
 		};
 	}
@@ -165,6 +174,9 @@ const BEL = "belly";
 const UND = "underbelly";
 const WNG = "wing";
 const WNE = "wing-edge";
+const HRT = "heart";
+const HRB = "heart-border";
+const HRS = "heart-shine";
 
 const colors = {
 	[___]: "transparent",
@@ -178,9 +190,12 @@ const colors = {
 	[UND]: "#ec8637",
 	[WNG]: "#578ae6",
 	[WNE]: "#326ed9",
+	[HRT]: "#c82e2e",
+	[HRB]: "#501a1a",
+	[HRS]: "#ff6b6b",
 };
 
-const transparent = new Layer([
+const transparentLayer = new Layer([
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
@@ -205,7 +220,7 @@ const transparent = new Layer([
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___]
 ]);
 
-const base = new Layer([
+const baseLayer = new Layer([
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
@@ -230,7 +245,32 @@ const base = new Layer([
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 ]);
 
-const down = new Layer(base.pixels.map((row, rowIndex) => {
+const happyEyeLayer = new Layer([
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, EYE, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, EYE, ___, EYE, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___]
+]);
+
+const downLayer = new Layer(baseLayer.pixels.map((row, rowIndex) => {
 	if (rowIndex === 16) {
 		const newRow = row.slice();
 		newRow[4] = OUT;
@@ -240,9 +280,9 @@ const down = new Layer(base.pixels.map((row, rowIndex) => {
 	} 
 	return row.slice();
 }).filter((_, i) => i !== 15));
-down.pixels.unshift(down.pixels[0].slice());
+downLayer.pixels.unshift(downLayer.pixels[0].slice());
 
-const wingsUp = new Layer([
+const wingsUpLayer = new Layer([
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
@@ -267,7 +307,7 @@ const wingsUp = new Layer([
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___]
 ]);
 
-const wingsDown = new Layer([
+const wingsDownLayer = new Layer([
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
@@ -292,11 +332,78 @@ const wingsDown = new Layer([
 	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___]
 ]);
 
+const heartOneLayer = new Layer([
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, HRT, ___, HRT, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, HRT, HRT, HRT, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, HRT, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+]);
+
+for (let i = 0; i < 19; i++) {
+	heartOneLayer.pixels.push(heartOneLayer.pixels[heartOneLayer.pixels.length - 1].slice());
+}
+
+const heartTwoLayer = new Layer([
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, HRB, ___, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, HRB, HRT, HRB, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, HRB, HRT, HRT, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, HRB, HRT, HRT, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, HRB, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+]);
+
+for (let i = 0; i < 20; i++) {
+	heartTwoLayer.pixels.push(heartTwoLayer.pixels[heartTwoLayer.pixels.length - 1].slice());
+}
+
+const heartThreeLayer = new Layer([
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, HRB, HRB, ___, HRB, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, HRB, HRT, HRS, HRB, HRT, HRS, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, HRB, HRT, HRT, HRT, HRT, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, HRB, HRT, HRT, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, HRB, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+]);
+
+for (let i = 0; i < 21; i++) {
+	heartThreeLayer.pixels.push(heartThreeLayer.pixels[heartThreeLayer.pixels.length - 1].slice());
+}
+
+const heartFourLayer = new Layer([
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, HRB, HRB, ___, HRB, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, HRB, HRT, HRS, HRB, HRT, HRS, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, HRB, HRT, HRT, HRT, HRT, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, HRB, HRT, HRT, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, HRB, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
+]);
+
+for (let i = 0; i < 20; i++) {
+	heartFourLayer.pixels.push(heartThreeLayer.pixels[heartThreeLayer.pixels.length - 1].slice());
+}
+
 const sharedFrames = {
-	base: new Frame([base]),
-	headDown: new Frame([down]),
-	wingsDown: new Frame([base, wingsDown]),
-	wingsUp: new Frame([down, wingsUp]),
+	base: new Frame([baseLayer]),
+	headDown: new Frame([downLayer]),
+	wingsDown: new Frame([baseLayer, wingsDownLayer]),
+	wingsUp: new Frame([downLayer, wingsUpLayer]),
+	heartOne: new Frame([baseLayer, happyEyeLayer, heartOneLayer]),
+	heartTwo: new Frame([baseLayer, happyEyeLayer, heartTwoLayer]),
+	heartThree: new Frame([baseLayer, happyEyeLayer, heartThreeLayer]),
+	heartFour: new Frame([baseLayer, happyEyeLayer, heartFourLayer]),
 };
 
 
@@ -306,20 +413,39 @@ const Animations = {
 		sharedFrames.base,
 		sharedFrames.headDown
 	], [
-		1200,
-		250
+		420,
+		420
 	]),
 	FLYING: new Anim([
+		sharedFrames.base,
 		sharedFrames.wingsUp,
 		sharedFrames.headDown,
 		sharedFrames.wingsDown,
-		sharedFrames.base,
 	], [
+		40,
 		80,
 		40,
 		80,
-		40
 	]),
+	HEART: new Anim([
+		sharedFrames.heartOne,
+		sharedFrames.heartTwo,
+		sharedFrames.heartThree,
+		sharedFrames.heartFour,
+		sharedFrames.heartThree,
+		sharedFrames.heartFour,
+		sharedFrames.heartThree,
+		sharedFrames.heartFour,
+	], [
+		60,
+		80,
+		250,
+		250,
+		250,
+		250,
+		250,
+		250,
+	], false),
 };
 
 const styleElement = document.createElement("style");
@@ -333,8 +459,8 @@ if (window === window.top) {
 	// Insert a canvas element into the body with the same dimensions as the 2D array
 	canvas.id = "birb";
 	canvas.width = sharedFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
-	canvas.height = sharedFrames.base.pixels.length * CANVAS_PIXEL_SIZE;
-	document.body.appendChild(canvas);	
+	canvas.height = MAX_HEIGHT * CANVAS_PIXEL_SIZE;
+	document.body.appendChild(canvas);
 }
 
 /** @type {CanvasRenderingContext2D} */
@@ -371,6 +497,8 @@ let targetY = 0;
 let focusedElement = null;
 // Time of the user's last action on the page
 let timeOfLastAction = Date.now();
+// Stack of timestamps for each mouseover, max length of 10
+let petStack = [];
 
 function update() {
 	ticks++;
@@ -391,6 +519,7 @@ window.addEventListener("scroll", () => {
 	if (isMobile()) {
 		focusOnGround();
 	}
+
 });
 
 document.addEventListener("click", (e) => {
@@ -399,6 +528,29 @@ document.addEventListener("click", (e) => {
 	// const y = window.innerHeight - e.clientY;
 	// flyTo(x, y);
 	// focusOnElement();
+});
+
+canvas.addEventListener("click", () => {
+	focusOnElement();
+	if (focusedElement === null && currentState === States.IDLE) {
+		setAnimation(Animations.HEART)
+	}
+});
+
+canvas.addEventListener("mouseover", () => {
+	timeOfLastAction = Date.now();
+	if (currentState === States.IDLE) {
+		petStack.push(Date.now());
+		if (petStack.length > 10) {
+			petStack.shift();
+		}
+		const pets = petStack.filter((time) => Date.now() - time < 1000).length;
+		if (pets >= 4) {
+			setAnimation(Animations.HEART);
+			// Clear the stack
+			petStack = [];
+		}
+	}
 });
 
 setInterval(update, 1000 / 60);
@@ -504,6 +656,14 @@ function parabolicLerp(startX, startY, endX, endY, amount, intensity = 1.2) {
 	return { x, y };
 }
 
+function getFocusedElementRandomX() {
+	if (focusedElement === null) {
+		return Math.random() * window.innerWidth;
+	}
+	const rect = focusedElement.getBoundingClientRect();
+	return Math.random() * (rect.right - rect.left) + rect.left;
+}
+
 function getFocusedElementY() {
 	if (focusedElement === null) {
 		return 0;
@@ -533,9 +693,7 @@ function focusOnElement() {
 	}
 	const randomImage = largeImages[Math.floor(Math.random() * largeImages.length)];
 	focusedElement = randomImage;
-	const rect = randomImage.getBoundingClientRect();
-	const x = Math.random() * (rect.right - rect.left) + rect.left;
-	flyTo(x, getFocusedElementY());
+	flyTo(getFocusedElementRandomX(), getFocusedElementY());
 }
 
 function getCanvasWidth() {
@@ -569,10 +727,6 @@ function hop() {
 		targetY = y;
 	}
 }
-
-canvas.addEventListener("click", () => {
-	focusOnElement();
-});
 
 /**
  * @param {number} x
@@ -627,7 +781,7 @@ function setX(x) {
  * @param {number} y
  */
 function setY(y) {
-	canvas.style.bottom = `${y - WINDOW_PIXEL_SIZE}px`;
+	canvas.style.bottom = `${y}px`;
 }
 
 
