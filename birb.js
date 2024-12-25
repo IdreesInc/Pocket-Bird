@@ -48,6 +48,115 @@ const styles = `
 		z-index: 999999999;
 		cursor: pointer;
 	}
+
+	.birb-window {
+		font-family: "Monocraft";
+		z-index: 1000;
+		position: fixed;
+		background-color: #ffecda;
+		box-shadow: 
+			var(--border-size) 0 var(--border-color), 
+			var(--neg-border-size) 0 var(--border-color), 
+			0 var(--neg-border-size) var(--border-color), 
+			0 var(--border-size) var(--border-color), 
+			var(--double-border-size) 0 var(--border-color), 
+			var(--neg-double-border-size) 0 var(--border-color), 
+			0 var(--neg-double-border-size) var(--border-color), 
+			0 var(--double-border-size) var(--border-color), 
+			0 0 0 var(--border-size) var(--border-color),
+			0 0 0 var(--double-border-size) white,
+			var(--double-border-size) 0 0 var(--border-size) white,
+			var(--neg-double-border-size) 0 0 var(--border-size) white,
+			0 var(--neg-double-border-size) 0 var(--border-size) white,
+			0 var(--double-border-size) 0 var(--border-size) white;
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.birb-window-header {
+		box-sizing: border-box;
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 7px;
+		padding-top: 4px;
+		padding-bottom: 4px;
+		padding-left: 10px;
+		padding-right: 10px;
+		background-color: #ffa3cb;
+		box-shadow:
+			var(--border-size) 0 #ffa3cb, 
+			var(--neg-border-size) 0 #ffa3cb, 
+			0 var(--neg-border-size) #ffa3cb, 
+			var(--neg-border-size) var(--border-size) var(--border-color), 
+			var(--border-size) var(--border-size) var(--border-color);
+		color: var(--border-color);
+		font-size: 16px;
+	}
+
+	.birb-window-title {
+		text-align: center;
+		flex-grow: 1;
+		user-select: none;
+		color: #ffecda;
+	}
+	
+	.birb-window-close {
+		position: absolute;
+		top: 2px;
+		right: 5px;
+		opacity: 0.35;
+		user-select: none;
+		cursor: pointer;
+	}
+
+	.birb-window-close:hover {
+		opacity: 1;
+	}
+
+	.birb-window-content {
+		box-sizing: border-box;
+		background-color: #ffecda;
+		margin-top: var(--border-size);
+		width: 100%;
+		flex-grow: 1;    
+		box-shadow:
+			var(--border-size) 0 #ffecda, 
+			var(--neg-border-size) 0 #ffecda,
+			0 var(--border-size) #ffecda,
+			0 var(--neg-border-size) var(--border-color),
+			0 var(--border-size) var(--border-color);
+		display: flex;
+		flex-direction: column;
+		padding-left: 15px;
+		padding-right: 15px;
+		padding-top: 8px;
+		padding-bottom: 8px;
+	}
+
+	.birb-window-list-item {
+		font-size: 14px;
+		padding-top: 5px;
+		padding-bottom: 5px;
+		opacity: 0.6;
+		user-select: none;
+	}
+
+	.birb-window-list-item:hover {
+		opacity: 1;
+		cursor: pointer;
+	}
+
+	.birb-window-separator {
+		width: 100%;
+		height: 1px;
+		background-color: #000000;
+		box-sizing: border-box;
+		margin-top: 6px;
+		margin-bottom: 6px;
+	}
 `;
 
 class Layer {
@@ -461,15 +570,63 @@ if (window === window.top) {
 	canvas.width = sharedFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
 	canvas.height = MAX_HEIGHT * CANVAS_PIXEL_SIZE;
 	document.body.appendChild(canvas);
+}
 
-	// Make window elements draggable
-	// Get every .window-header element
-	// Get its parent element
-	const windowHeaders = document.querySelectorAll(".window-header");
-	// Make each window draggable
-	windowHeaders.forEach((window) => {
-		makeDraggable(window);
-	});
+function insertStartMenu() {
+	if (document.querySelector(".birb-window")) {
+		return;
+	}
+	let html = `
+	    <div class="birb-window">
+        <div class="birb-window-header">
+            <div class="birb-window-title">birbOS</div>
+        </div>
+        <div class="birb-window-content">
+            <div class="birb-window-list-item">Pet Birb</div>
+            <div class="birb-window-list-item">Field Guide</div>
+            <div class="birb-window-list-item">Decorations</div>
+            <div class="birb-window-list-item">Programs</div>
+            <div class="birb-window-separator"></div>
+            <div class="birb-window-list-item">Settings</div>
+        </div>
+    </div>
+	`;
+	// Insert the start menu into the body
+	document.body.insertAdjacentHTML("beforeend", html);
+	// Make the start menu draggable
+	makeDraggable(document.querySelector(".birb-window-header"));
+
+	// Position the start menu
+	const startMenu = document.querySelector(".birb-window");
+	if (!(startMenu instanceof HTMLElement)) {
+		return;
+	}
+	let x = birdX;
+	let y = window.innerHeight - birdY;
+	const offset = 30;
+	if (x < window.innerWidth / 2) {
+		// Left side
+		x += offset;
+	} else {
+		// Right side
+		x -= startMenu.offsetWidth + offset;
+	}
+	if (y > window.innerHeight / 2) {
+		// Top side
+		y -= startMenu.offsetHeight + offset;
+	} else {
+		// Bottom side
+		y += offset;
+	}
+	startMenu.style.left = `${x}px`;
+	startMenu.style.top = `${y}px`;
+}
+
+function removeStartMenu() {
+	const startMenu = document.querySelector(".birb-window");
+	if (startMenu) {
+		startMenu.remove();
+	}
 }
 
 function makeDraggable(windowHeader) {
@@ -559,6 +716,9 @@ window.addEventListener("scroll", () => {
 
 document.addEventListener("click", (e) => {
 	timeOfLastAction = Date.now();
+	if (e.target instanceof Node && !canvas.contains(e.target) && !document.querySelector(".birb-window")?.contains(e.target)) {
+		removeStartMenu();
+	}
 	// const x = e.clientX;
 	// const y = window.innerHeight - e.clientY;
 	// flyTo(x, y);
@@ -566,10 +726,11 @@ document.addEventListener("click", (e) => {
 });
 
 canvas.addEventListener("click", () => {
-	focusOnElement();
-	if (focusedElement === null && currentState === States.IDLE) {
-		setAnimation(Animations.HEART)
-	}
+	insertStartMenu();
+	// focusOnElement();
+	// if (focusedElement === null && currentState === States.IDLE) {
+	// 	setAnimation(Animations.HEART)
+	// }
 });
 
 canvas.addEventListener("mouseover", () => {
@@ -808,7 +969,7 @@ function roundToPixel(value) {
  * @param {number} x
  */
 function setX(x) {
-	x = x - getCanvasWidth() - WINDOW_PIXEL_SIZE / 2;
+	x = x - getCanvasWidth() / 2 - WINDOW_PIXEL_SIZE / 2;
 	canvas.style.left = `${x}px`;
 }
 
