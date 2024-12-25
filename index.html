@@ -16,31 +16,34 @@
         }
 
         :root {
-	        --border-size: 3px;
+	        --border-size: 2px;
             --neg-border-size: calc(var(--border-size) * -1);
             --double-border-size: calc(var(--border-size) * 2);
             --neg-double-border-size: calc(var(--neg-border-size) * 2);
+            --border-color: #000000;
         }
 
         .window {
+            font-family: "Monocraft";
+            z-index: 1000;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            /* transform: scale(3); */
-            width: 200px;
-            height: 200px;
+            /* transform: scale(0.8); */
+            /* width: 200px; */
+            /* height: 200px; */
             background-color: #ffecda;
             box-shadow: 
-                var(--border-size) 0 black, 
-                var(--neg-border-size) 0 black, 
-                0 var(--neg-border-size) black, 
-                0 var(--border-size) black, 
-                var(--double-border-size) 0 black, 
-                var(--neg-double-border-size) 0 black, 
-                0 var(--neg-double-border-size) black, 
-                0 var(--double-border-size) black, 
-                0 0 0 var(--border-size) black,
+                var(--border-size) 0 var(--border-color), 
+                var(--neg-border-size) 0 var(--border-color), 
+                0 var(--neg-border-size) var(--border-color), 
+                0 var(--border-size) var(--border-color), 
+                var(--double-border-size) 0 var(--border-color), 
+                var(--neg-double-border-size) 0 var(--border-color), 
+                0 var(--neg-double-border-size) var(--border-color), 
+                0 var(--double-border-size) var(--border-color), 
+                0 0 0 var(--border-size) var(--border-color),
                 0 0 0 var(--double-border-size) white,
                 var(--double-border-size) 0 0 var(--border-size) white,
                 var(--neg-double-border-size) 0 0 var(--border-size) white,
@@ -52,14 +55,13 @@
         }
 
         .window-header {
-            font-family: "Monocraft";
             box-sizing: border-box;
             width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 7px;
-            padding-top: 1px;
+            padding-top: 4px;
             padding-bottom: 4px;
             padding-left: 10px;
             padding-right: 10px;
@@ -68,9 +70,9 @@
                 var(--border-size) 0 #ffa3cb, 
                 var(--neg-border-size) 0 #ffa3cb, 
                 0 var(--neg-border-size) #ffa3cb, 
-                var(--neg-border-size) var(--border-size) black, 
-                var(--border-size) var(--border-size) black;
-            color: black;
+                var(--neg-border-size) var(--border-size) var(--border-color), 
+                var(--border-size) var(--border-size) var(--border-color);
+            color: var(--border-color);
         }
 
         .window-title {
@@ -78,6 +80,7 @@
             flex-grow: 1;
             user-select: none;
             color: #ffecda;
+            font-size: 16px;
         }
         
         .window-close {
@@ -102,8 +105,14 @@
                 var(--border-size) 0 #ffecda, 
                 var(--neg-border-size) 0 #ffecda,
                 0 var(--border-size) #ffecda,
-                0 var(--neg-border-size) black,
-                0 var(--border-size) black;
+                0 var(--neg-border-size) var(--border-color),
+                0 var(--border-size) var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding-left: 15px;
+            padding-right: 15px;
+            padding-top: 8px;
+            padding-bottom: 8px;
         }
 
         .window-close {
@@ -111,6 +120,26 @@
             padding: none;
         }
 
+        .window-list-item {
+            font-size: 14px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            opacity: 0.6;
+        }
+
+        .window-list-item:hover {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        .window-separator {
+            width: 100%;
+            height: 1px;
+            background-color: #000000;
+            box-sizing: border-box;
+            margin-top: 6px;
+            margin-bottom: 6px;
+        }
     </style>
 </head>
 <body>
@@ -121,13 +150,26 @@
         <img src="./images/bird-2.jpg" alt="Bird 2" style="width: 300px; height: auto; margin: 10px;">
         <img src="./images/bird-3.jpg" alt="Bird 3" style="width: 300px; height: auto; margin: 10px;">
     </div>
-    <div class="window">
+    <!-- <div class="window">
         <div class="window-header">
             <div class="window-title">settings</div>
             <div class="window-close">x</div>
         </div>
         <div class="window-content">
             <div class="birb"></div>
+        </div>
+    </div> -->
+    <div class="window">
+        <div class="window-header">
+            <div class="window-title">birbOS</div>
+        </div>
+        <div class="window-content">
+            <div class="window-list-item">Field Guide</div>
+            <div class="window-list-item">Decorations</div>
+            <div class="window-list-item">Programs</div>
+            <!-- <div class="window-list-item">Decorations</div> -->
+            <div class="window-separator"></div>
+            <div class="window-list-item">Settings</div>
         </div>
     </div>
     <div id="spacer"></div>

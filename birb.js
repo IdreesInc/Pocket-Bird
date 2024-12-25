@@ -461,6 +461,41 @@ if (window === window.top) {
 	canvas.width = sharedFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
 	canvas.height = MAX_HEIGHT * CANVAS_PIXEL_SIZE;
 	document.body.appendChild(canvas);
+
+	// Make window elements draggable
+	// Get every .window-header element
+	// Get its parent element
+	const windowHeaders = document.querySelectorAll(".window-header");
+	// Make each window draggable
+	windowHeaders.forEach((window) => {
+		makeDraggable(window);
+	});
+}
+
+function makeDraggable(windowHeader) {
+	let isMouseDown = false;
+	let offsetX = 0;
+	let offsetY = 0;
+
+	// Get the parent window element
+	const windowElement = windowHeader.parentElement;
+
+	windowHeader.addEventListener("mousedown", (e) => {
+		isMouseDown = true;
+		offsetX = e.clientX - windowElement.offsetLeft;
+		offsetY = e.clientY - windowElement.offsetTop;
+	});
+
+	document.addEventListener("mouseup", () => {
+		isMouseDown = false;
+	});
+
+	document.addEventListener("mousemove", (e) => {
+		if (isMouseDown) {
+			windowElement.style.left = `${e.clientX - offsetX}px`;
+			windowElement.style.top = `${e.clientY - offsetY}px`;
+		}
+	});
 }
 
 /** @type {CanvasRenderingContext2D} */
