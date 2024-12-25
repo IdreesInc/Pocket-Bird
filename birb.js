@@ -603,7 +603,7 @@ function insertStartMenu() {
 	}
 	let x = birdX;
 	let y = window.innerHeight - birdY;
-	const offset = 30;
+	const offset = 20;
 	if (x < window.innerWidth / 2) {
 		// Left side
 		x += offset;
@@ -613,7 +613,7 @@ function insertStartMenu() {
 	}
 	if (y > window.innerHeight / 2) {
 		// Top side
-		y -= startMenu.offsetHeight + offset;
+		y -= startMenu.offsetHeight + offset + 10;
 	} else {
 		// Bottom side
 		y += offset;
@@ -627,6 +627,10 @@ function removeStartMenu() {
 	if (startMenu) {
 		startMenu.remove();
 	}
+}
+
+function isStartMenuOpen() {
+	return document.querySelector(".birb-window") !== null;
 }
 
 function makeDraggable(windowHeader) {
@@ -695,7 +699,7 @@ let petStack = [];
 function update() {
 	ticks++;
 	if (currentState === States.IDLE) {
-		if (Math.random() < 1 / (60 * 3)) {
+		if (Math.random() < 1 / (60 * 3) && !isStartMenuOpen()) {
 			hop();
 		}
 	} else if (currentState === States.HOP) {
@@ -767,7 +771,7 @@ function draw() {
 	}
 
 	if (focusedElement === null) {
-		if (Date.now() - timeOfLastAction > AFK_TIME) {
+		if (Date.now() - timeOfLastAction > AFK_TIME && !isStartMenuOpen()) {
 			// Fly to an element if the user is AFK
 			focusOnElement();
 			timeOfLastAction = Date.now();
