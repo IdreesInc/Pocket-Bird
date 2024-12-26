@@ -36,7 +36,7 @@ const FLY_SPEED = settings.flySpeed;
 const HOP_DISTANCE = settings.hopDistance;
 // Time in milliseconds until the user is considered AFK
 const AFK_TIME = 1000 * 30;
-const MAX_HEIGHT = 32;
+const SPRITE_HEIGHT = 32;
 const START_MENU_ID = "birb-start-menu";
 
 const styles = `
@@ -48,6 +48,15 @@ const styles = `
 		transform-origin: bottom;
 		z-index: 999999999;
 		cursor: pointer;
+	}
+
+	.birb-decoration {
+		image-rendering: pixelated;
+		position: fixed;
+		bottom: 0;
+		transform: scale(${CSS_SCALE});
+		transform-origin: bottom;
+		z-index: 999999990;
 	}
 
 	.birb-window {
@@ -73,6 +82,13 @@ const styles = `
 		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;
+		animation: pop-in 0.08s;
+		transition-timing-function: ease-in;
+	}
+
+	@keyframes pop-in {
+		0% { opacity: 1; transform: scale(0.1); }
+		100% { opacity: 1; transform: scale(1); }
 	}
 
 	.birb-window-header {
@@ -192,13 +208,13 @@ class Frame {
 			}
 		}
 		// Surround non-transparent pixels with border
-		for (let y = 0; y < this.pixels.length; y++) {
-			for (let x = 0; x < this.pixels[y].length; x++) {
-				if (this.pixels[y][x] === TRANSPARENT && this.hasAdjacent(x, y)) {
-					this.pixels[y][x] = BORDER;
-				}
-			}
-		}
+		// for (let y = 0; y < this.pixels.length; y++) {
+		// 	for (let x = 0; x < this.pixels[y].length; x++) {
+		// 		if (this.pixels[y][x] === TRANSPARENT && this.hasAdjacent(x, y)) {
+		// 			this.pixels[y][x] = BORDER;
+		// 		}
+		// 	}
+		// }
 	}
 
 	hasAdjacent(x, y) {
@@ -223,10 +239,9 @@ class Frame {
 		for (let y = 0; y < this.pixels.length; y++) {
 			const row = this.pixels[y];
 			for (let x = 0; x < this.pixels[y].length; x++) {
-				let topMargin = MAX_HEIGHT - this.pixels.length;
 				const cell = direction === Directions.LEFT ? row[x] : row[this.pixels[y].length - x - 1];
-				ctx.fillStyle = bluebirdColors[cell];
-				ctx.fillRect(x * CANVAS_PIXEL_SIZE, (y + topMargin) * CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE);
+				ctx.fillStyle = bluebirdColors[cell] ?? cell;
+				ctx.fillRect(x * CANVAS_PIXEL_SIZE, y * CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE);
 			};
 		};
 	}
@@ -291,7 +306,7 @@ const HEART_SHINE = "heart-shine";
 
 const SPRITESHEET_COLOR_MAP = {
 	"transparent": TRANSPARENT,
-	"#ffffff": TRANSPARENT,
+	"#ffffff": BORDER,
 	"#000000": OUTLINE,
 	"#010a19": BEAK,
 	"#190301": EYE,
@@ -326,6 +341,9 @@ const bluebirdColors = {
 const SPRITE_WIDTH = 32;
 const SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAAgCAYAAACy9KU0AAAAAXNSR0IArs4c6QAABBdJREFUeJztnL9LHEEUx79zWkgk3RFwTRvsDKS5KpWpbDSVVQgkjSCYKkfIHyDBIhAhIAiBkOoqsUmVVDbaBFKkkLTxhHBgEQM28aU4Z53d25lddXfm1vt+4Ni5X/vm9t77znfm9hYghBBCCCGEEOIJFboDhOQhImJ7TinFHK4x/PJILiEFQMd+PD0NANg+PEy0ffSBEBIIOWcximQxigbaLnEqK/5iFMne7KzIyspAu+r4pFrGQ3eAFCOr0HyN/I+np/Gq2UTr4cOBtnYhPtjf3cWrZjNuk/rTCN0Bkk96GqK3vkf/UAKwfXiIN71e4rE3vZ5X8SNkZDGnIebWhwCZU7C92dn45msKltUHn7FJtdABFUQyCNEP7UB8oad5pgsx3YePaWC6D1x8JiOHiPQXP42tz9ihHYDZh1ACHFr8SflwBCmIiMj+/fvx/db3715HYHMdKJQDMAuf7oMQj+iRV7sfOgBCrk+hUcyW8KM2CtIBEFIuuUWkiy5db7oWfRQiBZDUCeZrcZwnIpri83wreUyVUhAR8zWVHFyXAIqI8Eslw0BadGwDNkliFSCX+ADA8y2JD3JVYjAMAkhIUcwUXFrvxu1OOwrRncqYGlNy9E9KqTenA2pMRlC3pvDhRf8APnvXxeflBuY3zwBcHOQqxGAYBJCQgohSKiE6N5WpMSXzm2f4vNwoRYSsO8gTAAA4OT6K21rlXVbzMgIhItKYTI4caQHU8TvtKBGXQkQ8Ii7hMeuCeTmI1QEppZTr515TfICkG8riKi7l7G93QAC1+KRjp91Q1v6YAKRknOJjwNSzUOjf8O/vPMLK7y9xGwCeHn/KfG36C/n56w+Ai2laUYZBAAmxsbTezU3mKtd+bPGNmLXIc2cnzwsWpztzA89NLHzFg9UD3Lt7O/O9Wni+bczoffUDXnIapuMPCOBBtgC6+kEbTMoiT4A67QhL61102lFV+WZ1X+ciVIs8v/L1gE535jCxMAOsHmQ+nxYe4Ho+VAuPptOOriSAhJTBx5kn1kHQg/gA6Oe4Lf/rQq4DAvrTmrQLOvlxAgBovt63vfciyBWFx+XAgAsXlkXZAkhImt5aS1bGtwEkp1s+xAeAuAbgurigQmdCp0VAi08Wzdf7pZ0lHVoACcmjt9aKE80QI1/5ZhUh85fhYc7/S/0Vo7fWcr62TPEx44cSQEJqgOhZQFqItAgNcx3krgHpX6POP4hVhKosfB0bgFMEKT5kBFHfNmb6SW8RohuBcRkI2X77UgDEN32/qstEpC5D4YzPS1WQEUbQd0TyYPWg0pr0SlbxZ92vWoBCxSekLui60LcbURPpYrdtqxSgkPEJqQuSQeg+uSh8HpBeh3FtqyR0fELqQN3WPi91VnLuzir88KHjE0LK5z8tFuzphqiPOAAAAABJRU5ErkJggg==";
 const SPRITE_SHEET = dataUriTo2DArray(SPRITE_SHEET_URI);
+const DECORATIONS_SPRITE_WIDTH = 48;
+const DECORATIONS_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAPNJREFUaIHtmTESgzAMBHWZDC+gp0vP/x9Bn44+L6BRmrhJA4csM05uGzfY1s1JxggzIYQQQgghxEnATnB3zwikAICKiXq4BE/uwaxvn/UPb3BnNwFg27Ky0w6vzRp8S4mkIbQD3wzzFJofdTMkYJgn89czFADGKSSiSgphfFBjTaoIKC4cHWvSxIFMmjiQSYoDLUlxoCVywOwHHWjpROop1IL/vsxty2oYO77M1QggSvcpJAFXE66BPfa+2C4v4j2yi7z7FJKAq6FrwN3TO3MMlAAAKO3F2sVZTiu2N9p9CnUv4FR7PbMG2BQ69SJL/kVA8QauAnHUj36BVwAAAABJRU5ErkJggg==";
+const DECORATIONS_SPRITE_SHEET = dataUriTo2DArray(DECORATIONS_SPRITE_SHEET_URI, false);
 
 const layers = {
 	base: new Layer(getLayer(SPRITE_SHEET, 0)),
@@ -339,7 +357,11 @@ const layers = {
 	happyEye: new Layer(getLayer(SPRITE_SHEET, 8)),
 };
 
-const sharedFrames = {
+const decorationLayers = {
+	mac: new Layer(getLayer(DECORATIONS_SPRITE_SHEET, 0, DECORATIONS_SPRITE_WIDTH)),
+};
+
+const birbFrames = {
 	base: new Frame([layers.base]),
 	headDown: new Frame([layers.down]),
 	wingsDown: new Frame([layers.base, layers.wingsDown]),
@@ -350,21 +372,24 @@ const sharedFrames = {
 	heartFour: new Frame([layers.base, layers.happyEye, layers.heartFour]),
 };
 
+const decorationFrames = {
+	mac: new Frame([decorationLayers.mac]),
+};
 
 const Animations = {
-	STILL: new Anim([sharedFrames.base], [1000]),
+	STILL: new Anim([birbFrames.base], [1000]),
 	BOB: new Anim([
-		sharedFrames.base,
-		sharedFrames.headDown
+		birbFrames.base,
+		birbFrames.headDown
 	], [
 		420,
 		420
 	]),
 	FLYING: new Anim([
-		sharedFrames.base,
-		sharedFrames.wingsUp,
-		sharedFrames.headDown,
-		sharedFrames.wingsDown,
+		birbFrames.base,
+		birbFrames.wingsUp,
+		birbFrames.headDown,
+		birbFrames.wingsDown,
 	], [
 		40,
 		80,
@@ -372,14 +397,14 @@ const Animations = {
 		80,
 	]),
 	HEART: new Anim([
-		sharedFrames.heartOne,
-		sharedFrames.heartTwo,
-		sharedFrames.heartThree,
-		sharedFrames.heartFour,
-		sharedFrames.heartThree,
-		sharedFrames.heartFour,
-		sharedFrames.heartThree,
-		sharedFrames.heartFour,
+		birbFrames.heartOne,
+		birbFrames.heartTwo,
+		birbFrames.heartThree,
+		birbFrames.heartFour,
+		birbFrames.heartThree,
+		birbFrames.heartFour,
+		birbFrames.heartThree,
+		birbFrames.heartFour,
 	], [
 		60,
 		80,
@@ -390,6 +415,14 @@ const Animations = {
 		250,
 		250,
 	], false),
+};
+
+const DECORATION_ANIMATIONS = {
+	mac: new Anim([
+		decorationFrames.mac,
+	], [
+		1000,
+	]),
 };
 
 const styleElement = document.createElement("style");
@@ -442,8 +475,8 @@ function init() {
 	document.head.appendChild(styleElement);
 	
 	canvas.id = "birb";
-	canvas.width = sharedFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
-	canvas.height = MAX_HEIGHT * CANVAS_PIXEL_SIZE;
+	canvas.width = birbFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
+	canvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
 	document.body.appendChild(canvas);
 
 	window.addEventListener("scroll", () => {
@@ -567,6 +600,25 @@ function makeElement(className, textContent, id) {
 	return element;
 }
 
+function insertDecoration() {
+	// Create a canvas element for the decoration
+	const decorationCanvas = document.createElement("canvas");
+	decorationCanvas.classList.add("birb-decoration");
+	decorationCanvas.width = DECORATIONS_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
+	decorationCanvas.height = DECORATIONS_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
+	const decorationCtx = decorationCanvas.getContext("2d");
+	if (!decorationCtx) {
+		return;
+	}
+	// Draw the decoration
+	DECORATION_ANIMATIONS.mac.draw(decorationCtx, Directions.LEFT, Date.now());
+	// Add the decoration to the page
+	document.body.appendChild(decorationCanvas);
+	makeDraggable(decorationCanvas, false);
+}
+
+// insertDecoration();
+
 /**
  * Add the start menu to the page if it doesn't already exist
  */
@@ -633,11 +685,10 @@ function isStartMenuOpen() {
 }
 
 /**
- * Make the given HTML element draggable by the window header
- * @param {HTMLElement|null} windowHeader
+ * @param {HTMLElement|null} element
  */
-function makeDraggable(windowHeader) {
-	if (!windowHeader) {
+function makeDraggable(element, parent = true) {
+	if (!element) {
 		return;
 	}
 
@@ -645,18 +696,19 @@ function makeDraggable(windowHeader) {
 	let offsetX = 0;
 	let offsetY = 0;
 
-	// Get the parent window element
-	const windowElement = windowHeader.parentElement;
+	if (parent) {
+		element = element.parentElement;
+	}
 	
-	if (!windowElement) {
-		console.error("Birb: Window element not found");
+	if (!element) {
+		console.error("Birb: Parent element not found");
 		return;
 	}
 
-	windowHeader.addEventListener("mousedown", (e) => {
+	element.addEventListener("mousedown", (e) => {
 		isMouseDown = true;
-		offsetX = e.clientX - windowElement.offsetLeft;
-		offsetY = e.clientY - windowElement.offsetTop;
+		offsetX = e.clientX - element.offsetLeft;
+		offsetY = e.clientY - element.offsetTop;
 	});
 
 	document.addEventListener("mouseup", () => {
@@ -665,17 +717,18 @@ function makeDraggable(windowHeader) {
 
 	document.addEventListener("mousemove", (e) => {
 		if (isMouseDown) {
-			windowElement.style.left = `${e.clientX - offsetX}px`;
-			windowElement.style.top = `${e.clientY - offsetY}px`;
+			element.style.left = `${e.clientX - offsetX}px`;
+			element.style.top = `${e.clientY - offsetY}px`;
 		}
 	});
 }
 
 /**
  * @param {string} dataUri
+ * @param {boolean} [templateColors]
  * @returns {string[][]}
  */
-function dataUriTo2DArray(dataUri) {
+function dataUriTo2DArray(dataUri, templateColors = true) {
 	const img = new Image();
 	img.src = dataUri;
 	const canvas = document.createElement('canvas');
@@ -702,6 +755,10 @@ function dataUriTo2DArray(dataUri) {
 				continue;
 			}
 			const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+			if (!templateColors) {
+				row.push(hex);
+				continue;
+			}
 			if (SPRITESHEET_COLOR_MAP[hex] === undefined) {
 				console.error(`Unknown color: ${hex}`);
 				row.push(TRANSPARENT);
@@ -716,13 +773,14 @@ function dataUriTo2DArray(dataUri) {
 /**
  * @param {string[][]} array
  * @param {number} sprite
+ * @param {number} [width]
  * @returns {string[][]}
  */
-function getLayer(array, sprite) {
+function getLayer(array, sprite, width = SPRITE_WIDTH) {
 	// From an array of a horizontal sprite sheet, get the layer for a specific sprite
 	const layer = [];
-	for (let y = 0; y < SPRITE_WIDTH; y++) {
-		layer.push(array[y].slice(sprite * SPRITE_WIDTH, (sprite + 1) * SPRITE_WIDTH));
+	for (let y = 0; y < width; y++) {
+		layer.push(array[y].slice(sprite * width, (sprite + 1) * width));
 	}
 	return layer;
 }
