@@ -225,7 +225,7 @@ class Frame {
 			for (let x = 0; x < this.pixels[y].length; x++) {
 				let topMargin = MAX_HEIGHT - this.pixels.length;
 				const cell = direction === Directions.LEFT ? row[x] : row[this.pixels[y].length - x - 1];
-				ctx.fillStyle = colors[cell];
+				ctx.fillStyle = bluebirdColors[cell];
 				ctx.fillRect(x * CANVAS_PIXEL_SIZE, (y + topMargin) * CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE);
 			};
 		};
@@ -289,7 +289,22 @@ const HRT = "heart";
 const HRB = "heart-border";
 const HRS = "heart-shine";
 
-const colors = {
+const colorsToKeys = {
+	"transparent": ___,
+	"#000000": OUT,
+	"#ffffff": ___,
+	"#af8e75": FOT,
+	"#639bff": FAC,
+	"#f8b143": BEL,
+	"#ec8637": UND,
+	"#578ae6": WNG,
+	"#326ed9": WNE,
+	"#c82e2e": HRT,
+	"#501a1a": HRB,
+	"#ff6b6b": HRS
+};
+
+const bluebirdColors = {
 	[___]: "transparent",
 	[OUT]: "#000000",
 	[BOR]: "#ffffff",
@@ -306,205 +321,75 @@ const colors = {
 	[HRS]: "#ff6b6b",
 };
 
-const transparentLayer = new Layer([
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___]
-]);
+const baseLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAWBJREFUWIXtlaFOA0EURc8kiBpcgyBYUo/hA4qvRCKaKpI6EP0ABAJBgmqqUChSDx9Qg0NssAQSQoJgRd1DsK+U6cwwswvBzE02m8m+t/fs27uzkJWVlZWV9c8yMUUiIs5mY6L6GwGoue2lTE0h1mLN++PvQzDGICLLNbVAvE0hc9VkYLRWoZIhggD2/fpjYTL4AirfngG4Ot5kOSYpII0moAAKUfX5zRxg3gwYY4wv/bY5wP7pk/Y56zUvNkRwVPoa5tMuhy83AFxs7AFwUFyGWhd6eHwH4O68g4isTCEawFard8vOsGB7a/1H4+pen4YWQPAzDGk+7dLqdWBYOK/bxi5ziJhA1bgyhfK+BKA9mvl6g8ZRAAphA6i5S+3RLGlfiHoFVXh4PdkN1qWaQ+LPKARRxzxJUgmQ67MjARaHrkP7xq+bu9Z/CrBs5jvXAYjeBzSIoXMdRYcl5unqhO8DLNEERamTH4AAAAAASUVORK5CYII=";
 
-const baseLayer = new Layer([
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, OUT, OUT, OUT, OUT, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, OUT, FAC, FAC, FAC, FAC, OUT, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, OUT, FAC, FAC, FAC, FAC, FAC, FAC, OUT, OUT, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, BEK, BEK, BEK, BEK, FAC, EYE, FAC, FAC, WNG, WNG, OUT, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, OUT, FAC, FAC, FAC, FAC, FAC, FAC, WNG, WNG, WNG, OUT, OUT, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, OUT, FAC, FAC, FAC, FAC, FAC, WNG, WNG, WNG, WNG, WNG, WNG, OUT, OUT, OUT, OUT, OUT, OUT, ___, ___],
-	[___, ___, OUT, BEL, FAC, FAC, BEL, BEL, WNG, WNG, WNG, WNG, WNG, WNG, WNG, WNG, WNG, WNG, WNE, WNE, OUT, ___],
-	[___, ___, OUT, BEL, BEL, BEL, BEL, BEL, OUT, WNE, WNG, WNG, WNG, WNG, WNG, WNG, WNE, WNE, OUT, OUT, ___, ___],
-	[___, ___, OUT, BEL, BEL, BEL, BEL, BEL, BEL, OUT, WNE, WNE, WNE, WNE, WNE, WNE, OUT, OUT, ___, ___, ___, ___],
-	[___, ___, ___, OUT, BEL, BEL, BEL, BEL, UND, UND, OUT, OUT, OUT, OUT, OUT, OUT, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, OUT, BEL, BEL, BEL, UND, UND, UND, UND, UND, UND, UND, OUT, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, OUT, UND, UND, UND, UND, UND, UND, UND, UND, OUT, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, OUT, UND, UND, UND, UND, UND, UND, OUT, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, OUT, FOT, OUT, OUT, OUT, FOT, OUT, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, OUT, FOT, OUT, ___, OUT, FOT, OUT, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, OUT, FOT, OUT, FOT, OUT, FOT, OUT, FOT, OUT, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, OUT, ___, OUT, ___, OUT, ___, OUT, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-]);
-
-const happyEyeLayer = new Layer([
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, EYE, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, EYE, ___, EYE, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___]
-]);
-
-const downLayer = new Layer(baseLayer.pixels.map((row, rowIndex) => {
-	if (rowIndex === 16) {
-		const newRow = row.slice();
-		newRow[4] = OUT;
-		newRow[12] = UND;
-		newRow[13] = OUT;
-		return newRow;
-	} 
-	return row.slice();
-}).filter((_, i) => i !== 15));
-downLayer.pixels.unshift(downLayer.pixels[0].slice());
-
-const wingsUpLayer = new Layer([
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, OUT, OUT, OUT, OUT, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, OUT, OUT, OUT, WNG, WNG, WNG, OUT, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, OUT, OUT, WNG, WNG, WNG, WNG, WNG, WNG, OUT, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, OUT, WNG, WNG, WNG, WNG, WNG, WNG, WNG, OUT, OUT, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, OUT, WNG, WNG, WNG, WNG, WNG, WNG, WNG, WNG, OUT, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, WNG, WNG, WNG, WNG, WNG, WNG, WNG, WNG, WNG, OUT, OUT, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, WNG, WNG, WNG, WNG, WNG, WNG, WNG, WNG, OUT, WNG, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, BEL, WNG, WNG, WNG, WNG, WNG, WNG, OUT, WNG, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, UND, WNG, WNG, OUT, OUT, OUT, WNG, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, UND, UND, UND, WNG, WNG, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___]
-]);
-
-const wingsDownLayer = new Layer([
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, WNG, WNG, WNG, WNG, WNG, WNG, OUT, OUT, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, OUT, WNG, WNG, WNG, WNG, WNG, WNG, OUT, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, OUT, WNE, WNG, WNG, WNG, WNG, WNG, OUT, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, OUT, WNE, WNG, WNG, WNG, WNG, WNG, WNG, OUT, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, OUT, WNE, WNG, WNG, WNG, WNG, WNG, OUT, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, OUT, WNE, WNE, WNG, WNG, WNG, WNG, OUT, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, OUT, OUT, WNE, WNE, WNG, WNG, OUT, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, OUT, OUT, WNE, WNE, OUT, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, OUT, OUT, OUT, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___]
-]);
-
-const heartOneLayer = new Layer([
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, HRT, ___, HRT, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, HRT, HRT, HRT, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, HRT, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-]);
-
-for (let i = 0; i < 19; i++) {
-	heartOneLayer.pixels.push(heartOneLayer.pixels[heartOneLayer.pixels.length - 1].slice());
+function dataUriTo2DArray(dataUri) {
+	const img = new Image();
+	img.src = dataUri;
+	const canvas = document.createElement('canvas');
+	canvas.width = img.width;
+	canvas.height = img.height;
+	const ctx = canvas.getContext('2d');
+	ctx.drawImage(img, 0, 0);
+	const imageData = ctx.getImageData(0, 0, img.width, img.height);
+	const pixels = imageData.data;
+	const hexArray = [];
+	for (let y = 0; y < img.height; y++) {
+		const row = [];
+		for (let x = 0; x < img.width; x++) {
+			const index = (y * img.width + x) * 4;
+			const r = pixels[index];
+			const g = pixels[index + 1];
+			const b = pixels[index + 2];
+			const a = pixels[index + 3];
+			if (a === 0) {
+				row.push(___);
+				continue;
+			}
+			const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+			if (colorsToKeys[hex] === undefined) {
+				console.error(`Unknown color: ${hex}`);
+				row.push(___);
+			}
+			row.push(colorsToKeys[hex]);
+		}
+		hexArray.push(row);
+	}
+	return hexArray;
 }
 
-const heartTwoLayer = new Layer([
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, HRB, ___, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, HRB, HRT, HRB, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, HRB, HRT, HRT, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, HRB, HRT, HRT, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, HRB, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-]);
+let baseLayer = new Layer(dataUriTo2DArray(baseLayerUri));
+console.log(baseLayer);
 
-for (let i = 0; i < 20; i++) {
-	heartTwoLayer.pixels.push(heartTwoLayer.pixels[heartTwoLayer.pixels.length - 1].slice());
+function print2DArray(array) {
+	for (let row of array) {
+		console.log(row.join(' '));
+	}
 }
 
-const heartThreeLayer = new Layer([
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, HRB, HRB, ___, HRB, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, HRB, HRT, HRS, HRB, HRT, HRS, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, HRB, HRT, HRT, HRT, HRT, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, HRB, HRT, HRT, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, HRB, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-]);
+const happyEyeLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAC1JREFUWIXtzsEJADAIBEFJqynLYk0PQRBh5r/HRQAALFVdQ+cnulmtJwBg1APVhAP+dQsu4QAAAABJRU5ErkJggg==";
+const happyEyeLayer = new Layer(dataUriTo2DArray(happyEyeLayerUri));
 
-for (let i = 0; i < 21; i++) {
-	heartThreeLayer.pixels.push(heartThreeLayer.pixels[heartThreeLayer.pixels.length - 1].slice());
-}
+const downLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAVlJREFUWIXtlKFOA0EURc8kiBpcgyBYUo/hA4qvRCKaKpI6EP0ABAJBgmqqUChSDx9Qg0NssAQSQoJgRd1DsK8s05np7G5RzE02m8m+N/fsm7sLSUlJSUlJ/10mpkhExNlsTFR/IwA1t72UqSnERqx5f/x7CMYYRKRcUwvE2xQyV00GRmsVqjJEEMDerz8WJoMfoPzjFYCb023KMakC0mgCCqAQRZ/fzAHmzYAxxvjSb5sDHJ6/aJ+zXvNiQwRHpccwn3Y5frsD4GrrAICj7DrUutDT8ycAD5cdRGRpCtEAtlq9e/aGGbs7myuNi72+DS2A4GcY0nzapdXrwDBzPreNXeYQMYGicWkK+WMOQHs08/UGjaMAFMIGUHOX2qNZpf9C1BEU4QHg/Wx/bebRkpIAub04EWBx6bpUs165zF3rPzFXgLKZ714HIPoz1ByE7nUUHZSYt6sTvC/CVAI8I+32lgAAAABJRU5ErkJggg==";
+const downLayer = new Layer(dataUriTo2DArray(downLayerUri));
 
-const heartFourLayer = new Layer([
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, HRB, HRB, ___, HRB, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, HRB, HRT, HRS, HRB, HRT, HRS, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, HRB, HRT, HRT, HRT, HRT, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, HRB, HRT, HRT, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, HRB, HRT, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, HRB, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-	[___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___],
-]);
+const wingsUpLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAKtJREFUWIXtlLENgzAQRf9FTMECGYFRXGWC9IxA4S1SUrGVK3a4NMQixBgLzlX+k5Bo4L2zDQAhhBDy70iNl6qqJmUiP76mlnTr2mmyC9hKnQ/xfuzb3WesAlREvqSlWARoTpyb3iIgK1+ROn/XApwP6VO14mh6ALidDSiRL6uT/dRPB7zuj0P52LdV/jOReejU+aDLdsSrZHs+XC6chy7Kns0EAPUnJ4RY8gY7RTcGX9WmvgAAAABJRU5ErkJggg==";
+const wingsUpLayer = new Layer(dataUriTo2DArray(wingsUpLayerUri));
 
-for (let i = 0; i < 20; i++) {
-	heartFourLayer.pixels.push(heartThreeLayer.pixels[heartThreeLayer.pixels.length - 1].slice());
-}
+const wingsDownLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAKZJREFUWIXtkrENwjAQRd8hWhaIaFF6lskWlBkiZbbIMukRLcoCDHAUWBFGsaPYhoZ7pa27e/dtMAzDMAzDMP4dSS1sukmXzoe22tR7lyrwNsij6aZNfZIFAG73R055vkAIl8LiE5UUkLGvoymoI9okQ2Cec75cATgdD97F0FaoKiISnLMvICBjX7+2DIjEKCEALslPkV8KzCKqqpHEvy4AwMq/MzyePrsurMP8VsEAAAAASUVORK5CYII=";
+const wingsDownLayer = new Layer(dataUriTo2DArray(wingsDownLayerUri));
+
+const heartOneLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAFRJREFUWIXt0UEKgDAMRNGJB2rvfwM91bhRUIrQlICb/zbJIiGBkQDgZzE7aNvDcsT0/pctM3z0/qoVUg9UH0/xZW/tbodIVqQyfB6tyB8AAACSdAJPah2PQ4aeFQAAAABJRU5ErkJggg==";
+const heartOneLayer = new Layer(dataUriTo2DArray(heartOneLayerUri));
+
+const heartTwoLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAGtJREFUWIXt07sNgDAMBFCbGVIlO2QW2IYR2epoKEwAKRYGIXGvcRPrnJ8I0d9p70IAODSrdvdfGTzhUyli69lQjwCAMWcste5qxABdJ2DNKd3N9MOm3f1rV9AOERnuesU2NOIHEBEREdEnrF9mSQDqgowJAAAAAElFTkSuQmCC";
+const heartTwoLayer = new Layer(dataUriTo2DArray(heartTwoLayerUri));
+
+const heartThreeLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAI5JREFUWIXt0rENgCAQBdCPM1jpDsyic7iAI7gNQ9DoIHTscDZiNEYFxcr/qgu5cD8HAP2dimkSETm9QKmoOx4HCMPbugYAGOd2dY4QtwGaqpJRa5GuO9RX24lRpDRP1qIvy7XOISqAcQ6D97uzwfv1CT4ni7D+sPq3638cIufwpN+7HfrpzyciIiKiX5kBecFd8xp4mOYAAAAASUVORK5CYII=";
+const heartThreeLayer = new Layer(dataUriTo2DArray(heartThreeLayerUri));
+
+const heartFourLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAI5JREFUWIXt0rENgCAQBdCPM1jhDs6ic7iAI7iNQ9joIHTscDZCNEZFRG3+qy7kwv0cAPQzFdIkInJ4gVJBd0QHcMProgAA9MZs6hQhLgNUWstYliJNs6vPthMiu9M8DQPaPPd1CkEBemPQWbs566z1T/A6Wbj1u9U/XX90iJTDb/3e9dBXfz4RERER0Zdm03Rd86mZMpIAAAAASUVORK5CYII=";
+const heartFourLayer = new Layer(dataUriTo2DArray(heartFourLayerUri));
 
 const sharedFrames = {
 	base: new Frame([baseLayer]),
