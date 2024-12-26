@@ -37,6 +37,7 @@ const HOP_DISTANCE = settings.hopDistance;
 // Time in milliseconds until the user is considered AFK
 const AFK_TIME = 1000 * 30;
 const MAX_HEIGHT = 32;
+const START_MENU_ID = "birb-start-menu";
 
 const styles = `
 	#birb {
@@ -561,112 +562,6 @@ const Animations = {
 const styleElement = document.createElement("style");
 const canvas = document.createElement("canvas");
 
-// Install if not within an iframe
-if (window === window.top) {
-	styleElement.innerHTML = styles;
-	document.head.appendChild(styleElement);
-	
-	// Insert a canvas element into the body with the same dimensions as the 2D array
-	canvas.id = "birb";
-	canvas.width = sharedFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
-	canvas.height = MAX_HEIGHT * CANVAS_PIXEL_SIZE;
-	document.body.appendChild(canvas);
-}
-
-function makeElement(className, textContent, id) {
-	const element = document.createElement("div");
-	element.classList.add(className);
-	if (textContent) {
-		element.textContent = textContent;
-	}
-	if (id) {
-		element.id = id;
-	}
-	return element;
-}
-
-function insertStartMenu() {
-	if (document.querySelector(".birb-window")) {
-		return;
-	}
-	let startMenu = makeElement("birb-window");
-	let header = makeElement("birb-window-header");
-	header.innerHTML = '<div class="birb-window-title">birbOS</div>';
-	let content = makeElement("birb-window-content");
-	let petButton = makeElement("birb-window-list-item", "Pet Birb");
-	petButton.addEventListener("click", () => {
-		removeStartMenu();
-		pet();
-	});
-	content.appendChild(petButton);
-	content.appendChild(makeElement("birb-window-list-item", "Field Guide"));
-	content.appendChild(makeElement("birb-window-list-item", "Decorations"));
-	content.appendChild(makeElement("birb-window-list-item", "Programs"));
-	content.appendChild(makeElement("birb-window-separator"));
-	content.appendChild(makeElement("birb-window-list-item", "Settings"));
-	startMenu.appendChild(header);
-	startMenu.appendChild(content);
-	document.body.appendChild(startMenu);
-	makeDraggable(document.querySelector(".birb-window-header"));
-
-	let x = birdX;
-	let y = window.innerHeight - birdY;
-	const offset = 20;
-	if (x < window.innerWidth / 2) {
-		// Left side
-		x += offset;
-	} else {
-		// Right side
-		x -= startMenu.offsetWidth + offset;
-	}
-	if (y > window.innerHeight / 2) {
-		// Top side
-		y -= startMenu.offsetHeight + offset + 10;
-	} else {
-		// Bottom side
-		y += offset;
-	}
-	startMenu.style.left = `${x}px`;
-	startMenu.style.top = `${y}px`;
-}
-
-function removeStartMenu() {
-	const startMenu = document.querySelector(".birb-window");
-	if (startMenu) {
-		startMenu.remove();
-	}
-}
-
-function isStartMenuOpen() {
-	return document.querySelector(".birb-window") !== null;
-}
-
-function makeDraggable(windowHeader) {
-	let isMouseDown = false;
-	let offsetX = 0;
-	let offsetY = 0;
-
-	// Get the parent window element
-	const windowElement = windowHeader.parentElement;
-
-	windowHeader.addEventListener("mousedown", (e) => {
-		isMouseDown = true;
-		offsetX = e.clientX - windowElement.offsetLeft;
-		offsetY = e.clientY - windowElement.offsetTop;
-	});
-
-	document.addEventListener("mouseup", () => {
-		isMouseDown = false;
-	});
-
-	document.addEventListener("mousemove", (e) => {
-		if (isMouseDown) {
-			windowElement.style.left = `${e.clientX - offsetX}px`;
-			windowElement.style.top = `${e.clientY - offsetY}px`;
-		}
-	});
-}
-
 /** @type {CanvasRenderingContext2D} */
 // @ts-ignore
 const ctx = canvas.getContext("2d");
@@ -704,6 +599,67 @@ let timeOfLastAction = Date.now();
 // Stack of timestamps for each mouseover, max length of 10
 let petStack = [];
 
+function init() {
+	if (window !== window.top) {
+		// Skip installation if within an iframe
+		return;
+	}
+
+	styleElement.innerHTML = styles;
+	document.head.appendChild(styleElement);
+	
+	canvas.id = "birb";
+	canvas.width = sharedFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
+	canvas.height = MAX_HEIGHT * CANVAS_PIXEL_SIZE;
+	document.body.appendChild(canvas);
+
+	window.addEventListener("scroll", () => {
+		timeOfLastAction = Date.now();
+		// Can't keep up with scrolling on mobile devices so fly down instead
+		if (isMobile()) {
+			focusOnGround();
+		}
+	
+	});
+	
+	document.addEventListener("click", (e) => {
+		timeOfLastAction = Date.now();
+		if (e.target instanceof Node && !canvas.contains(e.target) && !document.querySelector(".birb-window")?.contains(e.target)) {
+			removeStartMenu();
+		}
+		// const x = e.clientX;
+		// const y = window.innerHeight - e.clientY;
+		// flyTo(x, y);
+		// focusOnElement();
+	});
+	
+	canvas.addEventListener("click", () => {
+		insertStartMenu();
+		// focusOnElement();
+		// if (focusedElement === null && currentState === States.IDLE) {
+		// 	setAnimation(Animations.HEART)
+		// }
+	});
+	
+	canvas.addEventListener("mouseover", () => {
+		timeOfLastAction = Date.now();
+		if (currentState === States.IDLE) {
+			petStack.push(Date.now());
+			if (petStack.length > 10) {
+				petStack.shift();
+			}
+			const pets = petStack.filter((time) => Date.now() - time < 1000).length;
+			if (pets >= 4) {
+				setAnimation(Animations.HEART);
+				// Clear the stack
+				petStack = [];
+			}
+		}
+	});
+	
+	setInterval(update, 1000 / 60);
+}
+
 function update() {
 	ticks++;
 	if (currentState === States.IDLE) {
@@ -716,52 +672,6 @@ function update() {
 		}
 	}
 }
-
-window.addEventListener("scroll", () => {
-	timeOfLastAction = Date.now();
-	// Can't keep up with scrolling on mobile devices so fly down instead
-	if (isMobile()) {
-		focusOnGround();
-	}
-
-});
-
-document.addEventListener("click", (e) => {
-	timeOfLastAction = Date.now();
-	if (e.target instanceof Node && !canvas.contains(e.target) && !document.querySelector(".birb-window")?.contains(e.target)) {
-		removeStartMenu();
-	}
-	// const x = e.clientX;
-	// const y = window.innerHeight - e.clientY;
-	// flyTo(x, y);
-	// focusOnElement();
-});
-
-canvas.addEventListener("click", () => {
-	insertStartMenu();
-	// focusOnElement();
-	// if (focusedElement === null && currentState === States.IDLE) {
-	// 	setAnimation(Animations.HEART)
-	// }
-});
-
-canvas.addEventListener("mouseover", () => {
-	timeOfLastAction = Date.now();
-	if (currentState === States.IDLE) {
-		petStack.push(Date.now());
-		if (petStack.length > 10) {
-			petStack.shift();
-		}
-		const pets = petStack.filter((time) => Date.now() - time < 1000).length;
-		if (pets >= 4) {
-			setAnimation(Animations.HEART);
-			// Clear the stack
-			petStack = [];
-		}
-	}
-});
-
-setInterval(update, 1000 / 60);
 
 function draw() {
 	requestAnimationFrame(draw);
@@ -802,7 +712,131 @@ function draw() {
 	setY(birdY);
 }
 
+init();
 draw();
+
+/**
+ * Create an HTML element with the specified parameters
+ * @param {string} className
+ * @param {string} [textContent]
+ * @param {string} [id]
+ * @returns {HTMLElement}
+ */
+function makeElement(className, textContent, id) {
+	const element = document.createElement("div");
+	element.classList.add(className);
+	if (textContent) {
+		element.textContent = textContent;
+	}
+	if (id) {
+		element.id = id;
+	}
+	return element;
+}
+
+/**
+ * Add the start menu to the page if it doesn't already exist
+ */
+function insertStartMenu() {
+	if (document.querySelector("#" + START_MENU_ID)) {
+		return;
+	}
+	let startMenu = makeElement("birb-window", undefined, START_MENU_ID);
+	let header = makeElement("birb-window-header");
+	header.innerHTML = '<div class="birb-window-title">birbOS</div>';
+	let content = makeElement("birb-window-content");
+	let petButton = makeElement("birb-window-list-item", "Pet Birb");
+	petButton.addEventListener("click", () => {
+		removeStartMenu();
+		pet();
+	});
+	content.appendChild(petButton);
+	content.appendChild(makeElement("birb-window-list-item", "Field Guide"));
+	content.appendChild(makeElement("birb-window-list-item", "Decorations"));
+	content.appendChild(makeElement("birb-window-list-item", "Programs"));
+	content.appendChild(makeElement("birb-window-separator"));
+	content.appendChild(makeElement("birb-window-list-item", "Settings"));
+	startMenu.appendChild(header);
+	startMenu.appendChild(content);
+	document.body.appendChild(startMenu);
+	makeDraggable(document.querySelector(".birb-window-header"));
+
+	let x = birdX;
+	let y = canvas.offsetTop + canvas.height / 2 + WINDOW_PIXEL_SIZE * 10;
+	const offset = 20;
+	if (x < window.innerWidth / 2) {
+		// Left side
+		x += offset;
+	} else {
+		// Right side
+		x -= startMenu.offsetWidth + offset;
+	}
+	if (y > window.innerHeight / 2) {
+		// Top side
+		y -= startMenu.offsetHeight + offset + 10;
+	} else {
+		// Bottom side
+		y += offset;
+	}
+	startMenu.style.left = `${x}px`;
+	startMenu.style.top = `${y}px`;
+}
+
+/**
+ * Remove the start menu from the page
+ */
+function removeStartMenu() {
+	const startMenu = document.querySelector("#" + START_MENU_ID);
+	if (startMenu) {
+		startMenu.remove();
+	}
+}
+
+/**
+ * @returns {boolean} Whether the start menu element is on the page
+ */
+function isStartMenuOpen() {
+	return document.querySelector("#" + START_MENU_ID) !== null;
+}
+
+/**
+ * Make the given HTML element draggable by the window header
+ * @param {HTMLElement|null} windowHeader
+ */
+function makeDraggable(windowHeader) {
+	if (!windowHeader) {
+		return;
+	}
+
+	let isMouseDown = false;
+	let offsetX = 0;
+	let offsetY = 0;
+
+	// Get the parent window element
+	const windowElement = windowHeader.parentElement;
+	
+	if (!windowElement) {
+		console.error("Birb: Window element not found");
+		return;
+	}
+
+	windowHeader.addEventListener("mousedown", (e) => {
+		isMouseDown = true;
+		offsetX = e.clientX - windowElement.offsetLeft;
+		offsetY = e.clientY - windowElement.offsetTop;
+	});
+
+	document.addEventListener("mouseup", () => {
+		isMouseDown = false;
+	});
+
+	document.addEventListener("mousemove", (e) => {
+		if (isMouseDown) {
+			windowElement.style.left = `${e.clientX - offsetX}px`;
+			windowElement.style.top = `${e.clientY - offsetY}px`;
+		}
+	});
+}
 
 /**
  * @param {number} start
