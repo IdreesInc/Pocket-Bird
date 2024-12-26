@@ -179,7 +179,7 @@ class Frame {
 		this.pixels = layers[0].pixels.map(row => row.slice());
 		// Pad from top with transparent pixels
 		while (this.pixels.length < maxHeight) {
-			this.pixels.unshift(new Array(this.pixels[0].length).fill(___));
+			this.pixels.unshift(new Array(this.pixels[0].length).fill(TRANSPARENT));
 		}
 		// Combine layers
 		for (let i = 1; i < layers.length; i++) {
@@ -187,15 +187,15 @@ class Frame {
 			let topMargin = maxHeight - layerPixels.length;
 			for (let y = 0; y < layerPixels.length; y++) {
 				for (let x = 0; x < layerPixels[y].length; x++) {
-					this.pixels[y + topMargin][x] = layerPixels[y][x] !== ___ ? layerPixels[y][x] : this.pixels[y + topMargin][x];
+					this.pixels[y + topMargin][x] = layerPixels[y][x] !== TRANSPARENT ? layerPixels[y][x] : this.pixels[y + topMargin][x];
 				}
 			}
 		}
 		// Surround non-transparent pixels with border
 		for (let y = 0; y < this.pixels.length; y++) {
 			for (let x = 0; x < this.pixels[y].length; x++) {
-				if (this.pixels[y][x] === ___ && this.hasAdjacent(x, y)) {
-					this.pixels[y][x] = BOR;
+				if (this.pixels[y][x] === TRANSPARENT && this.hasAdjacent(x, y)) {
+					this.pixels[y][x] = BORDER;
 				}
 			}
 		}
@@ -207,7 +207,7 @@ class Frame {
 				if (i === 0 && j === 0) {
 					continue;
 				}
-				if (this.pixels[y + i] && this.pixels[y + i][x + j] && this.pixels[y + i][x + j] !== ___ && this.pixels[y + i][x + j] !== BOR) {
+				if (this.pixels[y + i] && this.pixels[y + i][x + j] && this.pixels[y + i][x + j] !== TRANSPARENT && this.pixels[y + i][x + j] !== BORDER) {
 					return true;
 				}
 			}
@@ -274,53 +274,53 @@ class Anim {
 	}
 }
 
-const ___ = "transparent";
-const OUT = "outline";
-const BOR = "border";
-const FOT = "foot";
-const BEK = "beak";
+const TRANSPARENT = "transparent";
+const OUTLINE = "outline";
+const BORDER = "border";
+const FOOT = "foot";
+const BEAK = "beak";
 const EYE = "eye";
-const FAC = "face";
-const BEL = "belly";
-const UND = "underbelly";
-const WNG = "wing";
-const WNE = "wing-edge";
-const HRT = "heart";
-const HRB = "heart-border";
-const HRS = "heart-shine";
+const FACE = "face";
+const BELLY = "belly";
+const UNDERBELLY = "underbelly";
+const WING = "wing";
+const WING_EDGE = "wing-edge";
+const HEART = "heart";
+const HEART_BORDER = "heart-border";
+const HEART_SHINE = "heart-shine";
 
-const colorsToKeys = {
-	"transparent": ___,
-	"#ffffff": ___,
-	"#000000": OUT,
-	"#010a19": BEK,
+const SPRITESHEET_COLOR_MAP = {
+	"transparent": TRANSPARENT,
+	"#ffffff": TRANSPARENT,
+	"#000000": OUTLINE,
+	"#010a19": BEAK,
 	"#190301": EYE,
-	"#af8e75": FOT,
-	"#639bff": FAC,
-	"#f8b143": BEL,
-	"#ec8637": UND,
-	"#578ae6": WNG,
-	"#326ed9": WNE,
-	"#c82e2e": HRT,
-	"#501a1a": HRB,
-	"#ff6b6b": HRS
+	"#af8e75": FOOT,
+	"#639bff": FACE,
+	"#f8b143": BELLY,
+	"#ec8637": UNDERBELLY,
+	"#578ae6": WING,
+	"#326ed9": WING_EDGE,
+	"#c82e2e": HEART,
+	"#501a1a": HEART_BORDER,
+	"#ff6b6b": HEART_SHINE
 };
 
 const bluebirdColors = {
-	[___]: "transparent",
-	[OUT]: "#000000",
-	[BOR]: "#ffffff",
-	[BEK]: "#000000",
-	[FOT]: "#af8e75",
+	[TRANSPARENT]: "transparent",
+	[OUTLINE]: "#000000",
+	[BORDER]: "#ffffff",
+	[BEAK]: "#000000",
+	[FOOT]: "#af8e75",
 	[EYE]: "#000000",
-	[FAC]: "#639bff",
-	[BEL]: "#f8b143",
-	[UND]: "#ec8637",
-	[WNG]: "#578ae6",
-	[WNE]: "#326ed9",
-	[HRT]: "#c82e2e",
-	[HRB]: "#501a1a",
-	[HRS]: "#ff6b6b",
+	[FACE]: "#639bff",
+	[BELLY]: "#f8b143",
+	[UNDERBELLY]: "#ec8637",
+	[WING]: "#578ae6",
+	[WING_EDGE]: "#326ed9",
+	[HEART]: "#c82e2e",
+	[HEART_BORDER]: "#501a1a",
+	[HEART_SHINE]: "#ff6b6b",
 };
 
 const SPRITE_WIDTH = 32;
@@ -698,15 +698,15 @@ function dataUriTo2DArray(dataUri) {
 			const b = pixels[index + 2];
 			const a = pixels[index + 3];
 			if (a === 0) {
-				row.push(___);
+				row.push(TRANSPARENT);
 				continue;
 			}
 			const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-			if (colorsToKeys[hex] === undefined) {
+			if (SPRITESHEET_COLOR_MAP[hex] === undefined) {
 				console.error(`Unknown color: ${hex}`);
-				row.push(___);
+				row.push(TRANSPARENT);
 			}
-			row.push(colorsToKeys[hex]);
+			row.push(SPRITESHEET_COLOR_MAP[hex]);
 		}
 		hexArray.push(row);
 	}
