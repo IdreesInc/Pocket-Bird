@@ -321,85 +321,31 @@ const bluebirdColors = {
 	[HRS]: "#ff6b6b",
 };
 
-const baseLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAWBJREFUWIXtlaFOA0EURc8kiBpcgyBYUo/hA4qvRCKaKpI6EP0ABAJBgmqqUChSDx9Qg0NssAQSQoJgRd1DsK+U6cwwswvBzE02m8m+t/fs27uzkJWVlZWV9c8yMUUiIs5mY6L6GwGoue2lTE0h1mLN++PvQzDGICLLNbVAvE0hc9VkYLRWoZIhggD2/fpjYTL4AirfngG4Ot5kOSYpII0moAAKUfX5zRxg3gwYY4wv/bY5wP7pk/Y56zUvNkRwVPoa5tMuhy83AFxs7AFwUFyGWhd6eHwH4O68g4isTCEawFard8vOsGB7a/1H4+pen4YWQPAzDGk+7dLqdWBYOK/bxi5ziJhA1bgyhfK+BKA9mvl6g8ZRAAphA6i5S+3RLGlfiHoFVXh4PdkN1qWaQ+LPKARRxzxJUgmQ67MjARaHrkP7xq+bu9Z/CrBs5jvXAYjeBzSIoXMdRYcl5unqhO8DLNEERamTH4AAAAAASUVORK5CYII=";
+const SPRITE_WIDTH = 32;
+const SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAAgCAYAAACy9KU0AAAAAXNSR0IArs4c6QAABARJREFUeJztnK9v20AUx7+eCkrGogFndApLpZKgoo63RUHTQFQUqWxR1T+gqgIGKg1FBdNQUFS+oZKGVCoYiEaXTJoiFayg7A0kl5wd++ym9l2cfD9S5Msvv4v93ve+ZzsGCCGEEEIIIYRYwnPdAUKSEBGJe8/zPOZwgeHOI4m4FAAV+6hcBgD0hsNA20YfCCGOkCmHvi+Hvr/QNolTVvEPfV9uq1WRZnOhnXd8ki9brjtA0hFVaLZG/qNyGaelEmp7ewtt5UJs0L+5wWmpNGuT4vPKdQdIMuFpiFraHv1dCUBvOMTFeBx47WI8tip+hGws+jREX9oQIH0Kdlutzh62pmBRfbAZm+QLHVBKJAIX/VAOxBZqmqe7EN192JgGhvvAg89k4xCRycFPbWkztmsHoPfBlQC7Fn+SPRxBUiIi0t/ZmT2v3d9bHYH140CuHIBe+HQfhFhEjbzK/dABEPJyUo1icQm/aaMgHQAh2ZJYRKrowvWmatFGIVIASZFgvqbHeCGiLj6NTnCbep4HEdE/k8vGNQmgiAh3KlkFwqITN2CTILECZBIfAGh0ZLaR8xKDVRBAQtKip2C9PZq1uy3fRXcKgdEBqQ16dTxZNjqCq+O5GKiNnIcYrIIAEpIS8TwvIDprjiCjM+ixK0kSAAB4fPgzayuVN1nN5wjEVFACr4UFUMXvtvxAXAoRsYiYhEevi3XJy0ZHZGpKXvx7Yh2Q53me6XSvLj5A0A1FsYxLme60gABGiWG9PVpwQ1HrW5cEICuDUXw01ir1ro6z+zGp/g3/5c17NP9+n7UB4OPDt8jPhnfIr9//AMynaWlZBQEkJI56e5SYzHke+4mLr8UsRJ4bO6mmQU/X+wvvbR/8wO7JAO/evo78rhKeu8uKWtck4BLTsKfr/UUBHEQLoKkf62SDiVuSBKjb8lFvj9Bt+XnlW6z7mopQIfJ86fsBPV3vY/ugApwMIt8PCw/wMh+qhEfRbflLCSAhWfC18iF2ELQgPgAmOR6X/0Uh0QEBk2lN2AU9/nwEAJTO+nHfnQdZUnhMDgyYu7AoshZAQsKMz2vS3OoBCE63bIgPADENwEVxQamuhA6LgBKfKEpn/cyuknYtgIQkMT6vzRJNEyNb+RYrQvqZ4VXO/2f9FWN8XjN+Nkvx0eO7EkBCCoCoWUBYiJQIrXIdJB4DUmej1CnxOBHKs/BVbABGEaT4kA3Eu7usTJI+RojWAu02ENL7/EkwuRoy8Dyv20SEbkNhjM9bVZANRjBxRLJ7Msi1Jq0SVfxRz/MWIFfxCSkKqi7UYy1qIlzsccs8BchlfEKKgkTguk8mUl8HpI7DmJZ54jo+IUWgaMc+n3VVcuLKcvzxruMTQrLnP+n/5uemusP1AAAAAElFTkSuQmCC";
+const SPRITE_SHEET = dataUriTo2DArray(SPRITE_SHEET_URI);
 
-function dataUriTo2DArray(dataUri) {
-	const img = new Image();
-	img.src = dataUri;
-	const canvas = document.createElement('canvas');
-	canvas.width = img.width;
-	canvas.height = img.height;
-	const ctx = canvas.getContext('2d');
-	ctx.drawImage(img, 0, 0);
-	const imageData = ctx.getImageData(0, 0, img.width, img.height);
-	const pixels = imageData.data;
-	const hexArray = [];
-	for (let y = 0; y < img.height; y++) {
-		const row = [];
-		for (let x = 0; x < img.width; x++) {
-			const index = (y * img.width + x) * 4;
-			const r = pixels[index];
-			const g = pixels[index + 1];
-			const b = pixels[index + 2];
-			const a = pixels[index + 3];
-			if (a === 0) {
-				row.push(___);
-				continue;
-			}
-			const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-			if (colorsToKeys[hex] === undefined) {
-				console.error(`Unknown color: ${hex}`);
-				row.push(___);
-			}
-			row.push(colorsToKeys[hex]);
-		}
-		hexArray.push(row);
-	}
-	return hexArray;
-}
-
-let baseLayer = new Layer(dataUriTo2DArray(baseLayerUri));
-console.log(baseLayer);
-
-function print2DArray(array) {
-	for (let row of array) {
-		console.log(row.join(' '));
-	}
-}
-
-const happyEyeLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAC1JREFUWIXtzsEJADAIBEFJqynLYk0PQRBh5r/HRQAALFVdQ+cnulmtJwBg1APVhAP+dQsu4QAAAABJRU5ErkJggg==";
-const happyEyeLayer = new Layer(dataUriTo2DArray(happyEyeLayerUri));
-
-const downLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAVlJREFUWIXtlKFOA0EURc8kiBpcgyBYUo/hA4qvRCKaKpI6EP0ABAJBgmqqUChSDx9Qg0NssAQSQoJgRd1DsK8s05np7G5RzE02m8m+N/fsm7sLSUlJSUlJ/10mpkhExNlsTFR/IwA1t72UqSnERqx5f/x7CMYYRKRcUwvE2xQyV00GRmsVqjJEEMDerz8WJoMfoPzjFYCb023KMakC0mgCCqAQRZ/fzAHmzYAxxvjSb5sDHJ6/aJ+zXvNiQwRHpccwn3Y5frsD4GrrAICj7DrUutDT8ycAD5cdRGRpCtEAtlq9e/aGGbs7myuNi72+DS2A4GcY0nzapdXrwDBzPreNXeYQMYGicWkK+WMOQHs08/UGjaMAFMIGUHOX2qNZpf9C1BEU4QHg/Wx/bebRkpIAub04EWBx6bpUs165zF3rPzFXgLKZ714HIPoz1ByE7nUUHZSYt6sTvC/CVAI8I+32lgAAAABJRU5ErkJggg==";
-const downLayer = new Layer(dataUriTo2DArray(downLayerUri));
-
-const wingsUpLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAKtJREFUWIXtlLENgzAQRf9FTMECGYFRXGWC9IxA4S1SUrGVK3a4NMQixBgLzlX+k5Bo4L2zDQAhhBDy70iNl6qqJmUiP76mlnTr2mmyC9hKnQ/xfuzb3WesAlREvqSlWARoTpyb3iIgK1+ROn/XApwP6VO14mh6ALidDSiRL6uT/dRPB7zuj0P52LdV/jOReejU+aDLdsSrZHs+XC6chy7Kns0EAPUnJ4RY8gY7RTcGX9WmvgAAAABJRU5ErkJggg==";
-const wingsUpLayer = new Layer(dataUriTo2DArray(wingsUpLayerUri));
-
-const wingsDownLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAKZJREFUWIXtkrENwjAQRd8hWhaIaFF6lskWlBkiZbbIMukRLcoCDHAUWBFGsaPYhoZ7pa27e/dtMAzDMAzDMP4dSS1sukmXzoe22tR7lyrwNsij6aZNfZIFAG73R055vkAIl8LiE5UUkLGvoymoI9okQ2Cec75cATgdD97F0FaoKiISnLMvICBjX7+2DIjEKCEALslPkV8KzCKqqpHEvy4AwMq/MzyePrsurMP8VsEAAAAASUVORK5CYII=";
-const wingsDownLayer = new Layer(dataUriTo2DArray(wingsDownLayerUri));
-
-const heartOneLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAFRJREFUWIXt0UEKgDAMRNGJB2rvfwM91bhRUIrQlICb/zbJIiGBkQDgZzE7aNvDcsT0/pctM3z0/qoVUg9UH0/xZW/tbodIVqQyfB6tyB8AAACSdAJPah2PQ4aeFQAAAABJRU5ErkJggg==";
-const heartOneLayer = new Layer(dataUriTo2DArray(heartOneLayerUri));
-
-const heartTwoLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAGtJREFUWIXt07sNgDAMBFCbGVIlO2QW2IYR2epoKEwAKRYGIXGvcRPrnJ8I0d9p70IAODSrdvdfGTzhUyli69lQjwCAMWcste5qxABdJ2DNKd3N9MOm3f1rV9AOERnuesU2NOIHEBEREdEnrF9mSQDqgowJAAAAAElFTkSuQmCC";
-const heartTwoLayer = new Layer(dataUriTo2DArray(heartTwoLayerUri));
-
-const heartThreeLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAI5JREFUWIXt0rENgCAQBdCPM1jpDsyic7iAI7gNQ9DoIHTscDZiNEYFxcr/qgu5cD8HAP2dimkSETm9QKmoOx4HCMPbugYAGOd2dY4QtwGaqpJRa5GuO9RX24lRpDRP1qIvy7XOISqAcQ6D97uzwfv1CT4ni7D+sPq3638cIufwpN+7HfrpzyciIiKiX5kBecFd8xp4mOYAAAAASUVORK5CYII=";
-const heartThreeLayer = new Layer(dataUriTo2DArray(heartThreeLayerUri));
-
-const heartFourLayerUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAI5JREFUWIXt0rENgCAQBdCPM1jhDs6ic7iAI7iNQ9joIHTscDZCNEZFRG3+qy7kwv0cAPQzFdIkInJ4gVJBd0QHcMProgAA9MZs6hQhLgNUWstYliJNs6vPthMiu9M8DQPaPPd1CkEBemPQWbs566z1T/A6Wbj1u9U/XX90iJTDb/3e9dBXfz4RERER0Zdm03Rd86mZMpIAAAAASUVORK5CYII=";
-const heartFourLayer = new Layer(dataUriTo2DArray(heartFourLayerUri));
+const layers = {
+	base: new Layer(getLayer(SPRITE_SHEET, 0)),
+	down: new Layer(getLayer(SPRITE_SHEET, 1)),
+	heartOne: new Layer(getLayer(SPRITE_SHEET, 2)),
+	heartTwo: new Layer(getLayer(SPRITE_SHEET, 3)),
+	heartThree: new Layer(getLayer(SPRITE_SHEET, 4)),
+	heartFour: new Layer(getLayer(SPRITE_SHEET, 5)),
+	wingsUp: new Layer(getLayer(SPRITE_SHEET, 6)),
+	wingsDown: new Layer(getLayer(SPRITE_SHEET, 7)),
+	happyEye: new Layer(getLayer(SPRITE_SHEET, 8)),
+};
 
 const sharedFrames = {
-	base: new Frame([baseLayer]),
-	headDown: new Frame([downLayer]),
-	wingsDown: new Frame([baseLayer, wingsDownLayer]),
-	wingsUp: new Frame([downLayer, wingsUpLayer]),
-	heartOne: new Frame([baseLayer, happyEyeLayer, heartOneLayer]),
-	heartTwo: new Frame([baseLayer, happyEyeLayer, heartTwoLayer]),
-	heartThree: new Frame([baseLayer, happyEyeLayer, heartThreeLayer]),
-	heartFour: new Frame([baseLayer, happyEyeLayer, heartFourLayer]),
+	base: new Frame([layers.base]),
+	headDown: new Frame([layers.down]),
+	wingsDown: new Frame([layers.base, layers.wingsDown]),
+	wingsUp: new Frame([layers.down, layers.wingsUp]),
+	heartOne: new Frame([layers.base, layers.happyEye, layers.heartOne]),
+	heartTwo: new Frame([layers.base, layers.happyEye, layers.heartTwo]),
+	heartThree: new Frame([layers.base, layers.happyEye, layers.heartThree]),
+	heartFour: new Frame([layers.base, layers.happyEye, layers.heartFour]),
 };
 
 
@@ -721,6 +667,62 @@ function makeDraggable(windowHeader) {
 			windowElement.style.top = `${e.clientY - offsetY}px`;
 		}
 	});
+}
+
+/**
+ * @param {string} dataUri
+ * @returns {string[][]}
+ */
+function dataUriTo2DArray(dataUri) {
+	const img = new Image();
+	img.src = dataUri;
+	const canvas = document.createElement('canvas');
+	canvas.width = img.width;
+	canvas.height = img.height;
+	const ctx = canvas.getContext('2d');
+	if (!ctx) {
+		return [];
+	}
+	ctx.drawImage(img, 0, 0);
+	const imageData = ctx.getImageData(0, 0, img.width, img.height);
+	const pixels = imageData.data;
+	const hexArray = [];
+	for (let y = 0; y < img.height; y++) {
+		const row = [];
+		for (let x = 0; x < img.width; x++) {
+			const index = (y * img.width + x) * 4;
+			const r = pixels[index];
+			const g = pixels[index + 1];
+			const b = pixels[index + 2];
+			const a = pixels[index + 3];
+			if (a === 0) {
+				row.push(___);
+				continue;
+			}
+			const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+			if (colorsToKeys[hex] === undefined) {
+				console.error(`Unknown color: ${hex}`);
+				row.push(___);
+			}
+			row.push(colorsToKeys[hex]);
+		}
+		hexArray.push(row);
+	}
+	return hexArray;
+}
+
+/**
+ * @param {string[][]} array
+ * @param {number} sprite
+ * @returns {string[][]}
+ */
+function getLayer(array, sprite) {
+	// From an array of a horizontal sprite sheet, get the layer for a specific sprite
+	const layer = [];
+	for (let y = 0; y < SPRITE_WIDTH; y++) {
+		layer.push(array[y].slice(sprite * SPRITE_WIDTH, (sprite + 1) * SPRITE_WIDTH));
+	}
+	return layer;
 }
 
 /**
