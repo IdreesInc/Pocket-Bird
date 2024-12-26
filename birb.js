@@ -987,8 +987,8 @@ function roundToPixel(value) {
  * @param {number} x
  */
 function setX(x) {
-	x = x - getCanvasWidth() / 2 - WINDOW_PIXEL_SIZE / 2;
-	canvas.style.left = `${x}px`;
+	let mod = getCanvasWidth() / -2 - (WINDOW_PIXEL_SIZE * (direction === Directions.RIGHT ? 2 : -2));
+	canvas.style.left = `${x + mod}px`;
 }
 
 /**
