@@ -151,11 +151,12 @@ const styles = `
 
 	.birb-window-separator {
 		width: 100%;
-		height: 1px;
+		height: 1.5px;
 		background-color: #000000;
 		box-sizing: border-box;
 		margin-top: 6px;
 		margin-bottom: 6px;
+		opacity: 0.45;
 	}
 `;
 
@@ -572,35 +573,42 @@ if (window === window.top) {
 	document.body.appendChild(canvas);
 }
 
+function makeElement(className, textContent, id) {
+	const element = document.createElement("div");
+	element.classList.add(className);
+	if (textContent) {
+		element.textContent = textContent;
+	}
+	if (id) {
+		element.id = id;
+	}
+	return element;
+}
+
 function insertStartMenu() {
 	if (document.querySelector(".birb-window")) {
 		return;
 	}
-	let html = `
-	    <div class="birb-window">
-        <div class="birb-window-header">
-            <div class="birb-window-title">birbOS</div>
-        </div>
-        <div class="birb-window-content">
-            <div class="birb-window-list-item">Pet Birb</div>
-            <div class="birb-window-list-item">Field Guide</div>
-            <div class="birb-window-list-item">Decorations</div>
-            <div class="birb-window-list-item">Programs</div>
-            <div class="birb-window-separator"></div>
-            <div class="birb-window-list-item">Settings</div>
-        </div>
-    </div>
-	`;
-	// Insert the start menu into the body
-	document.body.insertAdjacentHTML("beforeend", html);
-	// Make the start menu draggable
+	let startMenu = makeElement("birb-window");
+	let header = makeElement("birb-window-header");
+	header.innerHTML = '<div class="birb-window-title">birbOS</div>';
+	let content = makeElement("birb-window-content");
+	let petButton = makeElement("birb-window-list-item", "Pet Birb");
+	petButton.addEventListener("click", () => {
+		removeStartMenu();
+		pet();
+	});
+	content.appendChild(petButton);
+	content.appendChild(makeElement("birb-window-list-item", "Field Guide"));
+	content.appendChild(makeElement("birb-window-list-item", "Decorations"));
+	content.appendChild(makeElement("birb-window-list-item", "Programs"));
+	content.appendChild(makeElement("birb-window-separator"));
+	content.appendChild(makeElement("birb-window-list-item", "Settings"));
+	startMenu.appendChild(header);
+	startMenu.appendChild(content);
+	document.body.appendChild(startMenu);
 	makeDraggable(document.querySelector(".birb-window-header"));
 
-	// Position the start menu
-	const startMenu = document.querySelector(".birb-window");
-	if (!(startMenu instanceof HTMLElement)) {
-		return;
-	}
 	let x = birdX;
 	let y = window.innerHeight - birdY;
 	const offset = 20;
@@ -699,7 +707,7 @@ let petStack = [];
 function update() {
 	ticks++;
 	if (currentState === States.IDLE) {
-		if (Math.random() < 1 / (60 * 3) && !isStartMenuOpen()) {
+		if (Math.random() < 1 / (60 * 3) && currentAnimation !== Animations.HEART && !isStartMenuOpen()) {
 			hop();
 		}
 	} else if (currentState === States.HOP) {
@@ -925,6 +933,12 @@ function hop() {
 			targetX = birdX + HOP_DISTANCE;
 		}
 		targetY = y;
+	}
+}
+
+function pet() {
+	if (currentState === States.IDLE) {
+		setAnimation(Animations.HEART);
 	}
 }
 
