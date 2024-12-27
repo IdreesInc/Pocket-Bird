@@ -338,450 +338,617 @@ const bluebirdColors = {
 	[HEART_SHINE]: "#ff6b6b",
 };
 
-const SPRITE_WIDTH = 32;
-const SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAAgCAYAAACy9KU0AAAAAXNSR0IArs4c6QAABBdJREFUeJztnL9LHEEUx79zWkgk3RFwTRvsDKS5KpWpbDSVVQgkjSCYKkfIHyDBIhAhIAiBkOoqsUmVVDbaBFKkkLTxhHBgEQM28aU4Z53d25lddXfm1vt+4Ni5X/vm9t77znfm9hYghBBCCCGEEOIJFboDhOQhImJ7TinFHK4x/PJILiEFQMd+PD0NANg+PEy0ffSBEBIIOWcximQxigbaLnEqK/5iFMne7KzIyspAu+r4pFrGQ3eAFCOr0HyN/I+np/Gq2UTr4cOBtnYhPtjf3cWrZjNuk/rTCN0Bkk96GqK3vkf/UAKwfXiIN71e4rE3vZ5X8SNkZDGnIebWhwCZU7C92dn45msKltUHn7FJtdABFUQyCNEP7UB8oad5pgsx3YePaWC6D1x8JiOHiPQXP42tz9ihHYDZh1ACHFr8SflwBCmIiMj+/fvx/db3715HYHMdKJQDMAuf7oMQj+iRV7sfOgBCrk+hUcyW8KM2CtIBEFIuuUWkiy5db7oWfRQiBZDUCeZrcZwnIpri83wreUyVUhAR8zWVHFyXAIqI8Eslw0BadGwDNkliFSCX+ADA8y2JD3JVYjAMAkhIUcwUXFrvxu1OOwrRncqYGlNy9E9KqTenA2pMRlC3pvDhRf8APnvXxeflBuY3zwBcHOQqxGAYBJCQgohSKiE6N5WpMSXzm2f4vNwoRYSsO8gTAAA4OT6K21rlXVbzMgIhItKYTI4caQHU8TvtKBGXQkQ8Ii7hMeuCeTmI1QEppZTr515TfICkG8riKi7l7G93QAC1+KRjp91Q1v6YAKRknOJjwNSzUOjf8O/vPMLK7y9xGwCeHn/KfG36C/n56w+Ai2laUYZBAAmxsbTezU3mKtd+bPGNmLXIc2cnzwsWpztzA89NLHzFg9UD3Lt7O/O9Wni+bczoffUDXnIapuMPCOBBtgC6+kEbTMoiT4A67QhL61102lFV+WZ1X+ciVIs8v/L1gE535jCxMAOsHmQ+nxYe4Ho+VAuPptOOriSAhJTBx5kn1kHQg/gA6Oe4Lf/rQq4DAvrTmrQLOvlxAgBovt63vfciyBWFx+XAgAsXlkXZAkhImt5aS1bGtwEkp1s+xAeAuAbgurigQmdCp0VAi08Wzdf7pZ0lHVoACcmjt9aKE80QI1/5ZhUh85fhYc7/S/0Vo7fWcr62TPEx44cSQEJqgOhZQFqItAgNcx3krgHpX6POP4hVhKosfB0bgFMEKT5kBFHfNmb6SW8RohuBcRkI2X77UgDEN32/qstEpC5D4YzPS1WQEUbQd0TyYPWg0pr0SlbxZ92vWoBCxSekLui60LcbURPpYrdtqxSgkPEJqQuSQeg+uSh8HpBeh3FtqyR0fELqQN3WPi91VnLuzir88KHjE0LK5z8tFuzphqiPOAAAAABJRU5ErkJggg==";
-const SPRITE_SHEET = dataUriTo2DArray(SPRITE_SHEET_URI);
-const DECORATIONS_SPRITE_WIDTH = 48;
-const DECORATIONS_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAPNJREFUaIHtmTESgzAMBHWZDC+gp0vP/x9Bn44+L6BRmrhJA4csM05uGzfY1s1JxggzIYQQQgghxEnATnB3zwikAICKiXq4BE/uwaxvn/UPb3BnNwFg27Ky0w6vzRp8S4mkIbQD3wzzFJofdTMkYJgn89czFADGKSSiSgphfFBjTaoIKC4cHWvSxIFMmjiQSYoDLUlxoCVywOwHHWjpROop1IL/vsxty2oYO77M1QggSvcpJAFXE66BPfa+2C4v4j2yi7z7FJKAq6FrwN3TO3MMlAAAKO3F2sVZTiu2N9p9CnUv4FR7PbMG2BQ69SJL/kVA8QauAnHUj36BVwAAAABJRU5ErkJggg==";
-const DECORATIONS_SPRITE_SHEET = dataUriTo2DArray(DECORATIONS_SPRITE_SHEET_URI, false);
-
-const layers = {
-	base: new Layer(getLayer(SPRITE_SHEET, 0)),
-	down: new Layer(getLayer(SPRITE_SHEET, 1)),
-	heartOne: new Layer(getLayer(SPRITE_SHEET, 2)),
-	heartTwo: new Layer(getLayer(SPRITE_SHEET, 3)),
-	heartThree: new Layer(getLayer(SPRITE_SHEET, 4)),
-	heartFour: new Layer(getLayer(SPRITE_SHEET, 5)),
-	wingsUp: new Layer(getLayer(SPRITE_SHEET, 6)),
-	wingsDown: new Layer(getLayer(SPRITE_SHEET, 7)),
-	happyEye: new Layer(getLayer(SPRITE_SHEET, 8)),
-};
-
-const decorationLayers = {
-	mac: new Layer(getLayer(DECORATIONS_SPRITE_SHEET, 0, DECORATIONS_SPRITE_WIDTH)),
-};
-
-const birbFrames = {
-	base: new Frame([layers.base]),
-	headDown: new Frame([layers.down]),
-	wingsDown: new Frame([layers.base, layers.wingsDown]),
-	wingsUp: new Frame([layers.down, layers.wingsUp]),
-	heartOne: new Frame([layers.base, layers.happyEye, layers.heartOne]),
-	heartTwo: new Frame([layers.base, layers.happyEye, layers.heartTwo]),
-	heartThree: new Frame([layers.base, layers.happyEye, layers.heartThree]),
-	heartFour: new Frame([layers.base, layers.happyEye, layers.heartFour]),
-};
-
-const decorationFrames = {
-	mac: new Frame([decorationLayers.mac]),
-};
-
-const Animations = {
-	STILL: new Anim([birbFrames.base], [1000]),
-	BOB: new Anim([
-		birbFrames.base,
-		birbFrames.headDown
-	], [
-		420,
-		420
-	]),
-	FLYING: new Anim([
-		birbFrames.base,
-		birbFrames.wingsUp,
-		birbFrames.headDown,
-		birbFrames.wingsDown,
-	], [
-		40,
-		80,
-		40,
-		80,
-	]),
-	HEART: new Anim([
-		birbFrames.heartOne,
-		birbFrames.heartTwo,
-		birbFrames.heartThree,
-		birbFrames.heartFour,
-		birbFrames.heartThree,
-		birbFrames.heartFour,
-		birbFrames.heartThree,
-		birbFrames.heartFour,
-	], [
-		60,
-		80,
-		250,
-		250,
-		250,
-		250,
-		250,
-		250,
-	], false),
-};
-
-const DECORATION_ANIMATIONS = {
-	mac: new Anim([
-		decorationFrames.mac,
-	], [
-		1000,
-	]),
-};
-
-const styleElement = document.createElement("style");
-const canvas = document.createElement("canvas");
-
-/** @type {CanvasRenderingContext2D} */
-// @ts-ignore
-const ctx = canvas.getContext("2d");
-
 const Directions = {
 	LEFT: -1,
 	RIGHT: 1,
 };
 
-const States = {
-	IDLE: "idle",
-	HOP: "hop",
-	FLYING: "flying",
-};
-
-let stateStart = Date.now();
-let currentState = States.IDLE;
-let animStart = Date.now();
-let currentAnimation = Animations.BOB;
-let direction = Directions.RIGHT;
-let ticks = 0;
-// Bird's current position
-let birdY = 0;
-let birdX = 40;
-// Bird's starting position (when flying)
-let startX = 0;
-let startY = 0;
-// Bird's target position (when flying)
-let targetX = 0;
-let targetY = 0;
-/** @type {HTMLElement|null} */
-let focusedElement = null;
-// Time of the user's last action on the page
-let timeOfLastAction = Date.now();
-// Stack of timestamps for each mouseover, max length of 10
-let petStack = [];
-
-function init() {
-	if (window !== window.top) {
-		// Skip installation if within an iframe
-		return;
-	}
-
-	styleElement.innerHTML = styles;
-	document.head.appendChild(styleElement);
-	
-	canvas.id = "birb";
-	canvas.width = birbFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
-	canvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
-	document.body.appendChild(canvas);
-
-	window.addEventListener("scroll", () => {
-		timeOfLastAction = Date.now();
-		// Can't keep up with scrolling on mobile devices so fly down instead
-		if (isMobile()) {
-			focusOnGround();
-		}
-	
-	});
-	
-	document.addEventListener("click", (e) => {
-		timeOfLastAction = Date.now();
-		if (e.target instanceof Node && !canvas.contains(e.target) && !document.querySelector(".birb-window")?.contains(e.target)) {
-			removeStartMenu();
-		}
-	});
-	
-	canvas.addEventListener("click", () => {
-		insertStartMenu();
-	});
-	
-	canvas.addEventListener("mouseover", () => {
-		timeOfLastAction = Date.now();
-		if (currentState === States.IDLE) {
-			petStack.push(Date.now());
-			if (petStack.length > 10) {
-				petStack.shift();
-			}
-			const pets = petStack.filter((time) => Date.now() - time < 1000).length;
-			if (pets >= 4) {
-				setAnimation(Animations.HEART);
-				// Clear the stack
-				petStack = [];
-			}
-		}
-	});
-	
-	setInterval(update, 1000 / 60);
-}
-
-function update() {
-	ticks++;
-	if (currentState === States.IDLE) {
-		if (Math.random() < 1 / (60 * 3) && currentAnimation !== Animations.HEART && !isStartMenuOpen()) {
-			hop();
-		}
-	} else if (currentState === States.HOP) {
-		if (updateParabolicPath(HOP_SPEED)) {
-			setState(States.IDLE);
-		}
-	}
-}
-
-function draw() {
-	requestAnimationFrame(draw);
-
-	// Update the bird's position
-	if (currentState === States.IDLE) {
-		if (focusedElement !== null) {
-			birdY = getFocusedElementY();
-		}
-	} else if (currentState === States.FLYING) {
-		// Fly to target location (even if in the air)
-		if (updateParabolicPath(FLY_SPEED)) {
-			setState(States.IDLE);
-		}
-	}
-
-	if (focusedElement === null) {
-		if (Date.now() - timeOfLastAction > AFK_TIME && !isStartMenuOpen()) {
-			// Fly to an element if the user is AFK
-			focusOnElement();
-			timeOfLastAction = Date.now();
-		}
-	} else if (focusedElement !== null) {
-		targetY = getFocusedElementY();
-		if (targetY < 0 || targetY > window.innerHeight) {
-			// Fly to ground if the focused element moves out of bounds
-			focusOnGround();
-		}
-	}
-
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	if (currentAnimation.draw(ctx, direction, animStart)) {
-		setAnimation(Animations.STILL);
-	}
-
-	// Update HTML element position
-	setX(birdX);
-	setY(birdY);
-}
-
-init();
-draw();
+const SPRITE_WIDTH = 32;
+const DECORATIONS_SPRITE_WIDTH = 48;
+const SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAAgCAYAAACy9KU0AAAAAXNSR0IArs4c6QAABBdJREFUeJztnL9LHEEUx79zWkgk3RFwTRvsDKS5KpWpbDSVVQgkjSCYKkfIHyDBIhAhIAiBkOoqsUmVVDbaBFKkkLTxhHBgEQM28aU4Z53d25lddXfm1vt+4Ni5X/vm9t77znfm9hYghBBCCCGEEOIJFboDhOQhImJ7TinFHK4x/PJILiEFQMd+PD0NANg+PEy0ffSBEBIIOWcximQxigbaLnEqK/5iFMne7KzIyspAu+r4pFrGQ3eAFCOr0HyN/I+np/Gq2UTr4cOBtnYhPtjf3cWrZjNuk/rTCN0Bkk96GqK3vkf/UAKwfXiIN71e4rE3vZ5X8SNkZDGnIebWhwCZU7C92dn45msKltUHn7FJtdABFUQyCNEP7UB8oad5pgsx3YePaWC6D1x8JiOHiPQXP42tz9ihHYDZh1ACHFr8SflwBCmIiMj+/fvx/db3715HYHMdKJQDMAuf7oMQj+iRV7sfOgBCrk+hUcyW8KM2CtIBEFIuuUWkiy5db7oWfRQiBZDUCeZrcZwnIpri83wreUyVUhAR8zWVHFyXAIqI8Eslw0BadGwDNkliFSCX+ADA8y2JD3JVYjAMAkhIUcwUXFrvxu1OOwrRncqYGlNy9E9KqTenA2pMRlC3pvDhRf8APnvXxeflBuY3zwBcHOQqxGAYBJCQgohSKiE6N5WpMSXzm2f4vNwoRYSsO8gTAAA4OT6K21rlXVbzMgIhItKYTI4caQHU8TvtKBGXQkQ8Ii7hMeuCeTmI1QEppZTr515TfICkG8riKi7l7G93QAC1+KRjp91Q1v6YAKRknOJjwNSzUOjf8O/vPMLK7y9xGwCeHn/KfG36C/n56w+Ai2laUYZBAAmxsbTezU3mKtd+bPGNmLXIc2cnzwsWpztzA89NLHzFg9UD3Lt7O/O9Wni+bczoffUDXnIapuMPCOBBtgC6+kEbTMoiT4A67QhL61102lFV+WZ1X+ciVIs8v/L1gE535jCxMAOsHmQ+nxYe4Ho+VAuPptOOriSAhJTBx5kn1kHQg/gA6Oe4Lf/rQq4DAvrTmrQLOvlxAgBovt63vfciyBWFx+XAgAsXlkXZAkhImt5aS1bGtwEkp1s+xAeAuAbgurigQmdCp0VAi08Wzdf7pZ0lHVoACcmjt9aKE80QI1/5ZhUh85fhYc7/S/0Vo7fWcr62TPEx44cSQEJqgOhZQFqItAgNcx3krgHpX6POP4hVhKosfB0bgFMEKT5kBFHfNmb6SW8RohuBcRkI2X77UgDEN32/qstEpC5D4YzPS1WQEUbQd0TyYPWg0pr0SlbxZ92vWoBCxSekLui60LcbURPpYrdtqxSgkPEJqQuSQeg+uSh8HpBeh3FtqyR0fELqQN3WPi91VnLuzir88KHjE0LK5z8tFuzphqiPOAAAAABJRU5ErkJggg==";
+const DECORATIONS_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAPNJREFUaIHtmTESgzAMBHWZDC+gp0vP/x9Bn44+L6BRmrhJA4csM05uGzfY1s1JxggzIYQQQgghxEnATnB3zwikAICKiXq4BE/uwaxvn/UPb3BnNwFg27Ky0w6vzRp8S4mkIbQD3wzzFJofdTMkYJgn89czFADGKSSiSgphfFBjTaoIKC4cHWvSxIFMmjiQSYoDLUlxoCVywOwHHWjpROop1IL/vsxty2oYO77M1QggSvcpJAFXE66BPfa+2C4v4j2yi7z7FJKAq6FrwN3TO3MMlAAAKO3F2sVZTiu2N9p9CnUv4FR7PbMG2BQ69SJL/kVA8QauAnHUj36BVwAAAABJRU5ErkJggg==";
 
 /**
- * Create an HTML element with the specified parameters
- * @param {string} className
- * @param {string} [textContent]
- * @param {string} [id]
- * @returns {HTMLElement}
- */
-function makeElement(className, textContent, id) {
-	const element = document.createElement("div");
-	element.classList.add(className);
-	if (textContent) {
-		element.textContent = textContent;
-	}
-	if (id) {
-		element.id = id;
-	}
-	return element;
-}
-
-function insertDecoration() {
-	// Create a canvas element for the decoration
-	const decorationCanvas = document.createElement("canvas");
-	decorationCanvas.classList.add("birb-decoration");
-	decorationCanvas.width = DECORATIONS_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
-	decorationCanvas.height = DECORATIONS_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
-	const decorationCtx = decorationCanvas.getContext("2d");
-	if (!decorationCtx) {
-		return;
-	}
-	// Draw the decoration
-	DECORATION_ANIMATIONS.mac.draw(decorationCtx, Directions.LEFT, Date.now());
-	// Add the decoration to the page
-	document.body.appendChild(decorationCanvas);
-	makeDraggable(decorationCanvas, false);
-}
-
-// insertDecoration();
-
-/**
- * Add the start menu to the page if it doesn't already exist
- */
-function insertStartMenu() {
-	if (document.querySelector("#" + START_MENU_ID)) {
-		return;
-	}
-	let startMenu = makeElement("birb-window", undefined, START_MENU_ID);
-	let header = makeElement("birb-window-header");
-	header.innerHTML = '<div class="birb-window-title">birbOS</div>';
-	let content = makeElement("birb-window-content");
-	let petButton = makeElement("birb-window-list-item", "Pet Birb");
-	petButton.addEventListener("click", () => {
-		removeStartMenu();
-		pet();
-	});
-	content.appendChild(petButton);
-	let fieldGuideButton = makeElement("birb-window-list-item", "Field Guide");
-	content.appendChild(fieldGuideButton);
-	let decorationsButton = makeElement("birb-window-list-item", "Decorations");
-	decorationsButton.addEventListener("click", () => {
-		removeStartMenu();
-		insertDecoration();
-	});
-	content.appendChild(decorationsButton);
-	content.appendChild(makeElement("birb-window-list-item", "Programs"));
-	content.appendChild(makeElement("birb-window-separator"));
-	content.appendChild(makeElement("birb-window-list-item", "Settings"));
-	startMenu.appendChild(header);
-	startMenu.appendChild(content);
-	document.body.appendChild(startMenu);
-	makeDraggable(document.querySelector(".birb-window-header"));
-
-	let x = birdX;
-	let y = canvas.offsetTop + canvas.height / 2 + WINDOW_PIXEL_SIZE * 10;
-	const offset = 20;
-	if (x < window.innerWidth / 2) {
-		// Left side
-		x += offset;
-	} else {
-		// Right side
-		x -= startMenu.offsetWidth + offset;
-	}
-	if (y > window.innerHeight / 2) {
-		// Top side
-		y -= startMenu.offsetHeight + offset + 10;
-	} else {
-		// Bottom side
-		y += offset;
-	}
-	startMenu.style.left = `${x}px`;
-	startMenu.style.top = `${y}px`;
-}
-
-/**
- * Remove the start menu from the page
- */
-function removeStartMenu() {
-	const startMenu = document.querySelector("#" + START_MENU_ID);
-	if (startMenu) {
-		startMenu.remove();
-	}
-}
-
-/**
- * @returns {boolean} Whether the start menu element is on the page
- */
-function isStartMenuOpen() {
-	return document.querySelector("#" + START_MENU_ID) !== null;
-}
-
-/**
- * @param {HTMLElement|null} element
- */
-function makeDraggable(element, parent = true) {
-	if (!element) {
-		return;
-	}
-
-	let isMouseDown = false;
-	let offsetX = 0;
-	let offsetY = 0;
-
-	if (parent) {
-		element = element.parentElement;
-	}
-	
-	if (!element) {
-		console.error("Birb: Parent element not found");
-		return;
-	}
-
-	element.addEventListener("mousedown", (e) => {
-		isMouseDown = true;
-		offsetX = e.clientX - element.offsetLeft;
-		offsetY = e.clientY - element.offsetTop;
-	});
-
-	document.addEventListener("mouseup", () => {
-		isMouseDown = false;
-	});
-
-	document.addEventListener("mousemove", (e) => {
-		if (isMouseDown) {
-			element.style.left = `${e.clientX - offsetX}px`;
-			element.style.top = `${e.clientY - offsetY}px`;
-		}
-	});
-}
-
-/**
+ * Load the spritesheet and return the pixelmap template
  * @param {string} dataUri
  * @param {boolean} [templateColors]
- * @returns {string[][]}
+ * @returns {Promise<string[][]>}
  */
-function dataUriTo2DArray(dataUri, templateColors = true) {
-	const img = new Image();
-	img.src = dataUri;
-	const canvas = document.createElement('canvas');
-	canvas.width = img.width;
-	canvas.height = img.height;
-	const ctx = canvas.getContext('2d');
-	if (!ctx) {
-		return [];
-	}
-	ctx.drawImage(img, 0, 0);
-	const imageData = ctx.getImageData(0, 0, img.width, img.height);
-	const pixels = imageData.data;
-	const hexArray = [];
-	for (let y = 0; y < img.height; y++) {
-		const row = [];
-		for (let x = 0; x < img.width; x++) {
-			const index = (y * img.width + x) * 4;
-			const r = pixels[index];
-			const g = pixels[index + 1];
-			const b = pixels[index + 2];
-			const a = pixels[index + 3];
-			if (a === 0) {
-				row.push(TRANSPARENT);
-				continue;
+function loadSpritesheetPixels(dataUri, templateColors = true) {
+	return new Promise((resolve, reject) => {
+		const img = new Image();
+		img.src = dataUri;
+		img.onload = () => {
+			const canvas = document.createElement('canvas');
+			canvas.width = img.width;
+			canvas.height = img.height;
+			const ctx = canvas.getContext('2d');
+			if (!ctx) {
+				reject(new Error('Failed to get canvas context'));
+				return;
 			}
-			const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-			if (!templateColors) {
-				row.push(hex);
-				continue;
+			ctx.drawImage(img, 0, 0);
+			const imageData = ctx.getImageData(0, 0, img.width, img.height);
+			const pixels = imageData.data;
+			const hexArray = [];
+			for (let y = 0; y < img.height; y++) {
+				const row = [];
+				for (let x = 0; x < img.width; x++) {
+					const index = (y * img.width + x) * 4;
+					const r = pixels[index];
+					const g = pixels[index + 1];
+					const b = pixels[index + 2];
+					const a = pixels[index + 3];
+					if (a === 0) {
+						row.push(TRANSPARENT);
+						continue;
+					}
+					const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+					if (!templateColors) {
+						row.push(hex);
+						continue;
+					}
+					if (SPRITESHEET_COLOR_MAP[hex] === undefined) {
+						console.error(`Unknown color: ${hex}`);
+						row.push(TRANSPARENT);
+					}
+					row.push(SPRITESHEET_COLOR_MAP[hex]);
+				}
+				hexArray.push(row);
 			}
-			if (SPRITESHEET_COLOR_MAP[hex] === undefined) {
-				console.error(`Unknown color: ${hex}`);
-				row.push(TRANSPARENT);
-			}
-			row.push(SPRITESHEET_COLOR_MAP[hex]);
-		}
-		hexArray.push(row);
-	}
-	return hexArray;
+			resolve(hexArray);
+		};
+		img.onerror = (err) => {
+			reject(err);
+		};
+	});
 }
 
-/**
- * @param {string[][]} array
- * @param {number} sprite
- * @param {number} [width]
- * @returns {string[][]}
- */
-function getLayer(array, sprite, width = SPRITE_WIDTH) {
-	// From an array of a horizontal sprite sheet, get the layer for a specific sprite
-	const layer = [];
-	for (let y = 0; y < width; y++) {
-		layer.push(array[y].slice(sprite * width, (sprite + 1) * width));
+Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECORATIONS_SPRITE_SHEET_URI, false)]).then(([birbPixels, decorationPixels]) => {
+	const SPRITE_SHEET = birbPixels;
+	const DECORATIONS_SPRITE_SHEET = decorationPixels;
+
+	const layers = {
+		base: new Layer(getLayer(SPRITE_SHEET, 0)),
+		down: new Layer(getLayer(SPRITE_SHEET, 1)),
+		heartOne: new Layer(getLayer(SPRITE_SHEET, 2)),
+		heartTwo: new Layer(getLayer(SPRITE_SHEET, 3)),
+		heartThree: new Layer(getLayer(SPRITE_SHEET, 4)),
+		heartFour: new Layer(getLayer(SPRITE_SHEET, 5)),
+		wingsUp: new Layer(getLayer(SPRITE_SHEET, 6)),
+		wingsDown: new Layer(getLayer(SPRITE_SHEET, 7)),
+		happyEye: new Layer(getLayer(SPRITE_SHEET, 8)),
+	};
+
+	const decorationLayers = {
+		mac: new Layer(getLayer(DECORATIONS_SPRITE_SHEET, 0, DECORATIONS_SPRITE_WIDTH)),
+	};
+
+	const birbFrames = {
+		base: new Frame([layers.base]),
+		headDown: new Frame([layers.down]),
+		wingsDown: new Frame([layers.base, layers.wingsDown]),
+		wingsUp: new Frame([layers.down, layers.wingsUp]),
+		heartOne: new Frame([layers.base, layers.happyEye, layers.heartOne]),
+		heartTwo: new Frame([layers.base, layers.happyEye, layers.heartTwo]),
+		heartThree: new Frame([layers.base, layers.happyEye, layers.heartThree]),
+		heartFour: new Frame([layers.base, layers.happyEye, layers.heartFour]),
+	};
+
+	const decorationFrames = {
+		mac: new Frame([decorationLayers.mac]),
+	};
+
+	const Animations = {
+		STILL: new Anim([birbFrames.base], [1000]),
+		BOB: new Anim([
+			birbFrames.base,
+			birbFrames.headDown
+		], [
+			420,
+			420
+		]),
+		FLYING: new Anim([
+			birbFrames.base,
+			birbFrames.wingsUp,
+			birbFrames.headDown,
+			birbFrames.wingsDown,
+		], [
+			40,
+			80,
+			40,
+			80,
+		]),
+		HEART: new Anim([
+			birbFrames.heartOne,
+			birbFrames.heartTwo,
+			birbFrames.heartThree,
+			birbFrames.heartFour,
+			birbFrames.heartThree,
+			birbFrames.heartFour,
+			birbFrames.heartThree,
+			birbFrames.heartFour,
+		], [
+			60,
+			80,
+			250,
+			250,
+			250,
+			250,
+			250,
+			250,
+		], false),
+	};
+
+	const DECORATION_ANIMATIONS = {
+		mac: new Anim([
+			decorationFrames.mac,
+		], [
+			1000,
+		]),
+	};
+
+	const styleElement = document.createElement("style");
+	const canvas = document.createElement("canvas");
+
+	/** @type {CanvasRenderingContext2D} */
+	// @ts-ignore
+	const ctx = canvas.getContext("2d");
+
+	const States = {
+		IDLE: "idle",
+		HOP: "hop",
+		FLYING: "flying",
+	};
+
+	let stateStart = Date.now();
+	let currentState = States.IDLE;
+	let animStart = Date.now();
+	let currentAnimation = Animations.BOB;
+	let direction = Directions.RIGHT;
+	let ticks = 0;
+	// Bird's current position
+	let birdY = 0;
+	let birdX = 40;
+	// Bird's starting position (when flying)
+	let startX = 0;
+	let startY = 0;
+	// Bird's target position (when flying)
+	let targetX = 0;
+	let targetY = 0;
+	/** @type {HTMLElement|null} */
+	let focusedElement = null;
+	// Time of the user's last action on the page
+	let timeOfLastAction = Date.now();
+	// Stack of timestamps for each mouseover, max length of 10
+	let petStack = [];
+
+	function init() {
+		if (window !== window.top) {
+			// Skip installation if within an iframe
+			return;
+		}
+
+		styleElement.innerHTML = styles;
+		document.head.appendChild(styleElement);
+
+		canvas.id = "birb";
+		canvas.width = birbFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
+		canvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
+		document.body.appendChild(canvas);
+
+		window.addEventListener("scroll", () => {
+			timeOfLastAction = Date.now();
+			// Can't keep up with scrolling on mobile devices so fly down instead
+			if (isMobile()) {
+				focusOnGround();
+			}
+
+		});
+
+		document.addEventListener("click", (e) => {
+			timeOfLastAction = Date.now();
+			if (e.target instanceof Node && !canvas.contains(e.target) && !document.querySelector(".birb-window")?.contains(e.target)) {
+				removeStartMenu();
+			}
+		});
+
+		canvas.addEventListener("click", () => {
+			insertStartMenu();
+		});
+
+		canvas.addEventListener("mouseover", () => {
+			timeOfLastAction = Date.now();
+			if (currentState === States.IDLE) {
+				petStack.push(Date.now());
+				if (petStack.length > 10) {
+					petStack.shift();
+				}
+				const pets = petStack.filter((time) => Date.now() - time < 1000).length;
+				if (pets >= 4) {
+					setAnimation(Animations.HEART);
+					// Clear the stack
+					petStack = [];
+				}
+			}
+		});
+
+		setInterval(update, 1000 / 60);
 	}
-	return layer;
-}
+
+	function update() {
+		ticks++;
+		if (currentState === States.IDLE) {
+			if (Math.random() < 1 / (60 * 3) && currentAnimation !== Animations.HEART && !isStartMenuOpen()) {
+				hop();
+			}
+		} else if (currentState === States.HOP) {
+			if (updateParabolicPath(HOP_SPEED)) {
+				setState(States.IDLE);
+			}
+		}
+	}
+
+	function draw() {
+		requestAnimationFrame(draw);
+
+		// Update the bird's position
+		if (currentState === States.IDLE) {
+			if (focusedElement !== null) {
+				birdY = getFocusedElementY();
+			}
+		} else if (currentState === States.FLYING) {
+			// Fly to target location (even if in the air)
+			if (updateParabolicPath(FLY_SPEED)) {
+				setState(States.IDLE);
+			}
+		}
+
+		if (focusedElement === null) {
+			if (Date.now() - timeOfLastAction > AFK_TIME && !isStartMenuOpen()) {
+				// Fly to an element if the user is AFK
+				focusOnElement();
+				timeOfLastAction = Date.now();
+			}
+		} else if (focusedElement !== null) {
+			targetY = getFocusedElementY();
+			if (targetY < 0 || targetY > window.innerHeight) {
+				// Fly to ground if the focused element moves out of bounds
+				focusOnGround();
+			}
+		}
+
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		if (currentAnimation.draw(ctx, direction, animStart)) {
+			setAnimation(Animations.STILL);
+		}
+
+		// Update HTML element position
+		setX(birdX);
+		setY(birdY);
+	}
+
+	init();
+	draw();
+
+	/**
+	 * Create an HTML element with the specified parameters
+	 * @param {string} className
+	 * @param {string} [textContent]
+	 * @param {string} [id]
+	 * @returns {HTMLElement}
+	 */
+	function makeElement(className, textContent, id) {
+		const element = document.createElement("div");
+		element.classList.add(className);
+		if (textContent) {
+			element.textContent = textContent;
+		}
+		if (id) {
+			element.id = id;
+		}
+		return element;
+	}
+
+	function insertDecoration() {
+		// Create a canvas element for the decoration
+		const decorationCanvas = document.createElement("canvas");
+		decorationCanvas.classList.add("birb-decoration");
+		decorationCanvas.width = DECORATIONS_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
+		decorationCanvas.height = DECORATIONS_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
+		const decorationCtx = decorationCanvas.getContext("2d");
+		if (!decorationCtx) {
+			return;
+		}
+		// Draw the decoration
+		DECORATION_ANIMATIONS.mac.draw(decorationCtx, Directions.LEFT, Date.now());
+		// Add the decoration to the page
+		document.body.appendChild(decorationCanvas);
+		makeDraggable(decorationCanvas, false);
+	}
+
+	// insertDecoration();
+
+	/**
+	 * Add the start menu to the page if it doesn't already exist
+	 */
+	function insertStartMenu() {
+		if (document.querySelector("#" + START_MENU_ID)) {
+			return;
+		}
+		let startMenu = makeElement("birb-window", undefined, START_MENU_ID);
+		let header = makeElement("birb-window-header");
+		header.innerHTML = '<div class="birb-window-title">birbOS</div>';
+		let content = makeElement("birb-window-content");
+		let petButton = makeElement("birb-window-list-item", "Pet Birb");
+		petButton.addEventListener("click", () => {
+			removeStartMenu();
+			pet();
+		});
+		content.appendChild(petButton);
+		let fieldGuideButton = makeElement("birb-window-list-item", "Field Guide");
+		content.appendChild(fieldGuideButton);
+		let decorationsButton = makeElement("birb-window-list-item", "Decorations");
+		decorationsButton.addEventListener("click", () => {
+			removeStartMenu();
+			insertDecoration();
+		});
+		content.appendChild(decorationsButton);
+		content.appendChild(makeElement("birb-window-list-item", "Programs"));
+		content.appendChild(makeElement("birb-window-separator"));
+		content.appendChild(makeElement("birb-window-list-item", "Settings"));
+		startMenu.appendChild(header);
+		startMenu.appendChild(content);
+		document.body.appendChild(startMenu);
+		makeDraggable(document.querySelector(".birb-window-header"));
+
+		let x = birdX;
+		let y = canvas.offsetTop + canvas.height / 2 + WINDOW_PIXEL_SIZE * 10;
+		const offset = 20;
+		if (x < window.innerWidth / 2) {
+			// Left side
+			x += offset;
+		} else {
+			// Right side
+			x -= startMenu.offsetWidth + offset;
+		}
+		if (y > window.innerHeight / 2) {
+			// Top side
+			y -= startMenu.offsetHeight + offset + 10;
+		} else {
+			// Bottom side
+			y += offset;
+		}
+		startMenu.style.left = `${x}px`;
+		startMenu.style.top = `${y}px`;
+	}
+
+	/**
+	 * Remove the start menu from the page
+	 */
+	function removeStartMenu() {
+		const startMenu = document.querySelector("#" + START_MENU_ID);
+		if (startMenu) {
+			startMenu.remove();
+		}
+	}
+
+	/**
+	 * @returns {boolean} Whether the start menu element is on the page
+	 */
+	function isStartMenuOpen() {
+		return document.querySelector("#" + START_MENU_ID) !== null;
+	}
+
+	/**
+	 * @param {HTMLElement|null} element
+	 */
+	function makeDraggable(element, parent = true) {
+		if (!element) {
+			return;
+		}
+
+		let isMouseDown = false;
+		let offsetX = 0;
+		let offsetY = 0;
+
+		if (parent) {
+			element = element.parentElement;
+		}
+
+		if (!element) {
+			console.error("Birb: Parent element not found");
+			return;
+		}
+
+		element.addEventListener("mousedown", (e) => {
+			isMouseDown = true;
+			offsetX = e.clientX - element.offsetLeft;
+			offsetY = e.clientY - element.offsetTop;
+		});
+
+		document.addEventListener("mouseup", () => {
+			isMouseDown = false;
+		});
+
+		document.addEventListener("mousemove", (e) => {
+			if (isMouseDown) {
+				element.style.left = `${e.clientX - offsetX}px`;
+				element.style.top = `${e.clientY - offsetY}px`;
+			}
+		});
+	}
+
+	/**
+	 * @param {string[][]} array
+	 * @param {number} sprite
+	 * @param {number} [width]
+	 * @returns {string[][]}
+	 */
+	function getLayer(array, sprite, width = SPRITE_WIDTH) {
+		// From an array of a horizontal sprite sheet, get the layer for a specific sprite
+		const layer = [];
+		for (let y = 0; y < width; y++) {
+			layer.push(array[y].slice(sprite * width, (sprite + 1) * width));
+		}
+		return layer;
+	}
+
+	/**
+	 * Update the birds location from the start to the target location on a parabolic path
+	 * @param {number} speed The speed of the bird along the path
+	 * @param {number} [intensity] The intensity of the parabolic path
+	 * @returns {boolean} Whether the bird has reached the target location
+	 */
+	function updateParabolicPath(speed, intensity = 2.5) {
+		const dx = targetX - startX;
+		const dy = targetY - startY;
+		const distance = Math.sqrt(dx * dx + dy * dy);
+		const time = Date.now() - stateStart;
+		if (distance > Math.max(window.innerWidth, window.innerHeight) / 2) {
+			speed *= 1.3;
+		}
+		const amount = Math.min(1, time / (distance / speed));
+		const { x, y } = parabolicLerp(startX, startY, targetX, targetY, amount, intensity);
+		birdX = x;
+		birdY = y;
+		const complete = Math.abs(birdX - targetX) < 1 && Math.abs(birdY - targetY) < 1;
+		if (complete) {
+			birdX = targetX;
+			birdY = targetY;
+		} else {
+			direction = targetX > birdX ? Directions.RIGHT : Directions.LEFT;
+		}
+		return complete;
+	}
+
+	function getFocusedElementRandomX() {
+		if (focusedElement === null) {
+			return Math.random() * window.innerWidth;
+		}
+		const rect = focusedElement.getBoundingClientRect();
+		return Math.random() * (rect.right - rect.left) + rect.left;
+	}
+
+	function getFocusedElementY() {
+		if (focusedElement === null) {
+			return 0;
+		}
+		const rect = focusedElement.getBoundingClientRect();
+		return window.innerHeight - rect.top;
+	}
+
+	function focusOnGround() {
+		if (focusedElement === null) {
+			return;
+		}
+		focusedElement = null;
+		flyTo(Math.random() * window.innerWidth, 0);
+	}
+
+	function focusOnElement() {
+		const images = document.querySelectorAll("img");
+		const inWindow = Array.from(images).filter((img) => {
+			const rect = img.getBoundingClientRect();
+			return rect.left >= 0 && rect.top >= 0 + 100 && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
+		});
+		const MIN_SIZE = 100;
+		const largeImages = Array.from(inWindow).filter((img) => img !== focusedElement && img.width >= MIN_SIZE && img.height >= MIN_SIZE);
+		if (largeImages.length === 0) {
+			return;
+		}
+		const randomImage = largeImages[Math.floor(Math.random() * largeImages.length)];
+		focusedElement = randomImage;
+		flyTo(getFocusedElementRandomX(), getFocusedElementY());
+	}
+
+	function getCanvasWidth() {
+		return canvas.width * CSS_SCALE
+	}
+
+	function getCanvasHeight() {
+		return canvas.height * CSS_SCALE
+	}
+
+	function hop() {
+		if (currentState === States.IDLE) {
+			// Determine bounds for hopping
+			let minX = 0;
+			let maxX = window.innerWidth;
+			let y = 0;
+			if (focusedElement !== null) {
+				// Hop on the element
+				const rect = focusedElement.getBoundingClientRect();
+				minX = rect.left;
+				maxX = rect.right;
+				y = window.innerHeight - rect.top;
+			}
+			setState(States.HOP);
+			setAnimation(Animations.FLYING);
+			if ((Math.random() < 0.5 && birdX - HOP_DISTANCE > minX) || birdX + HOP_DISTANCE > maxX) {
+				targetX = birdX - HOP_DISTANCE;
+			} else {
+				targetX = birdX + HOP_DISTANCE;
+			}
+			targetY = y;
+		}
+	}
+
+	function pet() {
+		if (currentState === States.IDLE) {
+			setAnimation(Animations.HEART);
+		}
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 */
+	function flyTo(x, y) {
+		targetX = x;
+		targetY = y;
+		setState(States.FLYING);
+		setAnimation(Animations.FLYING);
+	}
+
+	/**
+	 * Set the current animation and reset the animation timer
+	 * @param {Anim} animation
+	 */
+	function setAnimation(animation) {
+		currentAnimation = animation;
+		animStart = Date.now();
+	}
+
+	/**
+	 * Set the current state and reset the state timer
+	 * @param {string} state
+	 */
+	function setState(state) {
+		stateStart = Date.now();
+		startX = birdX;
+		startY = birdY;
+		currentState = state;
+		if (state === States.IDLE) {
+			setAnimation(Animations.BOB);
+		}
+	}
+
+	/**
+	 * @param {number} x
+	 */
+	function setX(x) {
+		let mod = getCanvasWidth() / -2 - (WINDOW_PIXEL_SIZE * (direction === Directions.RIGHT ? 2 : -2));
+		canvas.style.left = `${x + mod}px`;
+	}
+
+	/**
+	 * @param {number} y
+	 */
+	function setY(y) {
+		canvas.style.bottom = `${y}px`;
+	}
+});
 
 /**
  * @param {number} start
@@ -791,34 +958,6 @@ function getLayer(array, sprite, width = SPRITE_WIDTH) {
  */
 function linearLerp(start, end, amount) {
 	return start + (end - start) * amount;
-}
-
-/**
- * Update the birds location from the start to the target location on a parabolic path
- * @param {number} speed The speed of the bird along the path
- * @param {number} [intensity] The intensity of the parabolic path
- * @returns {boolean} Whether the bird has reached the target location
- */
-function updateParabolicPath(speed, intensity = 2.5) {
-	const dx = targetX - startX;
-	const dy = targetY - startY;
-	const distance = Math.sqrt(dx * dx + dy * dy);
-	const time = Date.now() - stateStart;
-	if (distance > Math.max(window.innerWidth, window.innerHeight) / 2) {
-		speed *= 1.3;
-	}
-	const amount = Math.min(1, time / (distance / speed));
-	const { x, y } = parabolicLerp(startX, startY, targetX, targetY, amount, intensity);
-	birdX = x;
-	birdY = y;
-	const complete = Math.abs(birdX - targetX) < 1 && Math.abs(birdY - targetY) < 1;
-	if (complete) {
-		birdX = targetX;
-		birdY = targetY;
-	} else {
-		direction = targetX > birdX ? Directions.RIGHT : Directions.LEFT;
-	}
-	return complete;
 }
 
 /**
@@ -843,140 +982,12 @@ function parabolicLerp(startX, startY, endX, endY, amount, intensity = 1.2) {
 	return { x, y };
 }
 
-function getFocusedElementRandomX() {
-	if (focusedElement === null) {
-		return Math.random() * window.innerWidth;
-	}
-	const rect = focusedElement.getBoundingClientRect();
-	return Math.random() * (rect.right - rect.left) + rect.left;
-}
-
-function getFocusedElementY() {
-	if (focusedElement === null) {
-		return 0;
-	}
-	const rect = focusedElement.getBoundingClientRect();
-	return window.innerHeight - rect.top;
-}
-
-function focusOnGround() {
-	if (focusedElement === null) {
-		return;
-	}
-	focusedElement = null;
-	flyTo(Math.random() * window.innerWidth, 0);
-}
-
-function focusOnElement() {
-	const images = document.querySelectorAll("img");
-	const inWindow = Array.from(images).filter((img) => {
-		const rect = img.getBoundingClientRect();
-		return rect.left >= 0 && rect.top >= 0 + 100 && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
-	});
-	const MIN_SIZE = 100;
-	const largeImages = Array.from(inWindow).filter((img) => img !== focusedElement && img.width >= MIN_SIZE && img.height >= MIN_SIZE);
-	if (largeImages.length === 0) {
-		return;
-	}
-	const randomImage = largeImages[Math.floor(Math.random() * largeImages.length)];
-	focusedElement = randomImage;
-	flyTo(getFocusedElementRandomX(), getFocusedElementY());
-}
-
-function getCanvasWidth() {
-	return canvas.width * CSS_SCALE
-}
-
-function getCanvasHeight() {
-	return canvas.height * CSS_SCALE
-}
-
-function hop() {
-	if (currentState === States.IDLE) {
-		// Determine bounds for hopping
-		let minX = 0;
-		let maxX = window.innerWidth;
-		let y = 0;
-		if (focusedElement !== null) {
-			// Hop on the element
-			const rect = focusedElement.getBoundingClientRect();
-			minX = rect.left;
-			maxX = rect.right;
-			y = window.innerHeight - rect.top;
-		}
-		setState(States.HOP);
-		setAnimation(Animations.FLYING);
-		if ((Math.random() < 0.5 && birdX - HOP_DISTANCE > minX) || birdX + HOP_DISTANCE > maxX) {
-			targetX = birdX - HOP_DISTANCE;
-		} else {
-			targetX = birdX + HOP_DISTANCE;
-		}
-		targetY = y;
-	}
-}
-
-function pet() {
-	if (currentState === States.IDLE) {
-		setAnimation(Animations.HEART);
-	}
-}
-
-/**
- * @param {number} x
- * @param {number} y
- */
-function flyTo(x, y) {
-	targetX = x;
-	targetY = y;
-	setState(States.FLYING);
-	setAnimation(Animations.FLYING);
-}
-
-/**
- * Set the current animation and reset the animation timer
- * @param {Anim} animation
- */
-function setAnimation(animation) {
-	currentAnimation = animation;
-	animStart = Date.now();
-}
-
-/**
- * Set the current state and reset the state timer
- * @param {string} state
- */
-function setState(state) {
-	stateStart = Date.now();
-	startX = birdX;
-	startY = birdY;
-	currentState = state;
-	if (state === States.IDLE) {
-		setAnimation(Animations.BOB);
-	}
-}
-
 /**
  * @param {number} value
  */
 function roundToPixel(value) {
 	return Math.round(value / WINDOW_PIXEL_SIZE) * WINDOW_PIXEL_SIZE;
 }
-
-/**
- * @param {number} x
- */
-function setX(x) {
-	let mod = getCanvasWidth() / -2 - (WINDOW_PIXEL_SIZE * (direction === Directions.RIGHT ? 2 : -2));
-	canvas.style.left = `${x + mod}px`;
-}
-
-/**
- * @param {number} y
- */
-function setY(y) {
-	canvas.style.bottom = `${y}px`;
-}
-
 
 /**
  * @returns {boolean} Whether the user is on a mobile device
