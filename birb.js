@@ -493,18 +493,10 @@ function init() {
 		if (e.target instanceof Node && !canvas.contains(e.target) && !document.querySelector(".birb-window")?.contains(e.target)) {
 			removeStartMenu();
 		}
-		// const x = e.clientX;
-		// const y = window.innerHeight - e.clientY;
-		// flyTo(x, y);
-		// focusOnElement();
 	});
 	
 	canvas.addEventListener("click", () => {
 		insertStartMenu();
-		// focusOnElement();
-		// if (focusedElement === null && currentState === States.IDLE) {
-		// 	setAnimation(Animations.HEART)
-		// }
 	});
 	
 	canvas.addEventListener("mouseover", () => {
@@ -636,8 +628,14 @@ function insertStartMenu() {
 		pet();
 	});
 	content.appendChild(petButton);
-	content.appendChild(makeElement("birb-window-list-item", "Field Guide"));
-	content.appendChild(makeElement("birb-window-list-item", "Decorations"));
+	let fieldGuideButton = makeElement("birb-window-list-item", "Field Guide");
+	content.appendChild(fieldGuideButton);
+	let decorationsButton = makeElement("birb-window-list-item", "Decorations");
+	decorationsButton.addEventListener("click", () => {
+		removeStartMenu();
+		insertDecoration();
+	});
+	content.appendChild(decorationsButton);
 	content.appendChild(makeElement("birb-window-list-item", "Programs"));
 	content.appendChild(makeElement("birb-window-separator"));
 	content.appendChild(makeElement("birb-window-list-item", "Settings"));
