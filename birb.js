@@ -221,6 +221,8 @@ const styles = `
 	}
 
 	.birb-field-guide-description {
+		box-sizing: border-box;
+		width: 100%;
 		margin-top: 10px;
 		padding: 8px;
 		padding-top: 4px;
@@ -919,17 +921,19 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 		content.innerHTML = "";
 
-		const generateDescription = (theme) => {
-			return "<b>" + theme.name + "</b><div style='height: 0.3em'></div>" + theme.description;
+		const generateDescription = (/** @type {string} */ themeId) => {
+			const theme = species[themeId];
+			const unlocked = unlockedThemes.includes(themeId);
+			return "<b>" + theme.name + "</b><div style='height: 0.3em'></div>" + (!unlocked ? "Not yet unlocked" : theme.description);
 		};
 
 		const description = fieldGuide.querySelector(".birb-field-guide-description");
 		if (!description) {
 			return;
 		}
-		description.innerHTML = generateDescription(species[currentTheme]);
-		for (const [name, theme] of Object.entries(species)) {
-			const unlocked = unlockedThemes.includes(name);
+		description.innerHTML = generateDescription(currentTheme);
+		for (const [id, theme] of Object.entries(species)) {
+			const unlocked = unlockedThemes.includes(id);
 			const themeElement = makeElement("birb-grid-item");
 			const themeCanvas = document.createElement("canvas");
 			themeCanvas.width = SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
@@ -943,7 +947,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			content.appendChild(themeElement);
 			if (unlocked) {
 				themeElement.addEventListener("click", () => {
-					switchTheme(name);
+					switchTheme(id);
 					fieldGuide.remove();
 				});
 			} else {
@@ -951,10 +955,10 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			}
 			themeElement.addEventListener("mouseover", () => {
 				console.log("mouseover");
-				description.innerHTML = generateDescription(theme);
+				description.innerHTML = generateDescription(id);
 			});
 			themeElement.addEventListener("mouseout", () => {
-				description.innerHTML = generateDescription(species[currentTheme]);
+				description.innerHTML = generateDescription(currentTheme);
 			});
 		}
 	}
