@@ -149,6 +149,8 @@ const styles = `
 			0 var(--border-size) var(--border-color);
 		display: flex;
 		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 		padding-left: 15px;
 		padding-right: 15px;
 		padding-top: 8px;
@@ -156,6 +158,7 @@ const styles = `
 	}
 
 	.birb-window-list-item {
+		width: 100%;
 		font-size: 14px;
 		padding-top: 5px;
 		padding-bottom: 5px;
@@ -228,6 +231,10 @@ const styles = `
 
 	#${FEATHER_ID} {
 		cursor: pointer;
+	}
+
+	.birb-message-content {
+		font-size: 15px;
 	}
 `;
 
@@ -812,7 +819,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), theme);
 		document.body.appendChild(featherCanvas);
 		featherCanvas.addEventListener("click", () => {
-			unlockTheme(birdType);
+			unlockBird(birdType);
 			removeFeather();
 		});
 	}
@@ -825,11 +832,12 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	}
 
 	/**
-	 * @param {string} theme
+	 * @param {string} birdType
 	 */
-	function unlockTheme(theme) {
-		if (!unlockedThemes.includes(theme)) {
-			unlockedThemes.push(theme);
+	function unlockBird(birdType) {
+		if (!unlockedThemes.includes(birdType)) {
+			unlockedThemes.push(birdType);
+			insertModal("Bird Unlocked!", `You've found a ${species[birdType].name} feather! Use the Field Guide to switch your bird's theme.`);
 		}
 	}
 
@@ -849,6 +857,37 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 
 	// insertDecoration();
 	// insertFieldGuide();
+
+	/**
+	 * @param {string} title
+	 * @param {string} message
+	 */
+	function insertModal(title, message) {
+		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
+			return;
+		}
+		let html = `
+			<div class="birb-window-header">
+				<div class="birb-window-title">${title}</div>
+				<div class="birb-window-close">x</div>
+			</div>
+			<div class="birb-window-content">
+				<div class="birb-message-content">
+					${message}
+				</div>
+			</div>`
+		const modal = makeElement("birb-window");
+		modal.style.width = "230px";
+		modal.innerHTML = html;
+		modal.style.left = `${window.innerWidth / 2 - 115}px`;
+		modal.style.top = `${window.innerHeight / 2 - 115}px`;
+		document.body.appendChild(modal);
+		makeDraggable(modal.querySelector(".birb-window-header"));
+
+		modal.querySelector(".birb-window-close")?.addEventListener("click", () => {
+			modal.remove();
+		});
+	}
 
 	function insertFieldGuide() {
 		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
