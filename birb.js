@@ -214,7 +214,7 @@ const styles = `
 		padding-bottom: var(--border-size);
 	}
 
-	.birb-grid-item, .birb-field-guide-description {
+	.birb-grid-item, .birb-field-guide-description, .birb-message-content {
 		border: var(--border-size) solid rgb(255, 207, 144);
 		box-shadow: 0 0 0 var(--border-size) white;
 		background: rgba(255, 221, 177, 0.5);
@@ -236,7 +236,14 @@ const styles = `
 	}
 
 	.birb-message-content {
-		font-size: 15px;
+		box-sizing: border-box;
+		width: 100%;
+		margin-top: 10px;
+		padding: 8px;
+		padding-top: 4px;
+		padding-bottom: 4px;
+		font-size: 14px;
+		color: rgb(124, 108, 75);
 	}
 `;
 
@@ -839,7 +846,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	function unlockBird(birdType) {
 		if (!unlockedThemes.includes(birdType)) {
 			unlockedThemes.push(birdType);
-			insertModal("Bird Unlocked!", `You've found a ${species[birdType].name} feather! Use the Field Guide to switch your bird's theme.`);
+			insertModal("New Bird Unlocked!", `You've found a <b>${species[birdType].name}</b> feather! Use the Field Guide to switch your bird's theme.`);
 		}
 	}
 
@@ -879,7 +886,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				</div>
 			</div>`
 		const modal = makeElement("birb-window");
-		modal.style.width = "230px";
+		modal.style.width = "250px";
 		modal.innerHTML = html;
 		modal.style.left = `${window.innerWidth / 2 - 115}px`;
 		modal.style.top = `${window.innerHeight / 2 - 115}px`;
