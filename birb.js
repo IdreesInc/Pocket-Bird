@@ -200,6 +200,11 @@ const styles = `
 		cursor: pointer;
 	}
 
+	.birb-grid-item-locked {
+		filter: grayscale(100%);
+		cursor: auto;
+	}
+
 	.birb-grid-item canvas {
 		image-rendering: pixelated;
 		transform: scale(2);
@@ -219,6 +224,10 @@ const styles = `
 		padding-bottom: 4px;
 		font-size: 14px;
 		color: rgb(124, 108, 75);
+	}
+
+	#${FEATHER_ID} {
+		cursor: pointer;
 	}
 `;
 
@@ -620,6 +629,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	let timeOfLastAction = Date.now();
 	let petStack = [];
 	let currentTheme = "bluebird";
+	let unlockedThemes = ["bluebird"];
 
 	function init() {
 		if (window !== window.top) {
@@ -766,12 +776,12 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		makeDraggable(decorationCanvas, false);
 	}
 
-	insertFeather();
+	insertFeather("shimaEnaga");
 
-	function insertFeather() {
-		let theme = species[currentTheme];
+	function insertFeather(birdType) {
+		let theme = species[birdType];
 		const featherCanvas = document.createElement("canvas");
-		featherCanvas.id = "birb-feather";
+		featherCanvas.id = FEATHER_ID;
 		featherCanvas.classList.add("birb-decoration");
 		featherCanvas.width = FEATHER_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
 		featherCanvas.height = FEATHER_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
@@ -783,8 +793,27 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), theme);
 		document.body.appendChild(featherCanvas);
+		featherCanvas.addEventListener("click", () => {
+			unlockTheme(birdType);
+			removeFeather();
+		});
 	}
 
+	function removeFeather() {
+		const feather = document.querySelector("#" + FEATHER_ID);
+		if (feather) {
+			feather.remove();
+		}
+	}
+
+	/**
+	 * @param {string} theme
+	 */
+	function unlockTheme(theme) {
+		if (!unlockedThemes.includes(theme)) {
+			unlockedThemes.push(theme);
+		}
+	}
 
 	function updateFeather() {
 		const feather = document.querySelector("#birb-feather");
@@ -801,7 +830,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	
 
 	// insertDecoration();
-	insertFieldGuide();
+	// insertFieldGuide();
 
 	function insertFieldGuide() {
 		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
@@ -854,6 +883,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 		description.innerHTML = generateDescription(species[currentTheme]);
 		for (const [name, theme] of Object.entries(species)) {
+			const unlocked = unlockedThemes.includes(name);
 			const themeElement = makeElement("birb-grid-item");
 			const themeCanvas = document.createElement("canvas");
 			themeCanvas.width = SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
@@ -865,10 +895,14 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			birbFrames.base.draw(themeCtx, Directions.RIGHT, theme);
 			themeElement.appendChild(themeCanvas);
 			content.appendChild(themeElement);
-			themeElement.addEventListener("click", () => {
-				switchTheme(name);
-				fieldGuide.remove();
-			});
+			if (unlocked) {
+				themeElement.addEventListener("click", () => {
+					switchTheme(name);
+					fieldGuide.remove();
+				});
+			} else {
+				themeElement.classList.add("birb-grid-item-locked");
+			}
 			themeElement.addEventListener("mouseover", () => {
 				console.log("mouseover");
 				description.innerHTML = generateDescription(theme);
