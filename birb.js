@@ -39,6 +39,7 @@ const AFK_TIME = 1000 * 30;
 const SPRITE_HEIGHT = 32;
 const START_MENU_ID = "birb-start-menu";
 const FIELD_GUIDE_ID = "birb-field-guide";
+const FEATHER_ID = "birb-feather";
 
 const styles = `
 	#birb {
@@ -47,7 +48,7 @@ const styles = `
 		bottom: 0;
 		transform: scale(${CSS_SCALE});
 		transform-origin: bottom;
-		z-index: 999999999;
+		z-index: 999999998;
 		cursor: pointer;
 	}
 
@@ -62,7 +63,7 @@ const styles = `
 
 	.birb-window {
 		font-family: "Monocraft";
-		z-index: 1000;
+		z-index: 999999999;
 		position: fixed;
 		background-color: #ffecda;
 		box-shadow: 
@@ -189,13 +190,10 @@ const styles = `
 	}
 
 	.birb-grid-item {
-		border: var(--border-size) solid rgb(255, 207, 144);
-		box-shadow: 0 0 0 var(--border-size) white;
 		width: 64px;
 		height: 64px;
 		overflow: hidden;
 		margin: 6px;
-		background: rgb(255, 221, 177, 0.5);
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -206,6 +204,21 @@ const styles = `
 		image-rendering: pixelated;
 		transform: scale(2);
 		padding-bottom: var(--border-size);
+	}
+
+	.birb-grid-item, .birb-field-guide-description {
+		border: var(--border-size) solid rgb(255, 207, 144);
+		box-shadow: 0 0 0 var(--border-size) white;
+		background: rgba(255, 221, 177, 0.5);
+	}
+
+	.birb-field-guide-description {
+		margin-top: 10px;
+		padding: 8px;
+		padding-top: 4px;
+		padding-bottom: 4px;
+		font-size: 14px;
+		color: rgb(124, 108, 75);
 	}
 `;
 
@@ -266,7 +279,7 @@ class Frame {
 	/**
 	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {number} direction
-	 * @param {Theme} [theme]
+	 * @param {BirdType} [theme]
 	 */
 	draw(ctx, direction, theme) {
 		for (let y = 0; y < this.pixels.length; y++) {
@@ -300,7 +313,7 @@ class Anim {
 	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {number} direction
 	 * @param {number} timeStart The start time of the animation in milliseconds
-	 * @param {Theme} [theme] The theme to use for the animation
+	 * @param {BirdType} [theme] The theme to use for the animation
 	 * @returns {boolean} Whether the animation is complete
 	 */
 	draw(ctx, direction, timeStart, theme) {
@@ -337,6 +350,7 @@ const WING_EDGE = "wing-edge";
 const HEART = "heart";
 const HEART_BORDER = "heart-border";
 const HEART_SHINE = "heart-shine";
+const FEATHER_SPINE = "feather-spine";
 
 const SPRITESHEET_COLOR_MAP = {
 	"transparent": TRANSPARENT,
@@ -352,14 +366,19 @@ const SPRITESHEET_COLOR_MAP = {
 	"#326ed9": WING_EDGE,
 	"#c82e2e": HEART,
 	"#501a1a": HEART_BORDER,
-	"#ff6b6b": HEART_SHINE
+	"#ff6b6b": HEART_SHINE,
+	"#373737": FEATHER_SPINE,
 };
 
-class Theme {
+class BirdType {
 	/**
+	 * @param {string} name
+	 * @param {string} description
 	 * @param {Record<string, string>} colors
 	 */
-	constructor(colors) {
+	constructor(name, description, colors) {
+		this.name = name;
+		this.description = description;
 		const defaultColors = {
 			[TRANSPARENT]: "transparent",
 			[OUTLINE]: "#000000",
@@ -367,13 +386,15 @@ class Theme {
 			[HEART]: "#c82e2e",
 			[HEART_BORDER]: "#501a1a",
 			[HEART_SHINE]: "#ff6b6b",
+			[FEATHER_SPINE]: "#373737",
 		};
 		this.colors = { ...defaultColors, ...colors };
 	}
 }
 
-const themes = {
-	bluebird: new Theme({
+const species = {
+	bluebird: new BirdType("Eastern Bluebird",
+		"Native to North American and very social, though can be timid around people.", {
 		[BEAK]: "#000000",
 		[FOOT]: "#af8e75",
 		[EYE]: "#000000",
@@ -383,7 +404,8 @@ const themes = {
 		[WING]: "#578ae6",
 		[WING_EDGE]: "#326ed9",
 	}),
-	shimaEnaga: new Theme({
+	shimaEnaga: new BirdType("Shima Enaga",
+		"Small, fluffy birds found in the snowy regions of Japan", {
 		[BEAK]: "#000000",
 		[FOOT]: "#af8e75",
 		[EYE]: "#000000",
@@ -403,8 +425,10 @@ const Directions = {
 
 const SPRITE_WIDTH = 32;
 const DECORATIONS_SPRITE_WIDTH = 48;
+const FEATHER_SPRITE_WIDTH = 32;
 const SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAAgCAYAAACy9KU0AAAAAXNSR0IArs4c6QAABBdJREFUeJztnL9LHEEUx79zWkgk3RFwTRvsDKS5KpWpbDSVVQgkjSCYKkfIHyDBIhAhIAiBkOoqsUmVVDbaBFKkkLTxhHBgEQM28aU4Z53d25lddXfm1vt+4Ni5X/vm9t77znfm9hYghBBCCCGEEOIJFboDhOQhImJ7TinFHK4x/PJILiEFQMd+PD0NANg+PEy0ffSBEBIIOWcximQxigbaLnEqK/5iFMne7KzIyspAu+r4pFrGQ3eAFCOr0HyN/I+np/Gq2UTr4cOBtnYhPtjf3cWrZjNuk/rTCN0Bkk96GqK3vkf/UAKwfXiIN71e4rE3vZ5X8SNkZDGnIebWhwCZU7C92dn45msKltUHn7FJtdABFUQyCNEP7UB8oad5pgsx3YePaWC6D1x8JiOHiPQXP42tz9ihHYDZh1ACHFr8SflwBCmIiMj+/fvx/db3715HYHMdKJQDMAuf7oMQj+iRV7sfOgBCrk+hUcyW8KM2CtIBEFIuuUWkiy5db7oWfRQiBZDUCeZrcZwnIpri83wreUyVUhAR8zWVHFyXAIqI8Eslw0BadGwDNkliFSCX+ADA8y2JD3JVYjAMAkhIUcwUXFrvxu1OOwrRncqYGlNy9E9KqTenA2pMRlC3pvDhRf8APnvXxeflBuY3zwBcHOQqxGAYBJCQgohSKiE6N5WpMSXzm2f4vNwoRYSsO8gTAAA4OT6K21rlXVbzMgIhItKYTI4caQHU8TvtKBGXQkQ8Ii7hMeuCeTmI1QEppZTr515TfICkG8riKi7l7G93QAC1+KRjp91Q1v6YAKRknOJjwNSzUOjf8O/vPMLK7y9xGwCeHn/KfG36C/n56w+Ai2laUYZBAAmxsbTezU3mKtd+bPGNmLXIc2cnzwsWpztzA89NLHzFg9UD3Lt7O/O9Wni+bczoffUDXnIapuMPCOBBtgC6+kEbTMoiT4A67QhL61102lFV+WZ1X+ciVIs8v/L1gE535jCxMAOsHmQ+nxYe4Ho+VAuPptOOriSAhJTBx5kn1kHQg/gA6Oe4Lf/rQq4DAvrTmrQLOvlxAgBovt63vfciyBWFx+XAgAsXlkXZAkhImt5aS1bGtwEkp1s+xAeAuAbgurigQmdCp0VAi08Wzdf7pZ0lHVoACcmjt9aKE80QI1/5ZhUh85fhYc7/S/0Vo7fWcr62TPEx44cSQEJqgOhZQFqItAgNcx3krgHpX6POP4hVhKosfB0bgFMEKT5kBFHfNmb6SW8RohuBcRkI2X77UgDEN32/qstEpC5D4YzPS1WQEUbQd0TyYPWg0pr0SlbxZ92vWoBCxSekLui60LcbURPpYrdtqxSgkPEJqQuSQeg+uSh8HpBeh3FtqyR0fELqQN3WPi91VnLuzir88KHjE0LK5z8tFuzphqiPOAAAAABJRU5ErkJggg==";
 const DECORATIONS_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAPNJREFUaIHtmTESgzAMBHWZDC+gp0vP/x9Bn44+L6BRmrhJA4csM05uGzfY1s1JxggzIYQQQgghxEnATnB3zwikAICKiXq4BE/uwaxvn/UPb3BnNwFg27Ky0w6vzRp8S4mkIbQD3wzzFJofdTMkYJgn89czFADGKSSiSgphfFBjTaoIKC4cHWvSxIFMmjiQSYoDLUlxoCVywOwHHWjpROop1IL/vsxty2oYO77M1QggSvcpJAFXE66BPfa+2C4v4j2yi7z7FJKAq6FrwN3TO3MMlAAAKO3F2sVZTiu2N9p9CnUv4FR7PbMG2BQ69SJL/kVA8QauAnHUj36BVwAAAABJRU5ErkJggg==";
+const FEATHER_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
 
 /**
  * Load the spritesheet and return the pixelmap template
@@ -462,9 +486,10 @@ function loadSpritesheetPixels(dataUri, templateColors = true) {
 	});
 }
 
-Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECORATIONS_SPRITE_SHEET_URI, false)]).then(([birbPixels, decorationPixels]) => {
+Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECORATIONS_SPRITE_SHEET_URI, false), loadSpritesheetPixels(FEATHER_SPRITE_SHEET_URI)]).then(([birbPixels, decorationPixels, featherPixels	]) => {
 	const SPRITE_SHEET = birbPixels;
 	const DECORATIONS_SPRITE_SHEET = decorationPixels;
+	const FEATHER_SPRITE_SHEET = featherPixels;
 
 	const layers = {
 		base: new Layer(getLayer(SPRITE_SHEET, 0)),
@@ -482,6 +507,10 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		mac: new Layer(getLayer(DECORATIONS_SPRITE_SHEET, 0, DECORATIONS_SPRITE_WIDTH)),
 	};
 
+	const featherLayers = {
+		feather: new Layer(getLayer(FEATHER_SPRITE_SHEET, 0, FEATHER_SPRITE_WIDTH)),
+	};
+
 	const birbFrames = {
 		base: new Frame([layers.base]),
 		headDown: new Frame([layers.down]),
@@ -495,6 +524,10 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 
 	const decorationFrames = {
 		mac: new Frame([decorationLayers.mac]),
+	};
+
+	const featherFrames = {
+		feather: new Frame([featherLayers.feather]),
 	};
 
 	const Animations = {
@@ -541,6 +574,14 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	const DECORATION_ANIMATIONS = {
 		mac: new Anim([
 			decorationFrames.mac,
+		], [
+			1000,
+		]),
+	};
+
+	const FEATHER_ANIMATIONS = {
+		feather: new Anim([
+			featherFrames.feather,	
 		], [
 			1000,
 		]),
@@ -644,6 +685,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				setState(States.IDLE);
 			}
 		}
+		updateFeather();
 	}
 
 	function draw() {
@@ -676,7 +718,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		if (currentAnimation.draw(ctx, direction, animStart, themes[currentTheme])) {
+		if (currentAnimation.draw(ctx, direction, animStart, species[currentTheme])) {
 			setAnimation(Animations.STILL);
 		}
 
@@ -724,8 +766,42 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		makeDraggable(decorationCanvas, false);
 	}
 
+	insertFeather();
+
+	function insertFeather() {
+		let theme = species[currentTheme];
+		const featherCanvas = document.createElement("canvas");
+		featherCanvas.id = "birb-feather";
+		featherCanvas.classList.add("birb-decoration");
+		featherCanvas.width = FEATHER_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
+		featherCanvas.height = FEATHER_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
+		const x = featherCanvas.width * 2 + Math.random() * (window.innerWidth - featherCanvas.width * 4);
+		featherCanvas.style.marginLeft = `${x}px`;
+		const featherCtx = featherCanvas.getContext("2d");
+		if (!featherCtx) {
+			return;
+		}
+		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), theme);
+		document.body.appendChild(featherCanvas);
+	}
+
+
+	function updateFeather() {
+		const feather = document.querySelector("#birb-feather");
+		const featherGravity = 1;
+		if (!feather || !(feather instanceof HTMLElement)) {
+			return;
+		}
+		const y = parseInt(feather.style.top || "0") + featherGravity;
+		feather.style.top = `${Math.min(y, window.innerHeight - feather.offsetHeight)}px`;
+		if (y < window.innerHeight - feather.offsetHeight) {
+			feather.style.left = `${Math.sin(3.14 * 2 * (ticks / 120)) * 25}px`;
+		}
+	}
+	
+
 	// insertDecoration();
-	// insertFieldGuide();
+	insertFieldGuide();
 
 	function insertFieldGuide() {
 		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
@@ -748,6 +824,8 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 					<div class="birb-grid-item"></div>
 					<div class="birb-grid-item"></div>
 				</div>
+				<div class="birb-field-guide-description">
+				</div>
 			</div>`
 		const fieldGuide = makeElement("birb-window", undefined, FIELD_GUIDE_ID);
 		fieldGuide.innerHTML = html;
@@ -765,7 +843,17 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			return;
 		}
 		content.innerHTML = "";
-		for (const [name, theme] of Object.entries(themes)) {
+
+		const generateDescription = (theme) => {
+			return "<b>" + theme.name + "</b><div style='height: 0.3em'></div>" + theme.description;
+		};
+
+		const description = fieldGuide.querySelector(".birb-field-guide-description");
+		if (!description) {
+			return;
+		}
+		description.innerHTML = generateDescription(species[currentTheme]);
+		for (const [name, theme] of Object.entries(species)) {
 			const themeElement = makeElement("birb-grid-item");
 			const themeCanvas = document.createElement("canvas");
 			themeCanvas.width = SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
@@ -774,13 +862,19 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			if (!themeCtx) {
 				return;
 			}
-			// Draw the bird with the theme
 			birbFrames.base.draw(themeCtx, Directions.RIGHT, theme);
 			themeElement.appendChild(themeCanvas);
 			content.appendChild(themeElement);
 			themeElement.addEventListener("click", () => {
 				switchTheme(name);
 				fieldGuide.remove();
+			});
+			themeElement.addEventListener("mouseover", () => {
+				console.log("mouseover");
+				description.innerHTML = generateDescription(theme);
+			});
+			themeElement.addEventListener("mouseout", () => {
+				description.innerHTML = generateDescription(species[currentTheme]);
 			});
 		}
 	}
