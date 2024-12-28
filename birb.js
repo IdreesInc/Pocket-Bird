@@ -38,6 +38,7 @@ const HOP_DISTANCE = settings.hopDistance;
 const AFK_TIME = 1000 * 30;
 const SPRITE_HEIGHT = 32;
 const START_MENU_ID = "birb-start-menu";
+const FIELD_GUIDE_ID = "birb-field-guide";
 
 const styles = `
 	#birb {
@@ -175,6 +176,37 @@ const styles = `
 		margin-bottom: 6px;
 		opacity: 0.45;
 	}
+
+	#${FIELD_GUIDE_ID} {
+		width: 230px;
+	}
+
+	.birb-grid-content {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		flex-direction: row;
+	}
+
+	.birb-grid-item {
+		border: var(--border-size) solid rgb(255, 207, 144);
+		box-shadow: 0 0 0 var(--border-size) white;
+		width: 64px;
+		height: 64px;
+		overflow: hidden;
+		margin: 6px;
+		background: rgb(255, 221, 177, 0.5);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
+	}
+
+	.birb-grid-item canvas {
+		image-rendering: pixelated;
+		transform: scale(2);
+		padding-bottom: var(--border-size);
+	}
 `;
 
 class Layer {
@@ -234,13 +266,14 @@ class Frame {
 	/**
 	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {number} direction
+	 * @param {Theme} [theme]
 	 */
-	draw(ctx, direction) {
+	draw(ctx, direction, theme) {
 		for (let y = 0; y < this.pixels.length; y++) {
 			const row = this.pixels[y];
 			for (let x = 0; x < this.pixels[y].length; x++) {
 				const cell = direction === Directions.LEFT ? row[x] : row[this.pixels[y].length - x - 1];
-				ctx.fillStyle = bluebirdColors[cell] ?? cell;
+				ctx.fillStyle = theme?.colors[cell] ?? cell;
 				ctx.fillRect(x * CANVAS_PIXEL_SIZE, y * CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE);
 			};
 		};
@@ -267,9 +300,10 @@ class Anim {
 	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {number} direction
 	 * @param {number} timeStart The start time of the animation in milliseconds
+	 * @param {Theme} [theme] The theme to use for the animation
 	 * @returns {boolean} Whether the animation is complete
 	 */
-	draw(ctx, direction, timeStart) {
+	draw(ctx, direction, timeStart, theme) {
 		let time = Date.now() - timeStart;
 		const duration = this.getAnimationDuration();
 		if (this.loop) {
@@ -279,12 +313,12 @@ class Anim {
 		for (let i = 0; i < this.durations.length; i++) {
 			totalDuration += this.durations[i];
 			if (time < totalDuration) {
-				this.frames[i].draw(ctx, direction);
+				this.frames[i].draw(ctx, direction, theme);
 				return false;
 			}
 		}
 		// Draw the last frame if the animation is complete
-		this.frames[this.frames.length - 1].draw(ctx, direction);
+		this.frames[this.frames.length - 1].draw(ctx, direction, theme);
 		return true;
 	}
 }
@@ -321,22 +355,46 @@ const SPRITESHEET_COLOR_MAP = {
 	"#ff6b6b": HEART_SHINE
 };
 
-const bluebirdColors = {
-	[TRANSPARENT]: "transparent",
-	[OUTLINE]: "#000000",
-	[BORDER]: "#ffffff",
-	[BEAK]: "#000000",
-	[FOOT]: "#af8e75",
-	[EYE]: "#000000",
-	[FACE]: "#639bff",
-	[BELLY]: "#f8b143",
-	[UNDERBELLY]: "#ec8637",
-	[WING]: "#578ae6",
-	[WING_EDGE]: "#326ed9",
-	[HEART]: "#c82e2e",
-	[HEART_BORDER]: "#501a1a",
-	[HEART_SHINE]: "#ff6b6b",
+class Theme {
+	/**
+	 * @param {Record<string, string>} colors
+	 */
+	constructor(colors) {
+		const defaultColors = {
+			[TRANSPARENT]: "transparent",
+			[OUTLINE]: "#000000",
+			[BORDER]: "#ffffff",
+			[HEART]: "#c82e2e",
+			[HEART_BORDER]: "#501a1a",
+			[HEART_SHINE]: "#ff6b6b",
+		};
+		this.colors = { ...defaultColors, ...colors };
+	}
+}
+
+const themes = {
+	bluebird: new Theme({
+		[BEAK]: "#000000",
+		[FOOT]: "#af8e75",
+		[EYE]: "#000000",
+		[FACE]: "#639bff",
+		[BELLY]: "#f8b143",
+		[UNDERBELLY]: "#ec8637",
+		[WING]: "#578ae6",
+		[WING_EDGE]: "#326ed9",
+	}),
+	shimaEnaga: new Theme({
+		[BEAK]: "#000000",
+		[FOOT]: "#af8e75",
+		[EYE]: "#000000",
+		[FACE]: "#ffffff",
+		[BELLY]: "#ebe9e8",
+		[UNDERBELLY]: "#ebd9d0",
+		[WING]: "#e3cabd",
+		[WING_EDGE]: "#9b8b82",
+	}),
 };
+
 
 const Directions = {
 	LEFT: -1,
@@ -518,10 +576,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	let targetY = 0;
 	/** @type {HTMLElement|null} */
 	let focusedElement = null;
-	// Time of the user's last action on the page
 	let timeOfLastAction = Date.now();
-	// Stack of timestamps for each mouseover, max length of 10
 	let petStack = [];
+	let currentTheme = "bluebird";
 
 	function init() {
 		if (window !== window.top) {
@@ -619,7 +676,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		if (currentAnimation.draw(ctx, direction, animStart)) {
+		if (currentAnimation.draw(ctx, direction, animStart, themes[currentTheme])) {
 			setAnimation(Animations.STILL);
 		}
 
@@ -668,6 +725,76 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	}
 
 	// insertDecoration();
+	// insertFieldGuide();
+
+	function insertFieldGuide() {
+		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
+			return;
+		}
+		let html = `
+			<div class="birb-window-header">
+				<div class="birb-window-title">Field Guide</div>
+				<div class="birb-window-close">x</div>
+			</div>
+			<div class="birb-window-content">
+				<div class="birb-grid-content">
+					<div class="birb-grid-item"></div>
+					<div class="birb-grid-item"></div>
+					<div class="birb-grid-item"></div>
+					<div class="birb-grid-item"></div>
+					<div class="birb-grid-item"></div>
+					<div class="birb-grid-item"></div>
+					<div class="birb-grid-item"></div>
+					<div class="birb-grid-item"></div>
+					<div class="birb-grid-item"></div>
+				</div>
+			</div>`
+		const fieldGuide = makeElement("birb-window", undefined, FIELD_GUIDE_ID);
+		fieldGuide.innerHTML = html;
+		fieldGuide.style.left = `${window.innerWidth / 2 - 115}px`;
+		fieldGuide.style.top = `${window.innerHeight / 2 - 115}px`;
+		document.body.appendChild(fieldGuide);
+		makeDraggable(fieldGuide.querySelector(".birb-window-header"));
+
+		fieldGuide.querySelector(".birb-window-close")?.addEventListener("click", () => {
+			removeFieldGuide();
+		});	
+
+		const content = fieldGuide.querySelector(".birb-grid-content");
+		if (!content) {
+			return;
+		}
+		content.innerHTML = "";
+		for (const [name, theme] of Object.entries(themes)) {
+			const themeElement = makeElement("birb-grid-item");
+			const themeCanvas = document.createElement("canvas");
+			themeCanvas.width = SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
+			themeCanvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
+			const themeCtx = themeCanvas.getContext("2d");
+			if (!themeCtx) {
+				return;
+			}
+			// Draw the bird with the theme
+			birbFrames.base.draw(themeCtx, Directions.RIGHT, theme);
+			themeElement.appendChild(themeCanvas);
+			content.appendChild(themeElement);
+			themeElement.addEventListener("click", () => {
+				switchTheme(name);
+				fieldGuide.remove();
+			});
+		}
+	}
+
+	function removeFieldGuide() {
+		const fieldGuide = document.querySelector("#" + FIELD_GUIDE_ID);
+		if (fieldGuide) {
+			fieldGuide.remove();
+		}
+	}
+
+	function switchTheme(theme) {
+		currentTheme = theme;
+	}
 
 	/**
 	 * Add the start menu to the page if it doesn't already exist
@@ -687,6 +814,10 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		});
 		content.appendChild(petButton);
 		let fieldGuideButton = makeElement("birb-window-list-item", "Field Guide");
+		fieldGuideButton.addEventListener("click", () => {
+			removeStartMenu();
+			insertFieldGuide();
+		});
 		content.appendChild(fieldGuideButton);
 		let decorationsButton = makeElement("birb-window-list-item", "Decorations");
 		decorationsButton.addEventListener("click", () => {
