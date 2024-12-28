@@ -695,6 +695,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				setState(States.IDLE);
 			}
 		}
+		if (Math.random() < 1 / (60 * 3)) {
+			activateFeather();
+		}
 		updateFeather();
 	}
 
@@ -776,8 +779,22 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		makeDraggable(decorationCanvas, false);
 	}
 
-	insertFeather("shimaEnaga");
+	function activateFeather() {
+		if (document.querySelector("#" + FEATHER_ID)) {
+			return;
+		}
+		const themes = Object.keys(species).filter((theme) => !unlockedThemes.includes(theme));
+		if (themes.length === 0) {
+			// No more themes to unlock
+			return;
+		}
+		const birdType = themes[Math.floor(Math.random() * themes.length)];
+		insertFeather(birdType);
+	}
 
+	/**
+	 * @param {string} birdType
+	 */
 	function insertFeather(birdType) {
 		let theme = species[birdType];
 		const featherCanvas = document.createElement("canvas");
@@ -787,6 +804,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		featherCanvas.height = FEATHER_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
 		const x = featherCanvas.width * 2 + Math.random() * (window.innerWidth - featherCanvas.width * 4);
 		featherCanvas.style.marginLeft = `${x}px`;
+		featherCanvas.style.top = `${-featherCanvas.height}px`;
 		const featherCtx = featherCanvas.getContext("2d");
 		if (!featherCtx) {
 			return;
@@ -842,19 +860,8 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				<div class="birb-window-close">x</div>
 			</div>
 			<div class="birb-window-content">
-				<div class="birb-grid-content">
-					<div class="birb-grid-item"></div>
-					<div class="birb-grid-item"></div>
-					<div class="birb-grid-item"></div>
-					<div class="birb-grid-item"></div>
-					<div class="birb-grid-item"></div>
-					<div class="birb-grid-item"></div>
-					<div class="birb-grid-item"></div>
-					<div class="birb-grid-item"></div>
-					<div class="birb-grid-item"></div>
-				</div>
-				<div class="birb-field-guide-description">
-				</div>
+				<div class="birb-grid-content"></div>
+				<div class="birb-field-guide-description"></div>
 			</div>`
 		const fieldGuide = makeElement("birb-window", undefined, FIELD_GUIDE_ID);
 		fieldGuide.innerHTML = html;
@@ -920,6 +927,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 	}
 
+	/**
+	 * @param {string} theme
+	 */
 	function switchTheme(theme) {
 		currentTheme = theme;
 	}
