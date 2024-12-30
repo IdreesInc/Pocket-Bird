@@ -182,30 +182,29 @@ const styles = `
 	}
 
 	#${FIELD_GUIDE_ID} {
-		width: 230px;
+		width: 260px;
 	}
 
 	.birb-grid-content {
+		width: 100%;
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: center;
+		justify-content: space-between;
 		flex-direction: row;
+		padding-top: 4px;
+		padding-bottom: 4px;
 	}
 
 	.birb-grid-item {
 		width: 64px;
 		height: 64px;
 		overflow: hidden;
-		margin: 6px;
+		margin-top: 6px;
+		margin-bottom: 6px;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		cursor: pointer;
-	}
-
-	.birb-grid-item-locked {
-		filter: grayscale(100%);
-		cursor: auto;
 	}
 
 	.birb-grid-item canvas {
@@ -218,6 +217,15 @@ const styles = `
 		border: var(--border-size) solid rgb(255, 207, 144);
 		box-shadow: 0 0 0 var(--border-size) white;
 		background: rgba(255, 221, 177, 0.5);
+	}
+
+	.birb-grid-item-locked {
+		cursor: auto;
+		filter: grayscale(100%) sepia(30%);
+	}
+
+	.birb-grid-item-locked canvas {
+		filter: contrast(90%);
 	}
 
 	.birb-field-guide-description {
@@ -250,32 +258,51 @@ const styles = `
 class Layer {
 	/**
 	 * @param {string[][]} pixels
+	 * @param {string} [tag]
 	 */
-	constructor(pixels) {
+	constructor(pixels, tag="default") {
 		this.pixels = pixels;
+		this.tag = tag;
 	}
 }
 
 class Frame {
+
+	#pixelsByTag = {};
+
 	/**
 	 * @param {Layer[]} layers
 	 */
 	constructor(layers) {
-		let maxHeight = layers.reduce((max, layer) => Math.max(max, layer.pixels.length), 0);
-		this.pixels = layers[0].pixels.map(row => row.slice());
-		// Pad from top with transparent pixels
-		while (this.pixels.length < maxHeight) {
-			this.pixels.unshift(new Array(this.pixels[0].length).fill(TRANSPARENT));
+		/** @type {Set<string>} */
+		let tags = new Set();
+		for (let layer of layers) {
+			tags.add(layer.tag);
 		}
-		// Combine layers
-		for (let i = 1; i < layers.length; i++) {
-			let layerPixels = layers[i].pixels;
-			let topMargin = maxHeight - layerPixels.length;
-			for (let y = 0; y < layerPixels.length; y++) {
-				for (let x = 0; x < layerPixels[y].length; x++) {
-					this.pixels[y + topMargin][x] = layerPixels[y][x] !== TRANSPARENT ? layerPixels[y][x] : this.pixels[y + topMargin][x];
+		tags.add("default");
+		for (let tag of tags) {
+			let maxHeight = layers.reduce((max, layer) => Math.max(max, layer.pixels.length), 0);
+			if (layers[0].tag !== "default") {
+				throw new Error("First layer must have the 'default' tag");
+			}
+			this.pixels = layers[0].pixels.map(row => row.slice());
+			// Pad from top with transparent pixels
+			while (this.pixels.length < maxHeight) {
+				this.pixels.unshift(new Array(this.pixels[0].length).fill(TRANSPARENT));
+			}
+			// Combine layers
+			for (let i = 1; i < layers.length; i++) {
+				if (layers[i].tag === "default" || layers[i].tag === tag) {
+					let layerPixels = layers[i].pixels;
+					let topMargin = maxHeight - layerPixels.length;
+					for (let y = 0; y < layerPixels.length; y++) {
+						for (let x = 0; x < layerPixels[y].length; x++) {
+							this.pixels[y + topMargin][x] = layerPixels[y][x] !== TRANSPARENT ? layerPixels[y][x] : this.pixels[y + topMargin][x];
+						}
+					}
 				}
 			}
+			this.#pixelsByTag[tag] = this.pixels.map(row => row.slice());
 		}
 		// Surround non-transparent pixels with border
 		// for (let y = 0; y < this.pixels.length; y++) {
@@ -287,19 +314,27 @@ class Frame {
 		// }
 	}
 
-	hasAdjacent(x, y) {
-		for (let i = -1; i <= 1; i++) {
-			for (let j = -1; j <= 1; j++) {
-				if (i === 0 && j === 0) {
-					continue;
-				}
-				if (this.pixels[y + i] && this.pixels[y + i][x + j] && this.pixels[y + i][x + j] !== TRANSPARENT && this.pixels[y + i][x + j] !== BORDER) {
-					return true;
-				}
-			}
-		}
-		return false
+	/**
+	 * @param {string} [tag]
+	 * @returns {string[][]}
+	 */
+	getPixels(tag="default") {
+		return this.#pixelsByTag[tag] ?? this.#pixelsByTag["default"];
 	}
+
+	// hasAdjacent(x, y) {
+	// 	for (let i = -1; i <= 1; i++) {
+	// 		for (let j = -1; j <= 1; j++) {
+	// 			if (i === 0 && j === 0) {
+	// 				continue;
+	// 			}
+	// 			if (this.#pixels[y + i] && this.#pixels[y + i][x + j] && this.#pixels[y + i][x + j] !== TRANSPARENT && this.#pixels[y + i][x + j] !== BORDER) {
+	// 				return true;
+	// 			}
+	// 		}
+	// 	}
+	// 	return false
+	// }
 
 	/**
 	 * @param {CanvasRenderingContext2D} ctx
@@ -307,10 +342,11 @@ class Frame {
 	 * @param {BirdType} [theme]
 	 */
 	draw(ctx, direction, theme) {
-		for (let y = 0; y < this.pixels.length; y++) {
-			const row = this.pixels[y];
-			for (let x = 0; x < this.pixels[y].length; x++) {
-				const cell = direction === Directions.LEFT ? row[x] : row[this.pixels[y].length - x - 1];
+		const pixels = this.getPixels(theme?.tags[0]);
+		for (let y = 0; y < pixels.length; y++) {
+			const row = pixels[y];
+			for (let x = 0; x < pixels[y].length; x++) {
+				const cell = direction === Directions.LEFT ? row[x] : row[pixels[y].length - x - 1];
 				ctx.fillStyle = theme?.colors[cell] ?? cell;
 				ctx.fillRect(x * CANVAS_PIXEL_SIZE, y * CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE);
 			};
@@ -400,8 +436,9 @@ class BirdType {
 	 * @param {string} name
 	 * @param {string} description
 	 * @param {Record<string, string>} colors
+	 * @param {string[]} [tags]
 	 */
-	constructor(name, description, colors) {
+	constructor(name, description, colors, tags=[]) {
 		this.name = name;
 		this.description = description;
 		const defaultColors = {
@@ -414,6 +451,7 @@ class BirdType {
 			[FEATHER_SPINE]: "#373737",
 		};
 		this.colors = { ...defaultColors, ...colors };
+		this.tags = tags;
 	}
 }
 
@@ -440,6 +478,17 @@ const species = {
 		[WING]: "#e3cabd",
 		[WING_EDGE]: "#9b8b82",
 	}),
+	tuftedTitmouse: new BirdType("Tufted Titmouse",
+		"Native to the eastern United States, full of personality, and my wife's favorite bird.", {
+		[BEAK]: "#000000",
+		[FOOT]: "#af8e75",
+		[EYE]: "#000000",
+		[FACE]: "#c7cad7",
+		[BELLY]: "#e4e5eb",
+		[UNDERBELLY]: "#d7cfcb",
+		[WING]: "#b1b5c5",
+		[WING_EDGE]: "#9d9fa9",
+	}, ["tuft"]),
 };
 
 
@@ -451,7 +500,7 @@ const Directions = {
 const SPRITE_WIDTH = 32;
 const DECORATIONS_SPRITE_WIDTH = 48;
 const FEATHER_SPRITE_WIDTH = 32;
-const SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAAgCAYAAACy9KU0AAAAAXNSR0IArs4c6QAABBdJREFUeJztnL9LHEEUx79zWkgk3RFwTRvsDKS5KpWpbDSVVQgkjSCYKkfIHyDBIhAhIAiBkOoqsUmVVDbaBFKkkLTxhHBgEQM28aU4Z53d25lddXfm1vt+4Ni5X/vm9t77znfm9hYghBBCCCGEEOIJFboDhOQhImJ7TinFHK4x/PJILiEFQMd+PD0NANg+PEy0ffSBEBIIOWcximQxigbaLnEqK/5iFMne7KzIyspAu+r4pFrGQ3eAFCOr0HyN/I+np/Gq2UTr4cOBtnYhPtjf3cWrZjNuk/rTCN0Bkk96GqK3vkf/UAKwfXiIN71e4rE3vZ5X8SNkZDGnIebWhwCZU7C92dn45msKltUHn7FJtdABFUQyCNEP7UB8oad5pgsx3YePaWC6D1x8JiOHiPQXP42tz9ihHYDZh1ACHFr8SflwBCmIiMj+/fvx/db3715HYHMdKJQDMAuf7oMQj+iRV7sfOgBCrk+hUcyW8KM2CtIBEFIuuUWkiy5db7oWfRQiBZDUCeZrcZwnIpri83wreUyVUhAR8zWVHFyXAIqI8Eslw0BadGwDNkliFSCX+ADA8y2JD3JVYjAMAkhIUcwUXFrvxu1OOwrRncqYGlNy9E9KqTenA2pMRlC3pvDhRf8APnvXxeflBuY3zwBcHOQqxGAYBJCQgohSKiE6N5WpMSXzm2f4vNwoRYSsO8gTAAA4OT6K21rlXVbzMgIhItKYTI4caQHU8TvtKBGXQkQ8Ii7hMeuCeTmI1QEppZTr515TfICkG8riKi7l7G93QAC1+KRjp91Q1v6YAKRknOJjwNSzUOjf8O/vPMLK7y9xGwCeHn/KfG36C/n56w+Ai2laUYZBAAmxsbTezU3mKtd+bPGNmLXIc2cnzwsWpztzA89NLHzFg9UD3Lt7O/O9Wni+bczoffUDXnIapuMPCOBBtgC6+kEbTMoiT4A67QhL61102lFV+WZ1X+ciVIs8v/L1gE535jCxMAOsHmQ+nxYe4Ho+VAuPptOOriSAhJTBx5kn1kHQg/gA6Oe4Lf/rQq4DAvrTmrQLOvlxAgBovt63vfciyBWFx+XAgAsXlkXZAkhImt5aS1bGtwEkp1s+xAeAuAbgurigQmdCp0VAi08Wzdf7pZ0lHVoACcmjt9aKE80QI1/5ZhUh85fhYc7/S/0Vo7fWcr62TPEx44cSQEJqgOhZQFqItAgNcx3krgHpX6POP4hVhKosfB0bgFMEKT5kBFHfNmb6SW8RohuBcRkI2X77UgDEN32/qstEpC5D4YzPS1WQEUbQd0TyYPWg0pr0SlbxZ92vWoBCxSekLui60LcbURPpYrdtqxSgkPEJqQuSQeg+uSh8HpBeh3FtqyR0fELqQN3WPi91VnLuzir88KHjE0LK5z8tFuzphqiPOAAAAABJRU5ErkJggg==";
+const SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWAAAAAgCAYAAAAsTqKUAAAAAXNSR0IArs4c6QAABKFJREFUeJztnL9rHEccxd+cXRwx7o6AVmmNOhncXOVKqdycXKkKgQiBQSBXOYz/AGFUBGIIGIQCIdVVQo2rqHJjNQYXKYTb6AzhwIUVUGN9U9zN3uze7OzpvDuze/s+cOzsj7vv7O7M+76d3VuAEEIIIYQQQgghpHRU6AoQkoeISNY6pRTbMKktbLwkl5ACqGM/Xl0FABxfXCTKPupACCFBkAmbUSSbUTRTdolzUfE3o0jerq+L7O7OlMuOT0iZ3A5dATIfNqHx5fwer67iWaeD7sOHM2XtQn1w9uYNnnU6cZmQutMKXQGST/oyXE99u79QAnh8cYEXo1Fi2YvRyKv4E0IainkZbk59CLA5BPF2fT3++BqCsNXBZ2xCyoQOeE7EQoh6aAfqCz3MYbpQ0336GAZJ14E33whpGCIyvvljTH3GDu0AzTqESkChkx8hRUMHMSciImf378fz3ffvvTowcxw4lAM0ha+J7jMt/E08BoQEQTsv7X7pAJuFcdxFz4aqA9tAw7CNfzaxATR53wkAQLYPYxH2G7gCCYAUT+5NOH2ilVKJj7mubKqSAJSB79gkPNuH0xEY37F1s9N1qHIbrEp/rQPOP2KY4ms0PuhlImJuU0qDMOuQWg4RkSo3RLJcHO2EbWshE0AeaYG19VcyS+aJdImv5mgndsKYbFtow3DV4WhHJU4qhZiQcEzMUDy/dTCMy4N+BBFZmj66ckvJxy9SyL44HXDrTgT1zQp+fxoBAH76dYjXT1p49OoawPQgl+GG8xLA9qGYQyF0w4SEQ5RSCdFdVlZuKXn06hqvn7QKEeGvcsCXnz7G5UE/0t/LDnYDgRQRad2JEsvSCUDH1xl2kTiELMLWwVAG/YjtDBCX8Jq6wH45S6YDVkop18C5Kb5A0g3bWMSlXv83nEkAWnzTsdNu2PZ7bABkEa5ONqTdO1W6DADtXljxrUgCcIqvAbteBnO9De23b7/H7r9/xWUA+PHTn9Zt0yfkwz+fAUyHKealCgmAEABo907VVHhPvbefqiaAvG20+/UZ34hZi37urKQeWL862ZhZ1+6d4sHeOe59d9f6XS28716u6d8aB7zhMISOP5MAzu0JwFUPXgaRuhIyAdjIE+BBP8LWwRAluvRM9z0R4UocpzwWfh/w1ckG2r01YO/cuj4tvMDXXYdo4dUM+tFCCYCQOlIV4dX8sfZDpgnyIL4Axn08q//XhVwHDIwv69Mu+PLvSwBA5/lZ1nenQRYUXpcDB6Yu3EbRCYAQkmS035Xd28cAksMNPsQXgLgMWF1ccG4FbSKoxddG5/lZYc8Fh04AhBA3o/1u3NEMMfbV3zJF2Hwyqsr9fy4BBsYiONrvOrctUnzN+KESACGk8oi+Ck4LcR3+AJI7BqyfRpjsSKYIlyl8OjYAZxKg+BLSONS7l2vjTp8hxEuB8UINOf7l5/itTOZ8WS/cSL3QwxmfL/0gpLEIxo5YHuydL89b42ziZ5svW4BDxSeE1AOtC/qzFJqQFrusaZkCHDI+IaQeiIXQdXIx93PAehzWNS2T0PEJIdWnbvd+bvSvtNwfK3HnQ8cnhJCi+R9t4o1zEu5PTgAAAABJRU5ErkJggg==";
 const DECORATIONS_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAPNJREFUaIHtmTESgzAMBHWZDC+gp0vP/x9Bn44+L6BRmrhJA4csM05uGzfY1s1JxggzIYQQQgghxEnATnB3zwikAICKiXq4BE/uwaxvn/UPb3BnNwFg27Ky0w6vzRp8S4mkIbQD3wzzFJofdTMkYJgn89czFADGKSSiSgphfFBjTaoIKC4cHWvSxIFMmjiQSYoDLUlxoCVywOwHHWjpROop1IL/vsxty2oYO77M1QggSvcpJAFXE66BPfa+2C4v4j2yi7z7FJKAq6FrwN3TO3MMlAAAKO3F2sVZTiu2N9p9CnUv4FR7PbMG2BQ69SJL/kVA8QauAnHUj36BVwAAAABJRU5ErkJggg==";
 const FEATHER_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
 
@@ -523,9 +572,11 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		heartTwo: new Layer(getLayer(SPRITE_SHEET, 3)),
 		heartThree: new Layer(getLayer(SPRITE_SHEET, 4)),
 		heartFour: new Layer(getLayer(SPRITE_SHEET, 5)),
-		wingsUp: new Layer(getLayer(SPRITE_SHEET, 6)),
-		wingsDown: new Layer(getLayer(SPRITE_SHEET, 7)),
-		happyEye: new Layer(getLayer(SPRITE_SHEET, 8)),
+		tuftBase: new Layer(getLayer(SPRITE_SHEET, 6), "tuft"),
+		tuftDown: new Layer(getLayer(SPRITE_SHEET, 7), "tuft"),
+		wingsUp: new Layer(getLayer(SPRITE_SHEET, 8)),
+		wingsDown: new Layer(getLayer(SPRITE_SHEET, 9)),
+		happyEye: new Layer(getLayer(SPRITE_SHEET, 10)),
 	};
 
 	const decorationLayers = {
@@ -537,14 +588,14 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	};
 
 	const birbFrames = {
-		base: new Frame([layers.base]),
-		headDown: new Frame([layers.down]),
-		wingsDown: new Frame([layers.base, layers.wingsDown]),
-		wingsUp: new Frame([layers.down, layers.wingsUp]),
-		heartOne: new Frame([layers.base, layers.happyEye, layers.heartOne]),
-		heartTwo: new Frame([layers.base, layers.happyEye, layers.heartTwo]),
-		heartThree: new Frame([layers.base, layers.happyEye, layers.heartThree]),
-		heartFour: new Frame([layers.base, layers.happyEye, layers.heartFour]),
+		base: new Frame([layers.base, layers.tuftBase]),
+		headDown: new Frame([layers.down, layers.tuftDown]),
+		wingsDown: new Frame([layers.base, layers.tuftBase, layers.wingsDown]),
+		wingsUp: new Frame([layers.down, layers.tuftDown, layers.wingsUp]),
+		heartOne: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartOne]),
+		heartTwo: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartTwo]),
+		heartThree: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartThree]),
+		heartFour: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartFour]),
 	};
 
 	const decorationFrames = {
@@ -644,8 +695,8 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	let focusedElement = null;
 	let timeOfLastAction = Date.now();
 	let petStack = [];
-	let currentTheme = "bluebird";
-	let unlockedThemes = ["bluebird"];
+	let currentTheme = "tuftedTitmouse";
+	let unlockedThemes = ["tuftedTitmouse"];
 
 	function init() {
 		if (window !== window.top) {
@@ -657,7 +708,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		document.head.appendChild(styleElement);
 
 		canvas.id = "birb";
-		canvas.width = birbFrames.base.pixels[0].length * CANVAS_PIXEL_SIZE;
+		canvas.width = birbFrames.base.getPixels()[0].length * CANVAS_PIXEL_SIZE;
 		canvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
 		document.body.appendChild(canvas);
 
@@ -830,6 +881,10 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		featherCanvas.addEventListener("click", () => {
 			unlockBird(birdType);
 			removeFeather();
+			if (document.querySelector("#" + FIELD_GUIDE_ID)) {
+				removeFieldGuide();
+				insertFieldGuide();
+			}
 		});
 	}
 
