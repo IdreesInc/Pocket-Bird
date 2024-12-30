@@ -42,6 +42,14 @@ const FIELD_GUIDE_ID = "birb-field-guide";
 const FEATHER_ID = "birb-feather";
 
 const styles = `
+	:root {
+		--border-size: 2px;
+		--neg-border-size: calc(var(--border-size) * -1);
+		--double-border-size: calc(var(--border-size) * 2);
+		--neg-double-border-size: calc(var(--neg-border-size) * 2);
+		--border-color: #000000;
+	}
+
 	#birb {
 		image-rendering: pixelated;
 		position: fixed;
@@ -156,6 +164,26 @@ const styles = `
 		padding-top: 8px;
 		padding-bottom: 8px;
 	}
+
+	.birb-pico-8-content {
+		background: #111111;
+		box-shadow: none;
+		display: flex;
+		justify-content: center;
+		overflow: hidden;
+		border: none;
+	}
+
+	.birb-pico-8-content iframe {
+		width: 300px;
+		margin-left: -15px;
+		margin-right: -30px;
+		margin-top: -14px;
+		margin-bottom: -23px;
+		border:none;
+		aspect-ratio: 1;
+	}
+
 
 	.birb-window-list-item {
 		width: 100%;
@@ -1032,6 +1060,35 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 	}
 
+	insertPico8();
+
+	function isSafari() {
+		return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+	}
+
+	function insertPico8() {
+		let html = `
+			<div class="birb-window-header">
+				<div class="birb-window-title">PICO-8: Woodworm</div>
+				<div class="birb-window-close">x</div>
+			</div>
+			<div class="birb-window-content birb-pico-8-content">
+				<iframe src="https://www.lexaloffle.com/bbs/widget.php?pid=woodworm" scrolling='${isSafari() ? "yes" : "no"}'></iframe>
+			</div>`
+		const pico8 = makeElement("birb-window");
+		pico8.innerHTML = html;
+		pico8.style.left = `${window.innerWidth / 2 - 115}px`;
+		pico8.style.top = `${window.innerHeight / 2 - 115}px`;
+		document.body.appendChild(pico8);
+		makeDraggable(pico8.querySelector(".birb-window-header"));
+		const close = pico8.querySelector(".birb-window-close");
+		if (close) {
+			close.addEventListener("click", () => {
+				pico8.remove();
+			});
+		}
+	}
+
 	/**
 	 * @param {string} theme
 	 */
@@ -1141,7 +1198,19 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			offsetY = e.clientY - element.offsetTop;
 		});
 
+		element.addEventListener("touchstart", (e) => {
+			isMouseDown = true;
+			const touch = e.touches[0];
+			offsetX = touch.clientX - element.offsetLeft;
+			offsetY = touch.clientY - element.offsetTop;
+			e.preventDefault();
+		});
+
 		document.addEventListener("mouseup", () => {
+			isMouseDown = false;
+		});
+
+		document.addEventListener("touchend", () => {
 			isMouseDown = false;
 		});
 
@@ -1149,6 +1218,14 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			if (isMouseDown) {
 				element.style.left = `${e.clientX - offsetX}px`;
 				element.style.top = `${e.clientY - offsetY}px`;
+			}
+		});
+
+		document.addEventListener("touchmove", (e) => {
+			if (isMouseDown) {
+				const touch = e.touches[0];
+				element.style.left = `${touch.clientX - offsetX}px`;
+				element.style.top = `${touch.clientY - offsetY}px`;
 			}
 		});
 	}
