@@ -125,8 +125,8 @@ const styles = `
 		padding: 7px;
 		padding-top: 4px;
 		padding-bottom: 4px;
-		padding-left: 10px;
-		padding-right: 10px;
+		padding-left: 30px;
+		padding-right: 30px;
 		background-color: #ffa3cb;
 		box-shadow:
 			var(--border-size) 0 #ffa3cb, 
@@ -193,7 +193,7 @@ const styles = `
 		width: 300px;
 		margin-left: -15px;
 		margin-right: -30px;
-		margin-top: -14px;
+		margin-top: -10px;
 		margin-bottom: -23px;
 		border:none;
 		aspect-ratio: 1;
@@ -713,7 +713,8 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		new MenuItem("Pet Birb", pet),
 		new MenuItem("Field Guide", insertFieldGuide),
 		// new MenuItem("Decorations", insertDecoration),
-		new MenuItem("Programs", () => switchMenuItems(programItems), false),
+		new MenuItem("Programs", () => {}),
+		new MenuItem("Games", () => switchMenuItems(programItems), false),
 		new Separator(),
 		new MenuItem("Settings", () => {}),
 	];
@@ -724,11 +725,11 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		new MenuItem("Pico Dino", () => insertPico8("Pico Dino", "picodino")),
 		new MenuItem("Tetraminis", () => insertPico8("Tetraminis", "tetraminisdeffect")),
 		new MenuItem("Woodworm", () => insertPico8("Woodworm", "woodworm")),
-		new MenuItem("Wobblepaint	", () => insertPico8("Wobblepaint", "wobblepaint")),
-		new MenuItem("Terra Nova Pinball", () => insertPico8("Terra Nova Pinball", "terra_nova_pinball")),
+		// new MenuItem("Wobblepaint	", () => insertPico8("Wobblepaint", "wobblepaint")),
+		new MenuItem("Pinball", () => insertPico8("Terra Nova Pinball", "terra_nova_pinball")),
 		new MenuItem("Pico and Chill", () => insertPico8("Pico and Chill", "picochill")),
 		new MenuItem("Celeste 2", () => insertPico8("Celeste 2", "celeste_classic_2")),
-		new MenuItem("Pool", () => insertPico8("Pool", "mot_pool")),
+		// new MenuItem("Pool", () => insertPico8("Pool", "mot_pool")),
 	];
 
 	const styleElement = document.createElement("style");
@@ -1016,9 +1017,12 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		document.body.appendChild(modal);
 		makeDraggable(modal.querySelector(".birb-window-header"));
 
-		modal.querySelector(".birb-window-close")?.addEventListener("click", () => {
-			modal.remove();
-		});
+		const closeButton = modal.querySelector(".birb-window-close");
+		if (closeButton) {
+			makeClosable(closeButton, () => {
+				modal.remove();
+			});
+		}
 	}
 
 	function insertFieldGuide() {
@@ -1041,9 +1045,12 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		document.body.appendChild(fieldGuide);
 		makeDraggable(fieldGuide.querySelector(".birb-window-header"));
 
-		fieldGuide.querySelector(".birb-window-close")?.addEventListener("click", () => {
-			removeFieldGuide();
-		});	
+		const closeButton = fieldGuide.querySelector(".birb-window-close");
+		if (closeButton) {
+			makeClosable(closeButton, () => {
+				fieldGuide.remove();
+			});
+		}
 
 		const content = fieldGuide.querySelector(".birb-grid-content");
 		if (!content) {
@@ -1094,7 +1101,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	}
 
 	/**
-	 * @param {HTMLElement} closeButton
+	 * @param {Element} closeButton
 	 * @param {() => void} func
 	 */
 	function makeClosable(closeButton, func) {
@@ -1126,7 +1133,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	function insertPico8(name, pid) {
 		let html = `
 			<div class="birb-window-header">
-				<div class="birb-window-title">PICO-8: ${name}</div>
+				<div class="birb-window-title">${name}</div>
 				<div class="birb-window-close">x</div>
 			</div>
 			<div class="birb-window-content birb-pico-8-content">
@@ -1140,7 +1147,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		makeDraggable(pico8.querySelector(".birb-window-header"));
 		const close = pico8.querySelector(".birb-window-close");
 		if (close) {
-			close.addEventListener("click", () => {
+			makeClosable(close, () => {
 				pico8.remove();
 			});
 		}
