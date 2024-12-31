@@ -37,7 +37,8 @@ const HOP_DISTANCE = settings.hopDistance;
 // Time in milliseconds until the user is considered AFK
 const AFK_TIME = 1000 * 30;
 const SPRITE_HEIGHT = 32;
-const START_MENU_ID = "birb-start-menu";
+const MENU_ID = "birb-menu";
+const MENU_EXIT_ID = "birb-menu-exit";
 const FIELD_GUIDE_ID = "birb-field-guide";
 const FEATHER_ID = "birb-feather";
 
@@ -94,6 +95,20 @@ const styles = `
 		flex-direction: column;
 		animation: pop-in 0.08s;
 		transition-timing-function: ease-in;
+	}
+
+	#${MENU_ID} {
+		transition-duration: 0.2s;
+		transition-timing-function: ease-out;
+	}
+
+	#${MENU_EXIT_ID} {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 999999997;
 	}
 
 	@keyframes pop-in {
@@ -192,6 +207,8 @@ const styles = `
 		padding-bottom: 5px;
 		opacity: 0.6;
 		user-select: none;
+		display: flex;
+		justify-content: space-between;
 	}
 
 	.birb-window-list-item:hover {
@@ -199,14 +216,18 @@ const styles = `
 		cursor: pointer;
 	}
 
+	.birb-window-list-item-arrow {
+		display: inline-block;
+	}
+
 	.birb-window-separator {
 		width: 100%;
 		height: 1.5px;
 		background-color: #000000;
 		box-sizing: border-box;
-		margin-top: 6px;
-		margin-bottom: 6px;
-		opacity: 0.45;
+		margin-top: 4px;
+		margin-bottom: 4px;
+		opacity: 0.4;
 	}
 
 	#${FIELD_GUIDE_ID} {
@@ -332,14 +353,6 @@ class Frame {
 			}
 			this.#pixelsByTag[tag] = this.pixels.map(row => row.slice());
 		}
-		// Surround non-transparent pixels with border
-		// for (let y = 0; y < this.pixels.length; y++) {
-		// 	for (let x = 0; x < this.pixels[y].length; x++) {
-		// 		if (this.pixels[y][x] === TRANSPARENT && this.hasAdjacent(x, y)) {
-		// 			this.pixels[y][x] = BORDER;
-		// 		}
-		// 	}
-		// }
 	}
 
 	/**
@@ -349,20 +362,6 @@ class Frame {
 	getPixels(tag="default") {
 		return this.#pixelsByTag[tag] ?? this.#pixelsByTag["default"];
 	}
-
-	// hasAdjacent(x, y) {
-	// 	for (let i = -1; i <= 1; i++) {
-	// 		for (let j = -1; j <= 1; j++) {
-	// 			if (i === 0 && j === 0) {
-	// 				continue;
-	// 			}
-	// 			if (this.#pixels[y + i] && this.#pixels[y + i][x + j] && this.#pixels[y + i][x + j] !== TRANSPARENT && this.#pixels[y + i][x + j] !== BORDER) {
-	// 				return true;
-	// 			}
-	// 		}
-	// 	}
-	// 	return false
-	// }
 
 	/**
 	 * @param {CanvasRenderingContext2D} ctx
@@ -691,6 +690,47 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		]),
 	};
 
+	class MenuItem {
+		/**
+		 * @param {string} text
+		 * @param {() => void} action
+		 * @param {boolean} [removeMenu]
+		 */
+		constructor(text, action, removeMenu = true) {
+			this.text = text;
+			this.action = action;
+			this.removeMenu = removeMenu;
+		}
+	}
+
+	class Separator extends MenuItem {
+		constructor() {
+			super("", () => {});
+		}
+	}
+	
+	const menuItems = [
+		new MenuItem("Pet Birb", pet),
+		new MenuItem("Field Guide", insertFieldGuide),
+		// new MenuItem("Decorations", insertDecoration),
+		new MenuItem("Programs", () => switchMenuItems(programItems), false),
+		new Separator(),
+		new MenuItem("Settings", () => {}),
+	];
+	
+	const programItems = [
+		new MenuItem("Go Back", () => switchMenuItems(menuItems), false),
+		new Separator(),
+		new MenuItem("Pico Dino", () => insertPico8("Pico Dino", "picodino")),
+		new MenuItem("Tetraminis", () => insertPico8("Tetraminis", "tetraminisdeffect")),
+		new MenuItem("Woodworm", () => insertPico8("Woodworm", "woodworm")),
+		new MenuItem("Wobblepaint	", () => insertPico8("Wobblepaint", "wobblepaint")),
+		new MenuItem("Terra Nova Pinball", () => insertPico8("Terra Nova Pinball", "terra_nova_pinball")),
+		new MenuItem("Pico and Chill", () => insertPico8("Pico and Chill", "picochill")),
+		new MenuItem("Celeste 2", () => insertPico8("Celeste 2", "celeste_classic_2")),
+		new MenuItem("Pool", () => insertPico8("Pool", "mot_pool")),
+	];
+
 	const styleElement = document.createElement("style");
 	const canvas = document.createElement("canvas");
 
@@ -751,13 +791,13 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 
 		document.addEventListener("click", (e) => {
 			timeOfLastAction = Date.now();
-			if (e.target instanceof Node && !canvas.contains(e.target) && !document.querySelector(".birb-window")?.contains(e.target)) {
-				removeStartMenu();
+			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
+				removeMenu();
 			}
 		});
 
 		canvas.addEventListener("click", () => {
-			insertStartMenu();
+			insertMenu();
 		});
 
 		canvas.addEventListener("mouseover", () => {
@@ -782,7 +822,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	function update() {
 		ticks++;
 		if (currentState === States.IDLE) {
-			if (Math.random() < 1 / (60 * 3) && currentAnimation !== Animations.HEART && !isStartMenuOpen()) {
+			if (Math.random() < 1 / (60 * 3) && currentAnimation !== Animations.HEART && !isMenuOpen()) {
 				hop();
 			}
 		} else if (currentState === States.HOP) {
@@ -812,7 +852,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 
 		if (focusedElement === null) {
-			if (Date.now() - timeOfLastAction > AFK_TIME && !isStartMenuOpen()) {
+			if (Date.now() - timeOfLastAction > AFK_TIME && !isMenuOpen()) {
 				// Fly to an element if the user is AFK
 				focusOnElement();
 				timeOfLastAction = Date.now();
@@ -1053,6 +1093,19 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 	}
 
+	/**
+	 * @param {HTMLElement} closeButton
+	 * @param {() => void} func
+	 */
+	function makeClosable(closeButton, func) {
+		closeButton.addEventListener("click", func);
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "Escape") {
+				func();
+			}
+		});
+	}
+
 	function removeFieldGuide() {
 		const fieldGuide = document.querySelector("#" + FIELD_GUIDE_ID);
 		if (fieldGuide) {
@@ -1060,20 +1113,24 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 	}
 
-	insertPico8();
+	// insertPico8();
 
 	function isSafari() {
 		return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 	}
 
-	function insertPico8() {
+	/**
+	 * @param {string} name
+	 * @param {string} pid
+	 */
+	function insertPico8(name, pid) {
 		let html = `
 			<div class="birb-window-header">
-				<div class="birb-window-title">PICO-8: Woodworm</div>
+				<div class="birb-window-title">PICO-8: ${name}</div>
 				<div class="birb-window-close">x</div>
 			</div>
 			<div class="birb-window-content birb-pico-8-content">
-				<iframe src="https://www.lexaloffle.com/bbs/widget.php?pid=woodworm" scrolling='${isSafari() ? "yes" : "no"}'></iframe>
+				<iframe src="https://www.lexaloffle.com/bbs/widget.php?pid=${pid}" scrolling='${isSafari() ? "yes" : "no"}'></iframe>
 			</div>`
 		const pico8 = makeElement("birb-window");
 		pico8.innerHTML = html;
@@ -1097,42 +1154,38 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	}
 
 	/**
-	 * Add the start menu to the page if it doesn't already exist
+	 * Add the menu to the page if it doesn't already exist
 	 */
-	function insertStartMenu() {
-		if (document.querySelector("#" + START_MENU_ID)) {
+	function insertMenu() {
+		if (document.querySelector("#" + MENU_ID)) {
 			return;
 		}
-		let startMenu = makeElement("birb-window", undefined, START_MENU_ID);
+		let menu = makeElement("birb-window", undefined, MENU_ID);
 		let header = makeElement("birb-window-header");
 		header.innerHTML = '<div class="birb-window-title">birbOS</div>';
 		let content = makeElement("birb-window-content");
-		let petButton = makeElement("birb-window-list-item", "Pet Birb");
-		petButton.addEventListener("click", () => {
-			removeStartMenu();
-			pet();
-		});
-		content.appendChild(petButton);
-		let fieldGuideButton = makeElement("birb-window-list-item", "Field Guide");
-		fieldGuideButton.addEventListener("click", () => {
-			removeStartMenu();
-			insertFieldGuide();
-		});
-		content.appendChild(fieldGuideButton);
-		let decorationsButton = makeElement("birb-window-list-item", "Decorations");
-		decorationsButton.addEventListener("click", () => {
-			removeStartMenu();
-			insertDecoration();
-		});
-		content.appendChild(decorationsButton);
-		content.appendChild(makeElement("birb-window-list-item", "Programs"));
-		content.appendChild(makeElement("birb-window-separator"));
-		content.appendChild(makeElement("birb-window-list-item", "Settings"));
-		startMenu.appendChild(header);
-		startMenu.appendChild(content);
-		document.body.appendChild(startMenu);
+		for (const item of menuItems) {
+			content.appendChild(makeMenuItem(item));
+		}
+		menu.appendChild(header);
+		menu.appendChild(content);
+		document.body.appendChild(menu);
 		makeDraggable(document.querySelector(".birb-window-header"));
 
+		let menuExit = makeElement("birb-window-exit", undefined, MENU_EXIT_ID);
+		menuExit.addEventListener("click", () => {
+			removeMenu();
+		});
+		document.body.appendChild(menuExit);
+
+		updateMenuLocation(menu);
+	}
+
+	/**
+	 * Update the menu's location based on the bird's position
+	 * @param {HTMLElement} menu
+	 */
+	function updateMenuLocation(menu) {
 		let x = birdX;
 		let y = canvas.offsetTop + canvas.height / 2 + WINDOW_PIXEL_SIZE * 10;
 		const offset = 20;
@@ -1141,34 +1194,76 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			x += offset;
 		} else {
 			// Right side
-			x -= startMenu.offsetWidth + offset;
+			x -= menu.offsetWidth + offset;
 		}
 		if (y > window.innerHeight / 2) {
 			// Top side
-			y -= startMenu.offsetHeight + offset + 10;
+			y -= menu.offsetHeight + offset + 10;
 		} else {
 			// Bottom side
 			y += offset;
 		}
-		startMenu.style.left = `${x}px`;
-		startMenu.style.top = `${y}px`;
+		menu.style.left = `${x}px`;
+		menu.style.top = `${y}px`;
 	}
 
 	/**
-	 * Remove the start menu from the page
+	 * @param {MenuItem[]} menuItems
 	 */
-	function removeStartMenu() {
-		const startMenu = document.querySelector("#" + START_MENU_ID);
-		if (startMenu) {
-			startMenu.remove();
+	function switchMenuItems(menuItems) {
+		const menu = document.querySelector("#" + MENU_ID);
+		if (!menu || !(menu instanceof HTMLElement)) {
+			return;
+		}
+		const content = menu.querySelector(".birb-window-content");
+		if (!content) {
+			console.error("Content not found");
+			return;
+		}
+		content.innerHTML = "";
+		for (const item of menuItems) {
+			content.appendChild(makeMenuItem(item));
+		}
+		updateMenuLocation(menu);
+	}
+
+	/**
+	 * @param {MenuItem} item
+	 * @returns {HTMLElement}
+	 */
+	function makeMenuItem(item) {
+		if (item instanceof Separator) {
+			return makeElement("birb-window-separator");
+		}
+		let menuItem = makeElement("birb-window-list-item", item.text);
+		menuItem.addEventListener("click", () => {
+			if (item.removeMenu) {
+				removeMenu();
+			}
+			item.action();
+		});
+		return menuItem;
+	}
+
+	/**
+	 * Remove the menu from the page
+	 */
+	function removeMenu() {
+		const menu = document.querySelector("#" + MENU_ID);
+		if (menu) {
+			menu.remove();
+		}
+		const exitMenu = document.querySelector("#" + MENU_EXIT_ID);
+		if (exitMenu) {
+			exitMenu.remove();
 		}
 	}
 
 	/**
-	 * @returns {boolean} Whether the start menu element is on the page
+	 * @returns {boolean} Whether the menu element is on the page
 	 */
-	function isStartMenuOpen() {
-		return document.querySelector("#" + START_MENU_ID) !== null;
+	function isMenuOpen() {
+		return document.querySelector("#" + MENU_ID) !== null;
 	}
 
 	/**
