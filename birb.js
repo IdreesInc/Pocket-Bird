@@ -49,6 +49,7 @@ const styles = `
 		--double-border-size: calc(var(--border-size) * 2);
 		--neg-double-border-size: calc(var(--neg-border-size) * 2);
 		--border-color: #000000;
+		--highlight: #ffa3cb;
 	}
 
 	#birb {
@@ -100,6 +101,7 @@ const styles = `
 	#${MENU_ID} {
 		transition-duration: 0.2s;
 		transition-timing-function: ease-out;
+		min-width: 140px;
 	}
 
 	#${MENU_EXIT_ID} {
@@ -127,11 +129,11 @@ const styles = `
 		padding-bottom: 4px;
 		padding-left: 30px;
 		padding-right: 30px;
-		background-color: #ffa3cb;
+		background-color: var(--highlight);
 		box-shadow:
-			var(--border-size) 0 #ffa3cb, 
-			var(--neg-border-size) 0 #ffa3cb, 
-			0 var(--neg-border-size) #ffa3cb, 
+			var(--border-size) 0 var(--highlight), 
+			var(--neg-border-size) 0 var(--highlight), 
+			0 var(--neg-border-size) var(--highlight), 
 			var(--neg-border-size) var(--border-size) var(--border-color), 
 			var(--border-size) var(--border-size) var(--border-color);
 		color: var(--border-color);
@@ -199,6 +201,19 @@ const styles = `
 		aspect-ratio: 1;
 	}
 
+	.birb-music-player-content {
+		background: #ffecda;
+		box-shadow:
+			var(--border-size) 0 #ffecda, 
+			var(--neg-border-size) 0 #ffecda,
+			0 var(--border-size) #ffecda,
+			0 var(--neg-border-size) var(--border-color),
+			0 var(--border-size) var(--border-color);
+		display: flex;
+		justify-content: center;
+		overflow: hidden;
+		padding: 10px;
+	}
 
 	.birb-window-list-item {
 		width: 100%;
@@ -275,6 +290,10 @@ const styles = `
 
 	.birb-grid-item-locked canvas {
 		filter: contrast(90%);
+	}
+
+	.birb-grid-item-selected {
+		border: var(--border-size) solid var(--highlight);
 	}
 
 	.birb-field-guide-description {
@@ -713,22 +732,31 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		new MenuItem("Pet Birb", pet),
 		new MenuItem("Field Guide", insertFieldGuide),
 		// new MenuItem("Decorations", insertDecoration),
-		new MenuItem("Programs", () => {}),
-		new MenuItem("Games", () => switchMenuItems(programItems), false),
+		// new MenuItem("Utilities", () => {}),
+		new MenuItem("Applications", () => switchMenuItems(otherItems), false),
+		new MenuItem("Hide Birb", hideBirb),
 		new Separator(),
 		new MenuItem("Settings", () => {}),
 	];
-	
-	const programItems = [
+
+	const otherItems = [
 		new MenuItem("Go Back", () => switchMenuItems(menuItems), false),
 		new Separator(),
+		// new MenuItem("Utilities", () => {}),
+		new MenuItem("Video Games", () => switchMenuItems(gameItems), false),
+		new MenuItem("Music Player", () => insertMusicPlayer(), false),
+	];
+	
+	const gameItems = [
+		new MenuItem("Go Back", () => switchMenuItems(otherItems), false),
+		new Separator(),
+		new MenuItem("Pinball", () => insertPico8("Terra Nova Pinball", "terra_nova_pinball")),
 		new MenuItem("Pico Dino", () => insertPico8("Pico Dino", "picodino")),
-		new MenuItem("Tetraminis", () => insertPico8("Tetraminis", "tetraminisdeffect")),
 		new MenuItem("Woodworm", () => insertPico8("Woodworm", "woodworm")),
 		// new MenuItem("Wobblepaint	", () => insertPico8("Wobblepaint", "wobblepaint")),
-		new MenuItem("Pinball", () => insertPico8("Terra Nova Pinball", "terra_nova_pinball")),
 		new MenuItem("Pico and Chill", () => insertPico8("Pico and Chill", "picochill")),
-		new MenuItem("Celeste 2", () => insertPico8("Celeste 2", "celeste_classic_2")),
+		new MenuItem("Lani's Trek", () => insertPico8("Celeste 2 Lani's Trek", "celeste_classic_2")),
+		new MenuItem("Tetraminis", () => insertPico8("Tetraminis", "tetraminisdeffect")),
 		// new MenuItem("Pool", () => insertPico8("Pool", "mot_pool")),
 	];
 
@@ -764,8 +792,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	let focusedElement = null;
 	let timeOfLastAction = Date.now();
 	let petStack = [];
-	let currentTheme = "tuftedTitmouse";
-	let unlockedThemes = ["tuftedTitmouse"];
+	let currentTheme = "bluebird";
+	let unlockedThemes = ["bluebird"];
+	let visible = true;
 
 	function init() {
 		if (window !== window.top) {
@@ -831,7 +860,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				setState(States.IDLE);
 			}
 		}
-		if (Math.random() < 1 / (60 * 3)) {
+		if (visible && Math.random() < 1 / (60 * 3)) {
 			activateFeather();
 		}
 		updateFeather();
@@ -839,6 +868,10 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 
 	function draw() {
 		requestAnimationFrame(draw);
+
+		if (!visible) {
+			return;
+		}
 
 		// Update the bird's position
 		if (currentState === States.IDLE) {
@@ -1010,7 +1043,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				</div>
 			</div>`
 		const modal = makeElement("birb-window");
-		modal.style.width = "250px";
+		modal.style.width = "270px";
 		modal.innerHTML = html;
 		modal.style.left = `${window.innerWidth / 2 - 115}px`;
 		modal.style.top = `${window.innerHeight / 2 - 115}px`;
@@ -1019,9 +1052,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 
 		const closeButton = modal.querySelector(".birb-window-close");
 		if (closeButton) {
-			makeClosable(closeButton, () => {
+			makeClosable(() => {
 				modal.remove();
-			});
+			}, closeButton);
 		}
 	}
 
@@ -1047,9 +1080,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 
 		const closeButton = fieldGuide.querySelector(".birb-window-close");
 		if (closeButton) {
-			makeClosable(closeButton, () => {
+			makeClosable(() => {
 				fieldGuide.remove();
-			});
+			}, closeButton);
 		}
 
 		const content = fieldGuide.querySelector(".birb-grid-content");
@@ -1072,6 +1105,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		for (const [id, theme] of Object.entries(species)) {
 			const unlocked = unlockedThemes.includes(id);
 			const themeElement = makeElement("birb-grid-item");
+			if (id === currentTheme) {
+				themeElement.classList.add("birb-grid-item-selected");
+			}
 			const themeCanvas = document.createElement("canvas");
 			themeCanvas.width = SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
 			themeCanvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
@@ -1085,7 +1121,10 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			if (unlocked) {
 				themeElement.addEventListener("click", () => {
 					switchTheme(id);
-					fieldGuide.remove();
+					document.querySelectorAll(".birb-grid-item").forEach((element) => {
+						element.classList.remove("birb-grid-item-selected");
+					});
+					themeElement.classList.add("birb-grid-item-selected");
 				});
 			} else {
 				themeElement.classList.add("birb-grid-item-locked");
@@ -1101,11 +1140,13 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	}
 
 	/**
-	 * @param {Element} closeButton
 	 * @param {() => void} func
+	 * @param {Element} [closeButton]
 	 */
-	function makeClosable(closeButton, func) {
-		closeButton.addEventListener("click", func);
+	function makeClosable(func, closeButton) {
+		if (closeButton) {
+			closeButton.addEventListener("click", func);
+		}
 		document.addEventListener("keydown", (e) => {
 			if (e.key === "Escape") {
 				func();
@@ -1147,9 +1188,32 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		makeDraggable(pico8.querySelector(".birb-window-header"));
 		const close = pico8.querySelector(".birb-window-close");
 		if (close) {
-			makeClosable(close, () => {
+			makeClosable(() => {
 				pico8.remove();
-			});
+			}, close);
+		}
+	}
+
+	function insertMusicPlayer() {
+		let html = `
+			<div class="birb-window-header">
+				<div class="birb-window-title">Music Player</div>
+				<div class="birb-window-close">x</div>
+			</div>
+			<div class="birb-window-content birb-music-player-content">
+			<iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/31FWVQBp3WQydWLNhO0ACi?utm_source=generator" width="250" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+		</div>`;
+		const pico8 = makeElement("birb-window");
+		pico8.innerHTML = html;
+		pico8.style.left = `${window.innerWidth / 2 - 115}px`;
+		pico8.style.top = `${window.innerHeight / 2 - 115}px`;
+		document.body.appendChild(pico8);
+		makeDraggable(pico8.querySelector(".birb-window-header"));
+		const close = pico8.querySelector(".birb-window-close");
+		if (close) {
+			makeClosable(() => {
+				pico8.remove();
+			}, close);
 		}
 	}
 
@@ -1184,6 +1248,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			removeMenu();
 		});
 		document.body.appendChild(menuExit);
+		makeClosable(removeMenu);
 
 		updateMenuLocation(menu);
 	}
@@ -1451,6 +1516,11 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		if (currentState === States.IDLE) {
 			setAnimation(Animations.HEART);
 		}
+	}
+
+	function hideBirb() {
+		canvas.style.display = "none";
+		visible = false;
 	}
 
 	/**
