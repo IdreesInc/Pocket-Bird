@@ -43,6 +43,11 @@ const FIELD_GUIDE_ID = "birb-field-guide";
 const FEATHER_ID = "birb-feather";
 
 const styles = `
+	@font-face {
+		font-family: Monocraft;
+		src: url("https://cdn.jsdelivr.net/gh/idreesinc/Monocraft/dist/Monocraft.otf");
+	}
+
 	:root {
 		--border-size: 2px;
 		--neg-border-size: calc(var(--border-size) * -1);
@@ -72,7 +77,7 @@ const styles = `
 	}
 
 	.birb-window {
-		font-family: "Monocraft", "Courier New", monospace;
+		font-family: "Monocraft", monospace;
 		z-index: 999999999;
 		position: fixed;
 		background-color: #ffecda;
@@ -125,8 +130,8 @@ const styles = `
 		justify-content: space-between;
 		align-items: center;
 		padding: 7px;
-		padding-top: 4px;
-		padding-bottom: 4px;
+		padding-top: 3px;
+		padding-bottom: 3px;
 		padding-left: 30px;
 		padding-right: 30px;
 		background-color: var(--highlight);
@@ -218,8 +223,8 @@ const styles = `
 	.birb-window-list-item {
 		width: 100%;
 		font-size: 14px;
-		padding-top: 5px;
-		padding-bottom: 5px;
+		padding-top: 4px;
+		padding-bottom: 4px;
 		opacity: 0.6;
 		user-select: none;
 		display: flex;
