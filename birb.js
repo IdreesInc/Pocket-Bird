@@ -455,6 +455,7 @@ const FOOT = "foot";
 const BEAK = "beak";
 const EYE = "eye";
 const FACE = "face";
+const HOOD = "hood";
 const BELLY = "belly";
 const UNDERBELLY = "underbelly";
 const WING = "wing";
@@ -472,6 +473,7 @@ const SPRITESHEET_COLOR_MAP = {
 	"#190301": EYE,
 	"#af8e75": FOOT,
 	"#639bff": FACE,
+	"#51a5f2": HOOD,
 	"#f8b143": BELLY,
 	"#ec8637": UNDERBELLY,
 	"#578ae6": WING,
@@ -500,6 +502,7 @@ class BirdType {
 			[HEART_BORDER]: "#501a1a",
 			[HEART_SHINE]: "#ff6b6b",
 			[FEATHER_SPINE]: "#373737",
+			[HOOD]: colors.face
 		};
 		this.colors = { ...defaultColors, ...colors };
 		this.tags = tags;
@@ -540,7 +543,21 @@ const species = {
 		[WING]: "#b1b5c5",
 		[WING_EDGE]: "#9d9fa9",
 	}, ["tuft"]),
+	europeanRobin: new BirdType("European Robin",
+		"Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.", {
+		[BEAK]: "#000000",
+		[FOOT]: "#af8e75",
+		[EYE]: "#000000",
+		[FACE]: "#ffaf34",
+		[HOOD]: "#aaa094",
+		[BELLY]: "#ffaf34",
+		[UNDERBELLY]: "#babec2",
+		[WING]: "#aaa094",
+		[WING_EDGE]: "#888580",
+	}),
 };
+
+const DEFAULT_BIRD = "europeanRobin";
 
 
 const Directions = {
@@ -551,7 +568,7 @@ const Directions = {
 const SPRITE_WIDTH = 32;
 const DECORATIONS_SPRITE_WIDTH = 48;
 const FEATHER_SPRITE_WIDTH = 32;
-const SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWAAAAAgCAYAAAAsTqKUAAAAAXNSR0IArs4c6QAABKFJREFUeJztnL9rHEccxd+cXRwx7o6AVmmNOhncXOVKqdycXKkKgQiBQSBXOYz/AGFUBGIIGIQCIdVVQo2rqHJjNQYXKYTb6AzhwIUVUGN9U9zN3uze7OzpvDuze/s+cOzsj7vv7O7M+76d3VuAEEIIIYQQQgghpHRU6AoQkoeISNY6pRTbMKktbLwkl5ACqGM/Xl0FABxfXCTKPupACCFBkAmbUSSbUTRTdolzUfE3o0jerq+L7O7OlMuOT0iZ3A5dATIfNqHx5fwer67iWaeD7sOHM2XtQn1w9uYNnnU6cZmQutMKXQGST/oyXE99u79QAnh8cYEXo1Fi2YvRyKv4E0IainkZbk59CLA5BPF2fT3++BqCsNXBZ2xCyoQOeE7EQoh6aAfqCz3MYbpQ0336GAZJ14E33whpGCIyvvljTH3GDu0AzTqESkChkx8hRUMHMSciImf378fz3ffvvTowcxw4lAM0ha+J7jMt/E08BoQEQTsv7X7pAJuFcdxFz4aqA9tAw7CNfzaxATR53wkAQLYPYxH2G7gCCYAUT+5NOH2ilVKJj7mubKqSAJSB79gkPNuH0xEY37F1s9N1qHIbrEp/rQPOP2KY4ms0PuhlImJuU0qDMOuQWg4RkSo3RLJcHO2EbWshE0AeaYG19VcyS+aJdImv5mgndsKYbFtow3DV4WhHJU4qhZiQcEzMUDy/dTCMy4N+BBFZmj66ckvJxy9SyL44HXDrTgT1zQp+fxoBAH76dYjXT1p49OoawPQgl+GG8xLA9qGYQyF0w4SEQ5RSCdFdVlZuKXn06hqvn7QKEeGvcsCXnz7G5UE/0t/LDnYDgRQRad2JEsvSCUDH1xl2kTiELMLWwVAG/YjtDBCX8Jq6wH45S6YDVkop18C5Kb5A0g3bWMSlXv83nEkAWnzTsdNu2PZ7bABkEa5ONqTdO1W6DADtXljxrUgCcIqvAbteBnO9De23b7/H7r9/xWUA+PHTn9Zt0yfkwz+fAUyHKealCgmAEABo907VVHhPvbefqiaAvG20+/UZ34hZi37urKQeWL862ZhZ1+6d4sHeOe59d9f6XS28716u6d8aB7zhMISOP5MAzu0JwFUPXgaRuhIyAdjIE+BBP8LWwRAluvRM9z0R4UocpzwWfh/w1ckG2r01YO/cuj4tvMDXXYdo4dUM+tFCCYCQOlIV4dX8sfZDpgnyIL4Axn08q//XhVwHDIwv69Mu+PLvSwBA5/lZ1nenQRYUXpcDB6Yu3EbRCYAQkmS035Xd28cAksMNPsQXgLgMWF1ccG4FbSKoxddG5/lZYc8Fh04AhBA3o/1u3NEMMfbV3zJF2Hwyqsr9fy4BBsYiONrvOrctUnzN+KESACGk8oi+Ck4LcR3+AJI7BqyfRpjsSKYIlyl8OjYAZxKg+BLSONS7l2vjTp8hxEuB8UINOf7l5/itTOZ8WS/cSL3QwxmfL/0gpLEIxo5YHuydL89b42ziZ5svW4BDxSeE1AOtC/qzFJqQFrusaZkCHDI+IaQeiIXQdXIx93PAehzWNS2T0PEJIdWnbvd+bvSvtNwfK3HnQ8cnhJCi+R9t4o1zEu5PTgAAAABJRU5ErkJggg==";
+const SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWAAAAAgCAYAAAAsTqKUAAAAAXNSR0IArs4c6QAABKxJREFUeJztnLGLG0cYxd/ILkTMpTAicHtpg7ozuFHl6lK50am6IgSDQ8BwcF2E8R9wmCsMNgQMqUK4QpVyjatc5cbXGFy4ONzmZAgCw+Virsl9KaRZjVazuzpFM7OrfT8QO6td7TfanXnf21lpAEIIIYQQQgghhBDnqNAVICQPEZG0bUoptmFSWth4SS4hBVDH7mxsAAD6Z2dTZR91IISQIMiY7SiS7SiaKWeJ87Lib0eRvNncFNndnSm7jk+IS26GrgCZD5vQ+HJ+nY0NPG400Lp3b6asXagPTl6/xuNGIy4TUnZqoStA8knehuulb/cXSgD7Z2d4OhxOvfd0OPQq/oSQimLehptLHwJsDkG82dyMX76GIGx18BmbEJfQAc+JWAhRD+1AfaGHOUwXarpPH8MgyTrw4RshFUNERg9/jKXP2KEdoFmHUAkodPIjZNnQQcyJiMjJnTvxeuvdO68OzBwHDuUATeGrovtMCn8VzwEhQdDOS7tfOsBqYZx30auh6sA2UDFs459VbABV/u4EACCdw3Mtwn4DFyABkOWT+xBOX2il1NTL3OaaoiQAZeA7NglP5/BcF71ff93sdB2K3AaL0l/LQOYfMUzxNRof9HsiYu7jpEGYdUi8DxGRIjdEslr0v/syaFsLmQDySAqsrb+SWVIF2Ca+tz+vxds7h+emE3YihkVIAIQUhdAJIA+zC+4cDOJyrxuFqI4z1m8o+fivLOVaZDrg2q0I6ot1/P5jEwDw8PkArx7VcP/lFW5/XotPsgsxLEICIITMhSilpkR3VVm/oeT+yyu8elRbiginHsAUwB9+sd8+XHz6GJd1lsu61biOQIqI1G5NZ04zAZjxe91oKi6FmLhm52AgvW7EdgZIlvCausB+OUuqA1ZKqayBc1N8AUy5YRuLuNSrfwYzCUCLbzJ20g3bjscGQBbh8mhL6u1jpcsAUG+HFd+CJIBM8TVg10thrtnQfv7qW+z+9UdcBoAHn36z7pu8IB/+/BvAZJhiXoqQAAgBgHr7WE2E99h7+ylqAsjbx+XYb1p8I2Yp+nlmJceChcujrZlt9fYx7u6d4puv1yyfnAjv2xdNfaxRwGsOQ+j4Mwng1J4AsurB2yBSVkImABt5AtzrRtg5GMChS09132MRLsR5ymPh+YAvj7ZQbzeBvVPr9qTwAv/vPkQLr6bXjRZKAISUkaIIr+bX5vepJsiD+AIY9fG0/l8Wch0wMLqtT7rgi/cXAIDGk5O0z06CLCi8WQ4cmLhwG8tOAISQaYb7Ldm92QcwPdzgQ3wBSJYBK4sLzq2gTQS1+NpoPDlZaLghLfb4OEESACEkm+F+K+5ohhj76m+pImz+MqrI/X8uAQZGIjjcb2Xuu0zxNeOHSgCEkMIj+i44KcRahIusA7ljwPrXCOMvkirCLoVPxwaQmQQovoRUDvX2RXPU6VOEeCUwJtSQ/rOf4lmZzHVXE24kJvTIjM9JPwipLIKRI5a7e6erM2ucTfxs664FOFR8Qkg50LqgXyuhCUmxS1u6FOCQ8Qkh5UAshK5TFnP/DliPw2YtXRI6PiGk+JTt2c+1/pWWezCHXz50fEIIWTb/AQ/8kh61+ltSAAAAAElFTkSuQmCC";
 const DECORATIONS_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAPNJREFUaIHtmTESgzAMBHWZDC+gp0vP/x9Bn44+L6BRmrhJA4csM05uGzfY1s1JxggzIYQQQgghxEnATnB3zwikAICKiXq4BE/uwaxvn/UPb3BnNwFg27Ky0w6vzRp8S4mkIbQD3wzzFJofdTMkYJgn89czFADGKSSiSgphfFBjTaoIKC4cHWvSxIFMmjiQSYoDLUlxoCVywOwHHWjpROop1IL/vsxty2oYO77M1QggSvcpJAFXE66BPfa+2C4v4j2yi7z7FJKAq6FrwN3TO3MMlAAAKO3F2sVZTiu2N9p9CnUv4FR7PbMG2BQ69SJL/kVA8QauAnHUj36BVwAAAABJRU5ErkJggg==";
 const FEATHER_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
 
@@ -797,8 +814,8 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	let focusedElement = null;
 	let timeOfLastAction = Date.now();
 	let petStack = [];
-	let currentSpecies = "bluebird";
-	let unlockedSpecies = ["bluebird"];
+	let currentSpecies = DEFAULT_BIRD;
+	let unlockedSpecies = [DEFAULT_BIRD];
 	let visible = true;
 
 	function init() {
