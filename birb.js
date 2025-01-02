@@ -223,8 +223,8 @@ const styles = `
 	.birb-window-list-item {
 		width: 100%;
 		font-size: 14px;
-		padding-top: 4px;
-		padding-bottom: 4px;
+		padding-top: 5px;
+		padding-bottom: 5px;
 		opacity: 0.6;
 		user-select: none;
 		display: flex;
@@ -390,15 +390,15 @@ class Frame {
 	/**
 	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {number} direction
-	 * @param {BirdType} [theme]
+	 * @param {BirdType} [species]
 	 */
-	draw(ctx, direction, theme) {
-		const pixels = this.getPixels(theme?.tags[0]);
+	draw(ctx, direction, species) {
+		const pixels = this.getPixels(species?.tags[0]);
 		for (let y = 0; y < pixels.length; y++) {
 			const row = pixels[y];
 			for (let x = 0; x < pixels[y].length; x++) {
 				const cell = direction === Directions.LEFT ? row[x] : row[pixels[y].length - x - 1];
-				ctx.fillStyle = theme?.colors[cell] ?? cell;
+				ctx.fillStyle = species?.colors[cell] ?? cell;
 				ctx.fillRect(x * CANVAS_PIXEL_SIZE, y * CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE);
 			};
 		};
@@ -425,10 +425,10 @@ class Anim {
 	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {number} direction
 	 * @param {number} timeStart The start time of the animation in milliseconds
-	 * @param {BirdType} [theme] The theme to use for the animation
+	 * @param {BirdType} [species] The species to use for the animation
 	 * @returns {boolean} Whether the animation is complete
 	 */
-	draw(ctx, direction, timeStart, theme) {
+	draw(ctx, direction, timeStart, species) {
 		let time = Date.now() - timeStart;
 		const duration = this.getAnimationDuration();
 		if (this.loop) {
@@ -438,12 +438,12 @@ class Anim {
 		for (let i = 0; i < this.durations.length; i++) {
 			totalDuration += this.durations[i];
 			if (time < totalDuration) {
-				this.frames[i].draw(ctx, direction, theme);
+				this.frames[i].draw(ctx, direction, species);
 				return false;
 			}
 		}
 		// Draw the last frame if the animation is complete
-		this.frames[this.frames.length - 1].draw(ctx, direction, theme);
+		this.frames[this.frames.length - 1].draw(ctx, direction, species);
 		return true;
 	}
 }
@@ -530,7 +530,7 @@ const species = {
 		[WING_EDGE]: "#9b8b82",
 	}),
 	tuftedTitmouse: new BirdType("Tufted Titmouse",
-		"Native to the eastern United States, full of personality, and my wife's favorite bird.", {
+		"Native to the eastern United States, full of personality and notably my wife's favorite bird.", {
 		[BEAK]: "#000000",
 		[FOOT]: "#af8e75",
 		[EYE]: "#000000",
@@ -797,8 +797,8 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	let focusedElement = null;
 	let timeOfLastAction = Date.now();
 	let petStack = [];
-	let currentTheme = "bluebird";
-	let unlockedThemes = ["bluebird"];
+	let currentSpecies = "bluebird";
+	let unlockedSpecies = ["bluebird"];
 	let visible = true;
 
 	function init() {
@@ -866,7 +866,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			}
 		}
 		if (visible && Math.random() < 1 / (60 * 3)) {
-			// activateFeather();
+			activateFeather();
 		}
 		updateFeather();
 	}
@@ -905,7 +905,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		if (currentAnimation.draw(ctx, direction, animStart, species[currentTheme])) {
+		if (currentAnimation.draw(ctx, direction, animStart, species[currentSpecies])) {
 			setAnimation(Animations.STILL);
 		}
 
@@ -957,12 +957,12 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		if (document.querySelector("#" + FEATHER_ID)) {
 			return;
 		}
-		const themes = Object.keys(species).filter((theme) => !unlockedThemes.includes(theme));
-		if (themes.length === 0) {
-			// No more themes to unlock
+		const speciesToUnlock = Object.keys(species).filter((species) => !unlockedSpecies.includes(species));
+		if (speciesToUnlock.length === 0) {
+			// No more species to unlock
 			return;
 		}
-		const birdType = themes[Math.floor(Math.random() * themes.length)];
+		const birdType = speciesToUnlock[Math.floor(Math.random() * speciesToUnlock.length)];
 		insertFeather(birdType);
 	}
 
@@ -970,7 +970,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	 * @param {string} birdType
 	 */
 	function insertFeather(birdType) {
-		let theme = species[birdType];
+		let type = species[birdType];
 		const featherCanvas = document.createElement("canvas");
 		featherCanvas.id = FEATHER_ID;
 		featherCanvas.classList.add("birb-decoration");
@@ -983,7 +983,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		if (!featherCtx) {
 			return;
 		}
-		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), theme);
+		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), type);
 		document.body.appendChild(featherCanvas);
 		onClick(featherCanvas, () => {
 			unlockBird(birdType);
@@ -1006,9 +1006,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	 * @param {string} birdType
 	 */
 	function unlockBird(birdType) {
-		if (!unlockedThemes.includes(birdType)) {
-			unlockedThemes.push(birdType);
-			insertModal("New Bird Unlocked!", `You've found a <b>${species[birdType].name}</b> feather! Use the Field Guide to switch your bird's theme.`);
+		if (!unlockedSpecies.includes(birdType)) {
+			unlockedSpecies.push(birdType);
+			insertModal("New Bird Unlocked!", `You've found a <b>${species[birdType].name}</b> feather! Use the Field Guide to switch your bird's species.`);
 		}
 	}
 
@@ -1096,50 +1096,50 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 		content.innerHTML = "";
 
-		const generateDescription = (/** @type {string} */ themeId) => {
-			const theme = species[themeId];
-			const unlocked = unlockedThemes.includes(themeId);
-			return "<b>" + theme.name + "</b><div style='height: 0.3em'></div>" + (!unlocked ? "Not yet unlocked" : theme.description);
+		const generateDescription = (/** @type {string} */ speciesId) => {
+			const type = species[speciesId];
+			const unlocked = unlockedSpecies.includes(speciesId);
+			return "<b>" + type.name + "</b><div style='height: 0.3em'></div>" + (!unlocked ? "Not yet unlocked" : type.description);
 		};
 
 		const description = fieldGuide.querySelector(".birb-field-guide-description");
 		if (!description) {
 			return;
 		}
-		description.innerHTML = generateDescription(currentTheme);
-		for (const [id, theme] of Object.entries(species)) {
-			const unlocked = unlockedThemes.includes(id);
-			const themeElement = makeElement("birb-grid-item");
-			if (id === currentTheme) {
-				themeElement.classList.add("birb-grid-item-selected");
+		description.innerHTML = generateDescription(currentSpecies);
+		for (const [id, type] of Object.entries(species)) {
+			const unlocked = unlockedSpecies.includes(id);
+			const speciesElement = makeElement("birb-grid-item");
+			if (id === currentSpecies) {
+				speciesElement.classList.add("birb-grid-item-selected");
 			}
-			const themeCanvas = document.createElement("canvas");
-			themeCanvas.width = SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
-			themeCanvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
-			const themeCtx = themeCanvas.getContext("2d");
-			if (!themeCtx) {
+			const speciesCanvas = document.createElement("canvas");
+			speciesCanvas.width = SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
+			speciesCanvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
+			const speciesCtx = speciesCanvas.getContext("2d");
+			if (!speciesCtx) {
 				return;
 			}
-			birbFrames.base.draw(themeCtx, Directions.RIGHT, theme);
-			themeElement.appendChild(themeCanvas);
-			content.appendChild(themeElement);
+			birbFrames.base.draw(speciesCtx, Directions.RIGHT, type);
+			speciesElement.appendChild(speciesCanvas);
+			content.appendChild(speciesElement);
 			if (unlocked) {
-				onClick(themeElement, () => {
-					switchTheme(id);
+				onClick(speciesElement, () => {
+					switchspecies(id);
 					document.querySelectorAll(".birb-grid-item").forEach((element) => {
 						element.classList.remove("birb-grid-item-selected");
 					});
-					themeElement.classList.add("birb-grid-item-selected");
+					speciesElement.classList.add("birb-grid-item-selected");
 				});
 			} else {
-				themeElement.classList.add("birb-grid-item-locked");
+				speciesElement.classList.add("birb-grid-item-locked");
 			}
-			themeElement.addEventListener("mouseover", () => {
+			speciesElement.addEventListener("mouseover", () => {
 				console.log("mouseover");
 				description.innerHTML = generateDescription(id);
 			});
-			themeElement.addEventListener("mouseout", () => {
-				description.innerHTML = generateDescription(currentTheme);
+			speciesElement.addEventListener("mouseout", () => {
+				description.innerHTML = generateDescription(currentSpecies);
 			});
 		}
 	}
@@ -1223,10 +1223,10 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	}
 
 	/**
-	 * @param {string} theme
+	 * @param {string} species
 	 */
-	function switchTheme(theme) {
-		currentTheme = theme;
+	function switchspecies(species) {
+		currentSpecies = species;
 	}
 
 	/**
