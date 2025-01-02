@@ -72,7 +72,7 @@ const styles = `
 	}
 
 	.birb-window {
-		font-family: "Monocraft";
+		font-family: "Monocraft", "Courier New", monospace;
 		z-index: 999999999;
 		position: fixed;
 		background-color: #ffecda;
@@ -819,14 +819,14 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 
 		});
 
-		document.addEventListener("click", (e) => {
+		onClick(document, (e) => {
 			timeOfLastAction = Date.now();
 			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
 				removeMenu();
 			}
 		});
 
-		canvas.addEventListener("click", () => {
+		onClick(canvas, () => {
 			insertMenu();
 		});
 
@@ -861,7 +861,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			}
 		}
 		if (visible && Math.random() < 1 / (60 * 3)) {
-			activateFeather();
+			// activateFeather();
 		}
 		updateFeather();
 	}
@@ -980,7 +980,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), theme);
 		document.body.appendChild(featherCanvas);
-		featherCanvas.addEventListener("click", () => {
+		onClick(featherCanvas, () => {
 			unlockBird(birdType);
 			removeFeather();
 			if (document.querySelector("#" + FIELD_GUIDE_ID)) {
@@ -1119,7 +1119,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			themeElement.appendChild(themeCanvas);
 			content.appendChild(themeElement);
 			if (unlocked) {
-				themeElement.addEventListener("click", () => {
+				onClick(themeElement, () => {
 					switchTheme(id);
 					document.querySelectorAll(".birb-grid-item").forEach((element) => {
 						element.classList.remove("birb-grid-item-selected");
@@ -1145,7 +1145,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	 */
 	function makeClosable(func, closeButton) {
 		if (closeButton) {
-			closeButton.addEventListener("click", func);
+			onClick(closeButton, func);
 		}
 		document.addEventListener("keydown", (e) => {
 			if (e.key === "Escape") {
@@ -1244,7 +1244,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		makeDraggable(document.querySelector(".birb-window-header"));
 
 		let menuExit = makeElement("birb-window-exit", undefined, MENU_EXIT_ID);
-		menuExit.addEventListener("click", () => {
+		onClick(menuExit, () => {
 			removeMenu();
 		});
 		document.body.appendChild(menuExit);
@@ -1308,13 +1308,22 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			return makeElement("birb-window-separator");
 		}
 		let menuItem = makeElement("birb-window-list-item", item.text);
-		menuItem.addEventListener("click", () => {
+		onClick(menuItem, () => {
 			if (item.removeMenu) {
 				removeMenu();
 			}
 			item.action();
 		});
 		return menuItem;
+	}
+
+	/**
+	 * @param {Document|Element} element
+	 * @param {(e: Event) => void} action
+	 */
+	function onClick(element, action) {
+		element.addEventListener("click", (e) => action(e));
+		element.addEventListener("touchstart", (e) => action(e));
 	}
 
 	/**
