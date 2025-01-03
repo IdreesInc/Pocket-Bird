@@ -500,6 +500,8 @@ class BirdType {
 			[TRANSPARENT]: "transparent",
 			[OUTLINE]: "#000000",
 			[BORDER]: "#ffffff",
+			[BEAK]: "#000000",
+			[EYE]: "#000000",
 			[HEART]: "#c82e2e",
 			[HEART_BORDER]: "#501a1a",
 			[HEART_SHINE]: "#ff6b6b",
@@ -515,9 +517,7 @@ class BirdType {
 const species = {
 	bluebird: new BirdType("Eastern Bluebird",
 		"Native to North American and very social, though can be timid around people.", {
-		[BEAK]: "#000000",
 		[FOOT]: "#af8e75",
-		[EYE]: "#000000",
 		[FACE]: "#639bff",
 		[BELLY]: "#f8b143",
 		[UNDERBELLY]: "#ec8637",
@@ -526,9 +526,7 @@ const species = {
 	}),
 	shimaEnaga: new BirdType("Shima Enaga",
 		"Small, fluffy birds found in the snowy regions of Japan", {
-		[BEAK]: "#000000",
 		[FOOT]: "#af8e75",
-		[EYE]: "#000000",
 		[FACE]: "#ffffff",
 		[BELLY]: "#ebe9e8",
 		[UNDERBELLY]: "#ebd9d0",
@@ -537,9 +535,7 @@ const species = {
 	}),
 	tuftedTitmouse: new BirdType("Tufted Titmouse",
 		"Native to the eastern United States, full of personality and notably my wife's favorite bird.", {
-		[BEAK]: "#000000",
 		[FOOT]: "#af8e75",
-		[EYE]: "#000000",
 		[FACE]: "#c7cad7",
 		[BELLY]: "#e4e5eb",
 		[UNDERBELLY]: "#d7cfcb",
@@ -548,9 +544,7 @@ const species = {
 	}, ["tuft"]),
 	europeanRobin: new BirdType("European Robin",
 		"Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.", {
-		[BEAK]: "#000000",
 		[FOOT]: "#af8e75",
-		[EYE]: "#000000",
 		[FACE]: "#ffaf34",
 		[HOOD]: "#aaa094",
 		[BELLY]: "#ffaf34",
@@ -562,7 +556,6 @@ const species = {
 		"Native to the eastern United States, this strikingly red bird is hard to miss.", {
 		[BEAK]: "#d93619",
 		[FOOT]: "#af8e75",
-		[EYE]: "#000000",
 		[FACE]: "#31353d",
 		[HOOD]: "#e83a1b",
 		[BELLY]: "#e83a1b",
@@ -574,7 +567,6 @@ const species = {
 		"Coloured a brilliant yellow, this bird feeds almost entirely on the seeds of plants such as thistle, sunflowers, and coneflowers.", {
 		[BEAK]: "#ffaf34",
 		[FOOT]: "#af8e75",
-		[EYE]: "#000000",
 		[FACE]: "#fff255",
 		[NOSE]: "#383838",
 		[HOOD]: "#383838",
@@ -585,9 +577,7 @@ const species = {
 	}),
 	barnSwallow: new BirdType("Barn Swallow",
 		"Agile birds that often roost in man-made structures, these birds are known to build nests near Ospreys for protection.", {
-		[BEAK]: "#000000",
 		[FOOT]: "#af8e75",
-		[EYE]: "#000000",
 		[FACE]: "#db7c4d",
 		[BELLY]: "#f7e1c9",
 		[UNDERBELLY]: "#ebc9a3",
@@ -597,9 +587,7 @@ const species = {
 	}),
 	mistletoebird: new BirdType("Mistletoebird",
 		"Native to Australia, these birds eat mainly mistletoe and in turn spread the seeds far and wide.", {
-		[BEAK]: "#000000",
 		[FOOT]: "#6c6a7c",
-		[EYE]: "#000000",
 		[FACE]: "#352e6d",
 		[BELLY]: "#fd6833",
 		[UNDERBELLY]: "#e6e1d8",
@@ -610,16 +598,24 @@ const species = {
 		"Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plummage.", {
 		[BEAK]: "#f71919",
 		[FOOT]: "#af7575",
-		[EYE]: "#000000",
 		[FACE]: "#cb092b",
 		[BELLY]: "#ae1724",
 		[UNDERBELLY]: "#831b24",
 		[WING]: "#7e3030",
 		[WING_EDGE]: "#490f0f",
 	}),
+	scarletRobin: new BirdType("Scarlet Robin",
+		"Native to Australia, this striking robin can be found in Eucalyptus forests.", {
+		[FOOT]: "#494949",
+		[FACE]: "#3d3d3d",
+		[BELLY]: "#fc5633",
+		[UNDERBELLY]: "#dcdcdc",
+		[WING]: "#2b2b2b",
+		[WING_EDGE]: "#ebebeb",
+	}),
 };
 
-const DEFAULT_BIRD = "redAvadavat";
+const DEFAULT_BIRD = "scarletRobin";
 
 
 const Directions = {
