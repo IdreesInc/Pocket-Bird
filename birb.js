@@ -583,9 +583,21 @@ const species = {
 		[WING]: "#e8e079",
 		[WING_EDGE]: "#191919",
 	}),
+	barnSwallow: new BirdType("Barn Swallow",
+		"Agile birds that often roost in man-made structures, these birds are known to build nests near Ospreys for protection.", {
+		[BEAK]: "#000000",
+		[FOOT]: "#af8e75",
+		[EYE]: "#000000",
+		[FACE]: "#db7c4d",
+		[BELLY]: "#f7e1c9",
+		[UNDERBELLY]: "#ebc9a3",
+		[WING]: "#2252a9",
+		[WING_EDGE]: "#1c448b",
+		[HOOD]: "#2252a9",
+	}),
 };
 
-const DEFAULT_BIRD = "americanGoldfinch";
+const DEFAULT_BIRD = "barnSwallow";
 
 
 const Directions = {
