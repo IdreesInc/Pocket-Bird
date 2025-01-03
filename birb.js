@@ -613,9 +613,19 @@ const species = {
 		[WING]: "#2b2b2b",
 		[WING_EDGE]: "#ebebeb",
 	}),
+	americanRobin: new BirdType("American Robin",
+		"While not a true robin, this social North American bird is so named due to its orange colouring. It seems unbothered by nearby humans.", {
+		[BEAK]: "#e89f30",
+		[FOOT]: "#9f8075",
+		[FACE]: "#2d2d2d",
+		[BELLY]: "#eb7a3a",
+		[UNDERBELLY]: "#eb7a3a",
+		[WING]: "#444444",
+		[WING_EDGE]: "#232323",
+	}),
 };
 
-const DEFAULT_BIRD = "scarletRobin";
+const DEFAULT_BIRD = "americanRobin";
 
 
 const Directions = {
