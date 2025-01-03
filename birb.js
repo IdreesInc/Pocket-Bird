@@ -251,7 +251,7 @@ const styles = `
 	}
 
 	#${FIELD_GUIDE_ID} {
-		width: 260px;
+		width: 340px;
 	}
 
 	.birb-grid-content {
@@ -525,7 +525,7 @@ const species = {
 		[WING_EDGE]: "#326ed9",
 	}),
 	shimaEnaga: new BirdType("Shima Enaga",
-		"Small, fluffy birds found in the snowy regions of Japan", {
+		"Small, fluffy birds found in the snowy regions of Japan, these birds are highly sought after by ornithologists and nature photographers.", {
 		[FOOT]: "#af8e75",
 		[FACE]: "#ffffff",
 		[BELLY]: "#ebe9e8",
