@@ -570,9 +570,22 @@ const species = {
 		[WING]: "#d23215",
 		[WING_EDGE]: "#b1321c",
 	}, ["tuft"]),
+	americanGoldfinch: new BirdType("American Goldfinch",
+		"Coloured a brilliant yellow, this bird feeds almost entirely on the seeds of plants such as thistle, sunflowers, and coneflowers.", {
+		[BEAK]: "#ffaf34",
+		[FOOT]: "#af8e75",
+		[EYE]: "#000000",
+		[FACE]: "#fff255",
+		[NOSE]: "#383838",
+		[HOOD]: "#383838",
+		[BELLY]: "#fff255",
+		[UNDERBELLY]: "#f5ea63",
+		[WING]: "#e8e079",
+		[WING_EDGE]: "#191919",
+	}),
 };
 
-const DEFAULT_BIRD = "redCardinal";
+const DEFAULT_BIRD = "americanGoldfinch";
 
 
 const Directions = {
