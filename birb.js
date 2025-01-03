@@ -623,9 +623,20 @@ const species = {
 		[WING]: "#444444",
 		[WING_EDGE]: "#232323",
 	}),
+	carolinaWren: new BirdType("Carolina Wren",
+		"Native to the eastern United States, these little birds are known for their curious and energetic nature.", {
+		[FOOT]: "#af8e75",
+		[FACE]: "#edc7a9",
+		[NOSE]: "#f7eee5",
+		[HOOD]: "#c58a5b",
+		[BELLY]: "#e1b796",
+		[UNDERBELLY]: "#c79e7c",
+		[WING]: "#c58a5b",
+		[WING_EDGE]: "#866348",
+	}),
 };
 
-const DEFAULT_BIRD = "americanRobin";
+const DEFAULT_BIRD = "carolinaWren";
 
 
 const Directions = {
