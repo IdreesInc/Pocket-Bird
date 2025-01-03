@@ -606,9 +606,20 @@ const species = {
 		[WING]: "#342b7c",
 		[WING_EDGE]: "#282065",
 	}),
+	redAvadavat: new BirdType("Red Avadavat",
+		"Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plummage.", {
+		[BEAK]: "#f71919",
+		[FOOT]: "#af7575",
+		[EYE]: "#000000",
+		[FACE]: "#cb092b",
+		[BELLY]: "#ae1724",
+		[UNDERBELLY]: "#831b24",
+		[WING]: "#7e3030",
+		[WING_EDGE]: "#490f0f",
+	}),
 };
 
-const DEFAULT_BIRD = "mistletoebird";
+const DEFAULT_BIRD = "redAvadavat";
 
 
 const Directions = {
