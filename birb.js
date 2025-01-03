@@ -595,9 +595,20 @@ const species = {
 		[WING_EDGE]: "#1c448b",
 		[HOOD]: "#2252a9",
 	}),
+	mistletoebird: new BirdType("Mistletoebird",
+		"Native to Australia, these birds eat mainly mistletoe and in turn spread the seeds far and wide.", {
+		[BEAK]: "#000000",
+		[FOOT]: "#6c6a7c",
+		[EYE]: "#000000",
+		[FACE]: "#352e6d",
+		[BELLY]: "#fd6833",
+		[UNDERBELLY]: "#e6e1d8",
+		[WING]: "#342b7c",
+		[WING_EDGE]: "#282065",
+	}),
 };
 
-const DEFAULT_BIRD = "barnSwallow";
+const DEFAULT_BIRD = "mistletoebird";
 
 
 const Directions = {
