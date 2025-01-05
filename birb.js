@@ -5,7 +5,9 @@
 // @description  birb
 // @author       Idrees
 // @match        *://*/*
-// @grant        none
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_deleteValue
 // ==/UserScript==
 
 // @ts-check
@@ -154,7 +156,7 @@ const styles = `
 	
 	.birb-window-close {
 		position: absolute;
-		top: 2px;
+		top: 1px;
 		right: 5px;
 		opacity: 0.35;
 		user-select: none;
@@ -692,7 +694,7 @@ function loadSpritesheetPixels(dataUri, templateColors = true) {
 						continue;
 					}
 					if (SPRITESHEET_COLOR_MAP[hex] === undefined) {
-						console.error(`Unknown color: ${hex}`);
+						error(`Unknown color: ${hex}`);
 						row.push(TRANSPARENT);
 					}
 					row.push(SPRITESHEET_COLOR_MAP[hex]);
@@ -836,6 +838,12 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		// new MenuItem("Utilities", () => {}),
 		new MenuItem("Applications", () => switchMenuItems(otherItems), false),
 		new MenuItem("Hide Birb", hideBirb),
+		new MenuItem("Reset Data", resetSaveData),
+		new MenuItem("Unlock All", () => {
+			for (let type in species) {
+				unlockBird(type);
+			}
+		}),
 		new Separator(),
 		new MenuItem("Settings", () => {}),
 	];
@@ -897,11 +905,73 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	let unlockedSpecies = [DEFAULT_BIRD];
 	let visible = true;
 
+	/**
+	 * @returns {boolean} Whether the script is running in a userscript extension context
+	 */
+	function isUserscript() {
+		// @ts-ignore
+		return typeof GM_getValue === "function";
+	}
+
+	function isTestEnvironment() {
+		return window.location.hostname === "127.0.0.1";
+	}
+
+	function load() {
+		let saveData = {};
+		if (isUserscript()) {
+			log("Loading save data from userscript storage");
+			// @ts-ignore
+			saveData = GM_getValue("birbSaveData", {}) ?? {};
+		} else if (isTestEnvironment()) {
+			log("Test environment detected, loading save data from localStorage");
+			saveData = JSON.parse(localStorage.getItem("birbSaveData") ?? "{}");
+		} else {
+			log("Not a userscript");
+		}
+		log("Loaded data: " + JSON.stringify(saveData));
+		unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
+		currentSpecies = saveData.currentSpecies ?? DEFAULT_BIRD;
+	}
+
+	function save() {
+		let saveData = {
+			unlockedSpecies: unlockedSpecies,
+			currentSpecies: currentSpecies,
+		};
+		if (isUserscript()) {
+			log("Saving data to userscript storage");
+			// @ts-ignore
+			GM_setValue("birbSaveData", saveData);
+		} else if (isTestEnvironment()) {
+			log("Test environment detected, saving data to localStorage");
+			localStorage.setItem("birbSaveData", JSON.stringify(saveData));
+		} else {
+			log("Not a userscript");
+		}
+	}
+
+	function resetSaveData() {
+		if (isUserscript()) {
+			log("Resetting save data in userscript storage");
+			// @ts-ignore
+			GM_deleteValue("birbSaveData");
+		} else if (isTestEnvironment()) {
+			log("Test environment detected, resetting save data in localStorage");
+			localStorage.removeItem("birbSaveData");
+		} else {
+			log("Not a userscript");
+		}
+		load();
+	}
+
 	function init() {
 		if (window !== window.top) {
 			// Skip installation if within an iframe
 			return;
 		}
+
+		load();
 
 		styleElement.innerHTML = styles;
 		document.head.appendChild(styleElement);
@@ -1106,6 +1176,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			unlockedSpecies.push(birdType);
 			insertModal("New Bird Unlocked!", `You've found a <b>${species[birdType].name}</b> feather! Use the Field Guide to switch your bird's species.`);
 		}
+		save();
 	}
 
 	function updateFeather() {
@@ -1231,7 +1302,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				speciesElement.classList.add("birb-grid-item-locked");
 			}
 			speciesElement.addEventListener("mouseover", () => {
-				console.log("mouseover");
+				log("mouseover");
 				description.innerHTML = generateDescription(id);
 			});
 			speciesElement.addEventListener("mouseout", () => {
@@ -1390,7 +1461,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 		const content = menu.querySelector(".birb-window-content");
 		if (!content) {
-			console.error("Content not found");
+			error("Content not found");
 			return;
 		}
 		content.innerHTML = "";
@@ -1465,7 +1536,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 
 		if (!element) {
-			console.error("Birb: Parent element not found");
+			error("Parent element not found");
 			return;
 		}
 
@@ -1727,4 +1798,12 @@ function roundToPixel(value) {
  */
 function isMobile() {
 	return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+function log() {
+	console.log("Birb: ", ...arguments);
+}
+
+function error() {
+	console.error("Birb: ", ...arguments);
 }
