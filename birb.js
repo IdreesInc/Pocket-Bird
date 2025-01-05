@@ -80,6 +80,7 @@ const styles = `
 
 	.birb-window {
 		font-family: "Monocraft", monospace;
+		color: #000000
 		z-index: 999999999;
 		position: fixed;
 		background-color: #ffecda;
@@ -109,6 +110,7 @@ const styles = `
 		transition-duration: 0.2s;
 		transition-timing-function: ease-out;
 		min-width: 140px;
+		z-index: 999999999;
 	}
 
 	#${MENU_EXIT_ID} {
@@ -233,11 +235,11 @@ const styles = `
 		user-select: none;
 		display: flex;
 		justify-content: space-between;
+		cursor: pointer;
 	}
 
 	.birb-window-list-item:hover {
 		opacity: 1;
-		cursor: pointer;
 	}
 
 	.birb-window-list-item-arrow {
@@ -1035,7 +1037,8 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				setState(States.IDLE);
 			}
 		}
-		if (visible && Math.random() < 1 / (60 * 3)) {
+		const FEATHER_CHANCE = 1 / (60 * 60 * 60); // 1 every hour
+		if (visible && Math.random() < FEATHER_CHANCE) {
 			activateFeather();
 		}
 		updateFeather();
