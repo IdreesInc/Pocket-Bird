@@ -638,7 +638,7 @@ const species = {
 	}),
 };
 
-const DEFAULT_BIRD = "carolinaWren";
+const DEFAULT_BIRD = "bluebird";
 
 
 const Directions = {
@@ -932,6 +932,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		log("Loaded data: " + JSON.stringify(saveData));
 		unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
 		currentSpecies = saveData.currentSpecies ?? DEFAULT_BIRD;
+		switchSpecies(currentSpecies);
 	}
 
 	function save() {
@@ -1292,7 +1293,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			content.appendChild(speciesElement);
 			if (unlocked) {
 				onClick(speciesElement, () => {
-					switchspecies(id);
+					switchSpecies(id);
 					document.querySelectorAll(".birb-grid-item").forEach((element) => {
 						element.classList.remove("birb-grid-item-selected");
 					});
@@ -1392,8 +1393,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	/**
 	 * @param {string} species
 	 */
-	function switchspecies(species) {
+	function switchSpecies(species) {
 		currentSpecies = species;
+		save();
 	}
 
 	/**
