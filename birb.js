@@ -157,10 +157,12 @@ const styles = `
 	.birb-window-close {
 		position: absolute;
 		top: 1px;
-		right: 5px;
+		right: 0;
 		opacity: 0.35;
 		user-select: none;
 		cursor: pointer;
+		padding-left: 5px;
+		padding-right: 5px;
 	}
 
 	.birb-window-close:hover {
@@ -310,6 +312,7 @@ const styles = `
 		padding: 8px;
 		padding-top: 4px;
 		padding-bottom: 4px;
+		margin-bottom: 6px;
 		font-size: 14px;
 		color: rgb(124, 108, 75);
 	}
@@ -1198,6 +1201,14 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	// insertFieldGuide();
 
 	/**
+	 * @param {HTMLElement} element
+	 */
+	function centerElement(element) {
+		element.style.left = `${window.innerWidth / 2 - element.offsetWidth / 2}px`;
+		element.style.top = `${window.innerHeight / 2 - element.offsetHeight / 2}px`;
+	}
+
+	/**
 	 * @param {string} title
 	 * @param {string} message
 	 */
@@ -1218,8 +1229,6 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		const modal = makeElement("birb-window");
 		modal.style.width = "270px";
 		modal.innerHTML = html;
-		modal.style.left = `${window.innerWidth / 2 - 115}px`;
-		modal.style.top = `${window.innerHeight / 2 - 115}px`;
 		document.body.appendChild(modal);
 		makeDraggable(modal.querySelector(".birb-window-header"));
 
@@ -1229,6 +1238,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				modal.remove();
 			}, closeButton);
 		}
+		centerElement(modal);
 	}
 
 	function insertFieldGuide() {
@@ -1246,8 +1256,6 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			</div>`
 		const fieldGuide = makeElement("birb-window", undefined, FIELD_GUIDE_ID);
 		fieldGuide.innerHTML = html;
-		fieldGuide.style.left = `${window.innerWidth / 2 - 115}px`;
-		fieldGuide.style.top = `${window.innerHeight / 2 - 115}px`;
 		document.body.appendChild(fieldGuide);
 		makeDraggable(fieldGuide.querySelector(".birb-window-header"));
 
@@ -1310,6 +1318,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				description.innerHTML = generateDescription(currentSpecies);
 			});
 		}
+		centerElement(fieldGuide);
 	}
 
 	/**
@@ -1355,8 +1364,6 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			</div>`
 		const pico8 = makeElement("birb-window");
 		pico8.innerHTML = html;
-		pico8.style.left = `${window.innerWidth / 2 - 115}px`;
-		pico8.style.top = `${window.innerHeight / 2 - 115}px`;
 		document.body.appendChild(pico8);
 		makeDraggable(pico8.querySelector(".birb-window-header"));
 		const close = pico8.querySelector(".birb-window-close");
@@ -1365,6 +1372,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				pico8.remove();
 			}, close);
 		}
+		centerElement(pico8);
 	}
 
 	function insertMusicPlayer() {
@@ -1378,8 +1386,6 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		</div>`;
 		const pico8 = makeElement("birb-window");
 		pico8.innerHTML = html;
-		pico8.style.left = `${window.innerWidth / 2 - 115}px`;
-		pico8.style.top = `${window.innerHeight / 2 - 115}px`;
 		document.body.appendChild(pico8);
 		makeDraggable(pico8.querySelector(".birb-window-header"));
 		const close = pico8.querySelector(".birb-window-close");
@@ -1388,6 +1394,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				pico8.remove();
 			}, close);
 		}
+		centerElement(pico8);
 	}
 
 	/**
