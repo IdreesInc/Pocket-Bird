@@ -81,7 +81,7 @@ const styles = `
 	.birb-window {
 		font-family: "Monocraft", monospace;
 		color: #000000
-		z-index: 999999999;
+		z-index: 999999999 !important;
 		position: fixed;
 		background-color: #ffecda;
 		box-shadow: 
@@ -904,11 +904,12 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	let targetY = 0;
 	/** @type {HTMLElement|null} */
 	let focusedElement = null;
-	let timeOfLastAction = Date.now();
+	let lastActionTimestamp = Date.now();
 	let petStack = [];
 	let currentSpecies = DEFAULT_BIRD;
 	let unlockedSpecies = [DEFAULT_BIRD];
 	let visible = true;
+	let lastPetTimestamp = 0;
 
 	/**
 	 * @returns {boolean} Whether the script is running in a userscript extension context
@@ -988,7 +989,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		document.body.appendChild(canvas);
 
 		window.addEventListener("scroll", () => {
-			timeOfLastAction = Date.now();
+			lastActionTimestamp = Date.now();
 			// Can't keep up with scrolling on mobile devices so fly down instead
 			if (isMobile()) {
 				focusOnGround();
@@ -997,7 +998,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		});
 
 		onClick(document, (e) => {
-			timeOfLastAction = Date.now();
+			lastActionTimestamp = Date.now();
 			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
 				removeMenu();
 			}
@@ -1008,7 +1009,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		});
 
 		canvas.addEventListener("mouseover", () => {
-			timeOfLastAction = Date.now();
+			lastActionTimestamp = Date.now();
 			if (currentState === States.IDLE) {
 				petStack.push(Date.now());
 				if (petStack.length > 10) {
@@ -1038,7 +1039,10 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			}
 		}
 		const FEATHER_CHANCE = 1 / (60 * 60 * 60); // 1 every hour
-		if (visible && Math.random() < FEATHER_CHANCE) {
+		// Double the chance of a feather if recently pet
+		let petMod = Date.now() - lastPetTimestamp < 1000 * 60 * 5 ? 2 : 1;
+		if (visible && Math.random() < FEATHER_CHANCE * petMod) {
+			lastPetTimestamp = 0;
 			activateFeather();
 		}
 		updateFeather();
@@ -1064,10 +1068,10 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		}
 
 		if (focusedElement === null) {
-			if (Date.now() - timeOfLastAction > AFK_TIME && !isMenuOpen()) {
+			if (Date.now() - lastActionTimestamp > AFK_TIME && !isMenuOpen()) {
 				// Fly to an element if the user is AFK
 				focusOnElement();
-				timeOfLastAction = Date.now();
+				lastActionTimestamp = Date.now();
 			}
 		} else if (focusedElement !== null) {
 			targetY = getFocusedElementY();
@@ -1708,6 +1712,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	function pet() {
 		if (currentState === States.IDLE) {
 			setAnimation(Animations.HEART);
+			lastPetTimestamp = Date.now();
 		}
 	}
 
