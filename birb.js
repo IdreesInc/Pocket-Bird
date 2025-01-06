@@ -65,7 +65,7 @@ const styles = `
 		bottom: 0;
 		transform: scale(${CSS_SCALE});
 		transform-origin: bottom;
-		z-index: 999999998;
+		z-index: 2147483638 !important;
 		cursor: pointer;
 	}
 
@@ -75,13 +75,13 @@ const styles = `
 		bottom: 0;
 		transform: scale(${CSS_SCALE});
 		transform-origin: bottom;
-		z-index: 999999990;
+		z-index: 2147483630 !important;
 	}
 
 	.birb-window {
-		font-family: "Monocraft", monospace;
-		color: #000000
-		z-index: 999999999 !important;
+		font-family: "Monocraft", monospace !important;
+		color: #000000 !important;
+		z-index: 2147483639 !important;
 		position: fixed;
 		background-color: #ffecda;
 		box-shadow: 
@@ -110,7 +110,7 @@ const styles = `
 		transition-duration: 0.2s;
 		transition-timing-function: ease-out;
 		min-width: 140px;
-		z-index: 999999999;
+		z-index: 2147483639 !important;
 	}
 
 	#${MENU_EXIT_ID} {
@@ -119,7 +119,7 @@ const styles = `
 		left: 0;
 		width: 100%;
 		height: 100%;
-		z-index: 999999997;
+		z-index: 2147483637 !important;
 	}
 
 	@keyframes pop-in {
@@ -145,7 +145,7 @@ const styles = `
 			0 var(--neg-border-size) var(--highlight), 
 			var(--neg-border-size) var(--border-size) var(--border-color), 
 			var(--border-size) var(--border-size) var(--border-color);
-		color: var(--border-color);
+		color: var(--border-color) !important;
 		font-size: 16px;
 	}
 
@@ -236,6 +236,7 @@ const styles = `
 		display: flex;
 		justify-content: space-between;
 		cursor: pointer;
+		color: black !important;
 	}
 
 	.birb-window-list-item:hover {
