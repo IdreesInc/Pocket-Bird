@@ -80,6 +80,7 @@ const styles = `
 
 	.birb-window {
 		font-family: "Monocraft", monospace !important;
+		line-height: initial !important;
 		color: #000000 !important;
 		z-index: 2147483639 !important;
 		position: fixed;
@@ -160,7 +161,7 @@ const styles = `
 		position: absolute;
 		top: 1px;
 		right: 0;
-		opacity: 0.35;
+		color: #ffecda;
 		user-select: none;
 		cursor: pointer;
 		padding-left: 5px;
@@ -168,7 +169,7 @@ const styles = `
 	}
 
 	.birb-window-close:hover {
-		opacity: 1;
+		transform: scale(1.1);
 	}
 
 	.birb-window-content {
@@ -456,6 +457,7 @@ class Anim {
 	}
 }
 
+const THEME_HIGHLIGHT = "theme-highlight";
 const TRANSPARENT = "transparent";
 const OUTLINE = "outline";
 const BORDER = "border";
@@ -517,7 +519,7 @@ class BirdType {
 			[HOOD]: colors.face,
 			[NOSE]: colors.face,
 		};
-		this.colors = { ...defaultColors, ...colors };
+		this.colors = { ...defaultColors, ...colors, [THEME_HIGHLIGHT]: colors[THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
 		this.tags = tags;
 	}
 }
@@ -540,9 +542,10 @@ const species = {
 		[UNDERBELLY]: "#ebd9d0",
 		[WING]: "#e3cabd",
 		[WING_EDGE]: "#9b8b82",
+		[THEME_HIGHLIGHT]: "#e3cabd",
 	}),
 	tuftedTitmouse: new BirdType("Tufted Titmouse",
-		"Native to the eastern United States, full of personality and notably my wife's favorite bird.", {
+		"Native to the eastern United States, full of personality, and notably my wife's favorite bird.", {
 		[FOOT]: "#af8e75",
 		[FACE]: "#c7cad7",
 		[BELLY]: "#e4e5eb",
@@ -841,7 +844,6 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		new MenuItem("Pet Birb", pet),
 		new MenuItem("Field Guide", insertFieldGuide),
 		// new MenuItem("Decorations", insertDecoration),
-		// new MenuItem("Utilities", () => {}),
 		new MenuItem("Applications", () => switchMenuItems(otherItems), false),
 		new MenuItem("Hide Birb", hideBirb),
 		new MenuItem("Reset Data", resetSaveData),
@@ -857,8 +859,8 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	const otherItems = [
 		new MenuItem("Go Back", () => switchMenuItems(menuItems), false),
 		new Separator(),
-		// new MenuItem("Utilities", () => {}),
 		new MenuItem("Video Games", () => switchMenuItems(gameItems), false),
+		new MenuItem("Utilities", () => switchMenuItems(utilityItems), false),
 		new MenuItem("Music Player", () => insertMusicPlayer(), false),
 	];
 	
@@ -868,11 +870,18 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		new MenuItem("Pinball", () => insertPico8("Terra Nova Pinball", "terra_nova_pinball")),
 		new MenuItem("Pico Dino", () => insertPico8("Pico Dino", "picodino")),
 		new MenuItem("Woodworm", () => insertPico8("Woodworm", "woodworm")),
-		// new MenuItem("Wobblepaint	", () => insertPico8("Wobblepaint", "wobblepaint")),
 		new MenuItem("Pico and Chill", () => insertPico8("Pico and Chill", "picochill")),
 		new MenuItem("Lani's Trek", () => insertPico8("Celeste 2 Lani's Trek", "celeste_classic_2")),
 		new MenuItem("Tetraminis", () => insertPico8("Tetraminis", "tetraminisdeffect")),
 		// new MenuItem("Pool", () => insertPico8("Pool", "mot_pool")),
+	];
+
+	const utilityItems = [
+		new MenuItem("Go Back", () => switchMenuItems(otherItems), false),
+		new Separator(),
+		new MenuItem("Pomodoro Timer", () => insertPico8("Pomodoro", "pomodorotimerv1")),
+		new MenuItem("Ohm Calculator", () => insertPico8("Resistor Calculator", "picoohm")),
+		new MenuItem("Wobblepaint	", () => insertPico8("Wobblepaint", "wobblepaint")),
 	];
 
 	const styleElement = document.createElement("style");
@@ -1039,7 +1048,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 				setState(States.IDLE);
 			}
 		}
-		const FEATHER_CHANCE = 1 / (60 * 60 * 60); // 1 every hour
+		const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // 1 every 2 hours (ticks * seconds * minutes * hours)
 		// Double the chance of a feather if recently pet
 		let petMod = Date.now() - lastPetTimestamp < 1000 * 60 * 5 ? 2 : 1;
 		if (visible && Math.random() < FEATHER_CHANCE * petMod) {
@@ -1406,10 +1415,12 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	}
 
 	/**
-	 * @param {string} species
+	 * @param {string} type
 	 */
-	function switchSpecies(species) {
-		currentSpecies = species;
+	function switchSpecies(type) {
+		currentSpecies = type;
+		// Update CSS variable --highlight to be wing color
+		document.documentElement.style.setProperty("--highlight", species[type].colors[THEME_HIGHLIGHT]);
 		save();
 	}
 
@@ -1537,7 +1548,8 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	}
 
 	/**
-	 * @param {HTMLElement|null} element
+	 * @param {HTMLElement|null} element The element to detect drag events on
+	 * @param {boolean} [parent] Whether to move the parent element when the child is dragged
 	 */
 	function makeDraggable(element, parent = true) {
 		if (!element) {
@@ -1547,27 +1559,24 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		let isMouseDown = false;
 		let offsetX = 0;
 		let offsetY = 0;
+		let elementToMove = parent ? element.parentElement : element;
 
-		if (parent) {
-			element = element.parentElement;
-		}
-
-		if (!element) {
+		if (!elementToMove) {
 			error("Parent element not found");
 			return;
 		}
 
 		element.addEventListener("mousedown", (e) => {
 			isMouseDown = true;
-			offsetX = e.clientX - element.offsetLeft;
-			offsetY = e.clientY - element.offsetTop;
+			offsetX = e.clientX - elementToMove.offsetLeft;
+			offsetY = e.clientY - elementToMove.offsetTop;
 		});
 
 		element.addEventListener("touchstart", (e) => {
 			isMouseDown = true;
 			const touch = e.touches[0];
-			offsetX = touch.clientX - element.offsetLeft;
-			offsetY = touch.clientY - element.offsetTop;
+			offsetX = touch.clientX - elementToMove.offsetLeft;
+			offsetY = touch.clientY - elementToMove.offsetTop;
 			e.preventDefault();
 		});
 
@@ -1581,16 +1590,16 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 
 		document.addEventListener("mousemove", (e) => {
 			if (isMouseDown) {
-				element.style.left = `${e.clientX - offsetX}px`;
-				element.style.top = `${e.clientY - offsetY}px`;
+				elementToMove.style.left = `${e.clientX - offsetX}px`;
+				elementToMove.style.top = `${e.clientY - offsetY}px`;
 			}
 		});
 
 		document.addEventListener("touchmove", (e) => {
 			if (isMouseDown) {
 				const touch = e.touches[0];
-				element.style.left = `${touch.clientX - offsetX}px`;
-				element.style.top = `${touch.clientY - offsetY}px`;
+				elementToMove.style.left = `${touch.clientX - offsetX}px`;
+				elementToMove.style.top = `${touch.clientY - offsetY}px`;
 			}
 		});
 	}
