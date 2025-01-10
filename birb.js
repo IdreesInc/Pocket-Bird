@@ -232,7 +232,7 @@ const styles = `
 		font-size: 14px;
 		padding-top: 5px;
 		padding-bottom: 5px;
-		opacity: 0.6;
+		opacity: 0.8 !important;
 		user-select: none;
 		display: flex;
 		justify-content: space-between;
@@ -241,7 +241,7 @@ const styles = `
 	}
 
 	.birb-window-list-item:hover {
-		opacity: 1;
+		opacity: 1 !important;
 	}
 
 	.birb-window-list-item-arrow {
@@ -658,7 +658,7 @@ const Directions = {
 const SPRITE_WIDTH = 32;
 const DECORATIONS_SPRITE_WIDTH = 48;
 const FEATHER_SPRITE_WIDTH = 32;
-const SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWAAAAAgCAYAAAAsTqKUAAAAAXNSR0IArs4c6QAABLZJREFUeJztnL+LG0cUx78juxAx6YThVmnDpTqDG1Wu7io30lWqgsEuYji4ImBh/AccRkXAhoCPpAmpVClH4Kpc5caXwuAihUgb6SAIXPgC1+ReCmlWo9Xsrk7Rzuxqvx8QO/tD+97uznzfm1lpAEIIIYQQQgghhJDMUb4dICQNEZG4fUop1mFSWFh5SSo+BVDb3q/XAQD94XCu7MIHQgjxgkxpBYG0gmChnCTO67LfCgJ5t7MjcnCwUM7aPiFZctu3A2Q5bELjKvPbr9fxvFZD48GDhbLOQl1w/vYtntdqYZmQolPx7QBJJ9oN10vX2Z8vAewPh3g5Hs9tezkeOxV/QkhJMbvh5tKFAJtDEO92dsKPqyEImw8ubROSJcyAl0Qs+PBDZ6Cu0MMcZhZqZp8uhkGiPvDlGyElQ0QmL3+MpUvbvjNA0wdfAch38CNk3TCDWBIRkfN798L1xocPTjMwcxzYVwZoCl8Zs8+o8JfxHhDiBZ156eyXGWC5MO676FVfPrAOlAzb+GcZK0CZr50AAOR42NIi7NZwDgIAWT+pL+H0g1ZKzX3MfVmTlwCgDFzbJv45HrZ00fnz19VO+5DnOpiX9loEEv+IYYqvUfmgt4mIeUwmFcL0IbIdIiJ5rohks/im/ovXuuYzAKQRFVhbeyWLxAqwKXyD9hPgW6C792O4/3i4b2bCmYhhHgIAIXnBdwBIw2yC7e4oLPc6gQ93MmPrlpKLf2UtzyIxA67cCaA+28JXv54CAB7vAadPK3j45hq/n/bR7l4AyEYM8xAACCFLIUqpOdHdVLZuKXn45hqnTytrEeHYE5gC+OQHe/fh8uNFWNZRLqmrcROBFBGp3JmPnI9fjcIAYNrvdYI5uxRikjXt7kh6nYD1DJAk4TV1ge1ykdgMWCmlkgbOTfEFZl2OuHu8SpZ6/c9oIQBo8Y3ajmbDtvOxApBVuDrZlWrzTOkyAFSbfsU3JwEgUXwN2PRiWGo2tO/v7uHg79/CMgA8+viz9djoA/nzr08AZsMUy5KHAEAIAFSbZ2omvGfO609eA0DaMVmO/cbZN2wWop0nOjkVLFyd7C7sqzbPcP9wgC+/+Nz6XS28719v63NNDN5wGELbXwgAA3sASPKD3SBSVHwGABtpAtzrBGh3R8gwS4/NvqcinIv7lMbK8wFfneyi2twGDgfW/VHhBf5fP0QLr6bXCVYKAIQUkbwIr+an7a9jkyAH4gtg0sbj2n9RSM2AgUm3PpoFX/5xCQCovTiP++7MyIrCm5SBA7Ms3Ma6AwAhZJ7xUUMObvcBzA83uBBfAJKUgBUlC0510CaCWnxt1F6crzTcEGd7eh4vAYAQksz4qBE2NEOMXbW3WBE2fxmV5/a/lAADExEcHzUSj12n+Jr2fQUAQkjuEd0LjgqxFuE860DqGLD+NcL0QmJFOEvh07YBJAYBii8hpUO9f709afQxQrwRGBNqSP+7Z+GsTOZ6VhNuRCb0SLTPST8IKS2CSUYs9w8HmzNrnE38bOtZC7Av+4SQYqB1QX82QhOiYhe3zFKAfdonhBQDseDbpySW/h2wHodNWmaJb/uEkPxTtHc/N/pXWurJMrx43/YJIWTd/Ac+45Kl5EFJAAAAAABJRU5ErkJggg==";
+const SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABGBJREFUeJztnL9rE2EYx79vdAiKWxB6cZU4VXDpH9Di4JJk6iSCDgqFDoKl9A8o0kGwIFh0UadOsQid7NTFOnRzCF2bViTg0Apd7OOQvNc3l/uRxty97yXfD4S8uUvueZJ730+e93IXgBBCCCGEEEIImQiU7QSI+4iIRK1TSrEPkdzCzpsDbApIx66XywCARqvV084iB0LIhCJdap4nNc/ra8fJcVTxa54n36anRRYW+tppxyckTQq2EyDJ1MtlLJdKaNTrfe0s2dvdxXKp5LcJyTsUYI6wJaBGq4WX7XbPspfttj8FJoSQVDCnwN+mp/1bVlPgsByyjE0IcQAJIevYNgVk5kD5ETJhiEjn4L9xn3V82wKyIX9C0uSq7QTyxt7du1biKqWUiIjNU09sn+4SFK/tfAiZGHTlo6s/VkHZYnzmoh/ayoH7f8IIO/41iR1gkt+7I8hGq6YlmG1gBwRMRk/iaTB6Ryulem7murRxRcDKIOvYBNho1XTTyvRfKeXn4HIfsD1O8kTsMUBTfkbng14mIuZzUukQZg6B5RARcbkjktHytPzZ6r62KeAkgqIzihSOkxgiBWiKpzn/BHgOrM2999dvtOqpf8guCJgQjW0BJ2EOgfm1I3/ZuBWBU1eUHP+VkeyL2AqwcN2DujaFO1+2AQCP54DtZwU8eHuO79sNzK8dA0hHRi4ImJCcIEopX3rjzNQVJQ/enmP7WWEkEozcgCmgJ+/Cv0FOfx/77c0lT78uOtglBCUiUrju9Sx7/PrIF7AZf3PJ64lLEY4/82tHsrnkcT8DEiW+g8MT7K9XICIcExFEVoD6vLOo9ab8gN6SO4xhqrTzP0d9AtbyC8YOVoNh22MnyCdnW7NSrO4o3QaAYtWu/BwRcKL8wG4fy0AnQr+5OYeFX1/9NgA8+v0p9LnBHXJweALg8sciXBAwcYNidUddiG8n8/3nqoBdjN+dCeZmjMUm2hUGzrZm+9YVqzu4t9jE7Vs3Ql+rxdf9FvLld9lpsI7fJ+BmuIDj8uBUgAyLTQGHESWgwLhLM9fI6jNPEhz6UrizrVkUqxVgsRm6Pig+4P9qcS0+zeaSN5SACRkGV8Sn+VB52FMEBPs7MhDQweFJ5PjLC4kVINCZVgarwNMfpwCA0spe1GsvggwpvrgKFLioQsMYtYAJcY326owsXG0AuPgREtlVXhJXgOSlCkxMMExCWn5hlFb2hpruRsXubseKgAlxnfbqjN/R7//8CADYX69Yl6B5ZobL428gAQIdCbVXZ2KfO0r5mfFtCZgQkojoWVhQhFqCLo/DxGOA+tfY7huJlGCa4tGxAcRKmPIjJHPU/nqlM+giRDgWGBdWS+PVC/9fMczHaV14HbiwOzY+L/4mxBqCTkUo9xab4/OvOWHyCXuctgBtxSeEDIYelxinMRmUTdR9mgK0GZ8QMhgSwHY+SQx8HqA+Dhd3nya24xNCksnbsfdLXZWRuLEU37zt+ISQ8eMfWq9d4TT6RMoAAAAASUVORK5CYII=";
 const DECORATIONS_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAPNJREFUaIHtmTESgzAMBHWZDC+gp0vP/x9Bn44+L6BRmrhJA4csM05uGzfY1s1JxggzIYQQQgghxEnATnB3zwikAICKiXq4BE/uwaxvn/UPb3BnNwFg27Ky0w6vzRp8S4mkIbQD3wzzFJofdTMkYJgn89czFADGKSSiSgphfFBjTaoIKC4cHWvSxIFMmjiQSYoDLUlxoCVywOwHHWjpROop1IL/vsxty2oYO77M1QggSvcpJAFXE66BPfa+2C4v4j2yi7z7FJKAq6FrwN3TO3MMlAAAKO3F2sVZTiu2N9p9CnUv4FR7PbMG2BQ69SJL/kVA8QauAnHUj36BVwAAAABJRU5ErkJggg==";
 const FEATHER_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
 
@@ -729,12 +729,11 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		heartOne: new Layer(getLayer(SPRITE_SHEET, 2)),
 		heartTwo: new Layer(getLayer(SPRITE_SHEET, 3)),
 		heartThree: new Layer(getLayer(SPRITE_SHEET, 4)),
-		heartFour: new Layer(getLayer(SPRITE_SHEET, 5)),
-		tuftBase: new Layer(getLayer(SPRITE_SHEET, 6), "tuft"),
-		tuftDown: new Layer(getLayer(SPRITE_SHEET, 7), "tuft"),
-		wingsUp: new Layer(getLayer(SPRITE_SHEET, 8)),
-		wingsDown: new Layer(getLayer(SPRITE_SHEET, 9)),
-		happyEye: new Layer(getLayer(SPRITE_SHEET, 10)),
+		tuftBase: new Layer(getLayer(SPRITE_SHEET, 5), "tuft"),
+		tuftDown: new Layer(getLayer(SPRITE_SHEET, 6), "tuft"),
+		wingsUp: new Layer(getLayer(SPRITE_SHEET, 7)),
+		wingsDown: new Layer(getLayer(SPRITE_SHEET, 8)),
+		happyEye: new Layer(getLayer(SPRITE_SHEET, 9)),
 	};
 
 	const decorationLayers = {
@@ -753,7 +752,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		heartOne: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartOne]),
 		heartTwo: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartTwo]),
 		heartThree: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartThree]),
-		heartFour: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartFour]),
+		heartFour: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartTwo]),
 	};
 
 	const decorationFrames = {
@@ -779,9 +778,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			birbFrames.headDown,
 			birbFrames.wingsDown,
 		], [
-			40,
+			30,
 			80,
-			40,
+			30,
 			80,
 		]),
 		HEART: new Anim([
