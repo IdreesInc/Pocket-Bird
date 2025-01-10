@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         birb
 // @namespace    https://idreesinc.com
-// @version      2024-12-12
+// @version      2025-01-09
 // @description  birb
 // @author       Idrees
 // @match        *://*/*
