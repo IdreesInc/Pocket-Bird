@@ -30,6 +30,8 @@ let mobileSettings = {
 
 const settings = { ...sharedSettings, ...isMobile() ? mobileSettings : desktopSettings };
 
+const DEBUG = false;
+
 const CSS_SCALE = settings.cssScale;
 const CANVAS_PIXEL_SIZE = settings.canvasPixelSize;
 const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * CSS_SCALE;
@@ -37,7 +39,7 @@ const HOP_SPEED = settings.hopSpeed;
 const FLY_SPEED = settings.flySpeed;
 const HOP_DISTANCE = settings.hopDistance;
 // Time in milliseconds until the user is considered AFK
-const AFK_TIME = 1000 * 30;
+const AFK_TIME = DEBUG ? 0 : 1000 * 30;
 const SPRITE_HEIGHT = 32;
 const MENU_ID = "birb-menu";
 const MENU_EXIT_ID = "birb-menu-exit";
@@ -230,8 +232,8 @@ const styles = `
 	.birb-window-list-item {
 		width: 100%;
 		font-size: 14px;
-		padding-top: 5px;
-		padding-bottom: 5px;
+		padding-top: 4px;
+		padding-bottom: 4px;
 		opacity: 0.8 !important;
 		user-select: none;
 		display: flex;
@@ -1041,6 +1043,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		if (currentState === States.IDLE) {
 			if (Math.random() < 1 / (60 * 3) && currentAnimation !== Animations.HEART && !isMenuOpen()) {
 				hop();
+			} else if (focusedElement !== null && Math.random() < 1 / (60 * 20) && Date.now() - lastActionTimestamp > AFK_TIME && !isMenuOpen()) {
+				focusOnElement();
+				lastActionTimestamp = Date.now();
 			}
 		} else if (currentState === States.HOP) {
 			if (updateParabolicPath(HOP_SPEED)) {
@@ -1068,6 +1073,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		if (currentState === States.IDLE) {
 			if (focusedElement !== null) {
 				birdY = getFocusedElementY();
+				if (!isWithinHorizontalBounds()) {
+					focusOnGround();
+				}
 			}
 		} else if (currentState === States.FLYING) {
 			// Fly to target location (even if in the air)
@@ -1654,6 +1662,14 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		return Math.random() * (rect.right - rect.left) + rect.left;
 	}
 
+	function isWithinHorizontalBounds() {
+		if (focusedElement === null) {
+			return true;
+		}
+		const rect = focusedElement.getBoundingClientRect();
+		return birdX >= rect.left && birdX <= rect.right;
+	}
+
 	function getFocusedElementY() {
 		if (focusedElement === null) {
 			return 0;
@@ -1671,18 +1687,20 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	}
 
 	function focusOnElement() {
-		const images = document.querySelectorAll("img");
-		const inWindow = Array.from(images).filter((img) => {
+		const elements = document.querySelectorAll("img, video");
+		const inWindow = Array.from(elements).filter((img) => {
 			const rect = img.getBoundingClientRect();
-			return rect.left >= 0 && rect.top >= 0 + 100 && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
+			return rect.left >= 0 && rect.top >= 80 && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
 		});
-		const MIN_SIZE = 100;
-		const largeImages = Array.from(inWindow).filter((img) => img !== focusedElement && img.width >= MIN_SIZE && img.height >= MIN_SIZE);
-		if (largeImages.length === 0) {
+		const MIN_WIDTH = 100;
+		/** @type {HTMLElement[]} */
+		// @ts-ignore
+		const largeElements = Array.from(inWindow).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_WIDTH);
+		if (largeElements.length === 0) {
 			return;
 		}
-		const randomImage = largeImages[Math.floor(Math.random() * largeImages.length)];
-		focusedElement = randomImage;
+		const randomElement = largeElements[Math.floor(Math.random() * largeElements.length)];
+		focusedElement = randomElement;
 		flyTo(getFocusedElementRandomX(), getFocusedElementY());
 	}
 
