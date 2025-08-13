@@ -31,7 +31,7 @@ let mobileSettings = {
 
 const settings = { ...sharedSettings, ...isMobile() ? mobileSettings : desktopSettings };
 
-const DEBUG = true;
+const DEBUG = location.hostname === "127.0.0.1";
 
 const CSS_SCALE = settings.cssScale;
 const CANVAS_PIXEL_SIZE = settings.canvasPixelSize;
@@ -50,7 +50,7 @@ const FEATHER_ID = "birb-feather";
 const styles = `
 	@font-face {
 		font-family: Monocraft;
-		src: url("https://cdn.jsdelivr.net/gh/idreesinc/Monocraft/dist/Monocraft.otf");
+		src: url("https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf");
 	}
 
 	:root {
