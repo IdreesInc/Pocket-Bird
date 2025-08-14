@@ -20,7 +20,7 @@ const userScriptHeader =
 `// ==UserScript==
 // @name         birb
 // @namespace    https://idreesinc.com
-// @version      2025-01-09
+// @version      2025-08-14
 // @description  birb
 // @author       Idrees
 // @updateURL    https://github.com/IdreesInc/Birb/raw/refs/heads/main/dist/birb.user.js
