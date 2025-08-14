@@ -23,7 +23,7 @@ const userScriptHeader =
 // @version      2025-01-09
 // @description  birb
 // @author       Idrees
-// @updateURL    https://raw.githubusercontent.com/IdreesInc/Birb/main/dist/birb.user.js#bypass=true
+// @updateURL    https://github.com/IdreesInc/Birb/raw/refs/heads/main/dist/birb.user.js
 // @match        *://*/*
 // @grant        GM_setValue
 // @grant        GM_getValue
