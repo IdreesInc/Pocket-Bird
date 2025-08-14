@@ -42,4 +42,4 @@ for (const spriteSheet of spriteSheets) {
 writeFileSync('./dist/birb.js', birbJs);
 
 const userScript = userScriptHeader + birbJs;
-writeFileSync('./dist/birb-userscript.js', userScript);
+writeFileSync('./dist/birb.user.js', userScript);
