@@ -16,6 +16,21 @@ const spriteSheets = [
 		path: "./sprites/decorations.png"
 	}
 ];
+const userScriptHeader =
+`// ==UserScript==
+// @name         birb
+// @namespace    https://idreesinc.com
+// @version      2025-01-09
+// @description  birb
+// @author       Idrees
+// @match        *://*/*
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_deleteValue
+// ==/UserScript==
+
+`;
+
 
 let birbJs = readFileSync('birb.js', 'utf8');
 
@@ -25,3 +40,6 @@ for (const spriteSheet of spriteSheets) {
 }
 
 writeFileSync('./dist/birb.js', birbJs);
+
+const userScript = userScriptHeader + birbJs;
+writeFileSync('./dist/birb-userscript.js', userScript);

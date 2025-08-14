@@ -1,15 +1,3 @@
-// ==UserScript==
-// @name         birb
-// @namespace    https://idreesinc.com
-// @version      2025-01-09
-// @description  birb
-// @author       Idrees
-// @match        *://*/*
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_deleteValue
-// ==/UserScript==
-
 // @ts-check
 
 // @ts-ignore
@@ -58,8 +46,8 @@ const styles = `
 		--neg-border-size: calc(var(--border-size) * -1);
 		--double-border-size: calc(var(--border-size) * 2);
 		--neg-double-border-size: calc(var(--neg-border-size) * 2);
-		--border-color: #000000;
 		--highlight: #ffa3cb;
+		--border-color: var(--highlight);
 	}
 
 	#birb {
@@ -108,6 +96,7 @@ const styles = `
 		flex-direction: column;
 		animation: pop-in 0.08s;
 		transition-timing-function: ease-in;
+		drop-shadow(0 0 0 var(--border-color));
 	}
 
 	#${MENU_ID} {
@@ -479,7 +468,7 @@ const HEART_BORDER = "heart-border";
 const HEART_SHINE = "heart-shine";
 const FEATHER_SPINE = "feather-spine";
 
-const SPRITESHEET_COLOR_MAP = {
+const SPRITE_SHEET_COLOR_MAP = {
 	"transparent": TRANSPARENT,
 	"#ffffff": BORDER,
 	"#000000": OUTLINE,
@@ -609,7 +598,7 @@ const species = {
 		[WING_EDGE]: "#282065",
 	}),
 	redAvadavat: new BirdType("Red Avadavat",
-		"Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plummage.", {
+		"Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plumage.", {
 		[BEAK]: "#f71919",
 		[FOOT]: "#af7575",
 		[FACE]: "#cb092b",
@@ -628,7 +617,7 @@ const species = {
 		[WING_EDGE]: "#ebebeb",
 	}),
 	americanRobin: new BirdType("American Robin",
-		"While not a true robin, this social North American bird is so named due to its orange colouring. It seems unbothered by nearby humans.", {
+		"While not a true robin, this social North American bird is so named due to its orange coloring. It seems unbothered by nearby humans.", {
 		[BEAK]: "#e89f30",
 		[FOOT]: "#9f8075",
 		[FACE]: "#2d2d2d",
@@ -662,17 +651,17 @@ const SPRITE_WIDTH = 32;
 const DECORATIONS_SPRITE_WIDTH = 48;
 const FEATHER_SPRITE_WIDTH = 32;
 
-const SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABFtJREFUeJztnLFrE1Ecx78vOgSLWxB6cZU6VXDpH9Di4JJk6iSCDgqFDoJF/AOKdBAUBIsu6tQpFqGTnVysQzeH0LVpRQIOrdDF/hyad75c7t2lMXfvXfL9QMjL3SW/l9x7n/u9l7sDCCGEEEIIIYSQiUC5rgDxHxER2zqlFNsQKSxsvAXApYB07Ea1CgBotts95TzqQAiZUKRLPQikHgR95SQ5jip+PQjk6+ysyNJSXznr+IRkScl1BUg6jWoVTyoVNBuNvnKe7Hz5gieVSlgmpOhQgAXClYCa7TaedTo9y551OuEQmBBCMsEcAn+dnQ0feQ2B4+qQZ2xCiAdIDHnHdikgsw6UHyEThoicTf4bz3nHdy0gF/InJEsuuq5A0di5ccNJXKWUEhFxeeqJ69NdouJ1XR9CJgad+ejsj1lQvhi/ueiXrurA/T9hxM1/TWIDmOTv7gmy3q5rCeYb2AMBk9GTehqM3tFKqZ4HUq5QGCW+CFgZ5B2bAOvtui46Gf4rpcI6+NwGXPeTIpE4B2jKz2h80MtExNwmkwZh1iGyHCIiPjdEMloeVD863dcuBZxGzPyoXs5+koBVgKZ4Wov3gUfA2sLbcP16u5H5j+yDgAnRuBZwGmYXWFw7CJeNWxI4fUHJ4R8Zyb5IzABLUwHUpWlc/7QFALi3AGw9LOH261N822pice0QyEhGPgiYkIIgSqlQeuPM9AUlt1+fYuthaSQStH6AKaD7b+KPIMe/DsPyxkqg32cPdg5BiYiUpoKeZfdeHIQCNuNvrAQ9cSnC8Wdx7UA2VgLuZ0Bs4tvbP8LuyxmICPuEBWsGqM87s6035YdIyh3HMFna6e+DPgFr+UVjR7NB23caNDbxh5PNeSnXtpUuA0C55lZ+ngg4VX5s9skMdCL0qysLWPr5OSwDwN1fH2K3je6Qvf0jYIi5CB8ETPygXNtW/8S3nfv+81XAPsbvjgQL08cSK9oVBk425/vWlWvbuLncwrWrl2Pfq8XXPQqF8jvvMFjH7xNwK17ASfXgUIAMi0sBx2ETUKTfZVlXa/ZZJAkOfSncyeY8yrUZYLkVuz4qPvxnLq7Fp9lYCYYSMCHD4Iv4NO9m7vQkAdH2noeA9vaPrP2vKKRmgOgOK6NZ4PH3YwBA5emO7b3/ggwpvqQMFEYWGseoBUyIb3RW52TpYhMw/oTMMfOSpASkKFlgagXjJKTlF0fl6c5Qw11bbDgUMCG+01mdCxv6rR/vgbODv3MJmmdm+Nz/BhIguhLqrM4lbjtK+ZnxXQmYEJKK6FFYVIRagj73w9Q5QP1vbPeLWCWYpXh0bJwd8azbUX6E5I7afTlz1uksIhwLzLthNJ8/Du+KYb7O6sLryIXdifF58TchzpBuRig3l1vjc9ecOPnEvc5agK7iE0IGI3rLsLHok1HZ2J6zFKDL+ISQwSjarbgGPg9Qz8MlPWeJ6/iEkHSKNvd+rqsyUj8swy/vOj4hZPz4C1qvXeFTrAUOAAAAAElFTkSuQmCC";
-const DECORATIONS_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAPNJREFUaIHtmTESgzAMBHWZDC+gp0vP/x9Bn44+L6BRmrhJA4csM05uGzfY1s1JxggzIYQQQgghxEnATnB3zwikAICKiXq4BE/uwaxvn/UPb3BnNwFg27Ky0w6vzRp8S4mkIbQD3wzzFJofdTMkYJgn89czFADGKSSiSgphfFBjTaoIKC4cHWvSxIFMmjiQSYoDLUlxoCVywOwHHWjpROop1IL/vsxty2oYO77M1QggSvcpJAFXE66BPfa+2C4v4j2yi7z7FJKAq6FrwN3TO3MMlAAAKO3F2sVZTiu2N9p9CnUv4FR7PbMG2BQ69SJL/kVA8QauAnHUj36BVwAAAABJRU5ErkJggg==";
-const FEATHER_SPRITE_SHEET_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
+const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABFtJREFUeJztnLFrE1Ecx78vOgSLWxB6cZU6VXDpH9Di4JJk6iSCDgqFDoJF/AOKdBAUBIsu6tQpFqGTnVysQzeH0LVpRQIOrdDF/hyad75c7t2lMXfvXfL9QMjL3SW/l9x7n/u9l7sDCCGEEEIIIYSQiUC5rgDxHxER2zqlFNsQKSxsvAXApYB07Ea1CgBotts95TzqQAiZUKRLPQikHgR95SQ5jip+PQjk6+ysyNJSXznr+IRkScl1BUg6jWoVTyoVNBuNvnKe7Hz5gieVSlgmpOhQgAXClYCa7TaedTo9y551OuEQmBBCMsEcAn+dnQ0feQ2B4+qQZ2xCiAdIDHnHdikgsw6UHyEThoicTf4bz3nHdy0gF/InJEsuuq5A0di5ccNJXKWUEhFxeeqJ69NdouJ1XR9CJgad+ejsj1lQvhi/ueiXrurA/T9hxM1/TWIDmOTv7gmy3q5rCeYb2AMBk9GTehqM3tFKqZ4HUq5QGCW+CFgZ5B2bAOvtui46Gf4rpcI6+NwGXPeTIpE4B2jKz2h80MtExNwmkwZh1iGyHCIiPjdEMloeVD863dcuBZxGzPyoXs5+koBVgKZ4Wov3gUfA2sLbcP16u5H5j+yDgAnRuBZwGmYXWFw7CJeNWxI4fUHJ4R8Zyb5IzABLUwHUpWlc/7QFALi3AGw9LOH261N822pice0QyEhGPgiYkIIgSqlQeuPM9AUlt1+fYuthaSQStH6AKaD7b+KPIMe/DsPyxkqg32cPdg5BiYiUpoKeZfdeHIQCNuNvrAQ9cSnC8Wdx7UA2VgLuZ0Bs4tvbP8LuyxmICPuEBWsGqM87s6035YdIyh3HMFna6e+DPgFr+UVjR7NB23caNDbxh5PNeSnXtpUuA0C55lZ+ngg4VX5s9skMdCL0qysLWPr5OSwDwN1fH2K3je6Qvf0jYIi5CB8ETPygXNtW/8S3nfv+81XAPsbvjgQL08cSK9oVBk425/vWlWvbuLncwrWrl2Pfq8XXPQqF8jvvMFjH7xNwK17ASfXgUIAMi0sBx2ETUKTfZVlXa/ZZJAkOfSncyeY8yrUZYLkVuz4qPvxnLq7Fp9lYCYYSMCHD4Iv4NO9m7vQkAdH2noeA9vaPrP2vKKRmgOgOK6NZ4PH3YwBA5emO7b3/ggwpvqQMFEYWGseoBUyIb3RW52TpYhMw/oTMMfOSpASkKFlgagXjJKTlF0fl6c5Qw11bbDgUMCG+01mdCxv6rR/vgbODv3MJmmdm+Nz/BhIguhLqrM4lbjtK+ZnxXQmYEJKK6FFYVIRagj73w9Q5QP1vbPeLWCWYpXh0bJwd8azbUX6E5I7afTlz1uksIhwLzLthNJ8/Du+KYb7O6sLryIXdifF58TchzpBuRig3l1vjc9ecOPnEvc5agK7iE0IGI3rLsLHok1HZ2J6zFKDL+ISQwSjarbgGPg9Qz8MlPWeJ6/iEkHSKNvd+rqsyUj8swy/vOj4hZPz4C1qvXeFTrAUOAAAAAElFTkSuQmCC";
+const DECORATIONS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAPNJREFUaIHtmTESgzAMBHWZDC+gp0vP/x9Bn44+L6BRmrhJA4csM05uGzfY1s1JxggzIYQQQgghxEnATnB3zwikAICKiXq4BE/uwaxvn/UPb3BnNwFg27Ky0w6vzRp8S4mkIbQD3wzzFJofdTMkYJgn89czFADGKSSiSgphfFBjTaoIKC4cHWvSxIFMmjiQSYoDLUlxoCVywOwHHWjpROop1IL/vsxty2oYO77M1QggSvcpJAFXE66BPfa+2C4v4j2yi7z7FJKAq6FrwN3TO3MMlAAAKO3F2sVZTiu2N9p9CnUv4FR7PbMG2BQ69SJL/kVA8QauAnHUj36BVwAAAABJRU5ErkJggg==";
+const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
 
 /**
- * Load the spritesheet and return the pixelmap template
+ * Load the sprite sheet and return the pixel-map template
  * @param {string} dataUri
  * @param {boolean} [templateColors]
  * @returns {Promise<string[][]>}
  */
-function loadSpritesheetPixels(dataUri, templateColors = true) {
+function loadSpriteSheetPixels(dataUri, templateColors = true) {
 	return new Promise((resolve, reject) => {
 		const img = new Image();
 		img.src = dataUri;
@@ -706,11 +695,11 @@ function loadSpritesheetPixels(dataUri, templateColors = true) {
 						row.push(hex);
 						continue;
 					}
-					if (SPRITESHEET_COLOR_MAP[hex] === undefined) {
+					if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
 						error(`Unknown color: ${hex}`);
 						row.push(TRANSPARENT);
 					}
-					row.push(SPRITESHEET_COLOR_MAP[hex]);
+					row.push(SPRITE_SHEET_COLOR_MAP[hex]);
 				}
 				hexArray.push(row);
 			}
@@ -722,7 +711,7 @@ function loadSpritesheetPixels(dataUri, templateColors = true) {
 	});
 }
 
-Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECORATIONS_SPRITE_SHEET_URI, false), loadSpritesheetPixels(FEATHER_SPRITE_SHEET_URI)]).then(([birbPixels, decorationPixels, featherPixels	]) => {
+Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false), loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)]).then(([birbPixels, decorationPixels, featherPixels	]) => {
 	const SPRITE_SHEET = birbPixels;
 	const DECORATIONS_SPRITE_SHEET = decorationPixels;
 	const FEATHER_SPRITE_SHEET = featherPixels;
@@ -844,8 +833,8 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		 * @param {string} text
 		 * @param {() => void} action
 		 */
-		constructor(text, action) {
-			super(text, action, undefined, true);
+		constructor(text, action, removeMenu = true) {
+			super(text, action, removeMenu, true);
 		}
 	}
 
@@ -859,7 +848,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		new MenuItem("Pet Birb", pet),
 		new MenuItem("Field Guide", insertFieldGuide),
 		// new MenuItem("Decorations", insertDecoration),
-		new MenuItem("Applications", () => switchMenuItems(otherItems), false),
+		new DebugMenuItem("Applications", () => switchMenuItems(otherItems), false),
 		new MenuItem("Hide Birb", hideBirb),
 		new DebugMenuItem("Reset Data", resetSaveData),
 		new DebugMenuItem("Unlock All", () => {
@@ -942,7 +931,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 	/**
 	 * @returns {boolean} Whether the script is running in a userscript extension context
 	 */
-	function isUserscript() {
+	function isUserScript() {
 		// @ts-ignore
 		return typeof GM_getValue === "function";
 	}
@@ -953,15 +942,15 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 
 	function load() {
 		let saveData = {};
-		if (isUserscript()) {
-			log("Loading save data from userscript storage");
+		if (isUserScript()) {
+			log("Loading save data from UserScript storage");
 			// @ts-ignore
 			saveData = GM_getValue("birbSaveData", {}) ?? {};
 		} else if (isTestEnvironment()) {
 			log("Test environment detected, loading save data from localStorage");
 			saveData = JSON.parse(localStorage.getItem("birbSaveData") ?? "{}");
 		} else {
-			log("Not a userscript");
+			log("Not a UserScript");
 		}
 		log("Loaded data: " + JSON.stringify(saveData));
 		unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
@@ -974,28 +963,28 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 			unlockedSpecies: unlockedSpecies,
 			currentSpecies: currentSpecies,
 		};
-		if (isUserscript()) {
-			log("Saving data to userscript storage");
+		if (isUserScript()) {
+			log("Saving data to UserScript storage");
 			// @ts-ignore
 			GM_setValue("birbSaveData", saveData);
 		} else if (isTestEnvironment()) {
 			log("Test environment detected, saving data to localStorage");
 			localStorage.setItem("birbSaveData", JSON.stringify(saveData));
 		} else {
-			log("Not a userscript");
+			log("Not a UserScript");
 		}
 	}
 
 	function resetSaveData() {
-		if (isUserscript()) {
-			log("Resetting save data in userscript storage");
+		if (isUserScript()) {
+			log("Resetting save data in UserScript storage");
 			// @ts-ignore
 			GM_deleteValue("birbSaveData");
 		} else if (isTestEnvironment()) {
 			log("Test environment detected, resetting save data in localStorage");
 			localStorage.removeItem("birbSaveData");
 		} else {
-			log("Not a userscript");
+			log("Not a UserScript");
 		}
 		load();
 	}
