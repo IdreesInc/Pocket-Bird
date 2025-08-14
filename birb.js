@@ -1029,7 +1029,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 					petStack.shift();
 				}
 				const pets = petStack.filter((time) => Date.now() - time < 1000).length;
-				if (pets >= 4) {
+				if (pets >= 3) {
 					setAnimation(Animations.HEART);
 					// Clear the stack
 					petStack = [];
@@ -1074,7 +1074,7 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		// Update the bird's position
 		if (currentState === States.IDLE) {
 			if (focusedElement !== null) {
-				birdY = getFocusedElementY();
+				birdY = getFocusedElementY() - 0.5;
 				if (!isWithinHorizontalBounds()) {
 					focusOnGround();
 				}
