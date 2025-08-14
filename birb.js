@@ -31,7 +31,7 @@ let mobileSettings = {
 
 const settings = { ...sharedSettings, ...isMobile() ? mobileSettings : desktopSettings };
 
-const DEBUG = location.hostname === "127.0.0.1";
+let debugMode = location.hostname === "127.0.0.1";
 
 const CSS_SCALE = settings.cssScale;
 const CANVAS_PIXEL_SIZE = settings.canvasPixelSize;
@@ -40,7 +40,7 @@ const HOP_SPEED = settings.hopSpeed;
 const FLY_SPEED = settings.flySpeed;
 const HOP_DISTANCE = settings.hopDistance;
 // Time in milliseconds until the user is considered AFK
-const AFK_TIME = DEBUG ? 0 : 1000 * 30;
+const AFK_TIME = debugMode ? 0 : 1000 * 30;
 const SPRITE_HEIGHT = 32;
 const MENU_ID = "birb-menu";
 const MENU_EXIT_ID = "birb-menu-exit";
@@ -829,11 +829,23 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		 * @param {string} text
 		 * @param {() => void} action
 		 * @param {boolean} [removeMenu]
+		 * @param {boolean} [isDebug]
 		 */
-		constructor(text, action, removeMenu = true) {
+		constructor(text, action, removeMenu = true, isDebug = false) {
 			this.text = text;
 			this.action = action;
 			this.removeMenu = removeMenu;
+			this.isDebug = isDebug;
+		}
+	}
+
+	class DebugMenuItem extends MenuItem {
+		/**
+		 * @param {string} text
+		 * @param {() => void} action
+		 */
+		constructor(text, action) {
+			super(text, action, undefined, true);
 		}
 	}
 
@@ -849,11 +861,14 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		// new MenuItem("Decorations", insertDecoration),
 		new MenuItem("Applications", () => switchMenuItems(otherItems), false),
 		new MenuItem("Hide Birb", hideBirb),
-		new MenuItem("Reset Data", resetSaveData),
-		new MenuItem("Unlock All", () => {
+		new DebugMenuItem("Reset Data", resetSaveData),
+		new DebugMenuItem("Unlock All", () => {
 			for (let type in species) {
 				unlockBird(type);
 			}
+		}),
+		new DebugMenuItem("Disable Debug", () => {
+			debugMode = false;
 		}),
 		new Separator(),
 		new MenuItem("Settings", () => {}),
@@ -1445,7 +1460,9 @@ Promise.all([loadSpritesheetPixels(SPRITE_SHEET_URI), loadSpritesheetPixels(DECO
 		header.innerHTML = '<div class="birb-window-title">birbOS</div>';
 		let content = makeElement("birb-window-content");
 		for (const item of menuItems) {
-			content.appendChild(makeMenuItem(item));
+			if (!item.isDebug || debugMode) {
+				content.appendChild(makeMenuItem(item));
+			}
 		}
 		menu.appendChild(header);
 		menu.appendChild(content);
