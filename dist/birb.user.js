@@ -884,7 +884,17 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			debugMode = false;
 		}),
 		new Separator(),
-		new MenuItem("Settings", () => {}),
+		new MenuItem("Settings", () => switchMenuItems(settingsItems), false),
+	];
+
+	const settingsItems = [
+		new MenuItem("Go Back", () => switchMenuItems(menuItems), false),
+		new Separator(),
+		new MenuItem("Toggle Birb Mode", () => {
+			userSettings.birbMode = !userSettings.birbMode;
+			save();
+			insertModal(`${birdBirb()} Mode`, `Your ${birdBirb().toLowerCase()} shall now be referred to as "${birdBirb()}"${userSettings.birbMode ? "\n\nWelcome back to 2012" : ""}`);
+		})
 	];
 
 	const otherItems = [
