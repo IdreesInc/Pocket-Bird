@@ -48,6 +48,17 @@ const MENU_EXIT_ID = "birb-menu-exit";
 const FIELD_GUIDE_ID = "birb-field-guide";
 const FEATHER_ID = "birb-feather";
 
+
+const DEFAULT_SETTINGS = {
+	birbMode: false
+};
+
+/**
+ * @typedef {typeof DEFAULT_SETTINGS} Settings
+ */
+
+let userSettings = {};
+
 const styles = `
 	@font-face {
 		font-family: Monocraft;
@@ -858,11 +869,11 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 	
 	const menuItems = [
-		new MenuItem("Pet Birb", pet),
+		new MenuItem(`Pet ${birdBirb()}`, pet),
 		new MenuItem("Field Guide", insertFieldGuide),
 		// new MenuItem("Decorations", insertDecoration),
 		new DebugMenuItem("Applications", () => switchMenuItems(otherItems), false),
-		new MenuItem("Hide Birb", hideBirb),
+		new MenuItem(`Hide ${birdBirb()}`, hideBirb),
 		new DebugMenuItem("Reset Data", resetSaveData),
 		new DebugMenuItem("Unlock All", () => {
 			for (let type in species) {
@@ -965,7 +976,11 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		} else {
 			log("Not a UserScript");
 		}
-		log("Loaded data: " + JSON.stringify(saveData));
+		debug("Loaded data: " + JSON.stringify(saveData));
+		if (!saveData.settings) {
+			log("No user settings found in save data, starting fresh");
+		}
+		userSettings = saveData.settings ?? {};
 		unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
 		currentSpecies = saveData.currentSpecies ?? DEFAULT_BIRD;
 		switchSpecies(currentSpecies);
@@ -975,6 +990,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		let saveData = {
 			unlockedSpecies: unlockedSpecies,
 			currentSpecies: currentSpecies,
+			settings: userSettings
 		};
 		if (isUserScript()) {
 			log("Saving data to UserScript storage");
@@ -1000,6 +1016,21 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			log("Not a UserScript");
 		}
 		load();
+	}
+
+	/**
+	 * Get the user settings merged with default settings
+	 * @returns {Settings} The merged settings
+	 */
+	function settings() {
+		return { ...DEFAULT_SETTINGS, ...userSettings };
+	}
+
+	/**
+	 * Bird or birb, you decide
+	 */
+	function birdBirb() {
+		return settings().birbMode ? "Birb" : "Bird";
 	}
 
 	function init() {
@@ -1459,7 +1490,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		}
 		let menu = makeElement("birb-window", undefined, MENU_ID);
 		let header = makeElement("birb-window-header");
-		header.innerHTML = '<div class="birb-window-title">birbOS</div>';
+		header.innerHTML = `<div class="birb-window-title">${birdBirb().toLowerCase()}OS</div>`;
 		let content = makeElement("birb-window-content");
 		for (const item of menuItems) {
 			if (!item.isDebug || debugMode) {
@@ -1867,6 +1898,12 @@ function isMobile() {
 
 function log() {
 	console.log("Birb: ", ...arguments);
+}
+
+function debug() {
+	if (debugMode) {
+		console.debug("Birb: ", ...arguments);
+	}
 }
 
 function error() {
