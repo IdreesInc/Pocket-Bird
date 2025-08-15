@@ -14,7 +14,7 @@
 // @ts-check
 
 // @ts-ignore
-const sharedSettings = {
+const SHARED_CONFIG = {
 	cssScale: 1,
 	canvasPixelSize: 1,
 	hopSpeed: 0.07,
@@ -22,24 +22,24 @@ const sharedSettings = {
 };
 
 
-let desktopSettings = {
+const DESKTOP_CONFIG = {
 	flySpeed: 0.2,
 };
 
-let mobileSettings = {
+const MOBILE_CONFIG = {
 	flySpeed: 0.125,
 };
 
-const settings = { ...sharedSettings, ...isMobile() ? mobileSettings : desktopSettings };
+const CONFIG = { ...SHARED_CONFIG, ...isMobile() ? MOBILE_CONFIG : DESKTOP_CONFIG };
 
 let debugMode = location.hostname === "127.0.0.1";
 
-const CSS_SCALE = settings.cssScale;
-const CANVAS_PIXEL_SIZE = settings.canvasPixelSize;
+const CSS_SCALE = CONFIG.cssScale;
+const CANVAS_PIXEL_SIZE = CONFIG.canvasPixelSize;
 const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * CSS_SCALE;
-const HOP_SPEED = settings.hopSpeed;
-const FLY_SPEED = settings.flySpeed;
-const HOP_DISTANCE = settings.hopDistance;
+const HOP_SPEED = CONFIG.hopSpeed;
+const FLY_SPEED = CONFIG.flySpeed;
+const HOP_DISTANCE = CONFIG.hopDistance;
 // Time in milliseconds until the user is considered AFK
 const AFK_TIME = debugMode ? 0 : 1000 * 30;
 const SPRITE_HEIGHT = 32;
