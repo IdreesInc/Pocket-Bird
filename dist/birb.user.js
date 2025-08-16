@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-08-16-3
+// @version      2025-08-16-4
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1189,6 +1189,46 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		save();
 	}
 
+	/**
+	 * @param {StickyNote} stickyNote
+	 * @returns {boolean} Whether the given sticky note is applicable to the current site/page
+	 */
+	function isStickyNoteApplicable(stickyNote) {
+		const stickyNoteUrl = stickyNote.site;
+		const currentUrl = window.location.href;
+		const stickyNoteWebsite = stickyNoteUrl.split("?")[0];
+		const currentWebsite = currentUrl.split("?")[0];
+
+		debug("Comparing " + stickyNoteUrl + " with " + currentUrl);
+
+		if (stickyNoteWebsite !== currentWebsite) {
+			return false;
+		}
+
+		/** @type {Record<string, string>} */
+		const stickyNoteParams = stickyNoteUrl.split("?")[1]?.split("&").reduce((params, param) => {
+			const [key, value] = param.split("=");
+			params[key] = value;
+			return params;
+		}, {});
+
+		/** @type {Record<string, string>} */
+		const currentParams = currentUrl.split("?")[1]?.split("&").reduce((params, param) => {
+			const [key, value] = param.split("=");
+			params[key] = value;
+			return params;
+		}, {});
+
+		debug("Comparing params: ", stickyNoteParams, currentParams);
+
+		if (window.location.hostname === "www.youtube.com") {
+			if (currentParams.v !== undefined && currentParams.v !== stickyNoteParams.v) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	function init() {
 		if (window !== window.top) {
 			// Skip installation if within an iframe
@@ -1243,7 +1283,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 
 		// Render all sticky notes
 		for (let stickyNote of stickyNotes) {
-			if (stickyNote.site.split("?")[0] === window.location.href.split("?")[0]) {
+			if (isStickyNoteApplicable(stickyNote)) {
 				renderStickyNote(stickyNote);
 			}
 		}
