@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-08-16-2
+// @version      2025-08-16-3
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -362,8 +362,8 @@ const STYLESHEET = `@font-face {
 }
 
 .birb-sticky-note-input {
-	width: 100% !important;
-	height: 100% !important;
+	width: 100%;
+	height: 100%;
 	padding: 10px !important;
 	resize: both !important;
 	min-width: 100% !important;
@@ -1167,7 +1167,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 				clearTimeout(saveTimeout);
 				saveTimeout = setTimeout(() => {
 					save();
-				}, 500);
+				}, 250);
 			});
 		}
 

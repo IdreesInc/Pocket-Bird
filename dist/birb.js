@@ -348,8 +348,8 @@ const STYLESHEET = `@font-face {
 }
 
 .birb-sticky-note-input {
-	width: 100% !important;
-	height: 100% !important;
+	width: 100%;
+	height: 100%;
 	padding: 10px !important;
 	resize: both !important;
 	min-width: 100% !important;
@@ -1153,7 +1153,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 				clearTimeout(saveTimeout);
 				saveTimeout = setTimeout(() => {
 					save();
-				}, 500);
+				}, 250);
 			});
 		}
 

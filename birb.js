@@ -835,7 +835,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 				clearTimeout(saveTimeout);
 				saveTimeout = setTimeout(() => {
 					save();
-				}, 500);
+				}, 250);
 			});
 		}
 
