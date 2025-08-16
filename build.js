@@ -24,7 +24,7 @@ const userScriptHeader =
 `// ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-08-14
+// @version      2025-08-16
 // @description  birb
 // @author       Idrees
 // @updateURL    https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
