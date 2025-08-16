@@ -739,6 +739,43 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		return settings().birbMode ? "Birb" : "Bird";
 	}
 
+	function makeStickyNote(top = 500, left = 500) {
+		let html = `
+			<div class="birb-window-header">
+				<div class="birb-window-title">Sticky Note</div>
+				<div class="birb-window-close">x</div>
+			</div>
+			<div class="birb-window-content">
+				<textarea class="birb-sticky-note-input" style="width: 150px;" placeholder="Write your notes here and they'll stick to the page..."></textarea>
+			</div>`
+		const stickyNote = makeElement("birb-window");
+		stickyNote.classList.add("birb-sticky-note");
+		stickyNote.innerHTML = html;
+
+		stickyNote.style.top = `${top}px`;
+		stickyNote.style.left = `${left}px`;
+		document.body.appendChild(stickyNote);
+
+		makeDraggable(stickyNote.querySelector(".birb-window-header"));
+
+		const closeButton = stickyNote.querySelector(".birb-window-close");
+		if (closeButton) {
+			makeClosable(() => {
+				confirm("Are you sure you want to delete this sticky note?") && stickyNote.remove();
+			}, closeButton);
+		}
+
+		centerElement(stickyNote);
+
+		// On window resize
+		window.addEventListener("resize", () => {
+			const modTop = `${top - Math.min(window.innerHeight - stickyNote.offsetHeight, top)}px`;
+			const modLeft = `${left - Math.min(window.innerWidth - stickyNote.offsetWidth, left)}px`;
+			stickyNote.style.transform = `translate(-${modLeft}, -${modTop})`;
+		});
+
+	}
+
 	function init() {
 		if (window !== window.top) {
 			// Skip installation if within an iframe
@@ -790,6 +827,8 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 				}
 			}
 		});
+
+		makeStickyNote();
 
 		setInterval(update, 1000 / 60);
 	}
@@ -1445,7 +1484,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 
 	function focusOnElement() {
-		const elements = document.querySelectorAll("img, video");
+		const elements = document.querySelectorAll("img, video, .birb-sticky-note");
 		const inWindow = Array.from(elements).filter((img) => {
 			const rect = img.getBoundingClientRect();
 			return rect.left >= 0 && rect.top >= 80 && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
