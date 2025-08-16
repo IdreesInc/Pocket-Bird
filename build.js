@@ -16,6 +16,10 @@ const spriteSheets = [
 		path: "./sprites/decorations.png"
 	}
 ];
+
+const STYLESHEET_PATH = "./stylesheet.css";
+const STYLESHEET_KEY = "___STYLESHEET___";
+
 const userScriptHeader =
 `// ==UserScript==
 // @name         Browser Bird
@@ -35,12 +39,19 @@ const userScriptHeader =
 
 let birbJs = readFileSync('birb.js', 'utf8');
 
+// Compile and insert sprite sheets
 for (const spriteSheet of spriteSheets) {
 	const dataUri = readFileSync(spriteSheet.path, 'base64');
 	birbJs = birbJs.replaceAll(spriteSheet.key, `data:image/png;base64,${dataUri}`);
 }
 
+// Insert stylesheet
+const stylesheetContent = readFileSync(STYLESHEET_PATH, 'utf8');
+birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent);
+
+// Build standard javascript file
 writeFileSync('./dist/birb.js', birbJs);
 
+// Build user script
 const userScript = userScriptHeader + birbJs;
 writeFileSync('./dist/birb.user.js', userScript);
