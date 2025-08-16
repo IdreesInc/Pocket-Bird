@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-08-16
+// @version      2025-08-16-1
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -362,18 +362,18 @@ const STYLESHEET = `@font-face {
 }
 
 .birb-sticky-note-input {
-	width: 100%;
-	height: 100%;
-	padding: 10px;
-	resize: both;
-	min-width: 100%;
-	min-height: 130px;
-	box-sizing: border-box;
-	font-family: "Monocraft", monospace;
-	font-size: 14px;
-	color: black;
-	background-color: transparent;
-	border: none;
+	width: 100% !important;
+	height: 100% !important;
+	padding: 10px !important;
+	resize: both !important;
+	min-width: 100% !important;
+	min-height: 130px !important;
+	box-sizing: border-box !important;
+	font-family: "Monocraft", monospace !important;
+	font-size: 14px !important;
+	color: black !important;
+	background-color: transparent !important;
+	border: none !important;
 }
 
 .birb-sticky-note-input:focus {
