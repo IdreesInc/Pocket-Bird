@@ -27,6 +27,7 @@ const userScriptHeader =
 // @version      2025-08-16
 // @description  birb
 // @author       Idrees
+// @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
 // @updateURL    https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
 // @match        *://*/*
 // @grant        GM_setValue
