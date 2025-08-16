@@ -563,6 +563,23 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			super("", () => {});
 		}
 	}
+
+	class StickyNote {
+		/**
+		 * @param {string} id
+		 * @param {string} [site]
+		 * @param {string} [content]
+		 * @param {number} [top]
+		 * @param {number} [left]
+		 */
+		constructor(id, site="", content="", top=0, left=0) {
+			this.id = id;
+			this.site = site;
+			this.content = content;
+			this.top = top;
+			this.left = left;
+		}
+	}
 	
 	const menuItems = [
 		new MenuItem(`Pet ${birdBirb()}`, pet),
@@ -579,6 +596,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		new DebugMenuItem("Disable Debug", () => {
 			debugMode = false;
 		}),
+		new MenuItem("Add Sticky Note", newStickyNote),
 		new Separator(),
 		new MenuItem("Settings", () => switchMenuItems(settingsItems), false),
 	];
@@ -657,6 +675,8 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	let unlockedSpecies = [DEFAULT_BIRD];
 	let visible = true;
 	let lastPetTimestamp = 0;
+	/** @type {StickyNote[]} */
+	let stickyNotes = [];
 
 	/**
 	 * @returns {boolean} Whether the script is running in a userscript extension context
@@ -689,6 +709,15 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		userSettings = saveData.settings ?? {};
 		unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
 		currentSpecies = saveData.currentSpecies ?? DEFAULT_BIRD;
+		stickyNotes = [];
+		if (saveData.stickyNotes) {
+			for (let note of saveData.stickyNotes) {
+				if (note.id) {
+					stickyNotes.push(new StickyNote(note.id, note.site, note.content, note.top, note.left));
+				}
+			}
+		}
+		log(stickyNotes.length + " sticky notes loaded");
 		switchSpecies(currentSpecies);
 	}
 
@@ -698,6 +727,15 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			currentSpecies: currentSpecies,
 			settings: userSettings
 		};
+		if (stickyNotes.length > 0) {
+			saveData.stickyNotes = stickyNotes.map(note => ({
+				id: note.id,
+				site: note.site,
+				content: note.content,
+				top: note.top,
+				left: note.left
+			}));
+		}
 		if (isUserScript()) {
 			log("Saving data to UserScript storage");
 			// @ts-ignore
@@ -739,41 +777,84 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		return settings().birbMode ? "Birb" : "Bird";
 	}
 
-	function makeStickyNote(top = 500, left = 500) {
+	function newStickyNote() {
+		const id = Date.now().toString();
+		const site = window.location.href;
+		const stickyNote = new StickyNote(id, site, "");
+		const element = renderStickyNote(stickyNote);
+		centerElement(element);
+		stickyNote.top = parseInt(element.style.top, 10);
+		stickyNote.left = parseInt(element.style.left, 10);
+		stickyNotes.push(stickyNote);
+		save();
+	}
+
+	/**
+	 * @param {StickyNote} stickyNote
+	 * @returns {HTMLElement}
+	 */
+	function renderStickyNote(stickyNote) {
 		let html = `
 			<div class="birb-window-header">
 				<div class="birb-window-title">Sticky Note</div>
 				<div class="birb-window-close">x</div>
 			</div>
 			<div class="birb-window-content">
-				<textarea class="birb-sticky-note-input" style="width: 150px;" placeholder="Write your notes here and they'll stick to the page..."></textarea>
+				<textarea class="birb-sticky-note-input" style="width: 150px;" placeholder="Write your notes here and they'll stick to the page...">${stickyNote.content}</textarea>
 			</div>`
-		const stickyNote = makeElement("birb-window");
-		stickyNote.classList.add("birb-sticky-note");
-		stickyNote.innerHTML = html;
+		const noteElement = makeElement("birb-window");
+		noteElement.classList.add("birb-sticky-note");
+		noteElement.innerHTML = html;
 
-		stickyNote.style.top = `${top}px`;
-		stickyNote.style.left = `${left}px`;
-		document.body.appendChild(stickyNote);
+		noteElement.style.top = `${stickyNote.top}px`;
+		noteElement.style.left = `${stickyNote.left}px`;
+		document.body.appendChild(noteElement);
 
-		makeDraggable(stickyNote.querySelector(".birb-window-header"));
+		makeDraggable(noteElement.querySelector(".birb-window-header"), true, (top, left) => {
+			stickyNote.top = top;
+			stickyNote.left = left;
+			save();
+		});
 
-		const closeButton = stickyNote.querySelector(".birb-window-close");
+		const closeButton = noteElement.querySelector(".birb-window-close");
 		if (closeButton) {
 			makeClosable(() => {
-				confirm("Are you sure you want to delete this sticky note?") && stickyNote.remove();
+				if (confirm("Are you sure you want to delete this sticky note?")) {
+					deleteStickyNote(stickyNote);
+					noteElement.remove();
+				}
 			}, closeButton);
 		}
 
-		centerElement(stickyNote);
+		const textarea = noteElement.querySelector(".birb-sticky-note-input");
+		if (textarea && textarea instanceof HTMLTextAreaElement) {
+			let saveTimeout;
+			// Save after debounce
+			textarea.addEventListener("input", () => {
+				stickyNote.content = textarea.value;
+				clearTimeout(saveTimeout);
+				saveTimeout = setTimeout(() => {
+					save();
+				}, 500);
+			});
+		}
 
 		// On window resize
 		window.addEventListener("resize", () => {
-			const modTop = `${top - Math.min(window.innerHeight - stickyNote.offsetHeight, top)}px`;
-			const modLeft = `${left - Math.min(window.innerWidth - stickyNote.offsetWidth, left)}px`;
-			stickyNote.style.transform = `translate(-${modLeft}, -${modTop})`;
+			const modTop = `${stickyNote.top - Math.min(window.innerHeight - noteElement.offsetHeight, stickyNote.top)}px`;
+			const modLeft = `${stickyNote.left - Math.min(window.innerWidth - noteElement.offsetWidth, stickyNote.left)}px`;
+			noteElement.style.transform = `translate(-${modLeft}, -${modTop})`;
 		});
 
+		return noteElement;
+	}
+
+	/**
+	 * @param {StickyNote} stickyNote
+	 */
+	function deleteStickyNote(stickyNote) {
+		stickyNotes = stickyNotes.filter(note => note.id !== stickyNote.id);
+		save();
 	}
 
 	function init() {
@@ -828,7 +909,12 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			}
 		});
 
-		makeStickyNote();
+		// Render all sticky notes
+		for (let stickyNote of stickyNotes) {
+			if (stickyNote.site === window.location.href.split("?")[0]) {
+				renderStickyNote(stickyNote);
+			}
+		}
 
 		setInterval(update, 1000 / 60);
 	}
@@ -1354,8 +1440,9 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	/**
 	 * @param {HTMLElement|null} element The element to detect drag events on
 	 * @param {boolean} [parent] Whether to move the parent element when the child is dragged
+	 * @param {(top: number, left: number) => void} [callback] Callback for when element is moved
 	 */
-	function makeDraggable(element, parent = true) {
+	function makeDraggable(element, parent = true, callback = () => {}) {
 		if (!element) {
 			return;
 		}
@@ -1384,11 +1471,19 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			e.preventDefault();
 		});
 
-		document.addEventListener("mouseup", () => {
+		document.addEventListener("mouseup", (e) => {
+			if (isMouseDown) {
+				callback(elementToMove.offsetTop, elementToMove.offsetLeft);
+				e.preventDefault();
+			}
 			isMouseDown = false;
 		});
 
-		document.addEventListener("touchend", () => {
+		document.addEventListener("touchend", (e) => {
+			if (isMouseDown) {
+				callback(elementToMove.offsetTop, elementToMove.offsetLeft);
+				e.preventDefault();
+			}
 			isMouseDown = false;
 		});
 
