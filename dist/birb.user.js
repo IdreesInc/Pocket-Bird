@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-08-16-1
+// @version      2025-08-16-2
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1243,7 +1243,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 
 		// Render all sticky notes
 		for (let stickyNote of stickyNotes) {
-			if (stickyNote.site === window.location.href.split("?")[0]) {
+			if (stickyNote.site.split("?")[0] === window.location.href.split("?")[0]) {
 				renderStickyNote(stickyNote);
 			}
 		}

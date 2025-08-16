@@ -911,7 +911,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 
 		// Render all sticky notes
 		for (let stickyNote of stickyNotes) {
-			if (stickyNote.site === window.location.href.split("?")[0]) {
+			if (stickyNote.site.split("?")[0] === window.location.href.split("?")[0]) {
 				renderStickyNote(stickyNote);
 			}
 		}
