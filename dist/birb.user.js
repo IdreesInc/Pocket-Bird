@@ -71,6 +71,7 @@ const STYLESHEET = `@font-face {
 	--neg-double-border-size: calc(var(--neg-border-size) * 2);
 	--highlight: #ffa3cb;
 	--border-color: var(--highlight);
+	--birb-scale: ${CSS_SCALE};
 }
 
 #birb {
