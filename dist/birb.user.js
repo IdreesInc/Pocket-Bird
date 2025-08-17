@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-08-16-6
+// @version      2025-08-16-7
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -371,8 +371,8 @@ const STYLESHEET = `@font-face {
 	height: 100%;
 	padding: 10px !important;
 	resize: both !important;
-	min-width: 100% !important;
-	min-height: 130px !important;
+	min-width: 175px !important;
+	min-height: 135px !important;
 	box-sizing: border-box !important;
 	font-family: "Monocraft", monospace !important;
 	font-size: 14px !important;
