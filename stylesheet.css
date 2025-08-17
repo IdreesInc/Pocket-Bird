@@ -10,7 +10,8 @@
 	--neg-double-border-size: calc(var(--neg-border-size) * 2);
 	--highlight: #ffa3cb;
 	--border-color: var(--highlight);
-	--birb-scale: ${CSS_SCALE};
+	--birb-scale: ${BIRB_CSS_SCALE};
+	--ui-scale: ${UI_CSS_SCALE};
 }
 
 #birb {
@@ -57,6 +58,7 @@
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
+	transform: scale(var(--ui-scale));
 	animation: pop-in 0.08s;
 	transition-timing-function: ease-in;
 }
@@ -79,7 +81,7 @@
 
 @keyframes pop-in {
 	0% { opacity: 1; transform: scale(0.1); }
-	100% { opacity: 1; transform: scale(1); }
+	100% { opacity: 1; transform: scale(var(--ui-scale)); }
 }
 
 .birb-window-header {

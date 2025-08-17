@@ -2,7 +2,8 @@
 
 // @ts-ignore
 const SHARED_CONFIG = {
-	cssScale: 1,
+	birbCssScale: 1,
+	uiCssScale: 1,
 	canvasPixelSize: 1,
 	hopSpeed: 0.07,
 	hopDistance: 45,
@@ -14,6 +15,7 @@ const DESKTOP_CONFIG = {
 };
 
 const MOBILE_CONFIG = {
+	uiCssScale: 0.9,
 	flySpeed: 0.125,
 };
 
@@ -21,9 +23,10 @@ const CONFIG = { ...SHARED_CONFIG, ...isMobile() ? MOBILE_CONFIG : DESKTOP_CONFI
 
 let debugMode = location.hostname === "127.0.0.1";
 
-const CSS_SCALE = CONFIG.cssScale;
+const BIRB_CSS_SCALE = CONFIG.birbCssScale;
+const UI_CSS_SCALE = CONFIG.uiCssScale;
 const CANVAS_PIXEL_SIZE = CONFIG.canvasPixelSize;
-const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * CSS_SCALE;
+const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
 const HOP_SPEED = CONFIG.hopSpeed;
 const FLY_SPEED = CONFIG.flySpeed;
 const HOP_DISTANCE = CONFIG.hopDistance;
@@ -58,7 +61,8 @@ const STYLESHEET = `@font-face {
 	--neg-double-border-size: calc(var(--neg-border-size) * 2);
 	--highlight: #ffa3cb;
 	--border-color: var(--highlight);
-	--birb-scale: ${CSS_SCALE};
+	--birb-scale: ${BIRB_CSS_SCALE};
+	--ui-scale: ${UI_CSS_SCALE};
 }
 
 #birb {
@@ -105,6 +109,7 @@ const STYLESHEET = `@font-face {
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
+	transform: scale(var(--ui-scale));
 	animation: pop-in 0.08s;
 	transition-timing-function: ease-in;
 }
@@ -127,7 +132,7 @@ const STYLESHEET = `@font-face {
 
 @keyframes pop-in {
 	0% { opacity: 1; transform: scale(0.1); }
-	100% { opacity: 1; transform: scale(1); }
+	100% { opacity: 1; transform: scale(var(--ui-scale)); }
 }
 
 .birb-window-header {
@@ -904,6 +909,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		new MenuItem("Field Guide", insertFieldGuide),
 		// new MenuItem("Decorations", insertDecoration),
 		new DebugMenuItem("Applications", () => switchMenuItems(otherItems), false),
+		new MenuItem("Sticky Note", newStickyNote),
 		new MenuItem(`Hide ${birdBirb()}`, hideBirb),
 		new DebugMenuItem("Reset Data", resetSaveData),
 		new DebugMenuItem("Unlock All", () => {
@@ -914,7 +920,6 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		new DebugMenuItem("Disable Debug", () => {
 			debugMode = false;
 		}),
-		new MenuItem("Add Sticky Note", newStickyNote),
 		new Separator(),
 		new MenuItem("Settings", () => switchMenuItems(settingsItems), false),
 	];
@@ -1955,11 +1960,11 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 
 	function getCanvasWidth() {
-		return canvas.width * CSS_SCALE
+		return canvas.width * BIRB_CSS_SCALE
 	}
 
 	function getCanvasHeight() {
-		return canvas.height * CSS_SCALE
+		return canvas.height * BIRB_CSS_SCALE
 	}
 
 	function hop() {
