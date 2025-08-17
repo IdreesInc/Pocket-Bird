@@ -1105,7 +1105,8 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		const site = window.location.href;
 		const stickyNote = new StickyNote(id, site, "");
 		const element = renderStickyNote(stickyNote);
-		centerElement(element);
+		element.style.left = `${window.innerWidth / 2 - element.offsetWidth / 2}px`;
+		element.style.top = `${window.scrollY + window.innerHeight / 2 - element.offsetHeight / 2}px`;
 		stickyNote.top = parseInt(element.style.top, 10);
 		stickyNote.left = parseInt(element.style.left, 10);
 		stickyNotes.push(stickyNote);
