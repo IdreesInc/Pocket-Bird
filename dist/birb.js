@@ -1166,7 +1166,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		window.addEventListener("resize", () => {
 			const modTop = `${stickyNote.top - Math.min(window.innerHeight - noteElement.offsetHeight, stickyNote.top)}px`;
 			const modLeft = `${stickyNote.left - Math.min(window.innerWidth - noteElement.offsetWidth, stickyNote.left)}px`;
-			noteElement.style.transform = `translate(-${modLeft}, -${modTop})`;
+			noteElement.style.transform = `scale(var(--ui-scale)) translate(-${modLeft}, -${modTop})`;
 		});
 
 		return noteElement;
@@ -1719,11 +1719,11 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			x += offset;
 		} else {
 			// Right side
-			x -= menu.offsetWidth + offset;
+			x -= (menu.offsetWidth + offset) * UI_CSS_SCALE;
 		}
 		if (y > window.innerHeight / 2) {
 			// Top side
-			y -= menu.offsetHeight + offset + 10;
+			y -= (menu.offsetHeight + offset + 10) * UI_CSS_SCALE;
 		} else {
 			// Bottom side
 			y += offset;

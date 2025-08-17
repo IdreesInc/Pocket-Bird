@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-08-16-5
+// @version      2025-08-16-6
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1180,7 +1180,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		window.addEventListener("resize", () => {
 			const modTop = `${stickyNote.top - Math.min(window.innerHeight - noteElement.offsetHeight, stickyNote.top)}px`;
 			const modLeft = `${stickyNote.left - Math.min(window.innerWidth - noteElement.offsetWidth, stickyNote.left)}px`;
-			noteElement.style.transform = `translate(-${modLeft}, -${modTop})`;
+			noteElement.style.transform = `scale(var(--ui-scale)) translate(-${modLeft}, -${modTop})`;
 		});
 
 		return noteElement;
@@ -1733,11 +1733,11 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			x += offset;
 		} else {
 			// Right side
-			x -= menu.offsetWidth + offset;
+			x -= (menu.offsetWidth + offset) * UI_CSS_SCALE;
 		}
 		if (y > window.innerHeight / 2) {
 			// Top side
-			y -= menu.offsetHeight + offset + 10;
+			y -= (menu.offsetHeight + offset + 10) * UI_CSS_SCALE;
 		} else {
 			// Bottom side
 			y += offset;
