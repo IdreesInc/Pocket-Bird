@@ -299,6 +299,7 @@ const species = {
 		[UNDERBELLY]: "#f5ea63",
 		[WING]: "#e8e079",
 		[WING_EDGE]: "#191919",
+		[THEME_HIGHLIGHT]: "#ffcc00"
 	}),
 	barnSwallow: new BirdType("Barn Swallow",
 		"Agile birds that often roost in man-made structures, these birds are known to build nests near Ospreys for protection.", {
@@ -1623,7 +1624,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 
 	function focusOnElement() {
-		const elements = document.querySelectorAll("img, video, .birb-sticky-note");
+		const elements = document.querySelectorAll("img, video");
 		const inWindow = Array.from(elements).filter((img) => {
 			const rect = img.getBoundingClientRect();
 			return rect.left >= 0 && rect.top >= 80 && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
