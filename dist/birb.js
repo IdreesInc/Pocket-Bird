@@ -574,9 +574,9 @@ const species = {
 		[FACE]: "#ffffff",
 		[BELLY]: "#ebe9e8",
 		[UNDERBELLY]: "#ebd9d0",
-		[WING]: "#e3cabd",
-		[WING_EDGE]: "#9b8b82",
-		[THEME_HIGHLIGHT]: "#e3cabd",
+		[WING]: "#f3d3c1",
+		[WING_EDGE]: "#2d2d2dff",
+		[THEME_HIGHLIGHT]: "#d7ac93",
 	}),
 	tuftedTitmouse: new BirdType("Tufted Titmouse",
 		"Native to the eastern United States, full of personality, and notably my wife's favorite bird.", {
