@@ -1889,16 +1889,16 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 
 		document.addEventListener("mousemove", (e) => {
 			if (isMouseDown) {
-				elementToMove.style.left = `${e.clientX - offsetX}px`;
-				elementToMove.style.top = `${e.clientY - offsetY}px`;
+				elementToMove.style.left = `${Math.max(0, e.clientX - offsetX)}px`;
+				elementToMove.style.top = `${Math.max(0, e.clientY - offsetY)}px`;
 			}
 		});
 
 		document.addEventListener("touchmove", (e) => {
 			if (isMouseDown) {
 				const touch = e.touches[0];
-				elementToMove.style.left = `${touch.clientX - offsetX}px`;
-				elementToMove.style.top = `${touch.clientY - offsetY}px`;
+				elementToMove.style.left = `${Math.max(0, touch.clientX - offsetX)}px`;
+				elementToMove.style.top = `${Math.max(0, touch.clientY - offsetY)}px`;
 			}
 		});
 	}
