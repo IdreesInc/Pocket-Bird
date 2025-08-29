@@ -958,14 +958,31 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			}
 		});
 
+		drawStickyNotes();
+
+		let lastUrl = (window.location.href ?? "").split("?")[0];
+		setInterval(() => {
+			const currentUrl = (window.location.href ?? "").split("?")[0];
+			if (currentUrl !== lastUrl) {
+				log("URL changed, updating sticky notes");
+				lastUrl = currentUrl;
+				drawStickyNotes();
+			}
+		}, 500);
+
+		setInterval(update, 1000 / 60);
+	}
+
+	function drawStickyNotes() {
+		// Remove all existing sticky notes
+		const existingNotes = document.querySelectorAll(".birb-sticky-note");
+		existingNotes.forEach(note => note.remove());
 		// Render all sticky notes
 		for (let stickyNote of stickyNotes) {
 			if (isStickyNoteApplicable(stickyNote)) {
 				renderStickyNote(stickyNote);
 			}
 		}
-
-		setInterval(update, 1000 / 60);
 	}
 
 	function update() {
