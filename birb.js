@@ -22,6 +22,7 @@ const MOBILE_CONFIG = {
 const CONFIG = { ...SHARED_CONFIG, ...isMobile() ? MOBILE_CONFIG : DESKTOP_CONFIG };
 
 let debugMode = location.hostname === "127.0.0.1";
+let frozen = false;
 
 const BIRB_CSS_SCALE = CONFIG.birbCssScale;
 const UI_CSS_SCALE = CONFIG.uiCssScale;
@@ -592,6 +593,9 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		new DebugMenuItem("Applications", () => switchMenuItems(otherItems), false),
 		new MenuItem("Sticky Note", newStickyNote),
 		new MenuItem(`Hide ${birdBirb()}`, hideBirb),
+		new DebugMenuItem("Freeze/Unfreeze", () => {
+			frozen = !frozen;
+		}),
 		new DebugMenuItem("Reset Data", resetSaveData),
 		new DebugMenuItem("Unlock All", () => {
 			for (let type in species) {
@@ -1624,6 +1628,9 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 
 	function focusOnElement() {
+		if (frozen) {
+			return;
+		}
 		const elements = document.querySelectorAll("img, video");
 		const inWindow = Array.from(elements).filter((img) => {
 			const rect = img.getBoundingClientRect();
@@ -1650,6 +1657,9 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 
 	function hop() {
+		if (frozen) {
+			return;
+		}
 		if (currentState === States.IDLE) {
 			// Determine bounds for hopping
 			let minX = 0;
