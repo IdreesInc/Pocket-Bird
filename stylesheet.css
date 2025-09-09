@@ -1,8 +1,3 @@
-@font-face {
-	font-family: Monocraft;
-	src: url("https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf");
-}
-
 :root {
 	--border-size: 2px;
 	--neg-border-size: calc(var(--border-size) * -1);

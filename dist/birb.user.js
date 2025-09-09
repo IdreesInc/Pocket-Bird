@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-08-28-1
+// @version      2025-09-09-01
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -64,12 +64,7 @@ const DEFAULT_SETTINGS = {
 
 let userSettings = {};
 
-const STYLESHEET = `@font-face {
-	font-family: Monocraft;
-	src: url("https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf");
-}
-
-:root {
+const STYLESHEET = `:root {
 	--border-size: 2px;
 	--neg-border-size: calc(var(--border-size) * -1);
 	--double-border-size: calc(var(--border-size) * 2);
@@ -1246,6 +1241,13 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			return;
 		}
 
+		// Preload font
+		const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
+		const fontLink = document.createElement("link");
+		fontLink.rel = "stylesheet";
+		fontLink.href = `url(${MONOCRAFT_SRC}) format("opentype")`;
+		document.head.appendChild(fontLink);
+
 		load();
 
 		styleElement.innerHTML = STYLESHEET;
@@ -1635,6 +1637,9 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			onClick(closeButton, func);
 		}
 		document.addEventListener("keydown", (e) => {
+			if (closeButton && !document.body.contains(closeButton)) {
+				return;
+			}
 			if (e.key === "Escape") {
 				func();
 			}
@@ -1784,7 +1789,9 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		}
 		content.innerHTML = "";
 		for (const item of menuItems) {
-			content.appendChild(makeMenuItem(item));
+			if (!item.isDebug || debugMode) {
+				content.appendChild(makeMenuItem(item));
+			}
 		}
 		updateMenuLocation(menu);
 	}

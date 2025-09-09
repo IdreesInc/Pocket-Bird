@@ -912,6 +912,13 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			return;
 		}
 
+		// Preload font
+		const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
+		const fontLink = document.createElement("link");
+		fontLink.rel = "stylesheet";
+		fontLink.href = `url(${MONOCRAFT_SRC}) format("opentype")`;
+		document.head.appendChild(fontLink);
+
 		load();
 
 		styleElement.innerHTML = STYLESHEET;
@@ -1301,6 +1308,9 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			onClick(closeButton, func);
 		}
 		document.addEventListener("keydown", (e) => {
+			if (closeButton && !document.body.contains(closeButton)) {
+				return;
+			}
 			if (e.key === "Escape") {
 				func();
 			}
@@ -1450,7 +1460,9 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		}
 		content.innerHTML = "";
 		for (const item of menuItems) {
-			content.appendChild(makeMenuItem(item));
+			if (!item.isDebug || debugMode) {
+				content.appendChild(makeMenuItem(item));
+			}
 		}
 		updateMenuLocation(menu);
 	}
