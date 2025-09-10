@@ -994,6 +994,13 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 
 	function update() {
 		ticks++;
+
+		// Hide bird if the browser is fullscreen
+		if (document.fullscreenElement) {
+			hideBirb();
+			// Won't be restored on fullscreen exit
+		}
+
 		if (currentState === States.IDLE) {
 			if (Math.random() < 1 / (60 * 3) && currentAnimation !== Animations.HEART && !isMenuOpen()) {
 				hop();

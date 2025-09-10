@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-09-09-01
+// @version      2025-09-10-01
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1323,6 +1323,13 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 
 	function update() {
 		ticks++;
+
+		// Hide bird if the browser is fullscreen
+		if (document.fullscreenElement) {
+			hideBirb();
+			// Won't be restored on fullscreen exit
+		}
+
 		if (currentState === States.IDLE) {
 			if (Math.random() < 1 / (60 * 3) && currentAnimation !== Animations.HEART && !isMenuOpen()) {
 				hop();
