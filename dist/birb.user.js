@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-09-10-01
+// @version      2025-09-13-01
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -200,7 +200,6 @@ const STYLESHEET = `:root {
 	box-sizing: border-box;
 	background-color: #ffecda;
 	margin-top: var(--border-size);
-	width: 100%;
 	flex-grow: 1;
 	box-shadow:
 		var(--border-size) 0 #ffecda,
@@ -282,11 +281,11 @@ const STYLESHEET = `:root {
 
 .birb-window-separator {
 	width: 100%;
-	height: 1.5px;
-	background-color: #000000;
+	height: var(--border-size);
+	background-color: var(--border-color);
 	box-sizing: border-box;
-	margin-top: 4px;
-	margin-bottom: 4px;
+	margin-top: var(--double-border-size);
+	margin-bottom: var(--double-border-size);
 	opacity: 0.4;
 }
 
