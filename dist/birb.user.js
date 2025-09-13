@@ -251,7 +251,7 @@ const STYLESHEET = `:root {
 .birb-menu-item {
 	width: calc(100% - var(--double-border-size));
 	font-size: 14px;
-	padding-top: 5px;
+	padding-top: 4px;
 	padding-bottom: 4px;
 	padding-left: 10px;
 	padding-right: 10px;
