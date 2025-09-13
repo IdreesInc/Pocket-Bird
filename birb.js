@@ -809,7 +809,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 				<div class="birb-window-close">x</div>
 			</div>
 			<div class="birb-window-content">
-				<textarea class="birb-sticky-note-input" style="width: 150px;" placeholder="Write your notes here and they'll stick to the page...">${stickyNote.content}</textarea>
+				<textarea class="birb-sticky-note-input" style="width: 150px;" placeholder="Write your notes here and they'll stick to the page!">${stickyNote.content}</textarea>
 			</div>`
 		const noteElement = makeElement("birb-window");
 		noteElement.classList.add("birb-sticky-note");

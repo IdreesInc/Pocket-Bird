@@ -79,7 +79,7 @@ const STYLESHEET = `:root {
 	image-rendering: pixelated;
 	position: fixed;
 	bottom: 0;
-	transform: scale(var(--birb-scale));
+	transform: scale(var(--birb-scale)) !important;
 	transform-origin: bottom;
 	z-index: 2147483638 !important;
 	cursor: pointer;
@@ -89,7 +89,7 @@ const STYLESHEET = `:root {
 	image-rendering: pixelated;
 	position: fixed;
 	bottom: 0;
-	transform: scale(var(--birb-scale));
+	transform: scale(var(--birb-scale)) !important;
 	transform-origin: bottom;
 	z-index: 2147483630 !important;
 }
@@ -119,7 +119,7 @@ const STYLESHEET = `:root {
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
-	transform: scale(var(--ui-scale));
+	transform: scale(var(--ui-scale)) !important;
 	animation: pop-in 0.08s;
 	transition-timing-function: ease-in;
 }
@@ -1138,7 +1138,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 				<div class="birb-window-close">x</div>
 			</div>
 			<div class="birb-window-content">
-				<textarea class="birb-sticky-note-input" style="width: 150px;" placeholder="Write your notes here and they'll stick to the page...">${stickyNote.content}</textarea>
+				<textarea class="birb-sticky-note-input" style="width: 150px;" placeholder="Write your notes here and they'll stick to the page!">${stickyNote.content}</textarea>
 			</div>`
 		const noteElement = makeElement("birb-window");
 		noteElement.classList.add("birb-sticky-note");

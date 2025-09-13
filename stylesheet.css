@@ -13,7 +13,7 @@
 	image-rendering: pixelated;
 	position: fixed;
 	bottom: 0;
-	transform: scale(var(--birb-scale));
+	transform: scale(var(--birb-scale)) !important;
 	transform-origin: bottom;
 	z-index: 2147483638 !important;
 	cursor: pointer;
@@ -23,7 +23,7 @@
 	image-rendering: pixelated;
 	position: fixed;
 	bottom: 0;
-	transform: scale(var(--birb-scale));
+	transform: scale(var(--birb-scale)) !important;
 	transform-origin: bottom;
 	z-index: 2147483630 !important;
 }
@@ -53,7 +53,7 @@
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
-	transform: scale(var(--ui-scale));
+	transform: scale(var(--ui-scale)) !important;
 	animation: pop-in 0.08s;
 	transition-timing-function: ease-in;
 }
