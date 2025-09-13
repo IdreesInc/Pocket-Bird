@@ -62,6 +62,7 @@ const DEFAULT_SETTINGS = {
  * @typedef {typeof DEFAULT_SETTINGS} Settings
  */
 
+/** @type {Partial<Settings>} */
 let userSettings = {};
 
 const STYLESHEET = `:root {
@@ -411,6 +412,7 @@ class Layer {
 
 class Frame {
 
+	/** @type {{ [tag: string]: string[][] }} */
 	#pixelsByTag = {};
 
 	/**
@@ -537,6 +539,7 @@ const HEART_BORDER = "heart-border";
 const HEART_SHINE = "heart-shine";
 const FEATHER_SPINE = "feather-spine";
 
+/** @type {Record<string, string>} */
 const SPRITE_SHEET_COLOR_MAP = {
 	"transparent": TRANSPARENT,
 	"#ffffff": BORDER,
@@ -580,11 +583,13 @@ class BirdType {
 			[HOOD]: colors.face,
 			[NOSE]: colors.face,
 		};
+		/** @type {Record<string, string>} */
 		this.colors = { ...defaultColors, ...colors, [THEME_HIGHLIGHT]: colors[THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
 		this.tags = tags;
 	}
 }
 
+/** @type {Record<string, BirdType>} */
 const species = {
 	bluebird: new BirdType("Eastern Bluebird",
 		"Native to North American and very social, though can be timid around people.", {
@@ -1027,6 +1032,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	/** @type {HTMLElement|null} */
 	let focusedElement = null;
 	let lastActionTimestamp = Date.now();
+	/** @type {number[]} */
 	let petStack = [];
 	let currentSpecies = DEFAULT_BIRD;
 	let unlockedSpecies = [DEFAULT_BIRD];
@@ -1048,6 +1054,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 
 	function load() {
+		/** @type {Record<string, any>} */
 		let saveData = {};
 		if (isUserScript()) {
 			log("Loading save data from UserScript storage");
@@ -1079,6 +1086,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 
 	function save() {
+		/** @type {Record<string, any>} */
 		let saveData = {
 			unlockedSpecies: unlockedSpecies,
 			currentSpecies: currentSpecies,
@@ -1186,11 +1194,14 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 
 		const textarea = noteElement.querySelector(".birb-sticky-note-input");
 		if (textarea && textarea instanceof HTMLTextAreaElement) {
+			/** @type {NodeJS.Timeout | undefined} */
 			let saveTimeout;
 			// Save after debounce
 			textarea.addEventListener("input", () => {
 				stickyNote.content = textarea.value;
-				clearTimeout(saveTimeout);
+				if (saveTimeout) {
+					clearTimeout(saveTimeout);
+				}
 				saveTimeout = setTimeout(() => {
 					save();
 				}, 250);
@@ -1234,15 +1245,13 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		/** @type {Record<string, string>} */
 		const stickyNoteParams = stickyNoteUrl.split("?")[1]?.split("&").reduce((params, param) => {
 			const [key, value] = param.split("=");
-			params[key] = value;
-			return params;
+			return {...params, [key]: value};
 		}, {});
 
 		/** @type {Record<string, string>} */
 		const currentParams = currentUrl.split("?")[1]?.split("&").reduce((params, param) => {
 			const [key, value] = param.split("=");
-			params[key] = value;
-			return params;
+			return {...params, [key]: value};
 		}, {});
 
 		debug("Comparing params: ", stickyNoteParams, currentParams);
