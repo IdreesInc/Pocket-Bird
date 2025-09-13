@@ -58,6 +58,8 @@ const STYLESHEET = `:root {
 	--neg-double-border-size: calc(var(--neg-border-size) * 2);
 	--highlight: #ffa3cb;
 	--border-color: var(--highlight);
+	--background-color: #ffecda;
+	--mix-color: color-mix(in srgb, var(--highlight) 50%, var(--background-color));
 	--birb-scale: ${BIRB_CSS_SCALE};
 	--ui-scale: ${UI_CSS_SCALE};
 }
@@ -87,7 +89,7 @@ const STYLESHEET = `:root {
 	color: #000000 !important;
 	z-index: 2147483639 !important;
 	position: fixed;
-	background-color: #ffecda;
+	background-color: var(--background-color);
 	box-shadow:
 		var(--border-size) 0 var(--border-color),
 		var(--neg-border-size) 0 var(--border-color),
@@ -165,14 +167,14 @@ const STYLESHEET = `:root {
 	text-align: center;
 	flex-grow: 1;
 	user-select: none;
-	color: #ffecda;
+	color: var(--background-color);
 }
 
 .birb-window-close {
 	position: absolute;
 	top: 1px;
 	right: 0;
-	color: #ffecda;
+	color: var(--background-color);
 	user-select: none;
 	cursor: pointer;
 	padding-left: 5px;
@@ -185,13 +187,13 @@ const STYLESHEET = `:root {
 
 .birb-window-content {
 	box-sizing: border-box;
-	background-color: #ffecda;
+	background-color: var(--background-color);
 	margin-top: var(--border-size);
 	flex-grow: 1;
 	box-shadow:
-		var(--border-size) 0 #ffecda,
-		var(--neg-border-size) 0 #ffecda,
-		0 var(--border-size) #ffecda,
+		var(--border-size) 0 var(--background-color),
+		var(--neg-border-size) 0 var(--background-color),
+		0 var(--border-size) var(--background-color),
 		0 var(--neg-border-size) var(--border-color),
 		0 var(--border-size) var(--border-color);
 	display: flex;
@@ -222,11 +224,11 @@ const STYLESHEET = `:root {
 }
 
 .birb-music-player-content {
-	background: #ffecda;
+	background: var(--background-color);
 	box-shadow:
-		var(--border-size) 0 #ffecda,
-		var(--neg-border-size) 0 #ffecda,
-		0 var(--border-size) #ffecda,
+		var(--border-size) 0 var(--background-color),
+		var(--neg-border-size) 0 var(--background-color),
+		0 var(--border-size) var(--background-color),
 		0 var(--neg-border-size) var(--border-color),
 		0 var(--border-size) var(--border-color);
 	display: flex;
@@ -256,10 +258,10 @@ const STYLESHEET = `:root {
 	background: var(--highlight) !important;
 	color: white !important;
 	box-shadow:
-		var(--border-size) 0 var(--border-color),
-		var(--neg-border-size) 0 var(--border-color),
-		0 var(--neg-border-size) var(--border-color),
-		0 var(--border-size) var(--border-color);
+		var(--border-size) 0 var(--highlight),
+		var(--neg-border-size) 0 var(--highlight),
+		0 var(--neg-border-size) var(--highlight),
+		0 var(--border-size) var(--highlight);
 }
 
 .birb-menu-item-arrow {
@@ -305,6 +307,10 @@ const STYLESHEET = `:root {
 	cursor: pointer;
 }
 
+.birb-grid-item:hover {
+	border-color: var(--highlight);
+}
+
 .birb-grid-item canvas {
 	image-rendering: pixelated;
 	transform: scale(2);
@@ -328,6 +334,7 @@ const STYLESHEET = `:root {
 
 .birb-grid-item-selected {
 	border: var(--border-size) solid var(--highlight);
+	background: var(--mix-color);
 }
 
 .birb-field-guide-description {
