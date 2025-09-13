@@ -1251,8 +1251,27 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
 		const fontLink = document.createElement("link");
 		fontLink.rel = "stylesheet";
-		fontLink.href = `url(${MONOCRAFT_SRC}) format("opentype")`;
+		fontLink.href = `url(${MONOCRAFT_SRC}) format('opentype')`;
 		document.head.appendChild(fontLink);
+
+		// Add stylesheet font-face
+		const fontFace = `
+			@font-face {
+				font-family: 'Monocraft';
+				src: url(${MONOCRAFT_SRC}) format('opentype');
+				font-weight: normal;
+				font-style: normal;
+			}
+		`;
+		const fontStyle = document.createElement("style");
+		fontStyle.innerHTML = fontFace;
+		document.head.appendChild(fontStyle);
+
+		// Add content security policy
+		const meta = document.createElement('meta');
+		meta.httpEquiv = "Content-Security-Policy";
+		meta.content = "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:;";
+		document.head.appendChild(meta);
 
 		load();
 
