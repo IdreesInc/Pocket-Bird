@@ -390,7 +390,7 @@ class Layer {
 	 * @param {string[][]} pixels
 	 * @param {string} [tag]
 	 */
-	constructor(pixels, tag="default") {
+	constructor(pixels, tag = "default") {
 		this.pixels = pixels;
 		this.tag = tag;
 	}
@@ -441,7 +441,7 @@ class Frame {
 	 * @param {string} [tag]
 	 * @returns {string[][]}
 	 */
-	getPixels(tag="default") {
+	getPixels(tag = "default") {
 		return this.#pixelsByTag[tag] ?? this.#pixelsByTag["default"];
 	}
 
@@ -553,7 +553,7 @@ class BirdType {
 	 * @param {Record<string, string>} colors
 	 * @param {string[]} [tags]
 	 */
-	constructor(name, description, colors, tags=[]) {
+	constructor(name, description, colors, tags = []) {
 		this.name = name;
 		this.description = description;
 		const defaultColors = {
@@ -775,8 +775,7 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 	});
 }
 
-Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false), loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)])
-.then(([birbPixels, decorationPixels, featherPixels]) => {
+Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false), loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)]).then(([birbPixels, decorationPixels, featherPixels]) => {
 	const SPRITE_SHEET = birbPixels;
 	const DECORATIONS_SPRITE_SHEET = decorationPixels;
 	const FEATHER_SPRITE_SHEET = featherPixels;
@@ -872,7 +871,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 
 	const FEATHER_ANIMATIONS = {
 		feather: new Anim([
-			featherFrames.feather,	
+			featherFrames.feather,
 		], [
 			1000,
 		]),
@@ -905,7 +904,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 
 	class Separator extends MenuItem {
 		constructor() {
-			super("", () => {});
+			super("", () => { });
 		}
 	}
 
@@ -917,7 +916,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		 * @param {number} [top]
 		 * @param {number} [left]
 		 */
-		constructor(id, site="", content="", top=0, left=0) {
+		constructor(id, site = "", content = "", top = 0, left = 0) {
 			this.id = id;
 			this.site = site;
 			this.content = content;
@@ -925,7 +924,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			this.left = left;
 		}
 	}
-	
+
 	const menuItems = [
 		new MenuItem(`Pet ${birdBirb()}`, pet),
 		new MenuItem("Field Guide", insertFieldGuide),
@@ -966,7 +965,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		new MenuItem("Utilities", () => switchMenuItems(utilityItems), false),
 		new MenuItem("Music Player", () => insertMusicPlayer(), false),
 	];
-	
+
 	const gameItems = [
 		new MenuItem("Go Back", () => switchMenuItems(otherItems), false),
 		new Separator(),
@@ -1231,13 +1230,13 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		/** @type {Record<string, string>} */
 		const stickyNoteParams = stickyNoteUrl.split("?")[1]?.split("&").reduce((params, param) => {
 			const [key, value] = param.split("=");
-			return {...params, [key]: value};
+			return { ...params, [key]: value };
 		}, {});
 
 		/** @type {Record<string, string>} */
 		const currentParams = currentUrl.split("?")[1]?.split("&").reduce((params, param) => {
 			const [key, value] = param.split("=");
-			return {...params, [key]: value};
+			return { ...params, [key]: value };
 		}, {});
 
 		debug("Comparing params: ", stickyNoteParams, currentParams);
@@ -1543,7 +1542,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			feather.style.left = `${Math.sin(3.14 * 2 * (ticks / 120)) * 25}px`;
 		}
 	}
-	
+
 
 	// insertDecoration();
 	// insertFieldGuide();
@@ -1890,7 +1889,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	 * @param {boolean} [parent] Whether to move the parent element when the child is dragged
 	 * @param {(top: number, left: number) => void} [callback] Callback for when element is moved
 	 */
-	function makeDraggable(element, parent = true, callback = () => {}) {
+	function makeDraggable(element, parent = true, callback = () => { }) {
 		if (!element) {
 			return;
 		}
