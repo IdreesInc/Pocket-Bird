@@ -277,6 +277,7 @@ const species = {
 		[UNDERBELLY]: "#babec2",
 		[WING]: "#aaa094",
 		[WING_EDGE]: "#888580",
+		[THEME_HIGHLIGHT]: "#ffaf34",
 	}),
 	redCardinal: new BirdType("Red Cardinal",
 		"Native to the eastern United States, this strikingly red bird is hard to miss.", {
@@ -339,6 +340,7 @@ const species = {
 		[UNDERBELLY]: "#dcdcdc",
 		[WING]: "#2b2b2b",
 		[WING_EDGE]: "#ebebeb",
+		[THEME_HIGHLIGHT]: "#fc5633",
 	}),
 	americanRobin: new BirdType("American Robin",
 		"While not a true robin, this social North American bird is so named due to its orange coloring. It seems unbothered by nearby humans.", {
@@ -349,6 +351,7 @@ const species = {
 		[UNDERBELLY]: "#eb7a3a",
 		[WING]: "#444444",
 		[WING_EDGE]: "#232323",
+		[THEME_HIGHLIGHT]: "#eb7a3a",
 	}),
 	carolinaWren: new BirdType("Carolina Wren",
 		"Native to the eastern United States, these little birds are known for their curious and energetic nature.", {
@@ -1482,7 +1485,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		if (item instanceof Separator) {
 			return makeElement("birb-window-separator");
 		}
-		let menuItem = makeElement("birb-window-list-item", item.text);
+		let menuItem = makeElement("birb-menu-item", item.text);
 		onClick(menuItem, () => {
 			if (item.removeMenu) {
 				removeMenu();

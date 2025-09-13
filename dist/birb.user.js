@@ -101,15 +101,15 @@ const STYLESHEET = `:root {
 	z-index: 2147483639 !important;
 	position: fixed;
 	background-color: #ffecda;
-	box-shadow: 
-		var(--border-size) 0 var(--border-color), 
-		var(--neg-border-size) 0 var(--border-color), 
-		0 var(--neg-border-size) var(--border-color), 
-		0 var(--border-size) var(--border-color), 
-		var(--double-border-size) 0 var(--border-color), 
-		var(--neg-double-border-size) 0 var(--border-color), 
-		0 var(--neg-double-border-size) var(--border-color), 
-		0 var(--double-border-size) var(--border-color), 
+	box-shadow:
+		var(--border-size) 0 var(--border-color),
+		var(--neg-border-size) 0 var(--border-color),
+		0 var(--neg-border-size) var(--border-color),
+		0 var(--border-size) var(--border-color),
+		var(--double-border-size) 0 var(--border-color),
+		var(--neg-double-border-size) 0 var(--border-color),
+		0 var(--neg-double-border-size) var(--border-color),
+		0 var(--double-border-size) var(--border-color),
 		0 0 0 var(--border-size) var(--border-color),
 		0 0 0 var(--double-border-size) white,
 		var(--double-border-size) 0 0 var(--border-size) white,
@@ -141,8 +141,15 @@ const STYLESHEET = `:root {
 }
 
 @keyframes pop-in {
-	0% { opacity: 1; transform: scale(0.1); }
-	100% { opacity: 1; transform: scale(var(--ui-scale)); }
+	0% {
+		opacity: 1;
+		transform: scale(0.1);
+	}
+
+	100% {
+		opacity: 1;
+		transform: scale(var(--ui-scale));
+	}
 }
 
 .birb-window-header {
@@ -158,10 +165,10 @@ const STYLESHEET = `:root {
 	padding-right: 30px;
 	background-color: var(--highlight);
 	box-shadow:
-		var(--border-size) 0 var(--highlight), 
-		var(--neg-border-size) 0 var(--highlight), 
-		0 var(--neg-border-size) var(--highlight), 
-		var(--neg-border-size) var(--border-size) var(--border-color), 
+		var(--border-size) 0 var(--highlight),
+		var(--neg-border-size) 0 var(--highlight),
+		0 var(--neg-border-size) var(--highlight),
+		var(--neg-border-size) var(--border-size) var(--border-color),
 		var(--border-size) var(--border-size) var(--border-color);
 	color: var(--border-color) !important;
 	font-size: 16px;
@@ -194,9 +201,9 @@ const STYLESHEET = `:root {
 	background-color: #ffecda;
 	margin-top: var(--border-size);
 	width: 100%;
-	flex-grow: 1;    
+	flex-grow: 1;
 	box-shadow:
-		var(--border-size) 0 #ffecda, 
+		var(--border-size) 0 #ffecda,
 		var(--neg-border-size) 0 #ffecda,
 		0 var(--border-size) #ffecda,
 		0 var(--neg-border-size) var(--border-color),
@@ -205,10 +212,8 @@ const STYLESHEET = `:root {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding-left: 15px;
-	padding-right: 15px;
-	padding-top: 8px;
-	padding-bottom: 8px;
+	padding-top: calc(var(--double-border-size));
+	padding-bottom: var(--border-size);
 }
 
 .birb-pico-8-content {
@@ -226,14 +231,14 @@ const STYLESHEET = `:root {
 	margin-right: -30px;
 	margin-top: -10px;
 	margin-bottom: -23px;
-	border:none;
+	border: none;
 	aspect-ratio: 1;
 }
 
 .birb-music-player-content {
 	background: #ffecda;
 	box-shadow:
-		var(--border-size) 0 #ffecda, 
+		var(--border-size) 0 #ffecda,
 		var(--neg-border-size) 0 #ffecda,
 		0 var(--border-size) #ffecda,
 		0 var(--neg-border-size) var(--border-color),
@@ -244,11 +249,14 @@ const STYLESHEET = `:root {
 	padding: 10px;
 }
 
-.birb-window-list-item {
-	width: 100%;
+.birb-menu-item {
+	width: calc(100% - var(--double-border-size));
 	font-size: 14px;
-	padding-top: 4px;
+	padding-top: 5px;
 	padding-bottom: 4px;
+	padding-left: 10px;
+	padding-right: 10px;
+	box-sizing: border-box;
 	opacity: 0.7 !important;
 	user-select: none;
 	display: flex;
@@ -257,11 +265,18 @@ const STYLESHEET = `:root {
 	color: black !important;
 }
 
-.birb-window-list-item:hover {
+.birb-menu-item:hover {
 	opacity: 1 !important;
+	background: var(--highlight) !important;
+	color: white !important;
+	box-shadow:
+		var(--border-size) 0 var(--border-color),
+		var(--neg-border-size) 0 var(--border-color),
+		0 var(--neg-border-size) var(--border-color),
+		0 var(--border-size) var(--border-color);
 }
 
-.birb-window-list-item-arrow {
+.birb-menu-item-arrow {
 	display: inline-block;
 }
 
@@ -287,6 +302,9 @@ const STYLESHEET = `:root {
 	flex-direction: row;
 	padding-top: 4px;
 	padding-bottom: 4px;
+	padding-left: 15px;
+	padding-right: 15px;
+	box-sizing: border-box;
 }
 
 .birb-grid-item {
@@ -327,14 +345,14 @@ const STYLESHEET = `:root {
 }
 
 .birb-field-guide-description {
-	box-sizing: border-box;
-	width: 100%;
+	width: calc(100% - 16px);
 	margin-top: 10px;
 	padding: 8px;
 	padding-top: 4px;
 	padding-bottom: 4px;
 	margin-bottom: 6px;
 	font-size: 14px;
+	box-sizing: border-box;
 	color: rgb(124, 108, 75);
 }
 
@@ -606,6 +624,7 @@ const species = {
 		[UNDERBELLY]: "#babec2",
 		[WING]: "#aaa094",
 		[WING_EDGE]: "#888580",
+		[THEME_HIGHLIGHT]: "#ffaf34",
 	}),
 	redCardinal: new BirdType("Red Cardinal",
 		"Native to the eastern United States, this strikingly red bird is hard to miss.", {
@@ -668,6 +687,7 @@ const species = {
 		[UNDERBELLY]: "#dcdcdc",
 		[WING]: "#2b2b2b",
 		[WING_EDGE]: "#ebebeb",
+		[THEME_HIGHLIGHT]: "#fc5633",
 	}),
 	americanRobin: new BirdType("American Robin",
 		"While not a true robin, this social North American bird is so named due to its orange coloring. It seems unbothered by nearby humans.", {
@@ -678,6 +698,7 @@ const species = {
 		[UNDERBELLY]: "#eb7a3a",
 		[WING]: "#444444",
 		[WING_EDGE]: "#232323",
+		[THEME_HIGHLIGHT]: "#eb7a3a",
 	}),
 	carolinaWren: new BirdType("Carolina Wren",
 		"Native to the eastern United States, these little birds are known for their curious and energetic nature.", {
@@ -1811,7 +1832,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		if (item instanceof Separator) {
 			return makeElement("birb-window-separator");
 		}
-		let menuItem = makeElement("birb-window-list-item", item.text);
+		let menuItem = makeElement("birb-menu-item", item.text);
 		onClick(menuItem, () => {
 			if (item.removeMenu) {
 				removeMenu();
