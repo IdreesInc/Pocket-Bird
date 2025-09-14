@@ -962,7 +962,11 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			userSettings.birbMode = !userSettings.birbMode;
 			save();
 			insertModal(`${birdBirb()} Mode`, `Your ${birdBirb().toLowerCase()} shall now be referred to as "${birdBirb()}"${userSettings.birbMode ? "\n\nWelcome back to 2012" : ""}`);
-		})
+		}),
+		new MenuItem(`Scale ${birdBirb()} Up`, () => {
+		}),
+		new MenuItem(`Scale ${birdBirb()} Down`, () => {
+		}),
 	];
 
 	const otherItems = [
@@ -1281,12 +1285,6 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		const fontStyle = document.createElement("style");
 		fontStyle.innerHTML = fontFace;
 		document.head.appendChild(fontStyle);
-
-		// Add content security policy
-		const meta = document.createElement('meta');
-		meta.httpEquiv = "Content-Security-Policy";
-		meta.content = "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:;";
-		document.head.appendChild(meta);
 
 		load();
 

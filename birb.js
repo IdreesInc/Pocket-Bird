@@ -943,12 +943,6 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		fontStyle.innerHTML = fontFace;
 		document.head.appendChild(fontStyle);
 
-		// Add content security policy
-		const meta = document.createElement('meta');
-		meta.httpEquiv = "Content-Security-Policy";
-		meta.content = "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:;";
-		document.head.appendChild(meta);
-
 		load();
 
 		styleElement.innerHTML = STYLESHEET;
