@@ -443,6 +443,7 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 	});
 }
 
+// @ts-ignore
 Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false), loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)]).then(([birbPixels, decorationPixels, featherPixels]) => {
 	const SPRITE_SHEET = birbPixels;
 	const DECORATIONS_SPRITE_SHEET = decorationPixels;
@@ -865,7 +866,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		window.addEventListener("resize", () => {
 			const modTop = `${stickyNote.top - Math.min(window.innerHeight - noteElement.offsetHeight, stickyNote.top)}px`;
 			const modLeft = `${stickyNote.left - Math.min(window.innerWidth - noteElement.offsetWidth, stickyNote.left)}px`;
-			noteElement.style.transform = `scale(var(--ui-scale)) translate(-${modLeft}, -${modTop})`;
+			noteElement.style.transform = `scale(var(--birb-ui-scale)) translate(-${modLeft}, -${modTop})`;
 		});
 
 		return noteElement;
@@ -1414,8 +1415,8 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	 */
 	function switchSpecies(type) {
 		currentSpecies = type;
-		// Update CSS variable --highlight to be wing color
-		document.documentElement.style.setProperty("--highlight", species[type].colors[THEME_HIGHLIGHT]);
+		// Update CSS variable --birb-highlight to be wing color
+		document.documentElement.style.setProperty("--birb-highlight", species[type].colors[THEME_HIGHLIGHT]);
 		save();
 	}
 

@@ -52,16 +52,16 @@ const DEFAULT_SETTINGS = {
 let userSettings = {};
 
 const STYLESHEET = `:root {
-	--border-size: 2px;
-	--neg-border-size: calc(var(--border-size) * -1);
-	--double-border-size: calc(var(--border-size) * 2);
-	--neg-double-border-size: calc(var(--neg-border-size) * 2);
-	--highlight: #ffa3cb;
-	--border-color: var(--highlight);
-	--background-color: #ffecda;
-	--mix-color: color-mix(in srgb, var(--highlight) 50%, var(--background-color));
+	--birb-border-size: 2px;
+	--birb-neg-border-size: calc(var(--birb-border-size) * -1);
+	--birb-double-border-size: calc(var(--birb-border-size) * 2);
+	--birb-neg-double-border-size: calc(var(--birb-neg-border-size) * 2);
+	--birb-highlight: #ffa3cb;
+	--birb-border-color: var(--birb-highlight);
+	--birb-background-color: #ffecda;
+	--birb-mix-color: color-mix(in srgb, var(--birb-highlight) 50%, var(--birb-background-color));
 	--birb-scale: ${BIRB_CSS_SCALE};
-	--ui-scale: ${UI_CSS_SCALE};
+	--birb-ui-scale: ${UI_CSS_SCALE};
 }
 
 #birb {
@@ -89,26 +89,26 @@ const STYLESHEET = `:root {
 	color: #000000 !important;
 	z-index: 2147483639 !important;
 	position: fixed;
-	background-color: var(--background-color);
+	background-color: var(--birb-background-color);
 	box-shadow:
-		var(--border-size) 0 var(--border-color),
-		var(--neg-border-size) 0 var(--border-color),
-		0 var(--neg-border-size) var(--border-color),
-		0 var(--border-size) var(--border-color),
-		var(--double-border-size) 0 var(--border-color),
-		var(--neg-double-border-size) 0 var(--border-color),
-		0 var(--neg-double-border-size) var(--border-color),
-		0 var(--double-border-size) var(--border-color),
-		0 0 0 var(--border-size) var(--border-color),
-		0 0 0 var(--double-border-size) white,
-		var(--double-border-size) 0 0 var(--border-size) white,
-		var(--neg-double-border-size) 0 0 var(--border-size) white,
-		0 var(--neg-double-border-size) 0 var(--border-size) white,
-		0 var(--double-border-size) 0 var(--border-size) white;
+		var(--birb-border-size) 0 var(--birb-border-color),
+		var(--birb-neg-border-size) 0 var(--birb-border-color),
+		0 var(--birb-neg-border-size) var(--birb-border-color),
+		0 var(--birb-border-size) var(--birb-border-color),
+		var(--birb-double-border-size) 0 var(--birb-border-color),
+		var(--birb-neg-double-border-size) 0 var(--birb-border-color),
+		0 var(--birb-neg-double-border-size) var(--birb-border-color),
+		0 var(--birb-double-border-size) var(--birb-border-color),
+		0 0 0 var(--birb-border-size) var(--birb-border-color),
+		0 0 0 var(--birb-double-border-size) white,
+		var(--birb-double-border-size) 0 0 var(--birb-border-size) white,
+		var(--birb-neg-double-border-size) 0 0 var(--birb-border-size) white,
+		0 var(--birb-neg-double-border-size) 0 var(--birb-border-size) white,
+		0 var(--birb-double-border-size) 0 var(--birb-border-size) white;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
-	transform: scale(var(--ui-scale)) !important;
+	transform: scale(var(--birb-ui-scale)) !important;
 	animation: pop-in 0.08s;
 	transition-timing-function: ease-in;
 }
@@ -137,7 +137,7 @@ const STYLESHEET = `:root {
 
 	100% {
 		opacity: 1;
-		transform: scale(var(--ui-scale));
+		transform: scale(var(--birb-ui-scale));
 	}
 }
 
@@ -152,14 +152,14 @@ const STYLESHEET = `:root {
 	padding-bottom: 3px;
 	padding-left: 30px;
 	padding-right: 30px;
-	background-color: var(--highlight);
+	background-color: var(--birb-highlight);
 	box-shadow:
-		var(--border-size) 0 var(--highlight),
-		var(--neg-border-size) 0 var(--highlight),
-		0 var(--neg-border-size) var(--highlight),
-		var(--neg-border-size) var(--border-size) var(--border-color),
-		var(--border-size) var(--border-size) var(--border-color);
-	color: var(--border-color) !important;
+		var(--birb-border-size) 0 var(--birb-highlight),
+		var(--birb-neg-border-size) 0 var(--birb-highlight),
+		0 var(--birb-neg-border-size) var(--birb-highlight),
+		var(--birb-neg-border-size) var(--birb-border-size) var(--birb-border-color),
+		var(--birb-border-size) var(--birb-border-size) var(--birb-border-color);
+	color: var(--birb-border-color) !important;
 	font-size: 16px;
 }
 
@@ -167,14 +167,14 @@ const STYLESHEET = `:root {
 	text-align: center;
 	flex-grow: 1;
 	user-select: none;
-	color: var(--background-color);
+	color: var(--birb-background-color);
 }
 
 .birb-window-close {
 	position: absolute;
 	top: 1px;
 	right: 0;
-	color: var(--background-color);
+	color: var(--birb-background-color);
 	user-select: none;
 	cursor: pointer;
 	padding-left: 5px;
@@ -187,21 +187,21 @@ const STYLESHEET = `:root {
 
 .birb-window-content {
 	box-sizing: border-box;
-	background-color: var(--background-color);
-	margin-top: var(--border-size);
+	background-color: var(--birb-background-color);
+	margin-top: var(--birb-border-size);
 	flex-grow: 1;
 	box-shadow:
-		var(--border-size) 0 var(--background-color),
-		var(--neg-border-size) 0 var(--background-color),
-		0 var(--border-size) var(--background-color),
-		0 var(--neg-border-size) var(--border-color),
-		0 var(--border-size) var(--border-color);
+		var(--birb-border-size) 0 var(--birb-background-color),
+		var(--birb-neg-border-size) 0 var(--birb-background-color),
+		0 var(--birb-border-size) var(--birb-background-color),
+		0 var(--birb-neg-border-size) var(--birb-border-color),
+		0 var(--birb-border-size) var(--birb-border-color);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding-top: calc(var(--double-border-size));
-	padding-bottom: var(--border-size);
+	padding-top: calc(var(--birb-double-border-size));
+	padding-bottom: var(--birb-border-size);
 }
 
 .birb-pico-8-content {
@@ -224,13 +224,13 @@ const STYLESHEET = `:root {
 }
 
 .birb-music-player-content {
-	background: var(--background-color);
+	background: var(--birb-background-color);
 	box-shadow:
-		var(--border-size) 0 var(--background-color),
-		var(--neg-border-size) 0 var(--background-color),
-		0 var(--border-size) var(--background-color),
-		0 var(--neg-border-size) var(--border-color),
-		0 var(--border-size) var(--border-color);
+		var(--birb-border-size) 0 var(--birb-background-color),
+		var(--birb-neg-border-size) 0 var(--birb-background-color),
+		0 var(--birb-border-size) var(--birb-background-color),
+		0 var(--birb-neg-border-size) var(--birb-border-color),
+		0 var(--birb-border-size) var(--birb-border-color);
 	display: flex;
 	justify-content: center;
 	overflow: hidden;
@@ -238,7 +238,7 @@ const STYLESHEET = `:root {
 }
 
 .birb-menu-item {
-	width: calc(100% - var(--double-border-size));
+	width: calc(100% - var(--birb-double-border-size));
 	font-size: 14px;
 	padding-top: 4px;
 	padding-bottom: 4px;
@@ -255,13 +255,13 @@ const STYLESHEET = `:root {
 
 .birb-menu-item:hover {
 	opacity: 1 !important;
-	background: var(--highlight) !important;
+	background: var(--birb-highlight) !important;
 	color: white !important;
 	box-shadow:
-		var(--border-size) 0 var(--highlight),
-		var(--neg-border-size) 0 var(--highlight),
-		0 var(--neg-border-size) var(--highlight),
-		0 var(--border-size) var(--highlight);
+		var(--birb-border-size) 0 var(--birb-highlight),
+		var(--birb-neg-border-size) 0 var(--birb-highlight),
+		0 var(--birb-neg-border-size) var(--birb-highlight),
+		0 var(--birb-border-size) var(--birb-highlight);
 }
 
 .birb-menu-item-arrow {
@@ -270,11 +270,11 @@ const STYLESHEET = `:root {
 
 .birb-window-separator {
 	width: 100%;
-	height: var(--border-size);
-	background-color: var(--border-color);
+	height: var(--birb-border-size);
+	background-color: var(--birb-border-color);
 	box-sizing: border-box;
-	margin-top: var(--double-border-size);
-	margin-bottom: var(--double-border-size);
+	margin-top: var(--birb-double-border-size);
+	margin-bottom: var(--birb-double-border-size);
 	opacity: 0.4;
 }
 
@@ -308,18 +308,18 @@ const STYLESHEET = `:root {
 }
 
 .birb-grid-item:hover {
-	border-color: var(--highlight);
+	border-color: var(--birb-highlight);
 }
 
 .birb-grid-item canvas {
 	image-rendering: pixelated;
 	transform: scale(2);
-	padding-bottom: var(--border-size);
+	padding-bottom: var(--birb-border-size);
 }
 
 .birb-grid-item, .birb-field-guide-description, .birb-message-content {
-	border: var(--border-size) solid rgb(255, 207, 144);
-	box-shadow: 0 0 0 var(--border-size) white;
+	border: var(--birb-border-size) solid rgb(255, 207, 144);
+	box-shadow: 0 0 0 var(--birb-border-size) white;
 	background: rgba(255, 221, 177, 0.5);
 }
 
@@ -333,8 +333,8 @@ const STYLESHEET = `:root {
 }
 
 .birb-grid-item-selected {
-	border: var(--border-size) solid var(--highlight);
-	background: var(--mix-color);
+	border: var(--birb-border-size) solid var(--birb-highlight);
+	background: var(--birb-mix-color);
 }
 
 .birb-field-guide-description {
@@ -782,6 +782,7 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 	});
 }
 
+// @ts-ignore
 Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false), loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)]).then(([birbPixels, decorationPixels, featherPixels]) => {
 	const SPRITE_SHEET = birbPixels;
 	const DECORATIONS_SPRITE_SHEET = decorationPixels;
@@ -1204,7 +1205,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		window.addEventListener("resize", () => {
 			const modTop = `${stickyNote.top - Math.min(window.innerHeight - noteElement.offsetHeight, stickyNote.top)}px`;
 			const modLeft = `${stickyNote.left - Math.min(window.innerWidth - noteElement.offsetWidth, stickyNote.left)}px`;
-			noteElement.style.transform = `scale(var(--ui-scale)) translate(-${modLeft}, -${modTop})`;
+			noteElement.style.transform = `scale(var(--birb-ui-scale)) translate(-${modLeft}, -${modTop})`;
 		});
 
 		return noteElement;
@@ -1753,8 +1754,8 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	 */
 	function switchSpecies(type) {
 		currentSpecies = type;
-		// Update CSS variable --highlight to be wing color
-		document.documentElement.style.setProperty("--highlight", species[type].colors[THEME_HIGHLIGHT]);
+		// Update CSS variable --birb-highlight to be wing color
+		document.documentElement.style.setProperty("--birb-highlight", species[type].colors[THEME_HIGHLIGHT]);
 		save();
 	}
 
