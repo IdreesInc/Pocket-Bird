@@ -1043,7 +1043,9 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 
 	function isTestEnvironment() {
-		return window.location.hostname === "127.0.0.1";
+		return window.location.hostname === "127.0.0.1"
+			|| window.location.hostname === "localhost"
+			|| window.location.hostname.startsWith("192.168.");
 	}
 
 	function load() {
@@ -1297,7 +1299,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			lastActionTimestamp = Date.now();
 			// Can't keep up with scrolling on mobile devices so fly down instead
 			if (isMobile()) {
-				focusOnGround();
+				// focusOnGround();
 			}
 
 		});

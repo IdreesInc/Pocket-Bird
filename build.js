@@ -20,11 +20,23 @@ const spriteSheets = [
 const STYLESHEET_PATH = "./stylesheet.css";
 const STYLESHEET_KEY = "___STYLESHEET___";
 
+let version = "0.0.0";
+// Try to read version from manifest.json
+try {
+	const manifest = JSON.parse(readFileSync('manifest.json', 'utf8'));
+	if (manifest.version) {
+		version = manifest.version;
+	}
+} catch (e) {
+	console.error("Could not read version from manifest.json");
+	throw e;
+}
+
 const userScriptHeader =
 `// ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-09-15-01
+// @version      ${version}
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
