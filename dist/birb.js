@@ -962,11 +962,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			userSettings.birbMode = !userSettings.birbMode;
 			save();
 			insertModal(`${birdBirb()} Mode`, `Your ${birdBirb().toLowerCase()} shall now be referred to as "${birdBirb()}"${userSettings.birbMode ? "\n\nWelcome back to 2012" : ""}`);
-		}),
-		new MenuItem(`Scale ${birdBirb()} Up`, () => {
-		}),
-		new MenuItem(`Scale ${birdBirb()} Down`, () => {
-		}),
+		})
 	];
 
 	const otherItems = [

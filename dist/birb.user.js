@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-09-13-02
+// @version      2025-09-13-03
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -976,11 +976,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			userSettings.birbMode = !userSettings.birbMode;
 			save();
 			insertModal(`${birdBirb()} Mode`, `Your ${birdBirb().toLowerCase()} shall now be referred to as "${birdBirb()}"${userSettings.birbMode ? "\n\nWelcome back to 2012" : ""}`);
-		}),
-		new MenuItem(`Scale ${birdBirb()} Up`, () => {
-		}),
-		new MenuItem(`Scale ${birdBirb()} Down`, () => {
-		}),
+		})
 	];
 
 	const otherItems = [
