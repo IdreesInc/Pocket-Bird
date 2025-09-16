@@ -13,8 +13,7 @@
 
 #birb {
 	image-rendering: pixelated;
-	position: fixed;
-	bottom: 0;
+	position: absolute;
 	transform: scale(var(--birb-scale)) !important;
 	transform-origin: bottom;
 	z-index: 2147483638 !important;

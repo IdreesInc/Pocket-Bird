@@ -676,7 +676,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	let ticks = 0;
 	// Bird's current position
 	let birdY = 0;
-	let birdX = 40;
+	let birdX = 0;
 	// Bird's starting position (when flying)
 	let startX = 0;
 	let startY = 0;
@@ -694,6 +694,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	let lastPetTimestamp = 0;
 	/** @type {StickyNote[]} */
 	let stickyNotes = [];
+
 
 	/**
 	 * @returns {boolean} Whether the script is running in a userscript extension context
@@ -797,6 +798,207 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	function birdBirb() {
 		return settings().birbMode ? "Birb" : "Bird";
 	}
+
+	function init() {
+		if (window !== window.top) {
+			// Skip installation if within an iframe
+			return;
+		}
+
+		// Preload font
+		const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
+		const fontLink = document.createElement("link");
+		fontLink.rel = "stylesheet";
+		fontLink.href = `url(${MONOCRAFT_SRC}) format('opentype')`;
+		document.head.appendChild(fontLink);
+
+		// Add stylesheet font-face
+		const fontFace = `
+			@font-face {
+				font-family: 'Monocraft';
+				src: url(${MONOCRAFT_SRC}) format('opentype');
+				font-weight: normal;
+				font-style: normal;
+			}
+		`;
+		const fontStyle = document.createElement("style");
+		fontStyle.innerHTML = fontFace;
+		document.head.appendChild(fontStyle);
+
+		load();
+
+		styleElement.innerHTML = STYLESHEET;
+		document.head.appendChild(styleElement);
+
+		canvas.id = "birb";
+		canvas.width = birbFrames.base.getPixels()[0].length * CANVAS_PIXEL_SIZE;
+		canvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
+		document.body.appendChild(canvas);
+
+		/** @type {NodeJS.Timeout} */
+		let scrollTimeout;
+		window.addEventListener("scroll", () => {
+			// TODO: Only do this if focused on the ground
+			if (focusedElement === null && currentState !== States.FLYING) {
+				canvas.style.transition = "opacity 0.2s";
+				canvas.style.opacity = "0";
+			}
+			lastActionTimestamp = Date.now();
+			clearTimeout(scrollTimeout);
+			scrollTimeout = setTimeout(() => {
+				canvas.style.transition = "opacity 0.4s";
+				canvas.style.opacity = "1";
+			}, 100);
+		});
+
+		onClick(document, (e) => {
+			lastActionTimestamp = Date.now();
+			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
+				removeMenu();
+			}
+		});
+
+		onClick(canvas, () => {
+			insertMenu();
+		});
+
+		canvas.addEventListener("mouseover", () => {
+			lastActionTimestamp = Date.now();
+			if (currentState === States.IDLE) {
+				petStack.push(Date.now());
+				if (petStack.length > 10) {
+					petStack.shift();
+				}
+				const pets = petStack.filter((time) => Date.now() - time < 1000).length;
+				if (pets >= 3) {
+					setAnimation(Animations.HEART);
+					// Clear the stack
+					petStack = [];
+				}
+			}
+		});
+
+		drawStickyNotes();
+
+		let lastUrl = (window.location.href ?? "").split("?")[0];
+		setInterval(() => {
+			const currentUrl = (window.location.href ?? "").split("?")[0];
+			if (currentUrl !== lastUrl) {
+				log("URL changed, updating sticky notes");
+				lastUrl = currentUrl;
+				drawStickyNotes();
+			}
+		}, 500);
+
+		setInterval(update, 1000 / 60);
+
+		birdY = getWindowBottom();
+
+		// TODO: For testing only
+		hop();
+	}
+
+	function drawStickyNotes() {
+		// Remove all existing sticky notes
+		const existingNotes = document.querySelectorAll(".birb-sticky-note");
+		existingNotes.forEach(note => note.remove());
+		// Render all sticky notes
+		for (let stickyNote of stickyNotes) {
+			if (isStickyNoteApplicable(stickyNote)) {
+				renderStickyNote(stickyNote);
+			}
+		}
+	}
+
+	/**
+	 * Run the bird's behavior logic
+	 */
+	function update() {
+		ticks++;
+
+		// Hide bird if the browser is fullscreen
+		if (document.fullscreenElement) {
+			hideBirb();
+			// Won't be restored on fullscreen exit
+		}
+
+		if (currentState === States.IDLE) {
+			if (Math.random() < 1 / (60 * 3) && currentAnimation !== Animations.HEART && !isMenuOpen()) {
+				hop();
+			} else if (Math.random() < 1 / (60 * 20) && Date.now() - lastActionTimestamp > AFK_TIME && !isMenuOpen()) {
+				focusOnElement();
+				lastActionTimestamp = Date.now();
+			}
+		}
+
+		const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // 1 every 2 hours (ticks * seconds * minutes * hours)
+		// Double the chance of a feather if recently pet
+		let petMod = Date.now() - lastPetTimestamp < 1000 * 60 * 5 ? 2 : 1;
+		if (visible && Math.random() < FEATHER_CHANCE * petMod) {
+			lastPetTimestamp = 0;
+			activateFeather();
+		}
+		updateFeather();
+	}
+
+	/**
+	 * Render the bird in the dom and update its position if necessary
+	 */
+	function draw() {
+		requestAnimationFrame(draw);
+
+		if (!visible) {
+			return;
+		}
+
+		// Update the bird's position
+		if (currentState === States.IDLE) {
+			if (focusedElement !== null) {
+				birdY = getFocusedElementY();
+				if (!isWithinHorizontalBounds(birdX)) {
+					focusOnGround();
+				}
+			} else {
+				// Ground the bird
+				birdY = getWindowBottom();
+			}
+		} else if (currentState === States.FLYING) {
+			// Fly to target location (even if in the air)
+			if (updateParabolicPath(FLY_SPEED)) {
+				setState(States.IDLE);
+			}
+		} else if (currentState === States.HOP) {
+			if (updateParabolicPath(HOP_SPEED)) {
+				setState(States.IDLE);
+			}
+		}
+
+		if (focusedElement === null) {
+			if (Date.now() - lastActionTimestamp > AFK_TIME && !isMenuOpen()) {
+				// Fly to an element if the user is AFK
+				// focusOnElement();
+				// lastActionTimestamp = Date.now();
+			}
+		} else if (focusedElement !== null) {
+			targetY = getFocusedElementY();
+			if (targetY < window.scrollY || targetY > window.scrollY + window.innerHeight) {
+				// Fly to ground if the focused element moves out of bounds
+				focusOnGround();
+			}
+		}
+
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		if (currentAnimation.draw(ctx, direction, animStart, species[currentSpecies])) {
+			setAnimation(Animations.STILL);
+		}
+
+		// Update HTML element position
+		setX(birdX);
+		setY(birdY);
+	}
+
+	init();
+	draw();
 
 	function newStickyNote() {
 		const id = Date.now().toString();
@@ -919,185 +1121,6 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		}
 		return true;
 	}
-
-	function init() {
-		if (window !== window.top) {
-			// Skip installation if within an iframe
-			return;
-		}
-
-		// Preload font
-		const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
-		const fontLink = document.createElement("link");
-		fontLink.rel = "stylesheet";
-		fontLink.href = `url(${MONOCRAFT_SRC}) format('opentype')`;
-		document.head.appendChild(fontLink);
-
-		// Add stylesheet font-face
-		const fontFace = `
-			@font-face {
-				font-family: 'Monocraft';
-				src: url(${MONOCRAFT_SRC}) format('opentype');
-				font-weight: normal;
-				font-style: normal;
-			}
-		`;
-		const fontStyle = document.createElement("style");
-		fontStyle.innerHTML = fontFace;
-		document.head.appendChild(fontStyle);
-
-		load();
-
-		styleElement.innerHTML = STYLESHEET;
-		document.head.appendChild(styleElement);
-
-		canvas.id = "birb";
-		canvas.width = birbFrames.base.getPixels()[0].length * CANVAS_PIXEL_SIZE;
-		canvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
-		document.body.appendChild(canvas);
-
-		window.addEventListener("scroll", () => {
-			lastActionTimestamp = Date.now();
-			// Can't keep up with scrolling on mobile devices so fly down instead
-			if (isMobile()) {
-				// focusOnGround();
-			}
-
-		});
-
-		onClick(document, (e) => {
-			lastActionTimestamp = Date.now();
-			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
-				removeMenu();
-			}
-		});
-
-		onClick(canvas, () => {
-			insertMenu();
-		});
-
-		canvas.addEventListener("mouseover", () => {
-			lastActionTimestamp = Date.now();
-			if (currentState === States.IDLE) {
-				petStack.push(Date.now());
-				if (petStack.length > 10) {
-					petStack.shift();
-				}
-				const pets = petStack.filter((time) => Date.now() - time < 1000).length;
-				if (pets >= 3) {
-					setAnimation(Animations.HEART);
-					// Clear the stack
-					petStack = [];
-				}
-			}
-		});
-
-		drawStickyNotes();
-
-		let lastUrl = (window.location.href ?? "").split("?")[0];
-		setInterval(() => {
-			const currentUrl = (window.location.href ?? "").split("?")[0];
-			if (currentUrl !== lastUrl) {
-				log("URL changed, updating sticky notes");
-				lastUrl = currentUrl;
-				drawStickyNotes();
-			}
-		}, 500);
-
-		setInterval(update, 1000 / 60);
-	}
-
-	function drawStickyNotes() {
-		// Remove all existing sticky notes
-		const existingNotes = document.querySelectorAll(".birb-sticky-note");
-		existingNotes.forEach(note => note.remove());
-		// Render all sticky notes
-		for (let stickyNote of stickyNotes) {
-			if (isStickyNoteApplicable(stickyNote)) {
-				renderStickyNote(stickyNote);
-			}
-		}
-	}
-
-	function update() {
-		ticks++;
-
-		// Hide bird if the browser is fullscreen
-		if (document.fullscreenElement) {
-			hideBirb();
-			// Won't be restored on fullscreen exit
-		}
-
-		if (currentState === States.IDLE) {
-			if (Math.random() < 1 / (60 * 3) && currentAnimation !== Animations.HEART && !isMenuOpen()) {
-				hop();
-			} else if (focusedElement !== null && Math.random() < 1 / (60 * 20) && Date.now() - lastActionTimestamp > AFK_TIME && !isMenuOpen()) {
-				focusOnElement();
-				lastActionTimestamp = Date.now();
-			}
-		} else if (currentState === States.HOP) {
-			if (updateParabolicPath(HOP_SPEED)) {
-				setState(States.IDLE);
-			}
-		}
-		const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // 1 every 2 hours (ticks * seconds * minutes * hours)
-		// Double the chance of a feather if recently pet
-		let petMod = Date.now() - lastPetTimestamp < 1000 * 60 * 5 ? 2 : 1;
-		if (visible && Math.random() < FEATHER_CHANCE * petMod) {
-			lastPetTimestamp = 0;
-			activateFeather();
-		}
-		updateFeather();
-	}
-
-	function draw() {
-		requestAnimationFrame(draw);
-
-		if (!visible) {
-			return;
-		}
-
-		// Update the bird's position
-		if (currentState === States.IDLE) {
-			if (focusedElement !== null) {
-				birdY = getFocusedElementY() - 0.5;
-				if (!isWithinHorizontalBounds()) {
-					focusOnGround();
-				}
-			}
-		} else if (currentState === States.FLYING) {
-			// Fly to target location (even if in the air)
-			if (updateParabolicPath(FLY_SPEED)) {
-				setState(States.IDLE);
-			}
-		}
-
-		if (focusedElement === null) {
-			if (Date.now() - lastActionTimestamp > AFK_TIME && !isMenuOpen()) {
-				// Fly to an element if the user is AFK
-				focusOnElement();
-				lastActionTimestamp = Date.now();
-			}
-		} else if (focusedElement !== null) {
-			targetY = getFocusedElementY();
-			if (targetY < 0 || targetY > window.innerHeight) {
-				// Fly to ground if the focused element moves out of bounds
-				focusOnGround();
-			}
-		}
-
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		if (currentAnimation.draw(ctx, direction, animStart, species[currentSpecies])) {
-			setAnimation(Animations.STILL);
-		}
-
-		// Update HTML element position
-		setX(birdX);
-		setY(birdY);
-	}
-
-	init();
-	draw();
 
 	/**
 	 * Create an HTML element with the specified parameters
@@ -1663,37 +1686,44 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			return Math.random() * window.innerWidth;
 		}
 		const rect = focusedElement.getBoundingClientRect();
-		return Math.random() * (rect.right - rect.left) + rect.left;
-	}
-
-	function isWithinHorizontalBounds() {
-		if (focusedElement === null) {
-			return true;
-		}
-		const rect = focusedElement.getBoundingClientRect();
-		return birdX >= rect.left && birdX <= rect.right;
+		return Math.random() * (rect.right - rect.left) + rect.left + window.scrollX;
 	}
 
 	function getFocusedElementY() {
 		if (focusedElement === null) {
-			return 0;
+			return getWindowBottom();
 		}
 		const rect = focusedElement.getBoundingClientRect();
-		return window.innerHeight - rect.top;
+		return rect.top + window.scrollY;
+	}
+
+	/**
+	 * @param {number} x 
+	 * @returns {boolean} Whether the x coordinate is within the horizontal bounds of the focused element
+	 */
+	function isWithinHorizontalBounds(x) {
+		if (focusedElement === null) {
+			return true;
+		}
+		const rect = focusedElement.getBoundingClientRect();
+		return x >= rect.left && x <= rect.right;
 	}
 
 	function focusOnGround() {
 		if (focusedElement === null) {
+			// Already focused on ground
 			return;
 		}
+		console.log("Focusing on ground");
 		focusedElement = null;
-		flyTo(Math.random() * window.innerWidth, 0);
+		flyTo(Math.random() * window.innerWidth, getWindowBottom());
 	}
 
 	function focusOnElement() {
 		if (frozen) {
 			return;
 		}
+		console.log("Focusing on element");
 		const elements = document.querySelectorAll("img, video");
 		const inWindow = Array.from(elements).filter((img) => {
 			const rect = img.getBoundingClientRect();
@@ -1719,6 +1749,10 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		return canvas.height * BIRB_CSS_SCALE
 	}
 
+	function getWindowBottom() {
+		return window.scrollY + window.innerHeight;
+	}
+
 	function hop() {
 		if (frozen) {
 			return;
@@ -1727,7 +1761,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			// Determine bounds for hopping
 			let minX = 0;
 			let maxX = window.innerWidth;
-			let y = 0;
+			let y = getWindowBottom();
 			if (focusedElement !== null) {
 				// Hop on the element
 				const rect = focusedElement.getBoundingClientRect();
@@ -1743,6 +1777,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 				targetX = birdX + HOP_DISTANCE;
 			}
 			targetY = y;
+			console.log("hopping from", birdX, birdY, "to", targetX, targetY);
 		}
 	}
 
@@ -1763,6 +1798,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	 * @param {number} y
 	 */
 	function flyTo(x, y) {
+		console.log("Flying to", x, y);
 		targetX = x;
 		targetY = y;
 		setState(States.FLYING);
@@ -1783,6 +1819,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	 * @param {string} state
 	 */
 	function setState(state) {
+		console.log("State:", state);
 		stateStart = Date.now();
 		startX = birdX;
 		startY = birdY;
@@ -1793,18 +1830,21 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 
 	/**
+	 * Set the bird element's X position, with the element origin at the center of the bird
 	 * @param {number} x
 	 */
 	function setX(x) {
-		let mod = getCanvasWidth() / -2 - (WINDOW_PIXEL_SIZE * (direction === Directions.RIGHT ? 2 : -2));
+		const mod = getCanvasWidth() / -2 - (WINDOW_PIXEL_SIZE * (direction === Directions.RIGHT ? 2 : -2));
 		canvas.style.left = `${x + mod}px`;
 	}
 
 	/**
+	 * Set the bird element's Y position, with the element origin at the bottom of the bird
 	 * @param {number} y
 	 */
 	function setY(y) {
-		canvas.style.bottom = `${y}px`;
+		const mod = getCanvasHeight() + WINDOW_PIXEL_SIZE;
+		canvas.style.top = `${y - mod}px`;
 	}
 });
 
@@ -1833,7 +1873,7 @@ function parabolicLerp(startX, startY, endX, endY, amount, intensity = 1.2) {
 	const distance = Math.sqrt(dx * dx + dy * dy);
 	const angle = Math.atan2(dy, dx);
 	const midX = startX + Math.cos(angle) * distance / 2;
-	const midY = startY + Math.sin(angle) * distance / 2 + distance / 4 * intensity;
+	const midY = startY + Math.sin(angle) * distance / 2 - distance / 4 * intensity;
 	const t = amount;
 	const x = (1 - t) ** 2 * startX + 2 * (1 - t) * t * midX + t ** 2 * endX;
 	const y = (1 - t) ** 2 * startY + 2 * (1 - t) * t * midY + t ** 2 * endY;
