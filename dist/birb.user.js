@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025-10-22-03
+// @version      2025-10-22-04
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
