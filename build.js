@@ -22,13 +22,13 @@ const STYLESHEET_KEY = "___STYLESHEET___";
 
 const userScriptHeader =
 `// ==UserScript==
-// @name         Browser Bird
+// @name         Pocket Bird
 // @namespace    https://idreesinc.com
 // @version      2025-10-22-02
 // @description  birb
 // @author       Idrees
-// @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
-// @updateURL    https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
+// @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
+// @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
 // @match        *://*/*
 // @grant        GM_setValue
 // @grant        GM_getValue
