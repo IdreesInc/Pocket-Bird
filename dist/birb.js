@@ -1297,7 +1297,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			lastActionTimestamp = Date.now();
 			// Can't keep up with scrolling on mobile devices so fly down instead
 			if (isMobile()) {
-				focusOnGround();
+				// focusOnGround();
 			}
 
 		});
