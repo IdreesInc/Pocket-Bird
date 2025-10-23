@@ -32,7 +32,7 @@ const HOP_SPEED = CONFIG.hopSpeed;
 const FLY_SPEED = CONFIG.flySpeed;
 const HOP_DISTANCE = CONFIG.hopDistance;
 // Time in milliseconds until the user is considered AFK
-const AFK_TIME = debugMode ? 0 : 1000 * 30;
+const AFK_TIME = (debugMode || isMobile()) ? 0 : 1000 * 30;
 const SPRITE_HEIGHT = 32;
 const MENU_ID = "birb-menu";
 const MENU_EXIT_ID = "birb-menu-exit";
