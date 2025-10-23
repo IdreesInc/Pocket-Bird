@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Browser Bird
 // @namespace    https://idreesinc.com
-// @version      2025-09-15-01
+// @version      2025-10-22-01
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Browser-Bird/raw/refs/heads/main/dist/birb.user.js
