@@ -1410,13 +1410,16 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		}
 
 		if (focusedElement === null) {
-			if (Date.now() - lastActionTimestamp > AFK_TIME && !isMenuOpen()) {
+			if (currentState === States.IDLE && Date.now() - lastActionTimestamp > AFK_TIME && !isMenuOpen()) {
 				// Fly to an element if the user is AFK
 				focusOnElement();
 				lastActionTimestamp = Date.now();
 			}
 		} else if (focusedElement !== null) {
+			const oldTargetY = targetY;
 			targetY = getFocusedElementY();
+			// Adjust startY to account for scrolling of the focused element
+			startY += targetY - oldTargetY;
 			if (targetY < 0 || targetY > window.innerHeight) {
 				// Fly to ground if the focused element moves out of bounds
 				focusOnGround();

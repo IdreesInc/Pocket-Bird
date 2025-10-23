@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025-10-22-02
+// @version      2025-10-22-03
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1424,13 +1424,16 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		}
 
 		if (focusedElement === null) {
-			if (Date.now() - lastActionTimestamp > AFK_TIME && !isMenuOpen()) {
+			if (currentState === States.IDLE && Date.now() - lastActionTimestamp > AFK_TIME && !isMenuOpen()) {
 				// Fly to an element if the user is AFK
 				focusOnElement();
 				lastActionTimestamp = Date.now();
 			}
 		} else if (focusedElement !== null) {
+			const oldTargetY = targetY;
 			targetY = getFocusedElementY();
+			// Adjust startY to account for scrolling of the focused element
+			startY += targetY - oldTargetY;
 			if (targetY < 0 || targetY > window.innerHeight) {
 				// Fly to ground if the focused element moves out of bounds
 				focusOnGround();
