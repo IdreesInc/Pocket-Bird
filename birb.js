@@ -32,7 +32,7 @@ const HOP_SPEED = CONFIG.hopSpeed;
 const FLY_SPEED = CONFIG.flySpeed;
 const HOP_DISTANCE = CONFIG.hopDistance;
 // Time in milliseconds until the user is considered AFK
-const AFK_TIME = (debugMode || isMobile()) ? 0 : 1000 * 30;
+const AFK_TIME = debugMode ? 0 : 1000 * 30;
 const SPRITE_HEIGHT = 32;
 const MENU_ID = "birb-menu";
 const MENU_EXIT_ID = "birb-menu-exit";
@@ -957,11 +957,6 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 
 		window.addEventListener("scroll", () => {
 			lastActionTimestamp = Date.now();
-			// Can't keep up with scrolling on mobile devices so fly down instead
-			if (isMobile()) {
-				// focusOnGround();
-			}
-
 		});
 
 		onClick(document, (e) => {
@@ -1668,22 +1663,30 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		return birdX >= focusedBounds.left && birdX <= focusedBounds.right;
 	}
 
-	// function getFocusedElementY() {
-	// 	if (focusedElement === null) {
-	// 		return 0;
-	// 	}
-	// 	const rect = focusedElement.getBoundingClientRect();
-	// 	return window.innerHeight - rect.top;
-	// }
-
 	function getFocusedY() {
-		return window.innerHeight - focusedBounds.top;
+		return getFullWindowHeight() - focusedBounds.top;
 	}
 
+	/**
+	 * @returns The render-safe height of the inner browser window
+	 */
+	function getSafeWindowHeight() {
+		// Necessary because iOS 26 Safari is terrible and won't render
+		// fixed elements behind the address bar
+		return window.innerHeight;
+	}
+
+	/**
+	 * @returns The true height of the inner browser window
+	 */
+	function getFullWindowHeight() {
+		return document.documentElement.clientHeight;
+	}
+	
 	function focusOnGround() {
 		console.log("Focusing on ground");
 		focusedElement = null;
-		focusedBounds = { left: 0, right: window.innerWidth, top: window.innerHeight };
+		focusedBounds = { left: 0, right: window.innerWidth, top: getSafeWindowHeight() };
 		flyTo(Math.random() * window.innerWidth, 0);
 	}
 
@@ -1713,7 +1716,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	function updateFocusedElementBounds() {
 		if (focusedElement === null) {
 			// Update ground location to bottom of window
-			focusedBounds = { left: 0, right: window.innerWidth, top: window.innerHeight };
+			focusedBounds = { left: 0, right: window.innerWidth, top: getFullWindowHeight() };
 			return;
 		}
 		const rect = focusedElement.getBoundingClientRect();
@@ -1772,6 +1775,13 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 
 	/**
+	 * @returns {boolean} Whether the bird should be absolutely positioned
+	 */
+	function isAbsolute() {
+		return focusedElement !== null && (currentState === States.IDLE || currentState === States.HOP);
+	}
+
+	/**
 	 * Set the current animation and reset the animation timer
 	 * @param {Anim} animation
 	 */
@@ -1792,6 +1802,12 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		if (state === States.IDLE) {
 			setAnimation(Animations.BOB);
 		}
+		if (isAbsolute()) {
+			canvas.classList.add("birb-absolute");
+		} else {
+			canvas.classList.remove("birb-absolute");
+		}
+		setY(birdY);
 	}
 
 	/**
@@ -1806,7 +1822,15 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	 * @param {number} y
 	 */
 	function setY(y) {
-		canvas.style.bottom = `${y}px`;
+		let bottom;
+		if (isAbsolute()) {
+			// Position is absolute, convert from fixed
+			bottom = y - window.scrollY;
+		} else {
+			// Position is fixed
+			bottom = y;
+		}
+		canvas.style.bottom = `${bottom}px`;
 	}
 });
 
