@@ -942,8 +942,6 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	const menuItems = [
 		new MenuItem(`Pet ${birdBirb()}`, pet),
 		new MenuItem("Field Guide", insertFieldGuide),
-		// new MenuItem("Decorations", insertDecoration),
-		new DebugMenuItem("Applications", () => switchMenuItems(otherItems), false),
 		new MenuItem("Sticky Note", newStickyNote),
 		new MenuItem(`Hide ${birdBirb()}`, hideBirb),
 		new DebugMenuItem("Freeze/Unfreeze", () => {
@@ -970,34 +968,6 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			save();
 			insertModal(`${birdBirb()} Mode`, `Your ${birdBirb().toLowerCase()} shall now be referred to as "${birdBirb()}"${userSettings.birbMode ? "\n\nWelcome back to 2012" : ""}`);
 		})
-	];
-
-	const otherItems = [
-		new MenuItem("Go Back", () => switchMenuItems(menuItems), false),
-		new Separator(),
-		new MenuItem("Video Games", () => switchMenuItems(gameItems), false),
-		new MenuItem("Utilities", () => switchMenuItems(utilityItems), false),
-		new MenuItem("Music Player", () => insertMusicPlayer(), false),
-	];
-
-	const gameItems = [
-		new MenuItem("Go Back", () => switchMenuItems(otherItems), false),
-		new Separator(),
-		new MenuItem("Pinball", () => insertPico8("Terra Nova Pinball", "terra_nova_pinball")),
-		new MenuItem("Pico Dino", () => insertPico8("Pico Dino", "picodino")),
-		new MenuItem("Woodworm", () => insertPico8("Woodworm", "woodworm")),
-		new MenuItem("Pico and Chill", () => insertPico8("Pico and Chill", "picochill")),
-		new MenuItem("Lani's Trek", () => insertPico8("Celeste 2 Lani's Trek", "celeste_classic_2")),
-		new MenuItem("Tetraminis", () => insertPico8("Tetraminis", "tetraminisdeffect")),
-		// new MenuItem("Pool", () => insertPico8("Pool", "mot_pool")),
-	];
-
-	const utilityItems = [
-		new MenuItem("Go Back", () => switchMenuItems(otherItems), false),
-		new Separator(),
-		new MenuItem("Pomodoro Timer", () => insertPico8("Pomodoro", "pomodorotimerv1")),
-		new MenuItem("Ohm Calculator", () => insertPico8("Resistor Calculator", "picoohm")),
-		new MenuItem("Wobblepaint	", () => insertPico8("Wobblepaint", "wobblepaint")),
 	];
 
 	const styleElement = document.createElement("style");
@@ -1704,58 +1674,8 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		}
 	}
 
-	// insertPico8();
-
 	function isSafari() {
 		return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-	}
-
-	/**
-	 * @param {string} name
-	 * @param {string} pid
-	 */
-	function insertPico8(name, pid) {
-		let html = `
-			<div class="birb-window-header">
-				<div class="birb-window-title">${name}</div>
-				<div class="birb-window-close">x</div>
-			</div>
-			<div class="birb-window-content birb-pico-8-content">
-				<iframe src="https://www.lexaloffle.com/bbs/widget.php?pid=${pid}" scrolling='${isSafari() ? "yes" : "no"}'></iframe>
-			</div>`
-		const pico8 = makeElement("birb-window");
-		pico8.innerHTML = html;
-		document.body.appendChild(pico8);
-		makeDraggable(pico8.querySelector(".birb-window-header"));
-		const close = pico8.querySelector(".birb-window-close");
-		if (close) {
-			makeClosable(() => {
-				pico8.remove();
-			}, close);
-		}
-		centerElement(pico8);
-	}
-
-	function insertMusicPlayer() {
-		let html = `
-			<div class="birb-window-header">
-				<div class="birb-window-title">Music Player</div>
-				<div class="birb-window-close">x</div>
-			</div>
-			<div class="birb-window-content birb-music-player-content">
-			<iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/31FWVQBp3WQydWLNhO0ACi?utm_source=generator" width="250" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-		</div>`;
-		const pico8 = makeElement("birb-window");
-		pico8.innerHTML = html;
-		document.body.appendChild(pico8);
-		makeDraggable(pico8.querySelector(".birb-window-header"));
-		const close = pico8.querySelector(".birb-window-close");
-		if (close) {
-			makeClosable(() => {
-				pico8.remove();
-			}, close);
-		}
-		centerElement(pico8);
 	}
 
 	/**
