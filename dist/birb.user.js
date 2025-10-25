@@ -25,7 +25,7 @@ const SHARED_CONFIG = {
 
 
 const DESKTOP_CONFIG = {
-	flySpeed: 0.2,
+	flySpeed: 0.25
 };
 
 const MOBILE_CONFIG = {
@@ -308,8 +308,8 @@ const STYLESHEET = `:root {
 	flex-direction: row;
 	padding-top: 4px;
 	padding-bottom: 4px;
-	padding-left: 15px;
-	padding-right: 15px;
+	padding-left: 10px;
+	padding-right: 10px;
 	box-sizing: border-box;
 }
 
@@ -356,12 +356,12 @@ const STYLESHEET = `:root {
 }
 
 .birb-field-guide-description {
-	width: calc(100% - 16px);
-	margin-top: 10px;
+	width: calc(100% - 20px);
+	margin-top: 5px;
 	padding: 8px;
 	padding-top: 4px;
 	padding-bottom: 4px;
-	margin-bottom: 6px;
+	margin-bottom: 10px;
 	font-size: 14px;
 	box-sizing: border-box;
 	color: rgb(124, 108, 75);

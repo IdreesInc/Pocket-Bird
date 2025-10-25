@@ -11,7 +11,7 @@ const SHARED_CONFIG = {
 
 
 const DESKTOP_CONFIG = {
-	flySpeed: 0.2,
+	flySpeed: 0.25
 };
 
 const MOBILE_CONFIG = {
