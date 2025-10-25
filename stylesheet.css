@@ -21,6 +21,10 @@
 	cursor: pointer;
 }
 
+.birb-absolute {
+	position: absolute !important;
+}
+
 .birb-decoration {
 	image-rendering: pixelated;
 	position: fixed;
