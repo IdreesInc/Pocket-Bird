@@ -1,13 +1,13 @@
 {
 	"manifest_version": 3,
-	"name": "Browser Bird",
+	"name": "Pocket Bird",
 	"description": "It's a bird, in your browser. What more could you want?",
 	"version": "2025.9.16.1",
 	"homepage_url": "https://idreesinc.com",
 	"content_scripts": [
 	  {
 		"matches": ["<all_urls>"],
-		"js": ["birb.js"]
+		"js": ["./dist/birb.js"]
 	  }
 	],
 	"permissions": [

@@ -443,6 +443,8 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 	});
 }
 
+log("Loading sprite sheets...");
+
 // @ts-ignore
 Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false), loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)]).then(([birbPixels, decorationPixels, featherPixels]) => {
 	const SPRITE_SHEET = birbPixels;
@@ -924,8 +926,10 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	function init() {
 		if (window !== window.top) {
 			// Skip installation if within an iframe
+			log("In iframe, skipping Birb script initialization");
 			return;
 		}
+		log("Sprite sheets loaded successfully, initializing bird...");
 
 		// Preload font
 		const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
@@ -1834,6 +1838,8 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		}
 		canvas.style.bottom = `${bottom}px`;
 	}
+}).catch((e) => {
+	error("Error while loading sprite sheets: ", e);
 });
 
 /**
