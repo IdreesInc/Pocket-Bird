@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.26.55
+// @version      2025.10.26.76
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -341,6 +341,293 @@
 		}
 	}
 
+	/**
+	 * @typedef {Object} SavedStickyNote
+	 * @property {string} id
+	 * @property {string} site
+	 * @property {string} content
+	 * @property {number} top
+	 * @property {number} left
+	 */
+
+	class StickyNote {
+		/**
+		 * @param {string} id
+		 * @param {string} [site]
+		 * @param {string} [content]
+		 * @param {number} [top]
+		 * @param {number} [left]
+		 */
+		constructor(id, site = "", content = "", top = 0, left = 0) {
+			this.id = id;
+			this.site = site;
+			this.content = content;
+			this.top = top;
+			this.left = left;
+		}
+	}
+
+	/**
+	 * Parse URL parameters into a key-value map
+	 * @param {string} url
+	 * @returns {Record<string, string>}
+	 */
+	function parseUrlParams(url) {
+		const queryString = url.split("?")[1];
+		if (!queryString) return {};
+
+		return queryString.split("&").reduce((params, param) => {
+			const [key, value] = param.split("=");
+			return { ...params, [key]: value };
+		}, {});
+	}
+
+	/**
+	 * @param {StickyNote} stickyNote
+	 * @returns {boolean} Whether the given sticky note is applicable to the current site/page
+	 */
+	function isStickyNoteApplicable(stickyNote) {
+		const stickyNoteUrl = stickyNote.site;
+		const currentUrl = window.location.href;
+		const stickyNoteWebsite = stickyNoteUrl.split("?")[0];
+		const currentWebsite = currentUrl.split("?")[0];
+
+		if (stickyNoteWebsite !== currentWebsite) {
+			return false;
+		}
+
+		const stickyNoteParams = parseUrlParams(stickyNoteUrl);
+		const currentParams = parseUrlParams(currentUrl);
+
+		if (window.location.hostname === "www.youtube.com") {
+			if (currentParams.v !== undefined && currentParams.v !== stickyNoteParams.v) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Create an HTML element with the specified parameters
+	 * @param {string} className
+	 * @param {string} [textContent]
+	 * @param {string} [id]
+	 * @returns {HTMLElement}
+	 */
+	function makeElement(className, textContent, id) {
+		const element = document.createElement("div");
+		element.classList.add(className);
+		return element;
+	}
+
+	/**
+	 * @param {Document|Element} element
+	 * @param {(e: Event) => void} action
+	 */
+	function onClick(element, action) {
+		element.addEventListener("click", (e) => action(e));
+		element.addEventListener("touchend", (e) => {
+			if (e instanceof TouchEvent === false) {
+				return;
+			} else if (element instanceof HTMLElement === false) {
+				return;
+			}
+			const touch = e.changedTouches[0];
+			const rect = element.getBoundingClientRect();
+			if (
+				touch.clientX >= rect.left &&
+				touch.clientX <= rect.right &&
+				touch.clientY >= rect.top &&
+				touch.clientY <= rect.bottom
+			) {
+				action(e);
+			}
+		});
+	}
+
+	/**
+	 * @param {HTMLElement|null} element The element to detect drag events on
+	 * @param {boolean} [parent] Whether to move the parent element when the child is dragged
+	 * @param {(top: number, left: number) => void} [callback] Callback for when element is moved
+	 */
+	function makeDraggable(element, parent = true, callback = () => { }) {
+		if (!element) {
+			return;
+		}
+
+		let isMouseDown = false;
+		let offsetX = 0;
+		let offsetY = 0;
+		let elementToMove = parent ? element.parentElement : element;
+
+		if (!elementToMove) {
+			console.error("Birb: Parent element not found");
+			return;
+		}
+
+		element.addEventListener("mousedown", (e) => {
+			isMouseDown = true;
+			offsetX = e.clientX - elementToMove.offsetLeft;
+			offsetY = e.clientY - elementToMove.offsetTop;
+		});
+
+		element.addEventListener("touchstart", (e) => {
+			isMouseDown = true;
+			const touch = e.touches[0];
+			offsetX = touch.clientX - elementToMove.offsetLeft;
+			offsetY = touch.clientY - elementToMove.offsetTop;
+			e.preventDefault();
+		});
+
+		document.addEventListener("mouseup", (e) => {
+			if (isMouseDown) {
+				callback(elementToMove.offsetTop, elementToMove.offsetLeft);
+				e.preventDefault();
+			}
+			isMouseDown = false;
+		});
+
+		document.addEventListener("touchend", (e) => {
+			if (isMouseDown) {
+				callback(elementToMove.offsetTop, elementToMove.offsetLeft);
+				e.preventDefault();
+			}
+			isMouseDown = false;
+		});
+
+		document.addEventListener("mousemove", (e) => {
+			if (isMouseDown) {
+				elementToMove.style.left = `${Math.max(0, e.clientX - offsetX)}px`;
+				elementToMove.style.top = `${Math.max(0, e.clientY - offsetY)}px`;
+			}
+		});
+
+		document.addEventListener("touchmove", (e) => {
+			if (isMouseDown) {
+				const touch = e.touches[0];
+				elementToMove.style.left = `${Math.max(0, touch.clientX - offsetX)}px`;
+				elementToMove.style.top = `${Math.max(0, touch.clientY - offsetY)}px`;
+			}
+		});
+	}
+
+	/**
+	 * @param {() => void} func
+	 * @param {Element} [closeButton]
+	 */
+	function makeClosable(func, closeButton) {
+		if (closeButton) {
+			onClick(closeButton, func);
+		}
+		document.addEventListener("keydown", (e) => {
+			if (closeButton && !document.body.contains(closeButton)) {
+				return;
+			}
+			if (e.key === "Escape") {
+				func();
+			}
+		});
+	}
+
+	/**
+	 * @param {StickyNote} stickyNote
+	 * @param {() => void} onSave
+	 * @param {() => void} onDelete
+	 * @returns {HTMLElement}
+	 */
+	function renderStickyNote(stickyNote, onSave, onDelete) {
+		let html = `
+		<div class="birb-window-header">
+			<div class="birb-window-title">Sticky Note</div>
+			<div class="birb-window-close">x</div>
+		</div>
+		<div class="birb-window-content">
+			<textarea class="birb-sticky-note-input" style="width: 150px;" placeholder="Write your notes here and they'll stick to the page!">${stickyNote.content}</textarea>
+		</div>`;
+		const noteElement = makeElement("birb-window");
+		noteElement.classList.add("birb-sticky-note");
+		noteElement.innerHTML = html;
+
+		noteElement.style.top = `${stickyNote.top}px`;
+		noteElement.style.left = `${stickyNote.left}px`;
+		document.body.appendChild(noteElement);
+
+		makeDraggable(noteElement.querySelector(".birb-window-header"), true, (top, left) => {
+			stickyNote.top = top;
+			stickyNote.left = left;
+			onSave();
+		});
+
+		const closeButton = noteElement.querySelector(".birb-window-close");
+		if (closeButton) {
+			makeClosable(() => {
+				if (confirm("Are you sure you want to delete this sticky note?")) {
+					onDelete();
+					noteElement.remove();
+				}
+			}, closeButton);
+		}
+
+		const textarea = noteElement.querySelector(".birb-sticky-note-input");
+		if (textarea && textarea instanceof HTMLTextAreaElement) {
+			let saveTimeout;
+			// Save after debounce
+			textarea.addEventListener("input", () => {
+				stickyNote.content = textarea.value;
+				if (saveTimeout) {
+					clearTimeout(saveTimeout);
+				}
+				saveTimeout = setTimeout(() => {
+					onSave();
+				}, 250);
+			});
+		}
+
+		// On window resize
+		window.addEventListener("resize", () => {
+			const modTop = `${stickyNote.top - Math.min(window.innerHeight - noteElement.offsetHeight, stickyNote.top)}px`;
+			const modLeft = `${stickyNote.left - Math.min(window.innerWidth - noteElement.offsetWidth, stickyNote.left)}px`;
+			noteElement.style.transform = `scale(var(--birb-ui-scale)) translate(-${modLeft}, -${modTop})`;
+		});
+
+		return noteElement;
+	}
+
+	/**
+	 * @param {StickyNote[]} stickyNotes
+	 * @param {() => void} onSave
+	 * @param {(note: StickyNote) => void} onDelete
+	 */
+	function drawStickyNotes(stickyNotes, onSave, onDelete) {
+		// Remove all existing sticky notes
+		const existingNotes = document.querySelectorAll(".birb-sticky-note");
+		existingNotes.forEach(note => note.remove());
+		// Render all sticky notes
+		for (let stickyNote of stickyNotes) {
+			if (isStickyNoteApplicable(stickyNote)) {
+				renderStickyNote(stickyNote, onSave, () => onDelete(stickyNote));
+			}
+		}
+	}
+
+	/**
+	 * @param {StickyNote[]} stickyNotes
+	 * @param {() => void} onSave
+	 * @param {(note: StickyNote) => void} onDelete
+	 */
+	function createNewStickyNote(stickyNotes, onSave, onDelete) {
+		const id = Date.now().toString();
+		const site = window.location.href;
+		const stickyNote = new StickyNote(id, site, "");
+		const element = renderStickyNote(stickyNote, onSave, () => onDelete(stickyNote));
+		element.style.left = `${window.innerWidth / 2 - element.offsetWidth / 2}px`;
+		element.style.top = `${window.scrollY + window.innerHeight / 2 - element.offsetHeight / 2}px`;
+		stickyNote.top = parseInt(element.style.top, 10);
+		stickyNote.left = parseInt(element.style.left, 10);
+		stickyNotes.push(stickyNote);
+		onSave();
+	}
+
 	// @ts-ignore
 	const SHARED_CONFIG = {
 		birbCssScale: 1,
@@ -378,12 +665,7 @@
 	 */
 
 	/**
-	 * @typedef {Object} SavedStickyNote
-	 * @property {string} id
-	 * @property {string} site
-	 * @property {string} content
-	 * @property {number} top
-	 * @property {number} left
+	 * @typedef {import('./stickyNotes.js').SavedStickyNote} SavedStickyNote
 	 */
 
 	/**
@@ -969,27 +1251,10 @@
 			}
 		}
 
-		class StickyNote {
-			/**
-			 * @param {string} id
-			 * @param {string} [site]
-			 * @param {string} [content]
-			 * @param {number} [top]
-			 * @param {number} [left]
-			 */
-			constructor(id, site = "", content = "", top = 0, left = 0) {
-				this.id = id;
-				this.site = site;
-				this.content = content;
-				this.top = top;
-				this.left = left;
-			}
-		}
-
 		const menuItems = [
 			new MenuItem(`Pet ${birdBirb()}`, pet),
 			new MenuItem("Field Guide", insertFieldGuide),
-			new MenuItem("Sticky Note", newStickyNote),
+			new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote)),
 			new MenuItem(`Hide ${birdBirb()}`, hideBirb),
 			new DebugMenuItem("Freeze/Unfreeze", () => {
 				frozen = !frozen;
@@ -1245,7 +1510,7 @@
 				pet();
 			});
 
-			drawStickyNotes();
+			drawStickyNotes(stickyNotes, save, deleteStickyNote);
 
 			let lastUrl = (window.location.href ?? "").split("?")[0];
 			setInterval(() => {
@@ -1253,7 +1518,7 @@
 				if (currentUrl !== lastUrl) {
 					log("URL changed, updating sticky notes");
 					lastUrl = currentUrl;
-					drawStickyNotes();
+					drawStickyNotes(stickyNotes, save, deleteStickyNote);
 				}
 			}, URL_CHECK_INTERVAL);
 
@@ -1340,128 +1605,12 @@
 			setY(birdY);
 		}
 
-		function newStickyNote() {
-			const id = Date.now().toString();
-			const site = window.location.href;
-			const stickyNote = new StickyNote(id, site, "");
-			const element = renderStickyNote(stickyNote);
-			element.style.left = `${window.innerWidth / 2 - element.offsetWidth / 2}px`;
-			element.style.top = `${window.scrollY + window.innerHeight / 2 - element.offsetHeight / 2}px`;
-			stickyNote.top = parseInt(element.style.top, 10);
-			stickyNote.left = parseInt(element.style.left, 10);
-			stickyNotes.push(stickyNote);
-			save();
-		}
-
-		/**
-		 * @param {StickyNote} stickyNote
-		 * @returns {HTMLElement}
-		 */
-		function renderStickyNote(stickyNote) {
-			let html = `
-			<div class="birb-window-header">
-				<div class="birb-window-title">Sticky Note</div>
-				<div class="birb-window-close">x</div>
-			</div>
-			<div class="birb-window-content">
-				<textarea class="birb-sticky-note-input" style="width: 150px;" placeholder="Write your notes here and they'll stick to the page!">${stickyNote.content}</textarea>
-			</div>`;
-			const noteElement = makeElement("birb-window");
-			noteElement.classList.add("birb-sticky-note");
-			noteElement.innerHTML = html;
-
-			noteElement.style.top = `${stickyNote.top}px`;
-			noteElement.style.left = `${stickyNote.left}px`;
-			document.body.appendChild(noteElement);
-
-			makeDraggable(noteElement.querySelector(".birb-window-header"), true, (top, left) => {
-				stickyNote.top = top;
-				stickyNote.left = left;
-				save();
-			});
-
-			const closeButton = noteElement.querySelector(".birb-window-close");
-			if (closeButton) {
-				makeClosable(() => {
-					if (confirm("Are you sure you want to delete this sticky note?")) {
-						deleteStickyNote(stickyNote);
-						noteElement.remove();
-					}
-				}, closeButton);
-			}
-
-			const textarea = noteElement.querySelector(".birb-sticky-note-input");
-			if (textarea && textarea instanceof HTMLTextAreaElement) {
-				let saveTimeout;
-				// Save after debounce
-				textarea.addEventListener("input", () => {
-					stickyNote.content = textarea.value;
-					if (saveTimeout) {
-						clearTimeout(saveTimeout);
-					}
-					saveTimeout = setTimeout(() => {
-						save();
-					}, 250);
-				});
-			}
-
-			// On window resize
-			window.addEventListener("resize", () => {
-				const modTop = `${stickyNote.top - Math.min(window.innerHeight - noteElement.offsetHeight, stickyNote.top)}px`;
-				const modLeft = `${stickyNote.left - Math.min(window.innerWidth - noteElement.offsetWidth, stickyNote.left)}px`;
-				noteElement.style.transform = `scale(var(--birb-ui-scale)) translate(-${modLeft}, -${modTop})`;
-			});
-
-			return noteElement;
-		}
-
 		/**
 		 * @param {StickyNote} stickyNote
 		 */
 		function deleteStickyNote(stickyNote) {
 			stickyNotes = stickyNotes.filter(note => note.id !== stickyNote.id);
 			save();
-		}
-
-		/**
-		 * @param {StickyNote} stickyNote
-		 * @returns {boolean} Whether the given sticky note is applicable to the current site/page
-		 */
-		function isStickyNoteApplicable(stickyNote) {
-			const stickyNoteUrl = stickyNote.site;
-			const currentUrl = window.location.href;
-			const stickyNoteWebsite = stickyNoteUrl.split("?")[0];
-			const currentWebsite = currentUrl.split("?")[0];
-
-			debug("Comparing " + stickyNoteUrl + " with " + currentUrl);
-
-			if (stickyNoteWebsite !== currentWebsite) {
-				return false;
-			}
-
-			const stickyNoteParams = parseUrlParams(stickyNoteUrl);
-			const currentParams = parseUrlParams(currentUrl);
-
-			debug("Comparing params: ", stickyNoteParams, currentParams);
-
-			if (window.location.hostname === "www.youtube.com") {
-				if (currentParams.v !== undefined && currentParams.v !== stickyNoteParams.v) {
-					return false;
-				}
-			}
-			return true;
-		}
-
-		function drawStickyNotes() {
-			// Remove all existing sticky notes
-			const existingNotes = document.querySelectorAll(".birb-sticky-note");
-			existingNotes.forEach(note => note.remove());
-			// Render all sticky notes
-			for (let stickyNote of stickyNotes) {
-				if (isStickyNoteApplicable(stickyNote)) {
-					renderStickyNote(stickyNote);
-				}
-			}
 		}
 
 		/**
@@ -2173,21 +2322,6 @@
 			const x = (1 - t) ** 2 * startX + 2 * (1 - t) * t * midX + t ** 2 * endX;
 			const y = (1 - t) ** 2 * startY + 2 * (1 - t) * t * midY + t ** 2 * endY;
 			return { x, y };
-		}
-
-		/**
-		 * Parse URL parameters into a key-value map
-		 * @param {string} url
-		 * @returns {Record<string, string>}
-		 */
-		function parseUrlParams(url) {
-			const queryString = url.split("?")[1];
-			if (!queryString) return {};
-
-			return queryString.split("&").reduce((params, param) => {
-				const [key, value] = param.split("=");
-				return { ...params, [key]: value };
-			}, {});
 		}
 
 		// Run the birb
