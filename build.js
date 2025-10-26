@@ -1,6 +1,7 @@
 // @ts-check
 
-import { readFileSync, writeFileSync } from 'fs';
+import { rollup } from 'rollup';
+import { readFileSync, writeFileSync, mkdirSync, unlinkSync } from 'fs';
 
 const spriteSheets = [
 	{
@@ -10,14 +11,10 @@ const spriteSheets = [
 	{
 		key: "__FEATHER_SPRITE_SHEET__",
 		path: "./sprites/feather.png"
-	},
-	{
-		key: "__DECORATIONS_SPRITE_SHEET__",
-		path: "./sprites/decorations.png"
 	}
 ];
 
-const STYLESHEET_PATH = "./stylesheet.css";
+const STYLESHEET_PATH = "./src/stylesheet.css";
 const STYLESHEET_KEY = "___STYLESHEET___";
 
 const now = new Date();
@@ -52,7 +49,6 @@ try {
 	throw e;
 }
 
-
 const userScriptHeader =
 `// ==UserScript==
 // @name         Pocket Bird
@@ -70,8 +66,19 @@ const userScriptHeader =
 
 `;
 
+// Bundle with rollup
+const bundle = await rollup({
+	input: 'src/application.js',
+});
 
-let birbJs = readFileSync('birb.js', 'utf8');
+await bundle.write({
+	file: 'dist/birb.bundled.js',
+	format: 'iife',
+});
+
+await bundle.close();
+
+let birbJs = readFileSync('dist/birb.bundled.js', 'utf8');
 
 // Compile and insert sprite sheets
 for (const spriteSheet of spriteSheets) {
@@ -85,6 +92,9 @@ birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent);
 
 // Build standard javascript file
 writeFileSync('./dist/birb.js', birbJs);
+
+// Delete bundled file
+unlinkSync('./dist/birb.bundled.js');
 
 // Build user script
 const userScript = userScriptHeader + birbJs;

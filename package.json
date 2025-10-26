@@ -7,9 +7,10 @@
   "type": "module",
   "scripts": {
     "build": "node build.js",
-    "dev": "nodemon --watch birb.js --watch stylesheet.css --watch build.js --exec \"npm run build\""
+    "dev": "nodemon --watch src --watch stylesheet.css --watch build.js --exec \"npm run build\""
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "rollup": "^4.52.5"
   }
 }
