@@ -710,26 +710,13 @@ Promise.all([
 		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
 			return;
 		}
-		let html = `
-			<div class="birb-window-header">
-				<div class="birb-window-title">Field Guide</div>
-				<div class="birb-window-close">x</div>
-			</div>
-			<div class="birb-window-content">
-				<div class="birb-grid-content"></div>
-				<div class="birb-field-guide-description"></div>
-			</div>`
-		const fieldGuide = makeElement("birb-window", undefined, FIELD_GUIDE_ID);
-		fieldGuide.innerHTML = html;
-		document.body.appendChild(fieldGuide);
-		makeDraggable(fieldGuide.querySelector(".birb-window-header"));
-
-		const closeButton = fieldGuide.querySelector(".birb-window-close");
-		if (closeButton) {
-			makeClosable(() => {
-				fieldGuide.remove();
-			}, closeButton);
-		}
+		
+		const fieldGuide = createWindow(
+			FIELD_GUIDE_ID,
+			"Field Guide",
+			`<div class="birb-grid-content"></div>
+			<div class="birb-field-guide-description"></div>`
+		)
 
 		const content = fieldGuide.querySelector(".birb-grid-content");
 		if (!content) {
