@@ -87,11 +87,9 @@ const DEFAULT_BIRD = "bluebird";
 
 const SPRITE_WIDTH = 32;
 const SPRITE_HEIGHT = 32;
-const DECORATIONS_SPRITE_WIDTH = 48;
 const FEATHER_SPRITE_WIDTH = 32;
 
 const SPRITE_SHEET = "__SPRITE_SHEET__";
-const DECORATIONS_SPRITE_SHEET = "__DECORATIONS_SPRITE_SHEET__";
 const FEATHER_SPRITE_SHEET = "__FEATHER_SPRITE_SHEET__";
 
 const FIELD_GUIDE_ID = "birb-field-guide";
@@ -180,12 +178,10 @@ log("Loading sprite sheets...");
 
 Promise.all([
 	loadSpriteSheetPixels(SPRITE_SHEET),
-	loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false),
 	loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)
-]).then(([birbPixels, decorationPixels, featherPixels]) => {
+]).then(([birbPixels, featherPixels]) => {
 
 	const SPRITE_SHEET = birbPixels;
-	const DECORATIONS_SPRITE_SHEET = decorationPixels;
 	const FEATHER_SPRITE_SHEET = featherPixels;
 
 	const layers = {
@@ -201,10 +197,6 @@ Promise.all([
 		happyEye: new Layer(getLayer(SPRITE_SHEET, 9)),
 	};
 
-	const decorationLayers = {
-		mac: new Layer(getLayer(DECORATIONS_SPRITE_SHEET, 0, DECORATIONS_SPRITE_WIDTH)),
-	};
-
 	const featherLayers = {
 		feather: new Layer(getLayer(FEATHER_SPRITE_SHEET, 0, FEATHER_SPRITE_WIDTH)),
 	};
@@ -218,10 +210,6 @@ Promise.all([
 		heartTwo: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartTwo]),
 		heartThree: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartThree]),
 		heartFour: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartTwo]),
-	};
-
-	const decorationFrames = {
-		mac: new Frame([decorationLayers.mac]),
 	};
 
 	const featherFrames = {
@@ -267,14 +255,6 @@ Promise.all([
 			250,
 			250,
 		], false),
-	};
-
-	const DECORATION_ANIMATIONS = {
-		mac: new Anim([
-			decorationFrames.mac,
-		], [
-			1000,
-		]),
 	};
 
 	const FEATHER_ANIMATIONS = {
@@ -679,23 +659,6 @@ Promise.all([
 		}
 
 		return window;
-	}
-
-	function insertDecoration() {
-		// Create a canvas element for the decoration
-		const decorationCanvas = document.createElement("canvas");
-		decorationCanvas.classList.add("birb-decoration");
-		decorationCanvas.width = DECORATIONS_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
-		decorationCanvas.height = DECORATIONS_SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
-		const decorationCtx = decorationCanvas.getContext("2d");
-		if (!decorationCtx) {
-			return;
-		}
-		// Draw the decoration
-		DECORATION_ANIMATIONS.mac.draw(decorationCtx, Directions.LEFT, CANVAS_PIXEL_SIZE, Date.now());
-		// Add the decoration to the page
-		document.body.appendChild(decorationCanvas);
-		makeDraggable(decorationCanvas, false);
 	}
 
 	function activateFeather() {

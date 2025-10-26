@@ -11,10 +11,6 @@ const spriteSheets = [
 	{
 		key: "__FEATHER_SPRITE_SHEET__",
 		path: "./sprites/feather.png"
-	},
-	{
-		key: "__DECORATIONS_SPRITE_SHEET__",
-		path: "./sprites/decorations.png"
 	}
 ];
 
