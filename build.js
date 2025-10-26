@@ -22,9 +22,9 @@ const STYLESHEET_KEY = "___STYLESHEET___";
 
 const now = new Date();
 const versionDate = `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
-let buildNumber = 1;
 
-// Get build number from manifest.json
+// Get current build number from manifest.json
+let buildNumber = 0;
 try {
 	const manifest = JSON.parse(readFileSync('manifest.json', 'utf8'));
 	if (manifest.version) {
@@ -41,9 +41,8 @@ try {
 	throw e;
 }
 
-const version = `${versionDate}.${buildNumber}`;
-
 // Update manifest.json with new version
+const version = `${versionDate}.${buildNumber}`;
 try {
 	const manifest = JSON.parse(readFileSync('manifest.json', 'utf8'));
 	manifest.version = version;
