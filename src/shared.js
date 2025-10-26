@@ -3,20 +3,20 @@ export const Directions = {
 	RIGHT: 1,
 };
 
-let debug = location.hostname === "127.0.0.1";
+let debugMode = location.hostname === "127.0.0.1";
 
 /**
  * @returns {boolean} Whether debug mode is enabled
  */
 export function isDebug() {
-	return debug;
+	return debugMode;
 }
 
 /**
- * @param {boolean} debugMode
+ * @param {boolean} value
  */
-export function setDebug(debugMode) {
-	debug = debugMode;
+export function setDebug(value) {
+	debugMode = value;
 }
 
 /**
@@ -145,4 +145,25 @@ export function makeClosable(func, closeButton) {
 			func();
 		}
 	});
+}
+
+/**
+ * @returns {boolean} Whether the user is on a mobile device
+ */
+export function isMobile() {
+	return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+export function log() {
+	console.log("Birb: ", ...arguments);
+}
+
+export function debug() {
+	if (isDebug()) {
+		console.debug("Birb: ", ...arguments);
+	}
+}
+
+export function error() {
+	console.error("Birb: ", ...arguments);
 }

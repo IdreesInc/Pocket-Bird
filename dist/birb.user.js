@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.26.201
+// @version      2025.10.26.221
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -20,20 +20,20 @@
 		RIGHT: 1,
 	};
 
-	let debug$1 = location.hostname === "127.0.0.1";
+	let debugMode = location.hostname === "127.0.0.1";
 
 	/**
 	 * @returns {boolean} Whether debug mode is enabled
 	 */
 	function isDebug() {
-		return debug$1;
+		return debugMode;
 	}
 
 	/**
-	 * @param {boolean} debugMode
+	 * @param {boolean} value
 	 */
-	function setDebug(debugMode) {
-		debug$1 = debugMode;
+	function setDebug(value) {
+		debugMode = value;
 	}
 
 	/**
@@ -162,6 +162,27 @@
 				func();
 			}
 		});
+	}
+
+	/**
+	 * @returns {boolean} Whether the user is on a mobile device
+	 */
+	function isMobile() {
+		return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+	}
+
+	function log() {
+		console.log("Birb: ", ...arguments);
+	}
+
+	function debug() {
+		if (isDebug()) {
+			console.debug("Birb: ", ...arguments);
+		}
+	}
+
+	function error() {
+		console.error("Birb: ", ...arguments);
 	}
 
 	/** Indicators for parts of the base bird sprite sheet */
@@ -781,41 +802,6 @@
 		updateLocationCallback(menu);
 	}
 
-	// @ts-ignore
-	const SHARED_CONFIG = {
-		birbCssScale: 1,
-		uiCssScale: 1,
-		canvasPixelSize: 1,
-		hopSpeed: 0.07,
-		hopDistance: 45,
-	};
-
-	const DESKTOP_CONFIG = {
-		flySpeed: 0.25
-	};
-
-	const MOBILE_CONFIG = {
-		uiCssScale: 0.9,
-		flySpeed: 0.125,
-	};
-
-	const CONFIG = { ...SHARED_CONFIG, ...isMobile() ? MOBILE_CONFIG : DESKTOP_CONFIG };
-
-	let frozen = false;
-
-	const BIRB_CSS_SCALE = CONFIG.birbCssScale;
-	const UI_CSS_SCALE = CONFIG.uiCssScale;
-	const CANVAS_PIXEL_SIZE = CONFIG.canvasPixelSize;
-	const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
-
-	const DEFAULT_SETTINGS = {
-		birbMode: false
-	};
-
-	/**
-	 * @typedef {typeof DEFAULT_SETTINGS} Settings
-	 */
-
 	/**
 	 * @typedef {import('./stickyNotes.js').SavedStickyNote} SavedStickyNote
 	 */
@@ -828,8 +814,21 @@
 	 * @property {SavedStickyNote[]} [stickyNotes]
 	 */
 
-	/** @type {Partial<Settings>} */
-	let userSettings = {};
+	/**
+	 * @typedef {typeof DEFAULT_SETTINGS} Settings
+	 */
+	const DEFAULT_SETTINGS = {
+		birbMode: false
+	};
+
+
+	const SPRITE_WIDTH = 32;
+	const SPRITE_HEIGHT = 32;
+	const FEATHER_SPRITE_WIDTH = 32;
+	const BIRB_CSS_SCALE = 1;
+	const UI_CSS_SCALE = isMobile() ? 0.9 : 1;
+	const CANVAS_PIXEL_SIZE = 1;
+	const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
 
 	const STYLESHEET = `:root {
 	--birb-border-size: 2px;
@@ -1175,22 +1174,16 @@
 .birb-sticky-note-input:focus {
 	outline: none;
 }`;
-
-	const DEFAULT_BIRD = "bluebird";
-
-	const SPRITE_WIDTH = 32;
-	const SPRITE_HEIGHT = 32;
-	const FEATHER_SPRITE_WIDTH = 32;
-
 	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABD5JREFUeJztnTFrFEEYht9JLAJidwju2YpdBAvzAyIWaXJXpRS0MBCwEBTJDwghhaAgGLTSyupMY2UqG9PYWQRb7yJyYJEIacxnkZ11bm5n9+7Y3Zm9ex8Imezd7Te7O9+zM7N7G4AQQgghhBBCCJkJlO8KkPAREXG9ppRiGyK1hY23BvgUkI7dbjYBAJ1ud6BcRR0IITOKxLSiSFpRNFTOkmNR8VtRJF8WF0U2NobKZccnpEzmfFeA5NNuNvG00UCn3R4qV8nB58942mgkZULqDgVYI3wJqNPtYrvfH1i23e8nQ2BCCCkFcwj8ZXEx+alqCJxWhypjE0ICQFKoOrZPAZl1oPwImTFE5Hzy3/hddXzfAvIhf0LK5ILvCtSNgxs3vMRVSikREZ+3nvB2F0JmFN3z0b0/9oKqx9cUBJleeEYfAzPp2BuqFr3v9W4XkcqPgS1dtoEZIe0CAM/AxAOy220JAG/zn3HsoNs/83R0cu8DNM+85g9yvqJVJBQwAYDdbksXvcx/KqWSOoTW+7Pzwkee1pHMiyDmzjQaH/QyETHfU0qDsIc+xnKIiITWEEl5PGh+8HqsfQp4FMxUWNvpJcvoPzdOAZriOVy7DzwCdm6/SV7f7bYH5mPKkFEIAiZE41vAGYhSKpHetHNlXsnRXynkWDhXIiIydzEaWHbveQ8f1+ew8uoMAHDy+wgA8P5JNHCWKUJGQwLGoIBvrbTxoPlBv7ewuITUDHGJ7/uPY3x9cd3LBaOyuDKvZOXVGT6uz6EICWYKELGA7r9O70JrASKWIAwZpQYb4yD4FjAJm7Wdnrx/Es36cc6VX6jD9VBwDoH1jbeu1035wZpzSGOSYfLZn96QgLX87Nj2cNy1TaPGJuFwurcsC6v7SpcBYGHVr/x8C3htp+d1Ys8VP+4I1SbPMisaCwune8vY+PUJAPDy8m0AwN3DdyMF+P7jGAAm6orr+Gk9UFvAGt0TTVkXQAnWlv/i26/8+KULuPp6mLgEZOZbySJy9j7rJMGRBWizsLqPmw8Pce3qpdTPWgdiIgH5FjAhmlDEpzndWxYzB+x8q0BA4sr/mRAgDAmmYYsPE/S+fAuYkJDpby3JxoUOMDjyqap9OwWIGkkwV4CI5/VsCZ18OwEANDYPXJ/9H2RC6fgWMCGh099aShr4nZ9vgfO2712C5oXJkPMut2JpEtLyS6OxeVDYhvsWMCEkF9GdEFuEWoIh599Ij8OKNwL9raXM9xUpP2RciTYFbNep6DoQQjJRX19cP084hwhDJleAWkJ5EixTPDo2UoRXVR0IIU4UzofeAyKcKsynYXSePU6eiqHLZT6gwPqid2r8sutACMnHfmJO6Pk41n+FU0qh8+xx8rdZRom9Lr3erPjs+RESBvGXEYAa5ONYj8Q3h6J2uQry4oe+swmZduqWg2Pfl+dcUQUb7js+IWS6+Ac8zd6eLzTjoQAAAABJRU5ErkJggg==";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
 
 	const FIELD_GUIDE_ID = "birb-field-guide";
 	const FEATHER_ID = "birb-feather";
 
-	const HOP_SPEED = CONFIG.hopSpeed;
-	const FLY_SPEED = CONFIG.flySpeed;
-	const HOP_DISTANCE = CONFIG.hopDistance;
+	const DEFAULT_BIRD = "bluebird";
+	const HOP_SPEED = 0.07;
+	const FLY_SPEED = isMobile() ? 0.125 : 0.25;
+	const HOP_DISTANCE = 45;
 	/** Speed at which the feather falls per tick */
 	const FEATHER_FALL_SPEED = 1;
 	/** Time in milliseconds until the user is considered AFK */
@@ -1210,6 +1203,9 @@
 	const URL_CHECK_INTERVAL = 500;
 	/** Time after petting before the menu can be opened */
 	const PET_MENU_COOLDOWN = 1000;
+
+	/** @type {Partial<Settings>} */
+	let userSettings = {};
 
 	/**
 	 * Load the sprite sheet and return the pixel-map template
@@ -1401,6 +1397,7 @@
 			FLYING: "flying",
 		};
 
+		let frozen = false;
 		let stateStart = Date.now();
 		let currentState = States.IDLE;
 		let animStart = Date.now();
@@ -2213,26 +2210,5 @@
 	}).catch((e) => {
 		error("Error while loading sprite sheets: ", e);
 	});
-
-	/**
-	 * @returns {boolean} Whether the user is on a mobile device
-	 */
-	function isMobile() {
-		return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-	}
-
-	function log() {
-		console.log("Birb: ", ...arguments);
-	}
-
-	function debug() {
-		if (isDebug()) {
-			console.debug("Birb: ", ...arguments);
-		}
-	}
-
-	function error() {
-		console.error("Birb: ", ...arguments);
-	}
 
 })();

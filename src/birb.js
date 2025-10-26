@@ -8,7 +8,11 @@ import {
 	makeElement,
 	onClick,
 	makeDraggable,
-	makeClosable
+	makeClosable,
+	isMobile,
+	log,
+	debug,
+	error
 } from './shared.js';
 import {
 	SPRITE,
@@ -31,40 +35,6 @@ import {
 	MENU_EXIT_ID
 } from './menu.js';
 
-// @ts-ignore
-const SHARED_CONFIG = {
-	birbCssScale: 1,
-	uiCssScale: 1,
-	canvasPixelSize: 1,
-	hopSpeed: 0.07,
-	hopDistance: 45,
-};
-
-const DESKTOP_CONFIG = {
-	flySpeed: 0.25
-};
-
-const MOBILE_CONFIG = {
-	uiCssScale: 0.9,
-	flySpeed: 0.125,
-};
-
-const CONFIG = { ...SHARED_CONFIG, ...isMobile() ? MOBILE_CONFIG : DESKTOP_CONFIG };
-
-let frozen = false;
-
-const BIRB_CSS_SCALE = CONFIG.birbCssScale;
-const UI_CSS_SCALE = CONFIG.uiCssScale;
-const CANVAS_PIXEL_SIZE = CONFIG.canvasPixelSize;
-const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
-
-const DEFAULT_SETTINGS = {
-	birbMode: false
-};
-
-/**
- * @typedef {typeof DEFAULT_SETTINGS} Settings
- */
 
 /**
  * @typedef {import('./stickyNotes.js').SavedStickyNote} SavedStickyNote
@@ -78,26 +48,33 @@ const DEFAULT_SETTINGS = {
  * @property {SavedStickyNote[]} [stickyNotes]
  */
 
-/** @type {Partial<Settings>} */
-let userSettings = {};
+/**
+ * @typedef {typeof DEFAULT_SETTINGS} Settings
+ */
+const DEFAULT_SETTINGS = {
+	birbMode: false
+};
 
-const STYLESHEET = `___STYLESHEET___`;
-
-const DEFAULT_BIRD = "bluebird";
 
 const SPRITE_WIDTH = 32;
 const SPRITE_HEIGHT = 32;
 const FEATHER_SPRITE_WIDTH = 32;
+const BIRB_CSS_SCALE = 1;
+const UI_CSS_SCALE = isMobile() ? 0.9 : 1;
+const CANVAS_PIXEL_SIZE = 1;
+const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
 
+const STYLESHEET = `___STYLESHEET___`;
 const SPRITE_SHEET = "__SPRITE_SHEET__";
 const FEATHER_SPRITE_SHEET = "__FEATHER_SPRITE_SHEET__";
 
 const FIELD_GUIDE_ID = "birb-field-guide";
 const FEATHER_ID = "birb-feather";
 
-const HOP_SPEED = CONFIG.hopSpeed;
-const FLY_SPEED = CONFIG.flySpeed;
-const HOP_DISTANCE = CONFIG.hopDistance;
+const DEFAULT_BIRD = "bluebird";
+const HOP_SPEED = 0.07;
+const FLY_SPEED = isMobile() ? 0.125 : 0.25;
+const HOP_DISTANCE = 45;
 /** Speed at which the feather falls per tick */
 const FEATHER_FALL_SPEED = 1;
 /** Time in milliseconds until the user is considered AFK */
@@ -117,6 +94,9 @@ const MIN_FOCUS_ELEMENT_TOP = 80;
 const URL_CHECK_INTERVAL = 500;
 /** Time after petting before the menu can be opened */
 const PET_MENU_COOLDOWN = 1000;
+
+/** @type {Partial<Settings>} */
+let userSettings = {};
 
 /**
  * Load the sprite sheet and return the pixel-map template
@@ -308,6 +288,7 @@ Promise.all([
 		FLYING: "flying",
 	};
 
+	let frozen = false;
 	let stateStart = Date.now();
 	let currentState = States.IDLE;
 	let animStart = Date.now();
@@ -1000,10 +981,6 @@ Promise.all([
 		return canvas.width * BIRB_CSS_SCALE
 	}
 
-	function getCanvasHeight() {
-		return canvas.height * BIRB_CSS_SCALE
-	}
-
 	function hop() {
 		if (frozen) {
 			return;
@@ -1132,24 +1109,3 @@ Promise.all([
 }).catch((e) => {
 	error("Error while loading sprite sheets: ", e);
 });
-
-/**
- * @returns {boolean} Whether the user is on a mobile device
- */
-function isMobile() {
-	return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-}
-
-function log() {
-	console.log("Birb: ", ...arguments);
-}
-
-function debug() {
-	if (isDebug()) {
-		console.debug("Birb: ", ...arguments);
-	}
-}
-
-function error() {
-	console.error("Birb: ", ...arguments);
-}
