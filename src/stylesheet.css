@@ -230,7 +230,7 @@
 }
 
 #birb-field-guide {
-	width: 340px;
+	width: 330px !important;
 }
 
 .birb-grid-content {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.26.406
+// @version      2025.10.26.421
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1342,7 +1342,7 @@
 }
 
 #birb-field-guide {
-	width: 340px;
+	width: 330px !important;
 }
 
 .birb-grid-content {
@@ -1808,7 +1808,7 @@
 				}
 				insertMenu(menuItems, `${birdBirb().toLowerCase()}OS`, updateMenuLocation);
 			});
-			
+
 			birbElement.addEventListener("mouseover", () => {
 				lastActionTimestamp = Date.now();
 				if (currentState === States.IDLE) {
@@ -2091,7 +2091,7 @@
 			if (document.querySelector("#" + FIELD_GUIDE_ID)) {
 				return;
 			}
-			
+
 			const fieldGuide = createWindow(
 				FIELD_GUIDE_ID,
 				"Field Guide",
