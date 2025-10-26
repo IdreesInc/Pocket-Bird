@@ -1,6 +1,5 @@
 // @ts-check
 
-// @ts-ignore
 const SHARED_CONFIG = {
 	birbCssScale: 1,
 	uiCssScale: 1,
@@ -9,9 +8,8 @@ const SHARED_CONFIG = {
 	hopDistance: 45,
 };
 
-
 const DESKTOP_CONFIG = {
-	flySpeed: 0.2,
+	flySpeed: 0.25
 };
 
 const MOBILE_CONFIG = {
@@ -28,17 +26,6 @@ const BIRB_CSS_SCALE = CONFIG.birbCssScale;
 const UI_CSS_SCALE = CONFIG.uiCssScale;
 const CANVAS_PIXEL_SIZE = CONFIG.canvasPixelSize;
 const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
-const HOP_SPEED = CONFIG.hopSpeed;
-const FLY_SPEED = CONFIG.flySpeed;
-const HOP_DISTANCE = CONFIG.hopDistance;
-// Time in milliseconds until the user is considered AFK
-const AFK_TIME = debugMode ? 0 : 1000 * 30;
-const SPRITE_HEIGHT = 32;
-const MENU_ID = "birb-menu";
-const MENU_EXIT_ID = "birb-menu-exit";
-const FIELD_GUIDE_ID = "birb-field-guide";
-const FEATHER_ID = "birb-feather";
-
 
 const DEFAULT_SETTINGS = {
 	birbMode: false
@@ -46,6 +33,23 @@ const DEFAULT_SETTINGS = {
 
 /**
  * @typedef {typeof DEFAULT_SETTINGS} Settings
+ */
+
+/**
+ * @typedef {Object} SavedStickyNote
+ * @property {string} id
+ * @property {string} site
+ * @property {string} content
+ * @property {number} top
+ * @property {number} left
+ */
+
+/**
+ * @typedef {Object} BirbSaveData
+ * @property {string[]} unlockedSpecies
+ * @property {string} currentSpecies
+ * @property {Partial<Settings>} settings
+ * @property {SavedStickyNote[]} [stickyNotes]
  */
 
 /** @type {Partial<Settings>} */
@@ -380,12 +384,41 @@ const Directions = {
 };
 
 const SPRITE_WIDTH = 32;
+const SPRITE_HEIGHT = 32;
 const DECORATIONS_SPRITE_WIDTH = 48;
 const FEATHER_SPRITE_WIDTH = 32;
 
 const SPRITE_SHEET = "__SPRITE_SHEET__";
 const DECORATIONS_SPRITE_SHEET = "__DECORATIONS_SPRITE_SHEET__";
 const FEATHER_SPRITE_SHEET = "__FEATHER_SPRITE_SHEET__";
+
+const MENU_ID = "birb-menu";
+const MENU_EXIT_ID = "birb-menu-exit";
+const FIELD_GUIDE_ID = "birb-field-guide";
+const FEATHER_ID = "birb-feather";
+
+const HOP_SPEED = CONFIG.hopSpeed;
+const FLY_SPEED = CONFIG.flySpeed;
+const HOP_DISTANCE = CONFIG.hopDistance;
+/** Speed at which the feather falls per tick */
+const FEATHER_FALL_SPEED = 1;
+/** Time in milliseconds until the user is considered AFK */
+const AFK_TIME = debugMode ? 0 : 1000 * 30;
+const UPDATE_INTERVAL = 1000 / 60; // 60 FPS
+// Per-frame chances
+const HOP_CHANCE = 1 / (60 * 3); // 3 seconds
+const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // 20 seconds
+const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // 2 hours
+/** Multiplier after petting that increases the feather drop chance */
+const PET_FEATHER_BOOST = 2;
+/** How long the pet boost lasts in milliseconds */
+const PET_BOOST_DURATION = 1000 * 60 * 5;
+const MIN_FOCUS_ELEMENT_WIDTH = 100;
+const MIN_FOCUS_ELEMENT_TOP = 80;
+/** Time between checking whether the URL has changed */
+const URL_CHECK_INTERVAL = 500;
+/** Time after petting before the menu can be opened */
+const PET_MENU_COOLDOWN = 1000;
 
 /**
  * Load the sprite sheet and return the pixel-map template
@@ -443,8 +476,14 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 	});
 }
 
-// @ts-ignore
-Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false), loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)]).then(([birbPixels, decorationPixels, featherPixels]) => {
+log("Loading sprite sheets...");
+
+Promise.all([
+	loadSpriteSheetPixels(SPRITE_SHEET),
+	loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false),
+	loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)
+]).then(([birbPixels, decorationPixels, featherPixels]) => {
+	
 	const SPRITE_SHEET = birbPixels;
 	const DECORATIONS_SPRITE_SHEET = decorationPixels;
 	const FEATHER_SPRITE_SHEET = featherPixels;
@@ -597,8 +636,6 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	const menuItems = [
 		new MenuItem(`Pet ${birdBirb()}`, pet),
 		new MenuItem("Field Guide", insertFieldGuide),
-		// new MenuItem("Decorations", insertDecoration),
-		new DebugMenuItem("Applications", () => switchMenuItems(otherItems), false),
 		new MenuItem("Sticky Note", newStickyNote),
 		new MenuItem(`Hide ${birdBirb()}`, hideBirb),
 		new DebugMenuItem("Freeze/Unfreeze", () => {
@@ -627,39 +664,11 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		})
 	];
 
-	const otherItems = [
-		new MenuItem("Go Back", () => switchMenuItems(menuItems), false),
-		new Separator(),
-		new MenuItem("Video Games", () => switchMenuItems(gameItems), false),
-		new MenuItem("Utilities", () => switchMenuItems(utilityItems), false),
-		new MenuItem("Music Player", () => insertMusicPlayer(), false),
-	];
-
-	const gameItems = [
-		new MenuItem("Go Back", () => switchMenuItems(otherItems), false),
-		new Separator(),
-		new MenuItem("Pinball", () => insertPico8("Terra Nova Pinball", "terra_nova_pinball")),
-		new MenuItem("Pico Dino", () => insertPico8("Pico Dino", "picodino")),
-		new MenuItem("Woodworm", () => insertPico8("Woodworm", "woodworm")),
-		new MenuItem("Pico and Chill", () => insertPico8("Pico and Chill", "picochill")),
-		new MenuItem("Lani's Trek", () => insertPico8("Celeste 2 Lani's Trek", "celeste_classic_2")),
-		new MenuItem("Tetraminis", () => insertPico8("Tetraminis", "tetraminisdeffect")),
-		// new MenuItem("Pool", () => insertPico8("Pool", "mot_pool")),
-	];
-
-	const utilityItems = [
-		new MenuItem("Go Back", () => switchMenuItems(otherItems), false),
-		new Separator(),
-		new MenuItem("Pomodoro Timer", () => insertPico8("Pomodoro", "pomodorotimerv1")),
-		new MenuItem("Ohm Calculator", () => insertPico8("Resistor Calculator", "picoohm")),
-		new MenuItem("Wobblepaint	", () => insertPico8("Wobblepaint", "wobblepaint")),
-	];
-
 	const styleElement = document.createElement("style");
 	const canvas = document.createElement("canvas");
 
 	/** @type {CanvasRenderingContext2D} */
-	// @ts-ignore
+	// @ts-expect-error
 	const ctx = canvas.getContext("2d");
 
 	const States = {
@@ -700,20 +709,23 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	 * @returns {boolean} Whether the script is running in a userscript extension context
 	 */
 	function isUserScript() {
-		// @ts-ignore
+		// @ts-expect-error
 		return typeof GM_getValue === "function";
 	}
 
 	function isTestEnvironment() {
-		return window.location.hostname === "127.0.0.1";
+		return window.location.hostname === "127.0.0.1"
+			|| window.location.hostname === "localhost"
+			|| window.location.hostname.startsWith("192.168.");
 	}
 
 	function load() {
 		/** @type {Record<string, any>} */
 		let saveData = {};
+
 		if (isUserScript()) {
 			log("Loading save data from UserScript storage");
-			// @ts-ignore
+			// @ts-expect-error
 			saveData = GM_getValue("birbSaveData", {}) ?? {};
 		} else if (isTestEnvironment()) {
 			log("Test environment detected, loading save data from localStorage");
@@ -721,14 +733,18 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		} else {
 			log("Not a UserScript");
 		}
+
 		debug("Loaded data: " + JSON.stringify(saveData));
+
 		if (!saveData.settings) {
 			log("No user settings found in save data, starting fresh");
 		}
+
 		userSettings = saveData.settings ?? {};
 		unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
 		currentSpecies = saveData.currentSpecies ?? DEFAULT_BIRD;
 		stickyNotes = [];
+
 		if (saveData.stickyNotes) {
 			for (let note of saveData.stickyNotes) {
 				if (note.id) {
@@ -736,17 +752,19 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 				}
 			}
 		}
+
 		log(stickyNotes.length + " sticky notes loaded");
 		switchSpecies(currentSpecies);
 	}
 
 	function save() {
-		/** @type {Record<string, any>} */
-		let saveData = {
-			unlockedSpecies: unlockedSpecies,
-			currentSpecies: currentSpecies,
+		/** @type {BirbSaveData} */
+		const saveData = {
+			unlockedSpecies,
+			currentSpecies,
 			settings: userSettings
 		};
+
 		if (stickyNotes.length > 0) {
 			saveData.stickyNotes = stickyNotes.map(note => ({
 				id: note.id,
@@ -756,9 +774,10 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 				left: note.left
 			}));
 		}
+
 		if (isUserScript()) {
 			log("Saving data to UserScript storage");
-			// @ts-ignore
+			// @ts-expect-error
 			GM_setValue("birbSaveData", saveData);
 		} else if (isTestEnvironment()) {
 			log("Test environment detected, saving data to localStorage");
@@ -771,7 +790,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	function resetSaveData() {
 		if (isUserScript()) {
 			log("Resetting save data in UserScript storage");
-			// @ts-ignore
+			// @ts-expect-error
 			GM_deleteValue("birbSaveData");
 		} else if (isTestEnvironment()) {
 			log("Test environment detected, resetting save data in localStorage");
@@ -795,6 +814,178 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	 */
 	function birdBirb() {
 		return settings().birbMode ? "Birb" : "Bird";
+	}
+
+	function init() {
+		if (window !== window.top) {
+			// Skip installation if within an iframe
+			log("In iframe, skipping Birb script initialization");
+			return;
+		}
+		log("Sprite sheets loaded successfully, initializing bird...");
+
+		// Preload font
+		const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
+		const fontLink = document.createElement("link");
+		fontLink.rel = "stylesheet";
+		fontLink.href = `url(${MONOCRAFT_SRC}) format('opentype')`;
+		document.head.appendChild(fontLink);
+
+		// Add stylesheet font-face
+		const fontFace = `
+			@font-face {
+				font-family: 'Monocraft';
+				src: url(${MONOCRAFT_SRC}) format('opentype');
+				font-weight: normal;
+				font-style: normal;
+			}
+		`;
+		const fontStyle = document.createElement("style");
+		fontStyle.innerHTML = fontFace;
+		document.head.appendChild(fontStyle);
+
+		load();
+
+		styleElement.innerHTML = STYLESHEET;
+		document.head.appendChild(styleElement);
+
+		canvas.id = "birb";
+		canvas.width = birbFrames.base.getPixels()[0].length * CANVAS_PIXEL_SIZE;
+		canvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
+		document.body.appendChild(canvas);
+
+		window.addEventListener("scroll", () => {
+			lastActionTimestamp = Date.now();
+		});
+
+		onClick(document, (e) => {
+			lastActionTimestamp = Date.now();
+			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
+				removeMenu();
+			}
+		});
+
+		onClick(canvas, () => {
+			if (currentAnimation === Animations.HEART && (Date.now() - lastPetTimestamp < PET_MENU_COOLDOWN)) {
+				// Currently being pet, don't open menu
+				return;
+			}
+			insertMenu();
+		});
+
+		canvas.addEventListener("mouseover", () => {
+			lastActionTimestamp = Date.now();
+			if (currentState === States.IDLE) {
+				petStack.push(Date.now());
+				if (petStack.length > 10) {
+					petStack.shift();
+				}
+				const pets = petStack.filter((time) => Date.now() - time < 1000).length;
+				if (pets >= 3) {
+					pet();
+					// Clear the stack
+					petStack = [];
+				}
+			}
+		});
+
+		canvas.addEventListener("touchmove", (e) => {
+			pet();
+		});
+
+		drawStickyNotes();
+
+		let lastUrl = (window.location.href ?? "").split("?")[0];
+		setInterval(() => {
+			const currentUrl = (window.location.href ?? "").split("?")[0];
+			if (currentUrl !== lastUrl) {
+				log("URL changed, updating sticky notes");
+				lastUrl = currentUrl;
+				drawStickyNotes();
+			}
+		}, URL_CHECK_INTERVAL);
+
+		setInterval(update, UPDATE_INTERVAL);
+	}
+
+	function update() {
+		ticks++;
+
+		// Hide bird if the browser is fullscreen
+		if (document.fullscreenElement) {
+			hideBirb();
+			// Won't be restored on fullscreen exit
+		}
+
+		if (currentState === States.IDLE && !frozen && !isMenuOpen()) {
+			if (Math.random() < HOP_CHANCE && currentAnimation !== Animations.HEART) {
+				hop();
+			} else if (Date.now() - lastActionTimestamp > AFK_TIME) {
+				// Idle for a while, do something
+				if (focusedElement === null) {
+					// Fly to an element
+					focusOnElement();
+					lastActionTimestamp = Date.now();
+				} else if (Math.random() < FOCUS_SWITCH_CHANCE) {
+					// Fly to another element if idle for a longer while
+					focusOnElement();
+					lastActionTimestamp = Date.now();
+				}
+			}
+		} else if (currentState === States.HOP) {
+			if (updateParabolicPath(HOP_SPEED)) {
+				setState(States.IDLE);
+			}
+		}
+
+		// Double the chance of a feather if recently pet
+		const petMod = Date.now() - lastPetTimestamp < PET_BOOST_DURATION ? PET_FEATHER_BOOST : 1;
+		if (visible && Math.random() < FEATHER_CHANCE * petMod) {
+			lastPetTimestamp = 0;
+			activateFeather();
+		}
+		updateFeather();
+	}
+
+	function draw() {
+		requestAnimationFrame(draw);
+
+		if (!visible) {
+			return;
+		}
+
+		updateFocusedElementBounds();
+
+		// Update the bird's position
+		if (currentState === States.IDLE) {
+			if (focusedElement && !isWithinHorizontalBounds()) {
+				focusOnGround();
+			}
+			birdY = getFocusedY();
+		} else if (currentState === States.FLYING) {
+			// Fly to target location (even if in the air)
+			if (updateParabolicPath(FLY_SPEED)) {
+				setState(States.IDLE);
+			}
+		}
+
+		const oldTargetY = targetY;
+		targetY = getFocusedY();
+		// Adjust startY to account for scrolling
+		startY += targetY - oldTargetY;
+		if (targetY < 0 || targetY > window.innerHeight) {
+			// Fly to ground if the focused element moves out of bounds
+			focusOnGround();
+		}
+
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		if (currentAnimation.draw(ctx, direction, animStart, species[currentSpecies])) {
+			setAnimation(Animations.STILL);
+		}
+
+		// Update HTML element position
+		setX(birdX);
+		setY(birdY);
 	}
 
 	function newStickyNote() {
@@ -897,17 +1088,8 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			return false;
 		}
 
-		/** @type {Record<string, string>} */
-		const stickyNoteParams = stickyNoteUrl.split("?")[1]?.split("&").reduce((params, param) => {
-			const [key, value] = param.split("=");
-			return { ...params, [key]: value };
-		}, {});
-
-		/** @type {Record<string, string>} */
-		const currentParams = currentUrl.split("?")[1]?.split("&").reduce((params, param) => {
-			const [key, value] = param.split("=");
-			return { ...params, [key]: value };
-		}, {});
+		const stickyNoteParams = parseUrlParams(stickyNoteUrl);
+		const currentParams = parseUrlParams(currentUrl);
 
 		debug("Comparing params: ", stickyNoteParams, currentParams);
 
@@ -917,88 +1099,6 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			}
 		}
 		return true;
-	}
-
-	function init() {
-		if (window !== window.top) {
-			// Skip installation if within an iframe
-			return;
-		}
-
-		// Preload font
-		const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
-		const fontLink = document.createElement("link");
-		fontLink.rel = "stylesheet";
-		fontLink.href = `url(${MONOCRAFT_SRC}) format('opentype')`;
-		document.head.appendChild(fontLink);
-
-		// Add stylesheet font-face
-		const fontFace = `
-			@font-face {
-				font-family: 'Monocraft';
-				src: url(${MONOCRAFT_SRC}) format('opentype');
-				font-weight: normal;
-				font-style: normal;
-			}
-		`;
-		const fontStyle = document.createElement("style");
-		fontStyle.innerHTML = fontFace;
-		document.head.appendChild(fontStyle);
-
-		load();
-
-		styleElement.innerHTML = STYLESHEET;
-		document.head.appendChild(styleElement);
-
-		canvas.id = "birb";
-		canvas.width = birbFrames.base.getPixels()[0].length * CANVAS_PIXEL_SIZE;
-		canvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
-		document.body.appendChild(canvas);
-
-		window.addEventListener("scroll", () => {
-			lastActionTimestamp = Date.now();
-		});
-
-		onClick(document, (e) => {
-			lastActionTimestamp = Date.now();
-			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
-				removeMenu();
-			}
-		});
-
-		onClick(canvas, () => {
-			insertMenu();
-		});
-
-		canvas.addEventListener("mouseover", () => {
-			lastActionTimestamp = Date.now();
-			if (currentState === States.IDLE) {
-				petStack.push(Date.now());
-				if (petStack.length > 10) {
-					petStack.shift();
-				}
-				const pets = petStack.filter((time) => Date.now() - time < 1000).length;
-				if (pets >= 3) {
-					setAnimation(Animations.HEART);
-					// Clear the stack
-					petStack = [];
-				}
-			}
-		});
-
-		drawStickyNotes();
-
-		let lastUrl = (window.location.href ?? "").split("?")[0];
-		setInterval(() => {
-			const currentUrl = (window.location.href ?? "").split("?")[0];
-			if (currentUrl !== lastUrl) {
-				log("URL changed, updating sticky notes");
-				lastUrl = currentUrl;
-				drawStickyNotes();
-			}
-		}, 500);
-
-		setInterval(update, 1000 / 60);
 	}
 
 	function drawStickyNotes() {
@@ -1012,89 +1112,6 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			}
 		}
 	}
-
-	function update() {
-		ticks++;
-
-		// Hide bird if the browser is fullscreen
-		if (document.fullscreenElement) {
-			hideBirb();
-			// Won't be restored on fullscreen exit
-		}
-
-		if (currentState === States.IDLE && !frozen && !isMenuOpen()) {
-			if (Math.random() < 1 / (60 * 3) && currentAnimation !== Animations.HEART) {
-				hop();
-			} else if (Date.now() - lastActionTimestamp > AFK_TIME) {
-				// Idle for a while, do something
-				if (focusedElement === null) {
-					// Fly to an element
-					focusOnElement();
-					lastActionTimestamp = Date.now();
-				} else if (Math.random() < 1 / (60 * 20)) {
-					// Fly to another element if idle for a longer while
-					focusOnElement();
-					lastActionTimestamp = Date.now();
-				}
-			}
-		} else if (currentState === States.HOP) {
-			if (updateParabolicPath(HOP_SPEED)) {
-				setState(States.IDLE);
-			}
-		}
-		const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // 1 every 2 hours (ticks * seconds * minutes * hours)
-		// Double the chance of a feather if recently pet
-		let petMod = Date.now() - lastPetTimestamp < 1000 * 60 * 5 ? 2 : 1;
-		if (visible && Math.random() < FEATHER_CHANCE * petMod) {
-			lastPetTimestamp = 0;
-			activateFeather();
-		}
-		updateFeather();
-	}
-
-	function draw() {
-		requestAnimationFrame(draw);
-
-		if (!visible) {
-			return;
-		}
-
-		updateFocusedElementBounds();
-
-		// Update the bird's position
-		if (currentState === States.IDLE) {
-			if (focusedElement && !isWithinHorizontalBounds()) {
-				focusOnGround();
-			}
-			birdY = getFocusedY();
-		} else if (currentState === States.FLYING) {
-			// Fly to target location (even if in the air)
-			if (updateParabolicPath(FLY_SPEED)) {
-				setState(States.IDLE);
-			}
-		}
-
-		const oldTargetY = targetY;
-		targetY = getFocusedY();
-		// Adjust startY to account for scrolling
-		startY += targetY - oldTargetY;
-		if (targetY < 0 || targetY > window.innerHeight) {
-			// Fly to ground if the focused element moves out of bounds
-			focusOnGround();
-		}
-
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		if (currentAnimation.draw(ctx, direction, animStart, species[currentSpecies])) {
-			setAnimation(Animations.STILL);
-		}
-
-		// Update HTML element position
-		setX(birdX);
-		setY(birdY);
-	}
-
-	init();
-	draw();
 
 	/**
 	 * Create an HTML element with the specified parameters
@@ -1113,6 +1130,42 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			element.id = id;
 		}
 		return element;
+	}
+
+	/**
+	 * Create a window element with header and content
+	 * @param {string} id
+	 * @param {string} title
+	 * @param {string} contentHtml
+	 * @param {() => void} [onClose]
+	 * @returns {HTMLElement}
+	 */
+	function createWindow(id, title, contentHtml, onClose) {
+		const window = makeElement("birb-window", undefined, id);
+		window.innerHTML = `
+			<div class="birb-window-header">
+				<div class="birb-window-title">${title}</div>
+				<div class="birb-window-close">x</div>
+			</div>
+			<div class="birb-window-content">
+				${contentHtml}
+			</div>
+		`;
+
+		document.body.appendChild(window);
+		makeDraggable(window.querySelector(".birb-window-header"));
+
+		const closeButton = window.querySelector(".birb-window-close");
+		if (closeButton) {
+			makeClosable(() => {
+				if (onClose) {
+					onClose();
+				}
+				window.remove();
+			}, closeButton);
+		}
+
+		return window;
 	}
 
 	function insertDecoration() {
@@ -1194,20 +1247,15 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 
 	function updateFeather() {
 		const feather = document.querySelector("#birb-feather");
-		const featherGravity = 1;
 		if (!feather || !(feather instanceof HTMLElement)) {
 			return;
 		}
-		const y = parseInt(feather.style.top || "0") + featherGravity;
+		const y = parseInt(feather.style.top || "0") + FEATHER_FALL_SPEED;
 		feather.style.top = `${Math.min(y, window.innerHeight - feather.offsetHeight)}px`;
 		if (y < window.innerHeight - feather.offsetHeight) {
 			feather.style.left = `${Math.sin(3.14 * 2 * (ticks / 120)) * 25}px`;
 		}
 	}
-
-
-	// insertDecoration();
-	// insertFieldGuide();
 
 	/**
 	 * @param {HTMLElement} element
@@ -1225,28 +1273,14 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
 			return;
 		}
-		let html = `
-			<div class="birb-window-header">
-				<div class="birb-window-title">${title}</div>
-				<div class="birb-window-close">x</div>
-			</div>
-			<div class="birb-window-content">
-				<div class="birb-message-content">
-					${message}
-				</div>
-			</div>`
-		const modal = makeElement("birb-window");
-		modal.style.width = "270px";
-		modal.innerHTML = html;
-		document.body.appendChild(modal);
-		makeDraggable(modal.querySelector(".birb-window-header"));
 
-		const closeButton = modal.querySelector(".birb-window-close");
-		if (closeButton) {
-			makeClosable(() => {
-				modal.remove();
-			}, closeButton);
-		}
+		const modal = createWindow("birb-modal", title, `
+			<div class="birb-message-content">
+				${message}
+			</div>
+		`);
+
+		modal.style.width = "270px";
 		centerElement(modal);
 	}
 
@@ -1355,58 +1389,8 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		}
 	}
 
-	// insertPico8();
-
 	function isSafari() {
 		return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-	}
-
-	/**
-	 * @param {string} name
-	 * @param {string} pid
-	 */
-	function insertPico8(name, pid) {
-		let html = `
-			<div class="birb-window-header">
-				<div class="birb-window-title">${name}</div>
-				<div class="birb-window-close">x</div>
-			</div>
-			<div class="birb-window-content birb-pico-8-content">
-				<iframe src="https://www.lexaloffle.com/bbs/widget.php?pid=${pid}" scrolling='${isSafari() ? "yes" : "no"}'></iframe>
-			</div>`
-		const pico8 = makeElement("birb-window");
-		pico8.innerHTML = html;
-		document.body.appendChild(pico8);
-		makeDraggable(pico8.querySelector(".birb-window-header"));
-		const close = pico8.querySelector(".birb-window-close");
-		if (close) {
-			makeClosable(() => {
-				pico8.remove();
-			}, close);
-		}
-		centerElement(pico8);
-	}
-
-	function insertMusicPlayer() {
-		let html = `
-			<div class="birb-window-header">
-				<div class="birb-window-title">Music Player</div>
-				<div class="birb-window-close">x</div>
-			</div>
-			<div class="birb-window-content birb-music-player-content">
-			<iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/31FWVQBp3WQydWLNhO0ACi?utm_source=generator" width="250" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-		</div>`;
-		const pico8 = makeElement("birb-window");
-		pico8.innerHTML = html;
-		document.body.appendChild(pico8);
-		makeDraggable(pico8.querySelector(".birb-window-header"));
-		const close = pico8.querySelector(".birb-window-close");
-		if (close) {
-			makeClosable(() => {
-				pico8.remove();
-			}, close);
-		}
-		centerElement(pico8);
 	}
 
 	/**
@@ -1522,7 +1506,23 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	 */
 	function onClick(element, action) {
 		element.addEventListener("click", (e) => action(e));
-		element.addEventListener("touchstart", (e) => action(e));
+		element.addEventListener("touchend", (e) => {
+			if (e instanceof TouchEvent === false) {
+				return;
+			} else if (element instanceof HTMLElement === false) {
+				return;
+			}
+			const touch = e.changedTouches[0];
+			const rect = element.getBoundingClientRect();
+			if (
+				touch.clientX >= rect.left &&
+				touch.clientX <= rect.right &&
+				touch.clientY >= rect.top &&
+				touch.clientY <= rect.bottom
+			) {
+				action(e);
+			}
+		});
 	}
 
 	/**
@@ -1682,7 +1682,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	function getFullWindowHeight() {
 		return document.documentElement.clientHeight;
 	}
-	
+
 	function focusOnGround() {
 		console.log("Focusing on ground");
 		focusedElement = null;
@@ -1697,12 +1697,11 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		const elements = document.querySelectorAll("img, video");
 		const inWindow = Array.from(elements).filter((img) => {
 			const rect = img.getBoundingClientRect();
-			return rect.left >= 0 && rect.top >= 80 && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
+			return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
 		});
-		const MIN_WIDTH = 100;
 		/** @type {HTMLElement[]} */
-		// @ts-ignore
-		const largeElements = Array.from(inWindow).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_WIDTH);
+		// @ts-expect-error
+		const largeElements = Array.from(inWindow).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_FOCUS_ELEMENT_WIDTH);
 		if (largeElements.length === 0) {
 			return;
 		}
@@ -1719,12 +1718,8 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			focusedBounds = { left: 0, right: window.innerWidth, top: getFullWindowHeight() };
 			return;
 		}
-		const rect = focusedElement.getBoundingClientRect();
-		focusedBounds = {
-			left: rect.left,
-			right: rect.right,
-			top: rect.top
-		};
+		const { left, right, top } = focusedElement.getBoundingClientRect();
+		focusedBounds = { left, right, top };
 	}
 
 	function getCanvasWidth() {
@@ -1752,7 +1747,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 
 	function pet() {
-		if (currentState === States.IDLE) {
+		if (currentState === States.IDLE && currentAnimation !== Animations.HEART) {
 			setAnimation(Animations.HEART);
 			lastPetTimestamp = Date.now();
 		}
@@ -1832,46 +1827,52 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		}
 		canvas.style.bottom = `${bottom}px`;
 	}
+
+	// Helper functions
+
+	/**
+	 * @param {number} startX
+	 * @param {number} startY
+	 * @param {number} endX
+	 * @param {number} endY
+	 * @param {number} amount
+	 * @param {number} [intensity]
+	 * @returns {{x: number, y: number}}
+	 */
+	function parabolicLerp(startX, startY, endX, endY, amount, intensity = 1.2) {
+		const dx = endX - startX;
+		const dy = endY - startY;
+		const distance = Math.sqrt(dx * dx + dy * dy);
+		const angle = Math.atan2(dy, dx);
+		const midX = startX + Math.cos(angle) * distance / 2;
+		const midY = startY + Math.sin(angle) * distance / 2 + distance / 4 * intensity;
+		const t = amount;
+		const x = (1 - t) ** 2 * startX + 2 * (1 - t) * t * midX + t ** 2 * endX;
+		const y = (1 - t) ** 2 * startY + 2 * (1 - t) * t * midY + t ** 2 * endY;
+		return { x, y };
+	}
+
+	/**
+	 * Parse URL parameters into a key-value map
+	 * @param {string} url
+	 * @returns {Record<string, string>}
+	 */
+	function parseUrlParams(url) {
+		const queryString = url.split("?")[1];
+		if (!queryString) return {};
+
+		return queryString.split("&").reduce((params, param) => {
+			const [key, value] = param.split("=");
+			return { ...params, [key]: value };
+		}, {});
+	}
+
+	// Run the birb
+	init();
+	draw();
+}).catch((e) => {
+	error("Error while loading sprite sheets: ", e);
 });
-
-/**
- * @param {number} start
- * @param {number} end
- * @param {number} amount
- * @returns {number}
- */
-function linearLerp(start, end, amount) {
-	return start + (end - start) * amount;
-}
-
-/**
- * @param {number} startX
- * @param {number} startY
- * @param {number} endX
- * @param {number} endY
- * @param {number} amount
- * @param {number} [intensity]
- * @returns {{x: number, y: number}}
- */
-function parabolicLerp(startX, startY, endX, endY, amount, intensity = 1.2) {
-	const dx = endX - startX;
-	const dy = endY - startY;
-	const distance = Math.sqrt(dx * dx + dy * dy);
-	const angle = Math.atan2(dy, dx);
-	const midX = startX + Math.cos(angle) * distance / 2;
-	const midY = startY + Math.sin(angle) * distance / 2 + distance / 4 * intensity;
-	const t = amount;
-	const x = (1 - t) ** 2 * startX + 2 * (1 - t) * t * midX + t ** 2 * endX;
-	const y = (1 - t) ** 2 * startY + 2 * (1 - t) * t * midY + t ** 2 * endY;
-	return { x, y };
-}
-
-/**
- * @param {number} value
- */
-function roundToPixel(value) {
-	return Math.round(value / WINDOW_PIXEL_SIZE) * WINDOW_PIXEL_SIZE;
-}
 
 /**
  * @returns {boolean} Whether the user is on a mobile device

@@ -20,11 +20,44 @@ const spriteSheets = [
 const STYLESHEET_PATH = "./stylesheet.css";
 const STYLESHEET_KEY = "___STYLESHEET___";
 
+const now = new Date();
+const versionDate = `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
+
+// Get current build number from manifest.json
+let buildNumber = 0;
+try {
+	const manifest = JSON.parse(readFileSync('manifest.json', 'utf8'));
+	if (manifest.version) {
+		if (manifest.version.startsWith(versionDate)) {
+			// Same day, increment build number
+			const parts = manifest.version.split('.');
+			if (parts.length === 4) {
+				buildNumber = parseInt(parts[3], 10) + 1;
+			}
+		}
+	}
+} catch (e) {
+	console.error("Could not read version from manifest.json");
+	throw e;
+}
+
+// Update manifest.json with new version
+const version = `${versionDate}.${buildNumber}`;
+try {
+	const manifest = JSON.parse(readFileSync('manifest.json', 'utf8'));
+	manifest.version = version;
+	writeFileSync('manifest.json', JSON.stringify(manifest, null, 4), 'utf8');
+} catch (e) {
+	console.error("Could not update version in manifest.json");
+	throw e;
+}
+
+
 const userScriptHeader =
 `// ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025-10-23-01
+// @version      ${version}
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
