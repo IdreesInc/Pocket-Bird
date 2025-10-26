@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.25.124
+// @version      2025.10.25.130
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -835,8 +835,12 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 
 log("Loading sprite sheets...");
 
-// @ts-expect-error
-Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false), loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)]).then(([birbPixels, decorationPixels, featherPixels]) => {
+Promise.all([
+	loadSpriteSheetPixels(SPRITE_SHEET),
+	loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false),
+	loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)
+]).then(([birbPixels, decorationPixels, featherPixels]) => {
+	
 	const SPRITE_SHEET = birbPixels;
 	const DECORATIONS_SPRITE_SHEET = decorationPixels;
 	const FEATHER_SPRITE_SHEET = featherPixels;
