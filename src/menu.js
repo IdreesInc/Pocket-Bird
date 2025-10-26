@@ -1,3 +1,8 @@
+import { isDebug } from './shared.js';
+
+export const MENU_ID = "birb-menu";
+export const MENU_EXIT_ID = "birb-menu-exit";
+
 export class MenuItem {
 	/**
 	 * @param {string} text
@@ -178,24 +183,21 @@ function makeMenuItem(item, removeMenuCallback) {
 
 /**
  * Add the menu to the page if it doesn't already exist
- * @param {string} menuId
- * @param {string} menuExitId
  * @param {MenuItem[]} menuItems
  * @param {string} title
- * @param {boolean} debugMode
  * @param {(menu: HTMLElement) => void} updateLocationCallback
  */
-export function insertMenu(menuId, menuExitId, menuItems, title, debugMode, updateLocationCallback) {
-	if (document.querySelector("#" + menuId)) {
+export function insertMenu(menuItems, title, updateLocationCallback) {
+	if (document.querySelector("#" + MENU_ID)) {
 		return;
 	}
-	let menu = makeElement("birb-window", undefined, menuId);
+	let menu = makeElement("birb-window", undefined, MENU_ID);
 	let header = makeElement("birb-window-header");
 	header.innerHTML = `<div class="birb-window-title">${title}</div>`;
 	let content = makeElement("birb-window-content");
-	const removeCallback = () => removeMenu(menuId, menuExitId);
+	const removeCallback = () => removeMenu();
 	for (const item of menuItems) {
-		if (!item.isDebug || debugMode) {
+		if (!item.isDebug || isDebug()) {
 			content.appendChild(makeMenuItem(item, removeCallback));
 		}
 	}
@@ -204,7 +206,7 @@ export function insertMenu(menuId, menuExitId, menuItems, title, debugMode, upda
 	document.body.appendChild(menu);
 	makeDraggable(document.querySelector(".birb-window-header"));
 
-	let menuExit = makeElement("birb-window-exit", undefined, menuExitId);
+	let menuExit = makeElement("birb-window-exit", undefined, MENU_EXIT_ID);
 	onClick(menuExit, removeCallback);
 	document.body.appendChild(menuExit);
 	makeClosable(removeCallback);
@@ -214,36 +216,31 @@ export function insertMenu(menuId, menuExitId, menuItems, title, debugMode, upda
 
 /**
  * Remove the menu from the page
- * @param {string} menuId
- * @param {string} menuExitId
  */
-export function removeMenu(menuId, menuExitId) {
-	const menu = document.querySelector("#" + menuId);
+export function removeMenu() {
+	const menu = document.querySelector("#" + MENU_ID);
 	if (menu) {
 		menu.remove();
 	}
-	const exitMenu = document.querySelector("#" + menuExitId);
+	const exitMenu = document.querySelector("#" + MENU_EXIT_ID);
 	if (exitMenu) {
 		exitMenu.remove();
 	}
 }
 
 /**
- * @param {string} menuId
  * @returns {boolean} Whether the menu element is on the page
  */
-export function isMenuOpen(menuId) {
-	return document.querySelector("#" + menuId) !== null;
+export function isMenuOpen() {
+	return document.querySelector("#" + MENU_ID) !== null;
 }
 
 /**
- * @param {string} menuId
  * @param {MenuItem[]} menuItems
- * @param {boolean} debugMode
  * @param {(menu: HTMLElement) => void} updateLocationCallback
  */
-export function switchMenuItems(menuId, menuItems, debugMode, updateLocationCallback) {
-	const menu = document.querySelector("#" + menuId);
+export function switchMenuItems(menuItems, updateLocationCallback) {
+	const menu = document.querySelector("#" + MENU_ID);
 	if (!menu || !(menu instanceof HTMLElement)) {
 		return;
 	}
@@ -253,9 +250,9 @@ export function switchMenuItems(menuId, menuItems, debugMode, updateLocationCall
 		return;
 	}
 	content.innerHTML = "";
-	const removeCallback = () => removeMenu(menuId, menuId + "-exit");
+	const removeCallback = () => removeMenu();
 	for (const item of menuItems) {
-		if (!item.isDebug || debugMode) {
+		if (!item.isDebug || isDebug()) {
 			content.appendChild(makeMenuItem(item, removeCallback));
 		}
 	}

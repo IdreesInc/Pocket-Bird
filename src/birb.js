@@ -1,19 +1,31 @@
-import {
-	Directions
-} from './sharedConstants.js';
-
-import {
-	SPRITE,
-	SPRITE_SHEET_COLOR_MAP,
-	SPECIES,
-	BirdType
-} from './sprites.js';
-
 import Frame from './frame.js';
 import Layer from './layer.js';
 import Anim from './anim.js';
-import { StickyNote, createNewStickyNote, drawStickyNotes } from './stickyNotes.js';
-import { MenuItem, DebugMenuItem, Separator, insertMenu, removeMenu, isMenuOpen, switchMenuItems } from './menu.js';
+import {
+	Directions,
+	isDebug,
+	setDebug
+} from './shared.js';
+import {
+	SPRITE,
+	SPRITE_SHEET_COLOR_MAP,
+	SPECIES
+} from './sprites.js';
+import {
+	StickyNote,
+	createNewStickyNote,
+	drawStickyNotes
+} from './stickyNotes.js';
+import {
+	MenuItem,
+	DebugMenuItem,
+	Separator,
+	insertMenu,
+	removeMenu,
+	isMenuOpen,
+	switchMenuItems,
+	MENU_EXIT_ID
+} from './menu.js';
 
 // @ts-ignore
 const SHARED_CONFIG = {
@@ -35,7 +47,6 @@ const MOBILE_CONFIG = {
 
 const CONFIG = { ...SHARED_CONFIG, ...isMobile() ? MOBILE_CONFIG : DESKTOP_CONFIG };
 
-let debugMode = location.hostname === "127.0.0.1";
 let frozen = false;
 
 const BIRB_CSS_SCALE = CONFIG.birbCssScale;
@@ -79,8 +90,6 @@ const SPRITE_SHEET = "__SPRITE_SHEET__";
 const DECORATIONS_SPRITE_SHEET = "__DECORATIONS_SPRITE_SHEET__";
 const FEATHER_SPRITE_SHEET = "__FEATHER_SPRITE_SHEET__";
 
-const MENU_ID = "birb-menu";
-const MENU_EXIT_ID = "birb-menu-exit";
 const FIELD_GUIDE_ID = "birb-field-guide";
 const FEATHER_ID = "birb-feather";
 
@@ -90,7 +99,7 @@ const HOP_DISTANCE = CONFIG.hopDistance;
 /** Speed at which the feather falls per tick */
 const FEATHER_FALL_SPEED = 1;
 /** Time in milliseconds until the user is considered AFK */
-const AFK_TIME = debugMode ? 0 : 1000 * 30;
+const AFK_TIME = isDebug() ? 0 : 1000 * 30;
 const UPDATE_INTERVAL = 1000 / 60; // 60 FPS
 // Per-frame chances
 const HOP_CHANCE = 1 / (60 * 3); // 3 seconds
@@ -287,14 +296,14 @@ Promise.all([
 			}
 		}),
 		new DebugMenuItem("Disable Debug", () => {
-			debugMode = false;
+			setDebug(false);
 		}),
 		new Separator(),
-		new MenuItem("Settings", () => switchMenuItems(MENU_ID, settingsItems, debugMode, updateMenuLocation), false),
+		new MenuItem("Settings", () => switchMenuItems(settingsItems, updateMenuLocation), false),
 	];
 
 	const settingsItems = [
-		new MenuItem("Go Back", () => switchMenuItems(MENU_ID, menuItems, debugMode, updateMenuLocation), false),
+		new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), false),
 		new Separator(),
 		new MenuItem("Toggle Birb Mode", () => {
 			userSettings.birbMode = !userSettings.birbMode;
@@ -499,7 +508,7 @@ Promise.all([
 		onClick(document, (e) => {
 			lastActionTimestamp = Date.now();
 			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
-				removeMenu(MENU_ID, MENU_EXIT_ID);
+				removeMenu();
 			}
 		});
 
@@ -508,10 +517,8 @@ Promise.all([
 				// Currently being pet, don't open menu
 				return;
 			}
-			insertMenu(MENU_ID, MENU_EXIT_ID, menuItems, `${birdBirb().toLowerCase()}OS`, debugMode, updateMenuLocation);
-		});
-
-		canvas.addEventListener("mouseover", () => {
+			insertMenu(menuItems, `${birdBirb().toLowerCase()}OS`, updateMenuLocation);
+		}); canvas.addEventListener("mouseover", () => {
 			lastActionTimestamp = Date.now();
 			if (currentState === States.IDLE) {
 				petStack.push(Date.now());
@@ -555,7 +562,7 @@ Promise.all([
 			// Won't be restored on fullscreen exit
 		}
 
-		if (currentState === States.IDLE && !frozen && !isMenuOpen(MENU_ID)) {
+		if (currentState === States.IDLE && !frozen && !isMenuOpen()) {
 			if (Math.random() < HOP_CHANCE && currentAnimation !== Animations.HEART) {
 				hop();
 			} else if (Date.now() - lastActionTimestamp > AFK_TIME) {
@@ -1299,7 +1306,7 @@ function log() {
 }
 
 function debug() {
-	if (debugMode) {
+	if (isDebug()) {
 		console.debug("Birb: ", ...arguments);
 	}
 }

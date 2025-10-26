@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.26.101
+// @version      2025.10.26.163
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -19,6 +19,22 @@
 		LEFT: -1,
 		RIGHT: 1,
 	};
+
+	let debug$1 = location.hostname === "127.0.0.1";
+
+	/**
+	 * @returns {boolean} Whether debug mode is enabled
+	 */
+	function isDebug() {
+		return debug$1;
+	}
+
+	/**
+	 * @param {boolean} debugMode
+	 */
+	function setDebug(debugMode) {
+		debug$1 = debugMode;
+	}
 
 	/** Indicators for parts of the base bird sprite sheet */
 	const SPRITE = {
@@ -628,6 +644,9 @@
 		onSave();
 	}
 
+	const MENU_ID = "birb-menu";
+	const MENU_EXIT_ID = "birb-menu-exit";
+
 	class MenuItem {
 		/**
 		 * @param {string} text
@@ -802,24 +821,21 @@
 
 	/**
 	 * Add the menu to the page if it doesn't already exist
-	 * @param {string} menuId
-	 * @param {string} menuExitId
 	 * @param {MenuItem[]} menuItems
 	 * @param {string} title
-	 * @param {boolean} debugMode
 	 * @param {(menu: HTMLElement) => void} updateLocationCallback
 	 */
-	function insertMenu(menuId, menuExitId, menuItems, title, debugMode, updateLocationCallback) {
-		if (document.querySelector("#" + menuId)) {
+	function insertMenu(menuItems, title, updateLocationCallback) {
+		if (document.querySelector("#" + MENU_ID)) {
 			return;
 		}
-		let menu = makeElement("birb-window", undefined, menuId);
+		let menu = makeElement("birb-window", undefined, MENU_ID);
 		let header = makeElement("birb-window-header");
 		header.innerHTML = `<div class="birb-window-title">${title}</div>`;
 		let content = makeElement("birb-window-content");
-		const removeCallback = () => removeMenu(menuId, menuExitId);
+		const removeCallback = () => removeMenu();
 		for (const item of menuItems) {
-			if (!item.isDebug || debugMode) {
+			if (!item.isDebug || isDebug()) {
 				content.appendChild(makeMenuItem(item, removeCallback));
 			}
 		}
@@ -828,7 +844,7 @@
 		document.body.appendChild(menu);
 		makeDraggable(document.querySelector(".birb-window-header"));
 
-		let menuExit = makeElement("birb-window-exit", undefined, menuExitId);
+		let menuExit = makeElement("birb-window-exit", undefined, MENU_EXIT_ID);
 		onClick(menuExit, removeCallback);
 		document.body.appendChild(menuExit);
 		makeClosable(removeCallback);
@@ -838,36 +854,31 @@
 
 	/**
 	 * Remove the menu from the page
-	 * @param {string} menuId
-	 * @param {string} menuExitId
 	 */
-	function removeMenu(menuId, menuExitId) {
-		const menu = document.querySelector("#" + menuId);
+	function removeMenu() {
+		const menu = document.querySelector("#" + MENU_ID);
 		if (menu) {
 			menu.remove();
 		}
-		const exitMenu = document.querySelector("#" + menuExitId);
+		const exitMenu = document.querySelector("#" + MENU_EXIT_ID);
 		if (exitMenu) {
 			exitMenu.remove();
 		}
 	}
 
 	/**
-	 * @param {string} menuId
 	 * @returns {boolean} Whether the menu element is on the page
 	 */
-	function isMenuOpen(menuId) {
-		return document.querySelector("#" + menuId) !== null;
+	function isMenuOpen() {
+		return document.querySelector("#" + MENU_ID) !== null;
 	}
 
 	/**
-	 * @param {string} menuId
 	 * @param {MenuItem[]} menuItems
-	 * @param {boolean} debugMode
 	 * @param {(menu: HTMLElement) => void} updateLocationCallback
 	 */
-	function switchMenuItems(menuId, menuItems, debugMode, updateLocationCallback) {
-		const menu = document.querySelector("#" + menuId);
+	function switchMenuItems(menuItems, updateLocationCallback) {
+		const menu = document.querySelector("#" + MENU_ID);
 		if (!menu || !(menu instanceof HTMLElement)) {
 			return;
 		}
@@ -877,9 +888,9 @@
 			return;
 		}
 		content.innerHTML = "";
-		const removeCallback = () => removeMenu(menuId, menuId + "-exit");
+		const removeCallback = () => removeMenu();
 		for (const item of menuItems) {
-			if (!item.isDebug || debugMode) {
+			if (!item.isDebug || isDebug()) {
 				content.appendChild(makeMenuItem(item, removeCallback));
 			}
 		}
@@ -906,7 +917,6 @@
 
 	const CONFIG = { ...SHARED_CONFIG, ...isMobile() ? MOBILE_CONFIG : DESKTOP_CONFIG };
 
-	let debugMode = location.hostname === "127.0.0.1";
 	let frozen = false;
 
 	const BIRB_CSS_SCALE = CONFIG.birbCssScale;
@@ -1293,8 +1303,6 @@
 	const DECORATIONS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAPNJREFUaIHtmTESgzAMBHWZDC+gp0vP/x9Bn44+L6BRmrhJA4csM05uGzfY1s1JxggzIYQQQgghxEnATnB3zwikAICKiXq4BE/uwaxvn/UPb3BnNwFg27Ky0w6vzRp8S4mkIbQD3wzzFJofdTMkYJgn89czFADGKSSiSgphfFBjTaoIKC4cHWvSxIFMmjiQSYoDLUlxoCVywOwHHWjpROop1IL/vsxty2oYO77M1QggSvcpJAFXE66BPfa+2C4v4j2yi7z7FJKAq6FrwN3TO3MMlAAAKO3F2sVZTiu2N9p9CnUv4FR7PbMG2BQ69SJL/kVA8QauAnHUj36BVwAAAABJRU5ErkJggg==";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
 
-	const MENU_ID = "birb-menu";
-	const MENU_EXIT_ID = "birb-menu-exit";
 	const FIELD_GUIDE_ID = "birb-field-guide";
 	const FEATHER_ID = "birb-feather";
 
@@ -1304,7 +1312,7 @@
 	/** Speed at which the feather falls per tick */
 	const FEATHER_FALL_SPEED = 1;
 	/** Time in milliseconds until the user is considered AFK */
-	const AFK_TIME = debugMode ? 0 : 1000 * 30;
+	const AFK_TIME = isDebug() ? 0 : 1000 * 30;
 	const UPDATE_INTERVAL = 1000 / 60; // 60 FPS
 	// Per-frame chances
 	const HOP_CHANCE = 1 / (60 * 3); // 3 seconds
@@ -1493,14 +1501,14 @@
 				}
 			}),
 			new DebugMenuItem("Disable Debug", () => {
-				debugMode = false;
+				setDebug(false);
 			}),
 			new Separator(),
-			new MenuItem("Settings", () => switchMenuItems(MENU_ID, settingsItems, debugMode, updateMenuLocation), false),
+			new MenuItem("Settings", () => switchMenuItems(settingsItems, updateMenuLocation), false),
 		];
 
 		const settingsItems = [
-			new MenuItem("Go Back", () => switchMenuItems(MENU_ID, menuItems, debugMode, updateMenuLocation), false),
+			new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), false),
 			new Separator(),
 			new MenuItem("Toggle Birb Mode", () => {
 				userSettings.birbMode = !userSettings.birbMode;
@@ -1705,7 +1713,7 @@
 			onClick(document, (e) => {
 				lastActionTimestamp = Date.now();
 				if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
-					removeMenu(MENU_ID, MENU_EXIT_ID);
+					removeMenu();
 				}
 			});
 
@@ -1714,10 +1722,8 @@
 					// Currently being pet, don't open menu
 					return;
 				}
-				insertMenu(MENU_ID, MENU_EXIT_ID, menuItems, `${birdBirb().toLowerCase()}OS`, debugMode, updateMenuLocation);
-			});
-
-			canvas.addEventListener("mouseover", () => {
+				insertMenu(menuItems, `${birdBirb().toLowerCase()}OS`, updateMenuLocation);
+			}); canvas.addEventListener("mouseover", () => {
 				lastActionTimestamp = Date.now();
 				if (currentState === States.IDLE) {
 					petStack.push(Date.now());
@@ -1761,7 +1767,7 @@
 				// Won't be restored on fullscreen exit
 			}
 
-			if (currentState === States.IDLE && !frozen && !isMenuOpen(MENU_ID)) {
+			if (currentState === States.IDLE && !frozen && !isMenuOpen()) {
 				if (Math.random() < HOP_CHANCE && currentAnimation !== Animations.HEART) {
 					hop();
 				} else if (Date.now() - lastActionTimestamp > AFK_TIME) {
@@ -2473,7 +2479,7 @@
 	}
 
 	function debug() {
-		if (debugMode) {
+		if (isDebug()) {
 			console.debug("Birb: ", ...arguments);
 		}
 	}
