@@ -1,5 +1,33 @@
 // @ts-check
 
+import {
+	THEME_HIGHLIGHT,
+	TRANSPARENT,
+	OUTLINE,
+	BORDER,
+	FOOT,
+	BEAK,
+	EYE,
+	FACE,
+	HOOD,
+	NOSE,
+	BELLY,
+	UNDERBELLY,
+	WING,
+	WING_EDGE,
+	HEART,
+	HEART_BORDER,
+	HEART_SHINE,
+	FEATHER_SPINE,
+	SPRITE_SHEET_COLOR_MAP,
+	Directions
+} from './constants.js';
+
+import Frame from './Frame.js';
+import Layer from './Layer.js';
+import BirdType from './birdType.js';
+
+// @ts-ignore
 const SHARED_CONFIG = {
 	birbCssScale: 1,
 	uiCssScale: 1,
@@ -57,84 +85,6 @@ let userSettings = {};
 
 const STYLESHEET = `___STYLESHEET___`;
 
-class Layer {
-	/**
-	 * @param {string[][]} pixels
-	 * @param {string} [tag]
-	 */
-	constructor(pixels, tag = "default") {
-		this.pixels = pixels;
-		this.tag = tag;
-	}
-}
-
-class Frame {
-
-	/** @type {{ [tag: string]: string[][] }} */
-	#pixelsByTag = {};
-
-	/**
-	 * @param {Layer[]} layers
-	 */
-	constructor(layers) {
-		/** @type {Set<string>} */
-		let tags = new Set();
-		for (let layer of layers) {
-			tags.add(layer.tag);
-		}
-		tags.add("default");
-		for (let tag of tags) {
-			let maxHeight = layers.reduce((max, layer) => Math.max(max, layer.pixels.length), 0);
-			if (layers[0].tag !== "default") {
-				throw new Error("First layer must have the 'default' tag");
-			}
-			this.pixels = layers[0].pixels.map(row => row.slice());
-			// Pad from top with transparent pixels
-			while (this.pixels.length < maxHeight) {
-				this.pixels.unshift(new Array(this.pixels[0].length).fill(TRANSPARENT));
-			}
-			// Combine layers
-			for (let i = 1; i < layers.length; i++) {
-				if (layers[i].tag === "default" || layers[i].tag === tag) {
-					let layerPixels = layers[i].pixels;
-					let topMargin = maxHeight - layerPixels.length;
-					for (let y = 0; y < layerPixels.length; y++) {
-						for (let x = 0; x < layerPixels[y].length; x++) {
-							this.pixels[y + topMargin][x] = layerPixels[y][x] !== TRANSPARENT ? layerPixels[y][x] : this.pixels[y + topMargin][x];
-						}
-					}
-				}
-			}
-			this.#pixelsByTag[tag] = this.pixels.map(row => row.slice());
-		}
-	}
-
-	/**
-	 * @param {string} [tag]
-	 * @returns {string[][]}
-	 */
-	getPixels(tag = "default") {
-		return this.#pixelsByTag[tag] ?? this.#pixelsByTag["default"];
-	}
-
-	/**
-	 * @param {CanvasRenderingContext2D} ctx
-	 * @param {number} direction
-	 * @param {BirdType} [species]
-	 */
-	draw(ctx, direction, species) {
-		const pixels = this.getPixels(species?.tags[0]);
-		for (let y = 0; y < pixels.length; y++) {
-			const row = pixels[y];
-			for (let x = 0; x < pixels[y].length; x++) {
-				const cell = direction === Directions.LEFT ? row[x] : row[pixels[y].length - x - 1];
-				ctx.fillStyle = species?.colors[cell] ?? cell;
-				ctx.fillRect(x * CANVAS_PIXEL_SIZE, y * CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE, CANVAS_PIXEL_SIZE);
-			};
-		};
-	}
-}
-
 class Anim {
 	/**
 	 * @param {Frame[]} frames
@@ -168,82 +118,13 @@ class Anim {
 		for (let i = 0; i < this.durations.length; i++) {
 			totalDuration += this.durations[i];
 			if (time < totalDuration) {
-				this.frames[i].draw(ctx, direction, species);
+				this.frames[i].draw(ctx, direction, CANVAS_PIXEL_SIZE, species);
 				return false;
 			}
 		}
 		// Draw the last frame if the animation is complete
-		this.frames[this.frames.length - 1].draw(ctx, direction, species);
+		this.frames[this.frames.length - 1].draw(ctx, direction, CANVAS_PIXEL_SIZE, species);
 		return true;
-	}
-}
-
-const THEME_HIGHLIGHT = "theme-highlight";
-const TRANSPARENT = "transparent";
-const OUTLINE = "outline";
-const BORDER = "border";
-const FOOT = "foot";
-const BEAK = "beak";
-const EYE = "eye";
-const FACE = "face";
-const HOOD = "hood";
-const NOSE = "nose";
-const BELLY = "belly";
-const UNDERBELLY = "underbelly";
-const WING = "wing";
-const WING_EDGE = "wing-edge";
-const HEART = "heart";
-const HEART_BORDER = "heart-border";
-const HEART_SHINE = "heart-shine";
-const FEATHER_SPINE = "feather-spine";
-
-/** @type {Record<string, string>} */
-const SPRITE_SHEET_COLOR_MAP = {
-	"transparent": TRANSPARENT,
-	"#ffffff": BORDER,
-	"#000000": OUTLINE,
-	"#010a19": BEAK,
-	"#190301": EYE,
-	"#af8e75": FOOT,
-	"#639bff": FACE,
-	"#99e550": HOOD,
-	"#d95763": NOSE,
-	"#f8b143": BELLY,
-	"#ec8637": UNDERBELLY,
-	"#578ae6": WING,
-	"#326ed9": WING_EDGE,
-	"#c82e2e": HEART,
-	"#501a1a": HEART_BORDER,
-	"#ff6b6b": HEART_SHINE,
-	"#373737": FEATHER_SPINE,
-};
-
-class BirdType {
-	/**
-	 * @param {string} name
-	 * @param {string} description
-	 * @param {Record<string, string>} colors
-	 * @param {string[]} [tags]
-	 */
-	constructor(name, description, colors, tags = []) {
-		this.name = name;
-		this.description = description;
-		const defaultColors = {
-			[TRANSPARENT]: "transparent",
-			[OUTLINE]: "#000000",
-			[BORDER]: "#ffffff",
-			[BEAK]: "#000000",
-			[EYE]: "#000000",
-			[HEART]: "#c82e2e",
-			[HEART_BORDER]: "#501a1a",
-			[HEART_SHINE]: "#ff6b6b",
-			[FEATHER_SPINE]: "#373737",
-			[HOOD]: colors.face,
-			[NOSE]: colors.face,
-		};
-		/** @type {Record<string, string>} */
-		this.colors = { ...defaultColors, ...colors, [THEME_HIGHLIGHT]: colors[THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
-		this.tags = tags;
 	}
 }
 
@@ -376,12 +257,6 @@ const species = {
 };
 
 const DEFAULT_BIRD = "bluebird";
-
-
-const Directions = {
-	LEFT: -1,
-	RIGHT: 1,
-};
 
 const SPRITE_WIDTH = 32;
 const SPRITE_HEIGHT = 32;
@@ -1339,7 +1214,7 @@ Promise.all([
 			if (!speciesCtx) {
 				return;
 			}
-			birbFrames.base.draw(speciesCtx, Directions.RIGHT, type);
+			birbFrames.base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type);
 			speciesElement.appendChild(speciesCanvas);
 			content.appendChild(speciesElement);
 			if (unlocked) {

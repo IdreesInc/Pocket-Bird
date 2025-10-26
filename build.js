@@ -1,6 +1,7 @@
 // @ts-check
 
-import { readFileSync, writeFileSync } from 'fs';
+import { rollup } from 'rollup';
+import { readFileSync, writeFileSync, mkdirSync, unlinkSync } from 'fs';
 
 const spriteSheets = [
 	{
@@ -52,7 +53,6 @@ try {
 	throw e;
 }
 
-
 const userScriptHeader =
 `// ==UserScript==
 // @name         Pocket Bird
@@ -70,8 +70,19 @@ const userScriptHeader =
 
 `;
 
+// Bundle with rollup
+const bundle = await rollup({
+	input: 'src/birb.js',
+});
 
-let birbJs = readFileSync('birb.js', 'utf8');
+await bundle.write({
+	file: 'dist/birb.bundled.js',
+	format: 'iife',
+});
+
+await bundle.close();
+
+let birbJs = readFileSync('dist/birb.bundled.js', 'utf8');
 
 // Compile and insert sprite sheets
 for (const spriteSheet of spriteSheets) {
@@ -85,6 +96,9 @@ birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent);
 
 // Build standard javascript file
 writeFileSync('./dist/birb.js', birbJs);
+
+// Delete bundled file
+unlinkSync('./dist/birb.bundled.js');
 
 // Build user script
 const userScript = userScriptHeader + birbJs;
