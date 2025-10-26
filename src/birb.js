@@ -11,6 +11,7 @@ import {
 
 import Frame from './frame.js';
 import Layer from './layer.js';
+import Anim from './anim.js';
 
 // @ts-ignore
 const SHARED_CONFIG = {
@@ -69,49 +70,6 @@ const DEFAULT_SETTINGS = {
 let userSettings = {};
 
 const STYLESHEET = `___STYLESHEET___`;
-
-class Anim {
-	/**
-	 * @param {Frame[]} frames
-	 * @param {number[]} durations
-	 * @param {boolean} loop
-	 */
-	constructor(frames, durations, loop = true) {
-		this.frames = frames;
-		this.durations = durations;
-		this.loop = loop;
-	}
-
-	getAnimationDuration() {
-		return this.durations.reduce((a, b) => a + b, 0);
-	}
-
-	/**
-	 * @param {CanvasRenderingContext2D} ctx
-	 * @param {number} direction
-	 * @param {number} timeStart The start time of the animation in milliseconds
-	 * @param {BirdType} [species] The species to use for the animation
-	 * @returns {boolean} Whether the animation is complete
-	 */
-	draw(ctx, direction, timeStart, species) {
-		let time = Date.now() - timeStart;
-		const duration = this.getAnimationDuration();
-		if (this.loop) {
-			time %= duration;
-		}
-		let totalDuration = 0;
-		for (let i = 0; i < this.durations.length; i++) {
-			totalDuration += this.durations[i];
-			if (time < totalDuration) {
-				this.frames[i].draw(ctx, direction, CANVAS_PIXEL_SIZE, species);
-				return false;
-			}
-		}
-		// Draw the last frame if the animation is complete
-		this.frames[this.frames.length - 1].draw(ctx, direction, CANVAS_PIXEL_SIZE, species);
-		return true;
-	}
-}
 
 const DEFAULT_BIRD = "bluebird";
 
@@ -710,7 +668,7 @@ Promise.all([
 		}
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		if (currentAnimation.draw(ctx, direction, animStart, SPECIES[currentSpecies])) {
+		if (currentAnimation.draw(ctx, direction, animStart, CANVAS_PIXEL_SIZE, SPECIES[currentSpecies])) {
 			setAnimation(Animations.STILL);
 		}
 
@@ -909,7 +867,7 @@ Promise.all([
 			return;
 		}
 		// Draw the decoration
-		DECORATION_ANIMATIONS.mac.draw(decorationCtx, Directions.LEFT, Date.now());
+		DECORATION_ANIMATIONS.mac.draw(decorationCtx, Directions.LEFT, CANVAS_PIXEL_SIZE, Date.now());
 		// Add the decoration to the page
 		document.body.appendChild(decorationCanvas);
 		makeDraggable(decorationCanvas, false);
@@ -945,7 +903,7 @@ Promise.all([
 		if (!featherCtx) {
 			return;
 		}
-		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), type);
+		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type);
 		document.body.appendChild(featherCanvas);
 		onClick(featherCanvas, () => {
 			unlockBird(birdType);

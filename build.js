@@ -18,7 +18,7 @@ const spriteSheets = [
 	}
 ];
 
-const STYLESHEET_PATH = "./stylesheet.css";
+const STYLESHEET_PATH = "./src/stylesheet.css";
 const STYLESHEET_KEY = "___STYLESHEET___";
 
 const now = new Date();

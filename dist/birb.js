@@ -283,6 +283,50 @@
 				}		}	}
 	}
 
+	class Anim {
+		/**
+		 * @param {Frame[]} frames
+		 * @param {number[]} durations
+		 * @param {boolean} loop
+		 */
+		constructor(frames, durations, loop = true) {
+			this.frames = frames;
+			this.durations = durations;
+			this.loop = loop;
+		}
+
+		getAnimationDuration() {
+			return this.durations.reduce((a, b) => a + b, 0);
+		}
+
+		/**
+		 * @param {CanvasRenderingContext2D} ctx
+		 * @param {number} direction
+		 * @param {number} timeStart The start time of the animation in milliseconds
+		 * @param {number} canvasPixelSize The size of a canvas pixel in pixels
+		 * @param {BirdType} [species] The species to use for the animation
+		 * @returns {boolean} Whether the animation is complete
+		 */
+		draw(ctx, direction, timeStart, canvasPixelSize, species) {
+			let time = Date.now() - timeStart;
+			const duration = this.getAnimationDuration();
+			if (this.loop) {
+				time %= duration;
+			}
+			let totalDuration = 0;
+			for (let i = 0; i < this.durations.length; i++) {
+				totalDuration += this.durations[i];
+				if (time < totalDuration) {
+					this.frames[i].draw(ctx, direction, canvasPixelSize, species);
+					return false;
+				}
+			}
+			// Draw the last frame if the animation is complete
+			this.frames[this.frames.length - 1].draw(ctx, direction, canvasPixelSize, species);
+			return true;
+		}
+	}
+
 	// @ts-ignore
 	const SHARED_CONFIG = {
 		birbCssScale: 1,
@@ -683,49 +727,6 @@
 .birb-sticky-note-input:focus {
 	outline: none;
 }`;
-
-	class Anim {
-		/**
-		 * @param {Frame[]} frames
-		 * @param {number[]} durations
-		 * @param {boolean} loop
-		 */
-		constructor(frames, durations, loop = true) {
-			this.frames = frames;
-			this.durations = durations;
-			this.loop = loop;
-		}
-
-		getAnimationDuration() {
-			return this.durations.reduce((a, b) => a + b, 0);
-		}
-
-		/**
-		 * @param {CanvasRenderingContext2D} ctx
-		 * @param {number} direction
-		 * @param {number} timeStart The start time of the animation in milliseconds
-		 * @param {BirdType} [species] The species to use for the animation
-		 * @returns {boolean} Whether the animation is complete
-		 */
-		draw(ctx, direction, timeStart, species) {
-			let time = Date.now() - timeStart;
-			const duration = this.getAnimationDuration();
-			if (this.loop) {
-				time %= duration;
-			}
-			let totalDuration = 0;
-			for (let i = 0; i < this.durations.length; i++) {
-				totalDuration += this.durations[i];
-				if (time < totalDuration) {
-					this.frames[i].draw(ctx, direction, CANVAS_PIXEL_SIZE, species);
-					return false;
-				}
-			}
-			// Draw the last frame if the animation is complete
-			this.frames[this.frames.length - 1].draw(ctx, direction, CANVAS_PIXEL_SIZE, species);
-			return true;
-		}
-	}
 
 	const DEFAULT_BIRD = "bluebird";
 
@@ -1316,7 +1317,7 @@
 			}
 
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			if (currentAnimation.draw(ctx, direction, animStart, SPECIES[currentSpecies])) {
+			if (currentAnimation.draw(ctx, direction, animStart, CANVAS_PIXEL_SIZE, SPECIES[currentSpecies])) {
 				setAnimation(Animations.STILL);
 			}
 
@@ -1531,7 +1532,7 @@
 			if (!featherCtx) {
 				return;
 			}
-			FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), type);
+			FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type);
 			document.body.appendChild(featherCanvas);
 			onClick(featherCanvas, () => {
 				unlockBird(birdType);
