@@ -14,7 +14,8 @@ import {
 	isMobile,
 	log,
 	debug,
-	error
+	error,
+	getLayer
 } from './shared.js';
 import {
 	SPRITE,
@@ -803,21 +804,6 @@ Promise.all([
 	}
 
 	/**
-	 * @param {string[][]} array
-	 * @param {number} sprite
-	 * @param {number} [width]
-	 * @returns {string[][]}
-	 */
-	function getLayer(array, sprite, width = SPRITE_WIDTH) {
-		// From an array of a horizontal sprite sheet, get the layer for a specific sprite
-		const layer = [];
-		for (let y = 0; y < width; y++) {
-			layer.push(array[y].slice(sprite * width, (sprite + 1) * width));
-		}
-		return layer;
-	}
-
-	/**
 	 * Update the birds location from the start to the target location on a parabolic path
 	 * @param {number} speed The speed of the bird along the path
 	 * @param {number} [intensity] The intensity of the parabolic path
@@ -874,7 +860,6 @@ Promise.all([
 	}
 
 	function focusOnGround() {
-		console.log("Focusing on ground");
 		focusedElement = null;
 		focusedBounds = { left: 0, right: window.innerWidth, top: getSafeWindowHeight() };
 		flyTo(Math.random() * window.innerWidth, 0);

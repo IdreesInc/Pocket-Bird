@@ -79,7 +79,7 @@ export function makeDraggable(element, parent = true, callback = () => { }) {
 	let elementToMove = parent ? element.parentElement : element;
 
 	if (!elementToMove) {
-		console.error("Birb: Parent element not found");
+		error("Birb: Parent element not found");
 		return;
 	}
 
@@ -166,4 +166,20 @@ export function debug() {
 
 export function error() {
 	console.error("Birb: ", ...arguments);
+}
+
+/**
+ * Get a layer from a sprite sheet array
+ * @param {string[][]} spriteSheet The sprite sheet pixel array
+ * @param {number} spriteIndex The sprite index
+ * @param {number} width The width of each sprite
+ * @returns {string[][]}
+ */
+export function getLayer(spriteSheet, spriteIndex, width) {
+	// From an array of a horizontal sprite sheet, get the layer for a specific sprite
+	const layer = [];
+	for (let y = 0; y < width; y++) {
+		layer.push(spriteSheet[y].slice(spriteIndex * width, (spriteIndex + 1) * width));
+	}
+	return layer;
 }

@@ -3,7 +3,8 @@ import {
 	makeElement,
 	onClick,
 	makeDraggable,
-	makeClosable
+	makeClosable,
+	error
 } from './shared.js';
 
 export const MENU_ID = "birb-menu";
@@ -124,7 +125,7 @@ export function switchMenuItems(menuItems, updateLocationCallback) {
 	}
 	const content = menu.querySelector(".birb-window-content");
 	if (!content) {
-		console.error("Birb: Content not found");
+		error("Birb: Content not found");
 		return;
 	}
 	content.innerHTML = "";

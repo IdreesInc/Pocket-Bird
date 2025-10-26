@@ -1,4 +1,4 @@
-import { Directions } from './shared.js';
+import { Directions, getLayer } from './shared.js';
 import Layer from './layer.js';
 import Frame from './frame.js';
 import Anim from './anim.js';
@@ -41,16 +41,16 @@ export class Birb {
 
 		// Build layers from sprite sheet
 		this.layers = {
-			base: new Layer(this.getLayer(spriteSheet, 0)),
-			down: new Layer(this.getLayer(spriteSheet, 1)),
-			heartOne: new Layer(this.getLayer(spriteSheet, 2)),
-			heartTwo: new Layer(this.getLayer(spriteSheet, 3)),
-			heartThree: new Layer(this.getLayer(spriteSheet, 4)),
-			tuftBase: new Layer(this.getLayer(spriteSheet, 5), "tuft"),
-			tuftDown: new Layer(this.getLayer(spriteSheet, 6), "tuft"),
-			wingsUp: new Layer(this.getLayer(spriteSheet, 7)),
-			wingsDown: new Layer(this.getLayer(spriteSheet, 8)),
-			happyEye: new Layer(this.getLayer(spriteSheet, 9)),
+			base: new Layer(getLayer(spriteSheet, 0, this.spriteWidth)),
+			down: new Layer(getLayer(spriteSheet, 1, this.spriteWidth)),
+			heartOne: new Layer(getLayer(spriteSheet, 2, this.spriteWidth)),
+			heartTwo: new Layer(getLayer(spriteSheet, 3, this.spriteWidth)),
+			heartThree: new Layer(getLayer(spriteSheet, 4, this.spriteWidth)),
+			tuftBase: new Layer(getLayer(spriteSheet, 5, this.spriteWidth), "tuft"),
+			tuftDown: new Layer(getLayer(spriteSheet, 6, this.spriteWidth), "tuft"),
+			wingsUp: new Layer(getLayer(spriteSheet, 7, this.spriteWidth)),
+			wingsDown: new Layer(getLayer(spriteSheet, 8, this.spriteWidth)),
+			happyEye: new Layer(getLayer(spriteSheet, 9, this.spriteWidth)),
 		};
 
 		// Build frames from layers
@@ -128,21 +128,6 @@ export class Birb {
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		const anim = this.animations[this.currentAnimation];
 		return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species);
-	}
-
-	/**
-	 * Get a layer from the sprite sheet array
-	 * @param {string[][]} array
-	 * @param {number} sprite
-	 * @returns {string[][]}
-	 */
-	getLayer(array, sprite) {
-		// From an array of a horizontal sprite sheet, get the layer for a specific sprite
-		const layer = [];
-		for (let y = 0; y < this.spriteWidth; y++) {
-			layer.push(array[y].slice(sprite * this.spriteWidth, (sprite + 1) * this.spriteWidth));
-		}
-		return layer;
 	}
 
 	/**

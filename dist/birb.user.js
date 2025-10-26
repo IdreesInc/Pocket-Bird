@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.26.388
+// @version      2025.10.26.402
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -96,7 +96,7 @@
 		let elementToMove = parent ? element.parentElement : element;
 
 		if (!elementToMove) {
-			console.error("Birb: Parent element not found");
+			error("Birb: Parent element not found");
 			return;
 		}
 
@@ -183,6 +183,22 @@
 
 	function error() {
 		console.error("Birb: ", ...arguments);
+	}
+
+	/**
+	 * Get a layer from a sprite sheet array
+	 * @param {string[][]} spriteSheet The sprite sheet pixel array
+	 * @param {number} spriteIndex The sprite index
+	 * @param {number} width The width of each sprite
+	 * @returns {string[][]}
+	 */
+	function getLayer(spriteSheet, spriteIndex, width) {
+		// From an array of a horizontal sprite sheet, get the layer for a specific sprite
+		const layer = [];
+		for (let y = 0; y < width; y++) {
+			layer.push(spriteSheet[y].slice(spriteIndex * width, (spriteIndex + 1) * width));
+		}
+		return layer;
 	}
 
 	/** Indicators for parts of the base bird sprite sheet */
@@ -543,16 +559,16 @@
 
 			// Build layers from sprite sheet
 			this.layers = {
-				base: new Layer(this.getLayer(spriteSheet, 0)),
-				down: new Layer(this.getLayer(spriteSheet, 1)),
-				heartOne: new Layer(this.getLayer(spriteSheet, 2)),
-				heartTwo: new Layer(this.getLayer(spriteSheet, 3)),
-				heartThree: new Layer(this.getLayer(spriteSheet, 4)),
-				tuftBase: new Layer(this.getLayer(spriteSheet, 5), "tuft"),
-				tuftDown: new Layer(this.getLayer(spriteSheet, 6), "tuft"),
-				wingsUp: new Layer(this.getLayer(spriteSheet, 7)),
-				wingsDown: new Layer(this.getLayer(spriteSheet, 8)),
-				happyEye: new Layer(this.getLayer(spriteSheet, 9)),
+				base: new Layer(getLayer(spriteSheet, 0, this.spriteWidth)),
+				down: new Layer(getLayer(spriteSheet, 1, this.spriteWidth)),
+				heartOne: new Layer(getLayer(spriteSheet, 2, this.spriteWidth)),
+				heartTwo: new Layer(getLayer(spriteSheet, 3, this.spriteWidth)),
+				heartThree: new Layer(getLayer(spriteSheet, 4, this.spriteWidth)),
+				tuftBase: new Layer(getLayer(spriteSheet, 5, this.spriteWidth), "tuft"),
+				tuftDown: new Layer(getLayer(spriteSheet, 6, this.spriteWidth), "tuft"),
+				wingsUp: new Layer(getLayer(spriteSheet, 7, this.spriteWidth)),
+				wingsDown: new Layer(getLayer(spriteSheet, 8, this.spriteWidth)),
+				happyEye: new Layer(getLayer(spriteSheet, 9, this.spriteWidth)),
 			};
 
 			// Build frames from layers
@@ -630,21 +646,6 @@
 			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 			const anim = this.animations[this.currentAnimation];
 			return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species);
-		}
-
-		/**
-		 * Get a layer from the sprite sheet array
-		 * @param {string[][]} array
-		 * @param {number} sprite
-		 * @returns {string[][]}
-		 */
-		getLayer(array, sprite) {
-			// From an array of a horizontal sprite sheet, get the layer for a specific sprite
-			const layer = [];
-			for (let y = 0; y < this.spriteWidth; y++) {
-				layer.push(array[y].slice(sprite * this.spriteWidth, (sprite + 1) * this.spriteWidth));
-			}
-			return layer;
 		}
 
 		/**
@@ -1067,7 +1068,7 @@
 		}
 		const content = menu.querySelector(".birb-window-content");
 		if (!content) {
-			console.error("Birb: Content not found");
+			error("Birb: Content not found");
 			return;
 		}
 		content.innerHTML = "";
@@ -2184,21 +2185,6 @@
 		}
 
 		/**
-		 * @param {string[][]} array
-		 * @param {number} sprite
-		 * @param {number} [width]
-		 * @returns {string[][]}
-		 */
-		function getLayer(array, sprite, width = SPRITE_WIDTH) {
-			// From an array of a horizontal sprite sheet, get the layer for a specific sprite
-			const layer = [];
-			for (let y = 0; y < width; y++) {
-				layer.push(array[y].slice(sprite * width, (sprite + 1) * width));
-			}
-			return layer;
-		}
-
-		/**
 		 * Update the birds location from the start to the target location on a parabolic path
 		 * @param {number} speed The speed of the bird along the path
 		 * @param {number} [intensity] The intensity of the parabolic path
@@ -2255,7 +2241,6 @@
 		}
 
 		function focusOnGround() {
-			console.log("Focusing on ground");
 			focusedElement = null;
 			focusedBounds = { left: 0, right: window.innerWidth, top: getSafeWindowHeight() };
 			flyTo(Math.random() * window.innerWidth, 0);
