@@ -13,6 +13,7 @@ import Frame from './frame.js';
 import Layer from './layer.js';
 import Anim from './anim.js';
 import { StickyNote, createNewStickyNote, drawStickyNotes } from './stickyNotes.js';
+import { MenuItem, DebugMenuItem, Separator, insertMenu, removeMenu, isMenuOpen, switchMenuItems } from './menu.js';
 
 // @ts-ignore
 const SHARED_CONFIG = {
@@ -271,37 +272,6 @@ Promise.all([
 		]),
 	};
 
-	class MenuItem {
-		/**
-		 * @param {string} text
-		 * @param {() => void} action
-		 * @param {boolean} [removeMenu]
-		 * @param {boolean} [isDebug]
-		 */
-		constructor(text, action, removeMenu = true, isDebug = false) {
-			this.text = text;
-			this.action = action;
-			this.removeMenu = removeMenu;
-			this.isDebug = isDebug;
-		}
-	}
-
-	class DebugMenuItem extends MenuItem {
-		/**
-		 * @param {string} text
-		 * @param {() => void} action
-		 */
-		constructor(text, action, removeMenu = true) {
-			super(text, action, removeMenu, true);
-		}
-	}
-
-	class Separator extends MenuItem {
-		constructor() {
-			super("", () => { });
-		}
-	}
-
 	const menuItems = [
 		new MenuItem(`Pet ${birdBirb()}`, pet),
 		new MenuItem("Field Guide", insertFieldGuide),
@@ -320,11 +290,11 @@ Promise.all([
 			debugMode = false;
 		}),
 		new Separator(),
-		new MenuItem("Settings", () => switchMenuItems(settingsItems), false),
+		new MenuItem("Settings", () => switchMenuItems(MENU_ID, settingsItems, debugMode, updateMenuLocation), false),
 	];
 
 	const settingsItems = [
-		new MenuItem("Go Back", () => switchMenuItems(menuItems), false),
+		new MenuItem("Go Back", () => switchMenuItems(MENU_ID, menuItems, debugMode, updateMenuLocation), false),
 		new Separator(),
 		new MenuItem("Toggle Birb Mode", () => {
 			userSettings.birbMode = !userSettings.birbMode;
@@ -529,7 +499,7 @@ Promise.all([
 		onClick(document, (e) => {
 			lastActionTimestamp = Date.now();
 			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
-				removeMenu();
+				removeMenu(MENU_ID, MENU_EXIT_ID);
 			}
 		});
 
@@ -538,7 +508,7 @@ Promise.all([
 				// Currently being pet, don't open menu
 				return;
 			}
-			insertMenu();
+			insertMenu(MENU_ID, MENU_EXIT_ID, menuItems, `${birdBirb().toLowerCase()}OS`, debugMode, updateMenuLocation);
 		});
 
 		canvas.addEventListener("mouseover", () => {
@@ -585,7 +555,7 @@ Promise.all([
 			// Won't be restored on fullscreen exit
 		}
 
-		if (currentState === States.IDLE && !frozen && !isMenuOpen()) {
+		if (currentState === States.IDLE && !frozen && !isMenuOpen(MENU_ID)) {
 			if (Math.random() < HOP_CHANCE && currentAnimation !== Animations.HEART) {
 				hop();
 			} else if (Date.now() - lastActionTimestamp > AFK_TIME) {
@@ -835,6 +805,31 @@ Promise.all([
 		centerElement(modal);
 	}
 
+	/**
+	 * @param {HTMLElement} menu
+	 */
+	function updateMenuLocation(menu) {
+		let x = birdX;
+		let y = canvas.offsetTop + canvas.height / 2 + WINDOW_PIXEL_SIZE * 10;
+		const offset = 20;
+		if (x < window.innerWidth / 2) {
+			// Left side
+			x += offset;
+		} else {
+			// Right side
+			x -= (menu.offsetWidth + offset) * UI_CSS_SCALE;
+		}
+		if (y > window.innerHeight / 2) {
+			// Top side
+			y -= (menu.offsetHeight + offset + 10) * UI_CSS_SCALE;
+		} else {
+			// Bottom side
+			y += offset;
+		}
+		menu.style.left = `${x}px`;
+		menu.style.top = `${y}px`;
+	};
+
 	function insertFieldGuide() {
 		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
 			return;
@@ -955,103 +950,6 @@ Promise.all([
 	}
 
 	/**
-	 * Add the menu to the page if it doesn't already exist
-	 */
-	function insertMenu() {
-		if (document.querySelector("#" + MENU_ID)) {
-			return;
-		}
-		let menu = makeElement("birb-window", undefined, MENU_ID);
-		let header = makeElement("birb-window-header");
-		header.innerHTML = `<div class="birb-window-title">${birdBirb().toLowerCase()}OS</div>`;
-		let content = makeElement("birb-window-content");
-		for (const item of menuItems) {
-			if (!item.isDebug || debugMode) {
-				content.appendChild(makeMenuItem(item));
-			}
-		}
-		menu.appendChild(header);
-		menu.appendChild(content);
-		document.body.appendChild(menu);
-		makeDraggable(document.querySelector(".birb-window-header"));
-
-		let menuExit = makeElement("birb-window-exit", undefined, MENU_EXIT_ID);
-		onClick(menuExit, () => {
-			removeMenu();
-		});
-		document.body.appendChild(menuExit);
-		makeClosable(removeMenu);
-
-		updateMenuLocation(menu);
-	}
-
-	/**
-	 * Update the menu's location based on the bird's position
-	 * @param {HTMLElement} menu
-	 */
-	function updateMenuLocation(menu) {
-		let x = birdX;
-		let y = canvas.offsetTop + canvas.height / 2 + WINDOW_PIXEL_SIZE * 10;
-		const offset = 20;
-		if (x < window.innerWidth / 2) {
-			// Left side
-			x += offset;
-		} else {
-			// Right side
-			x -= (menu.offsetWidth + offset) * UI_CSS_SCALE;
-		}
-		if (y > window.innerHeight / 2) {
-			// Top side
-			y -= (menu.offsetHeight + offset + 10) * UI_CSS_SCALE;
-		} else {
-			// Bottom side
-			y += offset;
-		}
-		menu.style.left = `${x}px`;
-		menu.style.top = `${y}px`;
-	}
-
-	/**
-	 * @param {MenuItem[]} menuItems
-	 */
-	function switchMenuItems(menuItems) {
-		const menu = document.querySelector("#" + MENU_ID);
-		if (!menu || !(menu instanceof HTMLElement)) {
-			return;
-		}
-		const content = menu.querySelector(".birb-window-content");
-		if (!content) {
-			error("Content not found");
-			return;
-		}
-		content.innerHTML = "";
-		for (const item of menuItems) {
-			if (!item.isDebug || debugMode) {
-				content.appendChild(makeMenuItem(item));
-			}
-		}
-		updateMenuLocation(menu);
-	}
-
-	/**
-	 * @param {MenuItem} item
-	 * @returns {HTMLElement}
-	 */
-	function makeMenuItem(item) {
-		if (item instanceof Separator) {
-			return makeElement("birb-window-separator");
-		}
-		let menuItem = makeElement("birb-menu-item", item.text);
-		onClick(menuItem, () => {
-			if (item.removeMenu) {
-				removeMenu();
-			}
-			item.action();
-		});
-		return menuItem;
-	}
-
-	/**
 	 * @param {Document|Element} element
 	 * @param {(e: Event) => void} action
 	 */
@@ -1074,27 +972,6 @@ Promise.all([
 				action(e);
 			}
 		});
-	}
-
-	/**
-	 * Remove the menu from the page
-	 */
-	function removeMenu() {
-		const menu = document.querySelector("#" + MENU_ID);
-		if (menu) {
-			menu.remove();
-		}
-		const exitMenu = document.querySelector("#" + MENU_EXIT_ID);
-		if (exitMenu) {
-			exitMenu.remove();
-		}
-	}
-
-	/**
-	 * @returns {boolean} Whether the menu element is on the page
-	 */
-	function isMenuOpen() {
-		return document.querySelector("#" + MENU_ID) !== null;
 	}
 
 	/**
