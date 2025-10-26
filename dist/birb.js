@@ -22,6 +22,134 @@
 		debug$1 = debugMode;
 	}
 
+	/**
+	 * Create an HTML element with the specified parameters
+	 * @param {string} className
+	 * @param {string} [textContent]
+	 * @param {string} [id]
+	 * @returns {HTMLElement}
+	 */
+	function makeElement(className, textContent, id) {
+		const element = document.createElement("div");
+		element.classList.add(className);
+		if (textContent) {
+			element.textContent = textContent;
+		}
+		if (id) {
+			element.id = id;
+		}
+		return element;
+	}
+
+	/**
+	 * @param {Document|Element} element
+	 * @param {(e: Event) => void} action
+	 */
+	function onClick(element, action) {
+		element.addEventListener("click", (e) => action(e));
+		element.addEventListener("touchend", (e) => {
+			if (e instanceof TouchEvent === false) {
+				return;
+			} else if (element instanceof HTMLElement === false) {
+				return;
+			}
+			const touch = e.changedTouches[0];
+			const rect = element.getBoundingClientRect();
+			if (
+				touch.clientX >= rect.left &&
+				touch.clientX <= rect.right &&
+				touch.clientY >= rect.top &&
+				touch.clientY <= rect.bottom
+			) {
+				action(e);
+			}
+		});
+	}
+
+	/**
+	 * @param {HTMLElement|null} element The element to detect drag events on
+	 * @param {boolean} [parent] Whether to move the parent element when the child is dragged
+	 * @param {(top: number, left: number) => void} [callback] Callback for when element is moved
+	 */
+	function makeDraggable(element, parent = true, callback = () => { }) {
+		if (!element) {
+			return;
+		}
+
+		let isMouseDown = false;
+		let offsetX = 0;
+		let offsetY = 0;
+		let elementToMove = parent ? element.parentElement : element;
+
+		if (!elementToMove) {
+			console.error("Birb: Parent element not found");
+			return;
+		}
+
+		element.addEventListener("mousedown", (e) => {
+			isMouseDown = true;
+			offsetX = e.clientX - elementToMove.offsetLeft;
+			offsetY = e.clientY - elementToMove.offsetTop;
+		});
+
+		element.addEventListener("touchstart", (e) => {
+			isMouseDown = true;
+			const touch = e.touches[0];
+			offsetX = touch.clientX - elementToMove.offsetLeft;
+			offsetY = touch.clientY - elementToMove.offsetTop;
+			e.preventDefault();
+		});
+
+		document.addEventListener("mouseup", (e) => {
+			if (isMouseDown) {
+				callback(elementToMove.offsetTop, elementToMove.offsetLeft);
+				e.preventDefault();
+			}
+			isMouseDown = false;
+		});
+
+		document.addEventListener("touchend", (e) => {
+			if (isMouseDown) {
+				callback(elementToMove.offsetTop, elementToMove.offsetLeft);
+				e.preventDefault();
+			}
+			isMouseDown = false;
+		});
+
+		document.addEventListener("mousemove", (e) => {
+			if (isMouseDown) {
+				elementToMove.style.left = `${Math.max(0, e.clientX - offsetX)}px`;
+				elementToMove.style.top = `${Math.max(0, e.clientY - offsetY)}px`;
+			}
+		});
+
+		document.addEventListener("touchmove", (e) => {
+			if (isMouseDown) {
+				const touch = e.touches[0];
+				elementToMove.style.left = `${Math.max(0, touch.clientX - offsetX)}px`;
+				elementToMove.style.top = `${Math.max(0, touch.clientY - offsetY)}px`;
+			}
+		});
+	}
+
+	/**
+	 * @param {() => void} func
+	 * @param {Element} [closeButton]
+	 */
+	function makeClosable(func, closeButton) {
+		if (closeButton) {
+			onClick(closeButton, func);
+		}
+		document.addEventListener("keydown", (e) => {
+			if (closeButton && !document.body.contains(closeButton)) {
+				return;
+			}
+			if (e.key === "Escape") {
+				func();
+			}
+		});
+	}
+
 	/** Indicators for parts of the base bird sprite sheet */
 	const SPRITE = {
 		THEME_HIGHLIGHT: "theme-highlight",
@@ -410,128 +538,6 @@
 	}
 
 	/**
-	 * Create an HTML element with the specified parameters
-	 * @param {string} className
-	 * @param {string} [textContent]
-	 * @param {string} [id]
-	 * @returns {HTMLElement}
-	 */
-	function makeElement$1(className, textContent, id) {
-		const element = document.createElement("div");
-		element.classList.add(className);
-		return element;
-	}
-
-	/**
-	 * @param {Document|Element} element
-	 * @param {(e: Event) => void} action
-	 */
-	function onClick$1(element, action) {
-		element.addEventListener("click", (e) => action(e));
-		element.addEventListener("touchend", (e) => {
-			if (e instanceof TouchEvent === false) {
-				return;
-			} else if (element instanceof HTMLElement === false) {
-				return;
-			}
-			const touch = e.changedTouches[0];
-			const rect = element.getBoundingClientRect();
-			if (
-				touch.clientX >= rect.left &&
-				touch.clientX <= rect.right &&
-				touch.clientY >= rect.top &&
-				touch.clientY <= rect.bottom
-			) {
-				action(e);
-			}
-		});
-	}
-
-	/**
-	 * @param {HTMLElement|null} element The element to detect drag events on
-	 * @param {boolean} [parent] Whether to move the parent element when the child is dragged
-	 * @param {(top: number, left: number) => void} [callback] Callback for when element is moved
-	 */
-	function makeDraggable$1(element, parent = true, callback = () => { }) {
-		if (!element) {
-			return;
-		}
-
-		let isMouseDown = false;
-		let offsetX = 0;
-		let offsetY = 0;
-		let elementToMove = parent ? element.parentElement : element;
-
-		if (!elementToMove) {
-			console.error("Birb: Parent element not found");
-			return;
-		}
-
-		element.addEventListener("mousedown", (e) => {
-			isMouseDown = true;
-			offsetX = e.clientX - elementToMove.offsetLeft;
-			offsetY = e.clientY - elementToMove.offsetTop;
-		});
-
-		element.addEventListener("touchstart", (e) => {
-			isMouseDown = true;
-			const touch = e.touches[0];
-			offsetX = touch.clientX - elementToMove.offsetLeft;
-			offsetY = touch.clientY - elementToMove.offsetTop;
-			e.preventDefault();
-		});
-
-		document.addEventListener("mouseup", (e) => {
-			if (isMouseDown) {
-				callback(elementToMove.offsetTop, elementToMove.offsetLeft);
-				e.preventDefault();
-			}
-			isMouseDown = false;
-		});
-
-		document.addEventListener("touchend", (e) => {
-			if (isMouseDown) {
-				callback(elementToMove.offsetTop, elementToMove.offsetLeft);
-				e.preventDefault();
-			}
-			isMouseDown = false;
-		});
-
-		document.addEventListener("mousemove", (e) => {
-			if (isMouseDown) {
-				elementToMove.style.left = `${Math.max(0, e.clientX - offsetX)}px`;
-				elementToMove.style.top = `${Math.max(0, e.clientY - offsetY)}px`;
-			}
-		});
-
-		document.addEventListener("touchmove", (e) => {
-			if (isMouseDown) {
-				const touch = e.touches[0];
-				elementToMove.style.left = `${Math.max(0, touch.clientX - offsetX)}px`;
-				elementToMove.style.top = `${Math.max(0, touch.clientY - offsetY)}px`;
-			}
-		});
-	}
-
-	/**
-	 * @param {() => void} func
-	 * @param {Element} [closeButton]
-	 */
-	function makeClosable$1(func, closeButton) {
-		if (closeButton) {
-			onClick$1(closeButton, func);
-		}
-		document.addEventListener("keydown", (e) => {
-			if (closeButton && !document.body.contains(closeButton)) {
-				return;
-			}
-			if (e.key === "Escape") {
-				func();
-			}
-		});
-	}
-
-	/**
 	 * @param {StickyNote} stickyNote
 	 * @param {() => void} onSave
 	 * @param {() => void} onDelete
@@ -546,7 +552,7 @@
 		<div class="birb-window-content">
 			<textarea class="birb-sticky-note-input" style="width: 150px;" placeholder="Write your notes here and they'll stick to the page!">${stickyNote.content}</textarea>
 		</div>`;
-		const noteElement = makeElement$1("birb-window");
+		const noteElement = makeElement("birb-window");
 		noteElement.classList.add("birb-sticky-note");
 		noteElement.innerHTML = html;
 
@@ -554,7 +560,7 @@
 		noteElement.style.left = `${stickyNote.left}px`;
 		document.body.appendChild(noteElement);
 
-		makeDraggable$1(noteElement.querySelector(".birb-window-header"), true, (top, left) => {
+		makeDraggable(noteElement.querySelector(".birb-window-header"), true, (top, left) => {
 			stickyNote.top = top;
 			stickyNote.left = left;
 			onSave();
@@ -562,7 +568,7 @@
 
 		const closeButton = noteElement.querySelector(".birb-window-close");
 		if (closeButton) {
-			makeClosable$1(() => {
+			makeClosable(() => {
 				if (confirm("Are you sure you want to delete this sticky note?")) {
 					onDelete();
 					noteElement.remove();
@@ -662,128 +668,6 @@
 		constructor() {
 			super("", () => { });
 		}
-	}
-
-	/**
-	 * Create an HTML element with the specified parameters
-	 * @param {string} className
-	 * @param {string} [textContent]
-	 * @param {string} [id]
-	 * @returns {HTMLElement}
-	 */
-	function makeElement(className, textContent, id) {
-		const element = document.createElement("div");
-		element.classList.add(className);
-		if (textContent) {
-			element.textContent = textContent;
-		}
-		if (id) {
-			element.id = id;
-		}
-		return element;
-	}
-
-	/**
-	 * @param {Document|Element} element
-	 * @param {(e: Event) => void} action
-	 */
-	function onClick(element, action) {
-		element.addEventListener("click", (e) => action(e));
-		element.addEventListener("touchend", (e) => {
-			if (e instanceof TouchEvent === false) {
-				return;
-			} else if (element instanceof HTMLElement === false) {
-				return;
-			}
-			const touch = e.changedTouches[0];
-			const rect = element.getBoundingClientRect();
-			if (
-				touch.clientX >= rect.left &&
-				touch.clientX <= rect.right &&
-				touch.clientY >= rect.top &&
-				touch.clientY <= rect.bottom
-			) {
-				action(e);
-			}
-		});
-	}
-
-	/**
-	 * @param {HTMLElement|null} element The element to detect drag events on
-	 * @param {boolean} [parent] Whether to move the parent element when the child is dragged
-	 * @param {(top: number, left: number) => void} [callback] Callback for when element is moved
-	 */
-	function makeDraggable(element, parent = true, callback = () => { }) {
-		if (!element) {
-			return;
-		}
-
-		let isMouseDown = false;
-		let offsetX = 0;
-		let offsetY = 0;
-		let elementToMove = parent ? element.parentElement : element;
-
-		if (!elementToMove) {
-			console.error("Birb: Parent element not found");
-			return;
-		}
-
-		element.addEventListener("mousedown", (e) => {
-			isMouseDown = true;
-			offsetX = e.clientX - elementToMove.offsetLeft;
-			offsetY = e.clientY - elementToMove.offsetTop;
-		});
-
-		element.addEventListener("touchstart", (e) => {
-			isMouseDown = true;
-			const touch = e.touches[0];
-			offsetX = touch.clientX - elementToMove.offsetLeft;
-			offsetY = touch.clientY - elementToMove.offsetTop;
-			e.preventDefault();
-		});
-
-		document.addEventListener("mouseup", (e) => {
-			if (isMouseDown) {
-				callback(elementToMove.offsetTop, elementToMove.offsetLeft);
-				e.preventDefault();
-			}
-			isMouseDown = false;
-		});
-
-		document.addEventListener("touchend", (e) => {
-			if (isMouseDown) {
-				callback(elementToMove.offsetTop, elementToMove.offsetLeft);
-				e.preventDefault();
-			}
-			isMouseDown = false;
-		});
-
-		document.addEventListener("mousemove", (e) => {
-			if (isMouseDown) {
-				elementToMove.style.left = `${Math.max(0, e.clientX - offsetX)}px`;
-				elementToMove.style.top = `${Math.max(0, e.clientY - offsetY)}px`;
-			}
-		});
-
-		document.addEventListener("touchmove", (e) => {
-			if (isMouseDown) {
-				const touch = e.touches[0];
-				elementToMove.style.left = `${Math.max(0, touch.clientX - offsetX)}px`;
-				elementToMove.style.top = `${Math.max(0, touch.clientY - offsetY)}px`;
-			}
-		});
-	}
-
-	/**
-	 * @param {() => void} func
-	 * @param {Element} [closeButton]
-	 */
-	function makeClosable(func, closeButton) {
-		document.addEventListener("keydown", (e) => {
-			if (e.key === "Escape") {
-				func();
-			}
-		});
 	}
 
 	/**
@@ -1833,22 +1717,6 @@
 		}
 
 		/**
-		 * Create an HTML element with the specified parameters
-		 * @param {string} className
-		 * @param {string} [textContent]
-		 * @param {string} [id]
-		 * @returns {HTMLElement}
-		 */
-		function makeElement(className, textContent, id) {
-			const element = document.createElement("div");
-			element.classList.add(className);
-			if (id) {
-				element.id = id;
-			}
-			return element;
-		}
-
-		/**
 		 * Create a window element with header and content
 		 * @param {string} id
 		 * @param {string} title
@@ -2084,24 +1952,6 @@
 			centerElement(fieldGuide);
 		}
 
-		/**
-		 * @param {() => void} func
-		 * @param {Element} [closeButton]
-		 */
-		function makeClosable(func, closeButton) {
-			if (closeButton) {
-				onClick(closeButton, func);
-			}
-			document.addEventListener("keydown", (e) => {
-				if (closeButton && !document.body.contains(closeButton)) {
-					return;
-				}
-				if (e.key === "Escape") {
-					func();
-				}
-			});
-		}
-
 		function removeFieldGuide() {
 			const fieldGuide = document.querySelector("#" + FIELD_GUIDE_ID);
 			if (fieldGuide) {
@@ -2117,97 +1967,6 @@
 			// Update CSS variable --birb-highlight to be wing color
 			document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[SPRITE.THEME_HIGHLIGHT]);
 			save();
-		}
-
-		/**
-		 * @param {Document|Element} element
-		 * @param {(e: Event) => void} action
-		 */
-		function onClick(element, action) {
-			element.addEventListener("click", (e) => action(e));
-			element.addEventListener("touchend", (e) => {
-				if (e instanceof TouchEvent === false) {
-					return;
-				} else if (element instanceof HTMLElement === false) {
-					return;
-				}
-				const touch = e.changedTouches[0];
-				const rect = element.getBoundingClientRect();
-				if (
-					touch.clientX >= rect.left &&
-					touch.clientX <= rect.right &&
-					touch.clientY >= rect.top &&
-					touch.clientY <= rect.bottom
-				) {
-					action(e);
-				}
-			});
-		}
-
-		/**
-		 * @param {HTMLElement|null} element The element to detect drag events on
-		 * @param {boolean} [parent] Whether to move the parent element when the child is dragged
-		 * @param {(top: number, left: number) => void} [callback] Callback for when element is moved
-		 */
-		function makeDraggable(element, parent = true, callback = () => { }) {
-			if (!element) {
-				return;
-			}
-
-			let isMouseDown = false;
-			let offsetX = 0;
-			let offsetY = 0;
-			let elementToMove = parent ? element.parentElement : element;
-
-			if (!elementToMove) {
-				error("Parent element not found");
-				return;
-			}
-
-			element.addEventListener("mousedown", (e) => {
-				isMouseDown = true;
-				offsetX = e.clientX - elementToMove.offsetLeft;
-				offsetY = e.clientY - elementToMove.offsetTop;
-			});
-
-			element.addEventListener("touchstart", (e) => {
-				isMouseDown = true;
-				const touch = e.touches[0];
-				offsetX = touch.clientX - elementToMove.offsetLeft;
-				offsetY = touch.clientY - elementToMove.offsetTop;
-				e.preventDefault();
-			});
-
-			document.addEventListener("mouseup", (e) => {
-				if (isMouseDown) {
-					callback(elementToMove.offsetTop, elementToMove.offsetLeft);
-					e.preventDefault();
-				}
-				isMouseDown = false;
-			});
-
-			document.addEventListener("touchend", (e) => {
-				if (isMouseDown) {
-					callback(elementToMove.offsetTop, elementToMove.offsetLeft);
-					e.preventDefault();
-				}
-				isMouseDown = false;
-			});
-
-			document.addEventListener("mousemove", (e) => {
-				if (isMouseDown) {
-					elementToMove.style.left = `${Math.max(0, e.clientX - offsetX)}px`;
-					elementToMove.style.top = `${Math.max(0, e.clientY - offsetY)}px`;
-				}
-			});
-
-			document.addEventListener("touchmove", (e) => {
-				if (isMouseDown) {
-					const touch = e.touches[0];
-					elementToMove.style.left = `${Math.max(0, touch.clientX - offsetX)}px`;
-					elementToMove.style.top = `${Math.max(0, touch.clientY - offsetY)}px`;
-				}
-			});
 		}
 
 		/**
