@@ -812,6 +812,178 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		return settings().birbMode ? "Birb" : "Bird";
 	}
 
+	function init() {
+		if (window !== window.top) {
+			// Skip installation if within an iframe
+			log("In iframe, skipping Birb script initialization");
+			return;
+		}
+		log("Sprite sheets loaded successfully, initializing bird...");
+
+		// Preload font
+		const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
+		const fontLink = document.createElement("link");
+		fontLink.rel = "stylesheet";
+		fontLink.href = `url(${MONOCRAFT_SRC}) format('opentype')`;
+		document.head.appendChild(fontLink);
+
+		// Add stylesheet font-face
+		const fontFace = `
+			@font-face {
+				font-family: 'Monocraft';
+				src: url(${MONOCRAFT_SRC}) format('opentype');
+				font-weight: normal;
+				font-style: normal;
+			}
+		`;
+		const fontStyle = document.createElement("style");
+		fontStyle.innerHTML = fontFace;
+		document.head.appendChild(fontStyle);
+
+		load();
+
+		styleElement.innerHTML = STYLESHEET;
+		document.head.appendChild(styleElement);
+
+		canvas.id = "birb";
+		canvas.width = birbFrames.base.getPixels()[0].length * CANVAS_PIXEL_SIZE;
+		canvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
+		document.body.appendChild(canvas);
+
+		window.addEventListener("scroll", () => {
+			lastActionTimestamp = Date.now();
+		});
+
+		onClick(document, (e) => {
+			lastActionTimestamp = Date.now();
+			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
+				removeMenu();
+			}
+		});
+
+		onClick(canvas, () => {
+			if (currentAnimation === Animations.HEART && (Date.now() - lastPetTimestamp < PET_MENU_COOLDOWN)) {
+				// Currently being pet, don't open menu
+				return;
+			}
+			insertMenu();
+		});
+
+		canvas.addEventListener("mouseover", () => {
+			lastActionTimestamp = Date.now();
+			if (currentState === States.IDLE) {
+				petStack.push(Date.now());
+				if (petStack.length > 10) {
+					petStack.shift();
+				}
+				const pets = petStack.filter((time) => Date.now() - time < 1000).length;
+				if (pets >= 3) {
+					pet();
+					// Clear the stack
+					petStack = [];
+				}
+			}
+		});
+
+		canvas.addEventListener("touchmove", (e) => {
+			pet();
+		});
+
+		drawStickyNotes();
+
+		let lastUrl = (window.location.href ?? "").split("?")[0];
+		setInterval(() => {
+			const currentUrl = (window.location.href ?? "").split("?")[0];
+			if (currentUrl !== lastUrl) {
+				log("URL changed, updating sticky notes");
+				lastUrl = currentUrl;
+				drawStickyNotes();
+			}
+		}, URL_CHECK_INTERVAL);
+
+		setInterval(update, UPDATE_INTERVAL);
+	}
+
+	function update() {
+		ticks++;
+
+		// Hide bird if the browser is fullscreen
+		if (document.fullscreenElement) {
+			hideBirb();
+			// Won't be restored on fullscreen exit
+		}
+
+		if (currentState === States.IDLE && !frozen && !isMenuOpen()) {
+			if (Math.random() < HOP_CHANCE && currentAnimation !== Animations.HEART) {
+				hop();
+			} else if (Date.now() - lastActionTimestamp > AFK_TIME) {
+				// Idle for a while, do something
+				if (focusedElement === null) {
+					// Fly to an element
+					focusOnElement();
+					lastActionTimestamp = Date.now();
+				} else if (Math.random() < FOCUS_SWITCH_CHANCE) {
+					// Fly to another element if idle for a longer while
+					focusOnElement();
+					lastActionTimestamp = Date.now();
+				}
+			}
+		} else if (currentState === States.HOP) {
+			if (updateParabolicPath(HOP_SPEED)) {
+				setState(States.IDLE);
+			}
+		}
+
+		// Double the chance of a feather if recently pet
+		const petMod = Date.now() - lastPetTimestamp < PET_BOOST_DURATION ? PET_FEATHER_BOOST : 1;
+		if (visible && Math.random() < FEATHER_CHANCE * petMod) {
+			lastPetTimestamp = 0;
+			activateFeather();
+		}
+		updateFeather();
+	}
+
+	function draw() {
+		requestAnimationFrame(draw);
+
+		if (!visible) {
+			return;
+		}
+
+		updateFocusedElementBounds();
+
+		// Update the bird's position
+		if (currentState === States.IDLE) {
+			if (focusedElement && !isWithinHorizontalBounds()) {
+				focusOnGround();
+			}
+			birdY = getFocusedY();
+		} else if (currentState === States.FLYING) {
+			// Fly to target location (even if in the air)
+			if (updateParabolicPath(FLY_SPEED)) {
+				setState(States.IDLE);
+			}
+		}
+
+		const oldTargetY = targetY;
+		targetY = getFocusedY();
+		// Adjust startY to account for scrolling
+		startY += targetY - oldTargetY;
+		if (targetY < 0 || targetY > window.innerHeight) {
+			// Fly to ground if the focused element moves out of bounds
+			focusOnGround();
+		}
+
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		if (currentAnimation.draw(ctx, direction, animStart, species[currentSpecies])) {
+			setAnimation(Animations.STILL);
+		}
+
+		// Update HTML element position
+		setX(birdX);
+		setY(birdY);
+	}
+
 	function newStickyNote() {
 		const id = Date.now().toString();
 		const site = window.location.href;
@@ -925,98 +1097,6 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		return true;
 	}
 
-	function init() {
-		if (window !== window.top) {
-			// Skip installation if within an iframe
-			log("In iframe, skipping Birb script initialization");
-			return;
-		}
-		log("Sprite sheets loaded successfully, initializing bird...");
-
-		// Preload font
-		const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
-		const fontLink = document.createElement("link");
-		fontLink.rel = "stylesheet";
-		fontLink.href = `url(${MONOCRAFT_SRC}) format('opentype')`;
-		document.head.appendChild(fontLink);
-
-		// Add stylesheet font-face
-		const fontFace = `
-			@font-face {
-				font-family: 'Monocraft';
-				src: url(${MONOCRAFT_SRC}) format('opentype');
-				font-weight: normal;
-				font-style: normal;
-			}
-		`;
-		const fontStyle = document.createElement("style");
-		fontStyle.innerHTML = fontFace;
-		document.head.appendChild(fontStyle);
-
-		load();
-
-		styleElement.innerHTML = STYLESHEET;
-		document.head.appendChild(styleElement);
-
-		canvas.id = "birb";
-		canvas.width = birbFrames.base.getPixels()[0].length * CANVAS_PIXEL_SIZE;
-		canvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
-		document.body.appendChild(canvas);
-
-		window.addEventListener("scroll", () => {
-			lastActionTimestamp = Date.now();
-		});
-
-		onClick(document, (e) => {
-			lastActionTimestamp = Date.now();
-			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
-				removeMenu();
-			}
-		});
-
-		onClick(canvas, () => {
-			if (currentAnimation === Animations.HEART && (Date.now() - lastPetTimestamp < PET_MENU_COOLDOWN)) {
-				// Currently being pet, don't open menu
-				return;
-			}
-			insertMenu();
-		});
-
-		canvas.addEventListener("mouseover", () => {
-			lastActionTimestamp = Date.now();
-			if (currentState === States.IDLE) {
-				petStack.push(Date.now());
-				if (petStack.length > 10) {
-					petStack.shift();
-				}
-				const pets = petStack.filter((time) => Date.now() - time < 1000).length;
-				if (pets >= 3) {
-					pet();
-					// Clear the stack
-					petStack = [];
-				}
-			}
-		});
-
-		canvas.addEventListener("touchmove", (e) => {
-			pet();
-		});
-
-		drawStickyNotes();
-
-		let lastUrl = (window.location.href ?? "").split("?")[0];
-		setInterval(() => {
-			const currentUrl = (window.location.href ?? "").split("?")[0];
-			if (currentUrl !== lastUrl) {
-				log("URL changed, updating sticky notes");
-				lastUrl = currentUrl;
-				drawStickyNotes();
-			}
-		}, URL_CHECK_INTERVAL);
-
-		setInterval(update, UPDATE_INTERVAL);
-	}
-
 	function drawStickyNotes() {
 		// Remove all existing sticky notes
 		const existingNotes = document.querySelectorAll(".birb-sticky-note");
@@ -1028,89 +1108,6 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			}
 		}
 	}
-
-	function update() {
-		ticks++;
-
-		// Hide bird if the browser is fullscreen
-		if (document.fullscreenElement) {
-			hideBirb();
-			// Won't be restored on fullscreen exit
-		}
-
-		if (currentState === States.IDLE && !frozen && !isMenuOpen()) {
-			if (Math.random() < HOP_CHANCE && currentAnimation !== Animations.HEART) {
-				hop();
-			} else if (Date.now() - lastActionTimestamp > AFK_TIME) {
-				// Idle for a while, do something
-				if (focusedElement === null) {
-					// Fly to an element
-					focusOnElement();
-					lastActionTimestamp = Date.now();
-				} else if (Math.random() < FOCUS_SWITCH_CHANCE) {
-					// Fly to another element if idle for a longer while
-					focusOnElement();
-					lastActionTimestamp = Date.now();
-				}
-			}
-		} else if (currentState === States.HOP) {
-			if (updateParabolicPath(HOP_SPEED)) {
-				setState(States.IDLE);
-			}
-		}
-
-		// Double the chance of a feather if recently pet
-		const petMod = Date.now() - lastPetTimestamp < PET_BOOST_DURATION ? PET_FEATHER_BOOST : 1;
-		if (visible && Math.random() < FEATHER_CHANCE * petMod) {
-			lastPetTimestamp = 0;
-			activateFeather();
-		}
-		updateFeather();
-	}
-
-	function draw() {
-		requestAnimationFrame(draw);
-
-		if (!visible) {
-			return;
-		}
-
-		updateFocusedElementBounds();
-
-		// Update the bird's position
-		if (currentState === States.IDLE) {
-			if (focusedElement && !isWithinHorizontalBounds()) {
-				focusOnGround();
-			}
-			birdY = getFocusedY();
-		} else if (currentState === States.FLYING) {
-			// Fly to target location (even if in the air)
-			if (updateParabolicPath(FLY_SPEED)) {
-				setState(States.IDLE);
-			}
-		}
-
-		const oldTargetY = targetY;
-		targetY = getFocusedY();
-		// Adjust startY to account for scrolling
-		startY += targetY - oldTargetY;
-		if (targetY < 0 || targetY > window.innerHeight) {
-			// Fly to ground if the focused element moves out of bounds
-			focusOnGround();
-		}
-
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		if (currentAnimation.draw(ctx, direction, animStart, species[currentSpecies])) {
-			setAnimation(Animations.STILL);
-		}
-
-		// Update HTML element position
-		setX(birdX);
-		setY(birdY);
-	}
-
-	init();
-	draw();
 
 	/**
 	 * Create an HTML element with the specified parameters
@@ -1865,6 +1862,10 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 			return { ...params, [key]: value };
 		}, {});
 	}
+
+	// Run the birb
+	init();
+	draw();
 }).catch((e) => {
 	error("Error while loading sprite sheets: ", e);
 });
