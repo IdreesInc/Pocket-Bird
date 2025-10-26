@@ -1,31 +1,18 @@
 // @ts-check
 
 import {
-	THEME_HIGHLIGHT,
-	TRANSPARENT,
-	OUTLINE,
-	BORDER,
-	FOOT,
-	BEAK,
-	EYE,
-	FACE,
-	HOOD,
-	NOSE,
-	BELLY,
-	UNDERBELLY,
-	WING,
-	WING_EDGE,
-	HEART,
-	HEART_BORDER,
-	HEART_SHINE,
-	FEATHER_SPINE,
-	SPRITE_SHEET_COLOR_MAP,
 	Directions
-} from './constants.js';
+} from './sharedConstants.js';
+
+import {
+	Sprite,
+	SPRITE_SHEET_COLOR_MAP,
+	SPECIES,
+	BirdType
+} from './sprites.js';
 
 import Frame from './frame.js';
 import Layer from './layer.js';
-import BirdType from './birdType.js';
 
 // @ts-ignore
 const SHARED_CONFIG = {
@@ -128,134 +115,6 @@ class Anim {
 	}
 }
 
-/** @type {Record<string, BirdType>} */
-const species = {
-	bluebird: new BirdType("Eastern Bluebird",
-		"Native to North American and very social, though can be timid around people.", {
-		[FOOT]: "#af8e75",
-		[FACE]: "#639bff",
-		[BELLY]: "#f8b143",
-		[UNDERBELLY]: "#ec8637",
-		[WING]: "#578ae6",
-		[WING_EDGE]: "#326ed9",
-	}),
-	shimaEnaga: new BirdType("Shima Enaga",
-		"Small, fluffy birds found in the snowy regions of Japan, these birds are highly sought after by ornithologists and nature photographers.", {
-		[FOOT]: "#af8e75",
-		[FACE]: "#ffffff",
-		[BELLY]: "#ebe9e8",
-		[UNDERBELLY]: "#ebd9d0",
-		[WING]: "#f3d3c1",
-		[WING_EDGE]: "#2d2d2dff",
-		[THEME_HIGHLIGHT]: "#d7ac93",
-	}),
-	tuftedTitmouse: new BirdType("Tufted Titmouse",
-		"Native to the eastern United States, full of personality, and notably my wife's favorite bird.", {
-		[FOOT]: "#af8e75",
-		[FACE]: "#c7cad7",
-		[BELLY]: "#e4e5eb",
-		[UNDERBELLY]: "#d7cfcb",
-		[WING]: "#b1b5c5",
-		[WING_EDGE]: "#9d9fa9",
-	}, ["tuft"]),
-	europeanRobin: new BirdType("European Robin",
-		"Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.", {
-		[FOOT]: "#af8e75",
-		[FACE]: "#ffaf34",
-		[HOOD]: "#aaa094",
-		[BELLY]: "#ffaf34",
-		[UNDERBELLY]: "#babec2",
-		[WING]: "#aaa094",
-		[WING_EDGE]: "#888580",
-		[THEME_HIGHLIGHT]: "#ffaf34",
-	}),
-	redCardinal: new BirdType("Red Cardinal",
-		"Native to the eastern United States, this strikingly red bird is hard to miss.", {
-		[BEAK]: "#d93619",
-		[FOOT]: "#af8e75",
-		[FACE]: "#31353d",
-		[HOOD]: "#e83a1b",
-		[BELLY]: "#e83a1b",
-		[UNDERBELLY]: "#dc3719",
-		[WING]: "#d23215",
-		[WING_EDGE]: "#b1321c",
-	}, ["tuft"]),
-	americanGoldfinch: new BirdType("American Goldfinch",
-		"Coloured a brilliant yellow, this bird feeds almost entirely on the seeds of plants such as thistle, sunflowers, and coneflowers.", {
-		[BEAK]: "#ffaf34",
-		[FOOT]: "#af8e75",
-		[FACE]: "#fff255",
-		[NOSE]: "#383838",
-		[HOOD]: "#383838",
-		[BELLY]: "#fff255",
-		[UNDERBELLY]: "#f5ea63",
-		[WING]: "#e8e079",
-		[WING_EDGE]: "#191919",
-		[THEME_HIGHLIGHT]: "#ffcc00"
-	}),
-	barnSwallow: new BirdType("Barn Swallow",
-		"Agile birds that often roost in man-made structures, these birds are known to build nests near Ospreys for protection.", {
-		[FOOT]: "#af8e75",
-		[FACE]: "#db7c4d",
-		[BELLY]: "#f7e1c9",
-		[UNDERBELLY]: "#ebc9a3",
-		[WING]: "#2252a9",
-		[WING_EDGE]: "#1c448b",
-		[HOOD]: "#2252a9",
-	}),
-	mistletoebird: new BirdType("Mistletoebird",
-		"Native to Australia, these birds eat mainly mistletoe and in turn spread the seeds far and wide.", {
-		[FOOT]: "#6c6a7c",
-		[FACE]: "#352e6d",
-		[BELLY]: "#fd6833",
-		[UNDERBELLY]: "#e6e1d8",
-		[WING]: "#342b7c",
-		[WING_EDGE]: "#282065",
-	}),
-	redAvadavat: new BirdType("Red Avadavat",
-		"Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plumage.", {
-		[BEAK]: "#f71919",
-		[FOOT]: "#af7575",
-		[FACE]: "#cb092b",
-		[BELLY]: "#ae1724",
-		[UNDERBELLY]: "#831b24",
-		[WING]: "#7e3030",
-		[WING_EDGE]: "#490f0f",
-	}),
-	scarletRobin: new BirdType("Scarlet Robin",
-		"Native to Australia, this striking robin can be found in Eucalyptus forests.", {
-		[FOOT]: "#494949",
-		[FACE]: "#3d3d3d",
-		[BELLY]: "#fc5633",
-		[UNDERBELLY]: "#dcdcdc",
-		[WING]: "#2b2b2b",
-		[WING_EDGE]: "#ebebeb",
-		[THEME_HIGHLIGHT]: "#fc5633",
-	}),
-	americanRobin: new BirdType("American Robin",
-		"While not a true robin, this social North American bird is so named due to its orange coloring. It seems unbothered by nearby humans.", {
-		[BEAK]: "#e89f30",
-		[FOOT]: "#9f8075",
-		[FACE]: "#2d2d2d",
-		[BELLY]: "#eb7a3a",
-		[UNDERBELLY]: "#eb7a3a",
-		[WING]: "#444444",
-		[WING_EDGE]: "#232323",
-		[THEME_HIGHLIGHT]: "#eb7a3a",
-	}),
-	carolinaWren: new BirdType("Carolina Wren",
-		"Native to the eastern United States, these little birds are known for their curious and energetic nature.", {
-		[FOOT]: "#af8e75",
-		[FACE]: "#edc7a9",
-		[NOSE]: "#f7eee5",
-		[HOOD]: "#c58a5b",
-		[BELLY]: "#e1b796",
-		[UNDERBELLY]: "#c79e7c",
-		[WING]: "#c58a5b",
-		[WING_EDGE]: "#866348",
-	}),
-};
-
 const DEFAULT_BIRD = "bluebird";
 
 const SPRITE_WIDTH = 32;
@@ -327,7 +186,7 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 					const b = pixels[index + 2];
 					const a = pixels[index + 3];
 					if (a === 0) {
-						row.push(TRANSPARENT);
+						row.push(Sprite.TRANSPARENT);
 						continue;
 					}
 					const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
@@ -337,7 +196,7 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 					}
 					if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
 						error(`Unknown color: ${hex}`);
-						row.push(TRANSPARENT);
+						row.push(Sprite.TRANSPARENT);
 					}
 					row.push(SPRITE_SHEET_COLOR_MAP[hex]);
 				}
@@ -358,7 +217,7 @@ Promise.all([
 	loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false),
 	loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)
 ]).then(([birbPixels, decorationPixels, featherPixels]) => {
-	
+
 	const SPRITE_SHEET = birbPixels;
 	const DECORATIONS_SPRITE_SHEET = decorationPixels;
 	const FEATHER_SPRITE_SHEET = featherPixels;
@@ -518,7 +377,7 @@ Promise.all([
 		}),
 		new DebugMenuItem("Reset Data", resetSaveData),
 		new DebugMenuItem("Unlock All", () => {
-			for (let type in species) {
+			for (let type in SPECIES) {
 				unlockBird(type);
 			}
 		}),
@@ -854,7 +713,7 @@ Promise.all([
 		}
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		if (currentAnimation.draw(ctx, direction, animStart, species[currentSpecies])) {
+		if (currentAnimation.draw(ctx, direction, animStart, SPECIES[currentSpecies])) {
 			setAnimation(Animations.STILL);
 		}
 
@@ -1064,7 +923,7 @@ Promise.all([
 		if (document.querySelector("#" + FEATHER_ID)) {
 			return;
 		}
-		const speciesToUnlock = Object.keys(species).filter((species) => !unlockedSpecies.includes(species));
+		const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species));
 		if (speciesToUnlock.length === 0) {
 			// No more species to unlock
 			return;
@@ -1077,7 +936,7 @@ Promise.all([
 	 * @param {string} birdType
 	 */
 	function insertFeather(birdType) {
-		let type = species[birdType];
+		let type = SPECIES[birdType];
 		const featherCanvas = document.createElement("canvas");
 		featherCanvas.id = FEATHER_ID;
 		featherCanvas.classList.add("birb-decoration");
@@ -1115,7 +974,7 @@ Promise.all([
 	function unlockBird(birdType) {
 		if (!unlockedSpecies.includes(birdType)) {
 			unlockedSpecies.push(birdType);
-			insertModal("New Bird Unlocked!", `You've found a <b>${species[birdType].name}</b> feather! Use the Field Guide to switch your bird's species.`);
+			insertModal("New Bird Unlocked!", `You've found a <b>${SPECIES[birdType].name}</b> feather! Use the Field Guide to switch your bird's species.`);
 		}
 		save();
 	}
@@ -1191,7 +1050,7 @@ Promise.all([
 		content.innerHTML = "";
 
 		const generateDescription = (/** @type {string} */ speciesId) => {
-			const type = species[speciesId];
+			const type = SPECIES[speciesId];
 			const unlocked = unlockedSpecies.includes(speciesId);
 			return "<b>" + type.name + "</b><div style='height: 0.3em'></div>" + (!unlocked ? "Not yet unlocked" : type.description);
 		};
@@ -1201,7 +1060,7 @@ Promise.all([
 			return;
 		}
 		description.innerHTML = generateDescription(currentSpecies);
-		for (const [id, type] of Object.entries(species)) {
+		for (const [id, type] of Object.entries(SPECIES)) {
 			const unlocked = unlockedSpecies.includes(id);
 			const speciesElement = makeElement("birb-grid-item");
 			if (id === currentSpecies) {
@@ -1274,7 +1133,7 @@ Promise.all([
 	function switchSpecies(type) {
 		currentSpecies = type;
 		// Update CSS variable --birb-highlight to be wing color
-		document.documentElement.style.setProperty("--birb-highlight", species[type].colors[THEME_HIGHLIGHT]);
+		document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[Sprite.THEME_HIGHLIGHT]);
 		save();
 	}
 

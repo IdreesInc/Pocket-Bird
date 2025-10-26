@@ -3,47 +3,6 @@
 
 	// @ts-check
 
-	// Theme color indicators
-	const THEME_HIGHLIGHT = "theme-highlight";
-	const TRANSPARENT = "transparent";
-	const OUTLINE = "outline";
-	const BORDER = "border";
-	const FOOT = "foot";
-	const BEAK = "beak";
-	const EYE = "eye";
-	const FACE = "face";
-	const HOOD = "hood";
-	const NOSE = "nose";
-	const BELLY = "belly";
-	const UNDERBELLY = "underbelly";
-	const WING = "wing";
-	const WING_EDGE = "wing-edge";
-	const HEART = "heart";
-	const HEART_BORDER = "heart-border";
-	const HEART_SHINE = "heart-shine";
-	const FEATHER_SPINE = "feather-spine";
-
-	/** @type {Record<string, string>} */
-	const SPRITE_SHEET_COLOR_MAP = {
-		"transparent": TRANSPARENT,
-		"#ffffff": BORDER,
-		"#000000": OUTLINE,
-		"#010a19": BEAK,
-		"#190301": EYE,
-		"#af8e75": FOOT,
-		"#639bff": FACE,
-		"#99e550": HOOD,
-		"#d95763": NOSE,
-		"#f8b143": BELLY,
-		"#ec8637": UNDERBELLY,
-		"#578ae6": WING,
-		"#326ed9": WING_EDGE,
-		"#c82e2e": HEART,
-		"#501a1a": HEART_BORDER,
-		"#ff6b6b": HEART_SHINE,
-		"#373737": FEATHER_SPINE,
-	};
-
 	const Directions = {
 		LEFT: -1,
 		RIGHT: 1,
@@ -51,19 +10,48 @@
 
 	// @ts-check
 
-	class Layer {
-		/**
-		 * @param {string[][]} pixels
-		 * @param {string} [tag]
-		 */
-		constructor(pixels, tag = "default") {
-			this.pixels = pixels;
-			this.tag = tag;
-		}
-	}
+	// Sprite theme color indicators
+	const Sprite = {
+		THEME_HIGHLIGHT: "theme-highlight",
+		TRANSPARENT: "transparent",
+		OUTLINE: "outline",
+		BORDER: "border",
+		FOOT: "foot",
+		BEAK: "beak",
+		EYE: "eye",
+		FACE: "face",
+		HOOD: "hood",
+		NOSE: "nose",
+		BELLY: "belly",
+		UNDERBELLY: "underbelly",
+		WING: "wing",
+		WING_EDGE: "wing-edge",
+		HEART: "heart",
+		HEART_BORDER: "heart-border",
+		HEART_SHINE: "heart-shine",
+		FEATHER_SPINE: "feather-spine",
+	};
 
-	// @ts-check
-
+	/** @type {Record<string, string>} */
+	const SPRITE_SHEET_COLOR_MAP = {
+		"transparent": Sprite.TRANSPARENT,
+		"#ffffff": Sprite.BORDER,
+		"#000000": Sprite.OUTLINE,
+		"#010a19": Sprite.BEAK,
+		"#190301": Sprite.EYE,
+		"#af8e75": Sprite.FOOT,
+		"#639bff": Sprite.FACE,
+		"#99e550": Sprite.HOOD,
+		"#d95763": Sprite.NOSE,
+		"#f8b143": Sprite.BELLY,
+		"#ec8637": Sprite.UNDERBELLY,
+		"#578ae6": Sprite.WING,
+		"#326ed9": Sprite.WING_EDGE,
+		"#c82e2e": Sprite.HEART,
+		"#501a1a": Sprite.HEART_BORDER,
+		"#ff6b6b": Sprite.HEART_SHINE,
+		"#373737": Sprite.FEATHER_SPINE,
+	};
 
 	class BirdType {
 		/**
@@ -76,21 +64,162 @@
 			this.name = name;
 			this.description = description;
 			const defaultColors = {
-				[TRANSPARENT]: "transparent",
-				[OUTLINE]: "#000000",
-				[BORDER]: "#ffffff",
-				[BEAK]: "#000000",
-				[EYE]: "#000000",
-				[HEART]: "#c82e2e",
-				[HEART_BORDER]: "#501a1a",
-				[HEART_SHINE]: "#ff6b6b",
-				[FEATHER_SPINE]: "#373737",
-				[HOOD]: colors.face,
-				[NOSE]: colors.face,
+				[Sprite.TRANSPARENT]: "transparent",
+				[Sprite.OUTLINE]: "#000000",
+				[Sprite.BORDER]: "#ffffff",
+				[Sprite.BEAK]: "#000000",
+				[Sprite.EYE]: "#000000",
+				[Sprite.HEART]: "#c82e2e",
+				[Sprite.HEART_BORDER]: "#501a1a",
+				[Sprite.HEART_SHINE]: "#ff6b6b",
+				[Sprite.FEATHER_SPINE]: "#373737",
+				[Sprite.HOOD]: colors.face,
+				[Sprite.NOSE]: colors.face,
 			};
 			/** @type {Record<string, string>} */
-			this.colors = { ...defaultColors, ...colors, [THEME_HIGHLIGHT]: colors[THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
+			this.colors = { ...defaultColors, ...colors, [Sprite.THEME_HIGHLIGHT]: colors[Sprite.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
 			this.tags = tags;
+		}
+	}
+
+	/** @type {Record<string, BirdType>} */
+	const SPECIES = {
+		bluebird: new BirdType("Eastern Bluebird",
+			"Native to North American and very social, though can be timid around people.", {
+			[Sprite.FOOT]: "#af8e75",
+			[Sprite.FACE]: "#639bff",
+			[Sprite.BELLY]: "#f8b143",
+			[Sprite.UNDERBELLY]: "#ec8637",
+			[Sprite.WING]: "#578ae6",
+			[Sprite.WING_EDGE]: "#326ed9",
+		}),
+		shimaEnaga: new BirdType("Shima Enaga",
+			"Small, fluffy birds found in the snowy regions of Japan, these birds are highly sought after by ornithologists and nature photographers.", {
+			[Sprite.FOOT]: "#af8e75",
+			[Sprite.FACE]: "#ffffff",
+			[Sprite.BELLY]: "#ebe9e8",
+			[Sprite.UNDERBELLY]: "#ebd9d0",
+			[Sprite.WING]: "#f3d3c1",
+			[Sprite.WING_EDGE]: "#2d2d2dff",
+			[Sprite.THEME_HIGHLIGHT]: "#d7ac93",
+		}),
+		tuftedTitmouse: new BirdType("Tufted Titmouse",
+			"Native to the eastern United States, full of personality, and notably my wife's favorite bird.", {
+			[Sprite.FOOT]: "#af8e75",
+			[Sprite.FACE]: "#c7cad7",
+			[Sprite.BELLY]: "#e4e5eb",
+			[Sprite.UNDERBELLY]: "#d7cfcb",
+			[Sprite.WING]: "#b1b5c5",
+			[Sprite.WING_EDGE]: "#9d9fa9",
+		}, ["tuft"]),
+		europeanRobin: new BirdType("European Robin",
+			"Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.", {
+			[Sprite.FOOT]: "#af8e75",
+			[Sprite.FACE]: "#ffaf34",
+			[Sprite.HOOD]: "#aaa094",
+			[Sprite.BELLY]: "#ffaf34",
+			[Sprite.UNDERBELLY]: "#babec2",
+			[Sprite.WING]: "#aaa094",
+			[Sprite.WING_EDGE]: "#888580",
+			[Sprite.THEME_HIGHLIGHT]: "#ffaf34",
+		}),
+		redCardinal: new BirdType("Red Cardinal",
+			"Native to the eastern United States, this strikingly red bird is hard to miss.", {
+			[Sprite.BEAK]: "#d93619",
+			[Sprite.FOOT]: "#af8e75",
+			[Sprite.FACE]: "#31353d",
+			[Sprite.HOOD]: "#e83a1b",
+			[Sprite.BELLY]: "#e83a1b",
+			[Sprite.UNDERBELLY]: "#dc3719",
+			[Sprite.WING]: "#d23215",
+			[Sprite.WING_EDGE]: "#b1321c",
+		}, ["tuft"]),
+		americanGoldfinch: new BirdType("American Goldfinch",
+			"Coloured a brilliant yellow, this bird feeds almost entirely on the seeds of plants such as thistle, sunflowers, and coneflowers.", {
+			[Sprite.BEAK]: "#ffaf34",
+			[Sprite.FOOT]: "#af8e75",
+			[Sprite.FACE]: "#fff255",
+			[Sprite.NOSE]: "#383838",
+			[Sprite.HOOD]: "#383838",
+			[Sprite.BELLY]: "#fff255",
+			[Sprite.UNDERBELLY]: "#f5ea63",
+			[Sprite.WING]: "#e8e079",
+			[Sprite.WING_EDGE]: "#191919",
+			[Sprite.THEME_HIGHLIGHT]: "#ffcc00"
+		}),
+		barnSwallow: new BirdType("Barn Swallow",
+			"Agile birds that often roost in man-made structures, these birds are known to build nests near Ospreys for protection.", {
+			[Sprite.FOOT]: "#af8e75",
+			[Sprite.FACE]: "#db7c4d",
+			[Sprite.BELLY]: "#f7e1c9",
+			[Sprite.UNDERBELLY]: "#ebc9a3",
+			[Sprite.WING]: "#2252a9",
+			[Sprite.WING_EDGE]: "#1c448b",
+			[Sprite.HOOD]: "#2252a9",
+		}),
+		mistletoebird: new BirdType("Mistletoebird",
+			"Native to Australia, these birds eat mainly mistletoe and in turn spread the seeds far and wide.", {
+			[Sprite.FOOT]: "#6c6a7c",
+			[Sprite.FACE]: "#352e6d",
+			[Sprite.BELLY]: "#fd6833",
+			[Sprite.UNDERBELLY]: "#e6e1d8",
+			[Sprite.WING]: "#342b7c",
+			[Sprite.WING_EDGE]: "#282065",
+		}),
+		redAvadavat: new BirdType("Red Avadavat",
+			"Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plumage.", {
+			[Sprite.BEAK]: "#f71919",
+			[Sprite.FOOT]: "#af7575",
+			[Sprite.FACE]: "#cb092b",
+			[Sprite.BELLY]: "#ae1724",
+			[Sprite.UNDERBELLY]: "#831b24",
+			[Sprite.WING]: "#7e3030",
+			[Sprite.WING_EDGE]: "#490f0f",
+		}),
+		scarletRobin: new BirdType("Scarlet Robin",
+			"Native to Australia, this striking robin can be found in Eucalyptus forests.", {
+			[Sprite.FOOT]: "#494949",
+			[Sprite.FACE]: "#3d3d3d",
+			[Sprite.BELLY]: "#fc5633",
+			[Sprite.UNDERBELLY]: "#dcdcdc",
+			[Sprite.WING]: "#2b2b2b",
+			[Sprite.WING_EDGE]: "#ebebeb",
+			[Sprite.THEME_HIGHLIGHT]: "#fc5633",
+		}),
+		americanRobin: new BirdType("American Robin",
+			"While not a true robin, this social North American bird is so named due to its orange coloring. It seems unbothered by nearby humans.", {
+			[Sprite.BEAK]: "#e89f30",
+			[Sprite.FOOT]: "#9f8075",
+			[Sprite.FACE]: "#2d2d2d",
+			[Sprite.BELLY]: "#eb7a3a",
+			[Sprite.UNDERBELLY]: "#eb7a3a",
+			[Sprite.WING]: "#444444",
+			[Sprite.WING_EDGE]: "#232323",
+			[Sprite.THEME_HIGHLIGHT]: "#eb7a3a",
+		}),
+		carolinaWren: new BirdType("Carolina Wren",
+			"Native to the eastern United States, these little birds are known for their curious and energetic nature.", {
+			[Sprite.FOOT]: "#af8e75",
+			[Sprite.FACE]: "#edc7a9",
+			[Sprite.NOSE]: "#f7eee5",
+			[Sprite.HOOD]: "#c58a5b",
+			[Sprite.BELLY]: "#e1b796",
+			[Sprite.UNDERBELLY]: "#c79e7c",
+			[Sprite.WING]: "#c58a5b",
+			[Sprite.WING_EDGE]: "#866348",
+		}),
+	};
+
+	// @ts-check
+
+	class Layer {
+		/**
+		 * @param {string[][]} pixels
+		 * @param {string} [tag]
+		 */
+		constructor(pixels, tag = "default") {
+			this.pixels = pixels;
+			this.tag = tag;
 		}
 	}
 
@@ -119,7 +248,7 @@
 				this.pixels = layers[0].pixels.map(row => row.slice());
 				// Pad from top with transparent pixels
 				while (this.pixels.length < maxHeight) {
-					this.pixels.unshift(new Array(this.pixels[0].length).fill(TRANSPARENT));
+					this.pixels.unshift(new Array(this.pixels[0].length).fill(Sprite.TRANSPARENT));
 				}
 				// Combine layers
 				for (let i = 1; i < layers.length; i++) {
@@ -128,7 +257,7 @@
 						let topMargin = maxHeight - layerPixels.length;
 						for (let y = 0; y < layerPixels.length; y++) {
 							for (let x = 0; x < layerPixels[y].length; x++) {
-								this.pixels[y + topMargin][x] = layerPixels[y][x] !== TRANSPARENT ? layerPixels[y][x] : this.pixels[y + topMargin][x];
+								this.pixels[y + topMargin][x] = layerPixels[y][x] !== Sprite.TRANSPARENT ? layerPixels[y][x] : this.pixels[y + topMargin][x];
 							}
 						}
 					}
@@ -609,134 +738,6 @@
 		}
 	}
 
-	/** @type {Record<string, BirdType>} */
-	const species = {
-		bluebird: new BirdType("Eastern Bluebird",
-			"Native to North American and very social, though can be timid around people.", {
-			[FOOT]: "#af8e75",
-			[FACE]: "#639bff",
-			[BELLY]: "#f8b143",
-			[UNDERBELLY]: "#ec8637",
-			[WING]: "#578ae6",
-			[WING_EDGE]: "#326ed9",
-		}),
-		shimaEnaga: new BirdType("Shima Enaga",
-			"Small, fluffy birds found in the snowy regions of Japan, these birds are highly sought after by ornithologists and nature photographers.", {
-			[FOOT]: "#af8e75",
-			[FACE]: "#ffffff",
-			[BELLY]: "#ebe9e8",
-			[UNDERBELLY]: "#ebd9d0",
-			[WING]: "#f3d3c1",
-			[WING_EDGE]: "#2d2d2dff",
-			[THEME_HIGHLIGHT]: "#d7ac93",
-		}),
-		tuftedTitmouse: new BirdType("Tufted Titmouse",
-			"Native to the eastern United States, full of personality, and notably my wife's favorite bird.", {
-			[FOOT]: "#af8e75",
-			[FACE]: "#c7cad7",
-			[BELLY]: "#e4e5eb",
-			[UNDERBELLY]: "#d7cfcb",
-			[WING]: "#b1b5c5",
-			[WING_EDGE]: "#9d9fa9",
-		}, ["tuft"]),
-		europeanRobin: new BirdType("European Robin",
-			"Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.", {
-			[FOOT]: "#af8e75",
-			[FACE]: "#ffaf34",
-			[HOOD]: "#aaa094",
-			[BELLY]: "#ffaf34",
-			[UNDERBELLY]: "#babec2",
-			[WING]: "#aaa094",
-			[WING_EDGE]: "#888580",
-			[THEME_HIGHLIGHT]: "#ffaf34",
-		}),
-		redCardinal: new BirdType("Red Cardinal",
-			"Native to the eastern United States, this strikingly red bird is hard to miss.", {
-			[BEAK]: "#d93619",
-			[FOOT]: "#af8e75",
-			[FACE]: "#31353d",
-			[HOOD]: "#e83a1b",
-			[BELLY]: "#e83a1b",
-			[UNDERBELLY]: "#dc3719",
-			[WING]: "#d23215",
-			[WING_EDGE]: "#b1321c",
-		}, ["tuft"]),
-		americanGoldfinch: new BirdType("American Goldfinch",
-			"Coloured a brilliant yellow, this bird feeds almost entirely on the seeds of plants such as thistle, sunflowers, and coneflowers.", {
-			[BEAK]: "#ffaf34",
-			[FOOT]: "#af8e75",
-			[FACE]: "#fff255",
-			[NOSE]: "#383838",
-			[HOOD]: "#383838",
-			[BELLY]: "#fff255",
-			[UNDERBELLY]: "#f5ea63",
-			[WING]: "#e8e079",
-			[WING_EDGE]: "#191919",
-			[THEME_HIGHLIGHT]: "#ffcc00"
-		}),
-		barnSwallow: new BirdType("Barn Swallow",
-			"Agile birds that often roost in man-made structures, these birds are known to build nests near Ospreys for protection.", {
-			[FOOT]: "#af8e75",
-			[FACE]: "#db7c4d",
-			[BELLY]: "#f7e1c9",
-			[UNDERBELLY]: "#ebc9a3",
-			[WING]: "#2252a9",
-			[WING_EDGE]: "#1c448b",
-			[HOOD]: "#2252a9",
-		}),
-		mistletoebird: new BirdType("Mistletoebird",
-			"Native to Australia, these birds eat mainly mistletoe and in turn spread the seeds far and wide.", {
-			[FOOT]: "#6c6a7c",
-			[FACE]: "#352e6d",
-			[BELLY]: "#fd6833",
-			[UNDERBELLY]: "#e6e1d8",
-			[WING]: "#342b7c",
-			[WING_EDGE]: "#282065",
-		}),
-		redAvadavat: new BirdType("Red Avadavat",
-			"Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plumage.", {
-			[BEAK]: "#f71919",
-			[FOOT]: "#af7575",
-			[FACE]: "#cb092b",
-			[BELLY]: "#ae1724",
-			[UNDERBELLY]: "#831b24",
-			[WING]: "#7e3030",
-			[WING_EDGE]: "#490f0f",
-		}),
-		scarletRobin: new BirdType("Scarlet Robin",
-			"Native to Australia, this striking robin can be found in Eucalyptus forests.", {
-			[FOOT]: "#494949",
-			[FACE]: "#3d3d3d",
-			[BELLY]: "#fc5633",
-			[UNDERBELLY]: "#dcdcdc",
-			[WING]: "#2b2b2b",
-			[WING_EDGE]: "#ebebeb",
-			[THEME_HIGHLIGHT]: "#fc5633",
-		}),
-		americanRobin: new BirdType("American Robin",
-			"While not a true robin, this social North American bird is so named due to its orange coloring. It seems unbothered by nearby humans.", {
-			[BEAK]: "#e89f30",
-			[FOOT]: "#9f8075",
-			[FACE]: "#2d2d2d",
-			[BELLY]: "#eb7a3a",
-			[UNDERBELLY]: "#eb7a3a",
-			[WING]: "#444444",
-			[WING_EDGE]: "#232323",
-			[THEME_HIGHLIGHT]: "#eb7a3a",
-		}),
-		carolinaWren: new BirdType("Carolina Wren",
-			"Native to the eastern United States, these little birds are known for their curious and energetic nature.", {
-			[FOOT]: "#af8e75",
-			[FACE]: "#edc7a9",
-			[NOSE]: "#f7eee5",
-			[HOOD]: "#c58a5b",
-			[BELLY]: "#e1b796",
-			[UNDERBELLY]: "#c79e7c",
-			[WING]: "#c58a5b",
-			[WING_EDGE]: "#866348",
-		}),
-	};
-
 	const DEFAULT_BIRD = "bluebird";
 
 	const SPRITE_WIDTH = 32;
@@ -808,7 +809,7 @@
 						const b = pixels[index + 2];
 						const a = pixels[index + 3];
 						if (a === 0) {
-							row.push(TRANSPARENT);
+							row.push(Sprite.TRANSPARENT);
 							continue;
 						}
 						const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
@@ -818,7 +819,7 @@
 						}
 						if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
 							error(`Unknown color: ${hex}`);
-							row.push(TRANSPARENT);
+							row.push(Sprite.TRANSPARENT);
 						}
 						row.push(SPRITE_SHEET_COLOR_MAP[hex]);
 					}
@@ -839,7 +840,7 @@
 		loadSpriteSheetPixels(DECORATIONS_SPRITE_SHEET, false),
 		loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)
 	]).then(([birbPixels, decorationPixels, featherPixels]) => {
-		
+
 		const SPRITE_SHEET = birbPixels;
 		const DECORATIONS_SPRITE_SHEET = decorationPixels;
 		const FEATHER_SPRITE_SHEET = featherPixels;
@@ -991,7 +992,7 @@
 			}),
 			new DebugMenuItem("Reset Data", resetSaveData),
 			new DebugMenuItem("Unlock All", () => {
-				for (let type in species) {
+				for (let type in SPECIES) {
 					unlockBird(type);
 				}
 			}),
@@ -1327,7 +1328,7 @@
 			}
 
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			if (currentAnimation.draw(ctx, direction, animStart, species[currentSpecies])) {
+			if (currentAnimation.draw(ctx, direction, animStart, SPECIES[currentSpecies])) {
 				setAnimation(Animations.STILL);
 			}
 
@@ -1517,7 +1518,7 @@
 			if (document.querySelector("#" + FEATHER_ID)) {
 				return;
 			}
-			const speciesToUnlock = Object.keys(species).filter((species) => !unlockedSpecies.includes(species));
+			const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species));
 			if (speciesToUnlock.length === 0) {
 				// No more species to unlock
 				return;
@@ -1530,7 +1531,7 @@
 		 * @param {string} birdType
 		 */
 		function insertFeather(birdType) {
-			let type = species[birdType];
+			let type = SPECIES[birdType];
 			const featherCanvas = document.createElement("canvas");
 			featherCanvas.id = FEATHER_ID;
 			featherCanvas.classList.add("birb-decoration");
@@ -1568,7 +1569,7 @@
 		function unlockBird(birdType) {
 			if (!unlockedSpecies.includes(birdType)) {
 				unlockedSpecies.push(birdType);
-				insertModal("New Bird Unlocked!", `You've found a <b>${species[birdType].name}</b> feather! Use the Field Guide to switch your bird's species.`);
+				insertModal("New Bird Unlocked!", `You've found a <b>${SPECIES[birdType].name}</b> feather! Use the Field Guide to switch your bird's species.`);
 			}
 			save();
 		}
@@ -1644,7 +1645,7 @@
 			content.innerHTML = "";
 
 			const generateDescription = (/** @type {string} */ speciesId) => {
-				const type = species[speciesId];
+				const type = SPECIES[speciesId];
 				const unlocked = unlockedSpecies.includes(speciesId);
 				return "<b>" + type.name + "</b><div style='height: 0.3em'></div>" + (!unlocked ? "Not yet unlocked" : type.description);
 			};
@@ -1654,7 +1655,7 @@
 				return;
 			}
 			description.innerHTML = generateDescription(currentSpecies);
-			for (const [id, type] of Object.entries(species)) {
+			for (const [id, type] of Object.entries(SPECIES)) {
 				const unlocked = unlockedSpecies.includes(id);
 				const speciesElement = makeElement("birb-grid-item");
 				if (id === currentSpecies) {
@@ -1723,7 +1724,7 @@
 		function switchSpecies(type) {
 			currentSpecies = type;
 			// Update CSS variable --birb-highlight to be wing color
-			document.documentElement.style.setProperty("--birb-highlight", species[type].colors[THEME_HIGHLIGHT]);
+			document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[Sprite.THEME_HIGHLIGHT]);
 			save();
 		}
 

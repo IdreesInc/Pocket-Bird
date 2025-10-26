@@ -1,7 +1,7 @@
 // @ts-check
-import { TRANSPARENT, Directions } from './constants.js';
+import { Directions } from './sharedConstants.js';
+import { Sprite, BirdType } from './sprites.js';
 import Layer from './layer.js';
-import BirdType from './birdType.js';
 
 class Frame {
 
@@ -26,7 +26,7 @@ class Frame {
 			this.pixels = layers[0].pixels.map(row => row.slice());
 			// Pad from top with transparent pixels
 			while (this.pixels.length < maxHeight) {
-				this.pixels.unshift(new Array(this.pixels[0].length).fill(TRANSPARENT));
+				this.pixels.unshift(new Array(this.pixels[0].length).fill(Sprite.TRANSPARENT));
 			}
 			// Combine layers
 			for (let i = 1; i < layers.length; i++) {
@@ -35,7 +35,7 @@ class Frame {
 					let topMargin = maxHeight - layerPixels.length;
 					for (let y = 0; y < layerPixels.length; y++) {
 						for (let x = 0; x < layerPixels[y].length; x++) {
-							this.pixels[y + topMargin][x] = layerPixels[y][x] !== TRANSPARENT ? layerPixels[y][x] : this.pixels[y + topMargin][x];
+							this.pixels[y + topMargin][x] = layerPixels[y][x] !== Sprite.TRANSPARENT ? layerPixels[y][x] : this.pixels[y + topMargin][x];
 						}
 					}
 				}
