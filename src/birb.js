@@ -23,8 +23,8 @@ import {
 	Directions
 } from './constants.js';
 
-import Frame from './Frame.js';
-import Layer from './Layer.js';
+import Frame from './frame.js';
+import Layer from './layer.js';
 import BirdType from './birdType.js';
 
 // @ts-ignore
