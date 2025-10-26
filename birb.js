@@ -943,7 +943,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		});
 
 		onClick(canvas, () => {
-			if (currentAnimation === Animations.HEART) {
+			if (currentAnimation === Animations.HEART && (Date.now() - lastPetTimestamp < 1000)) {
 				// Currently being pet, don't open menu
 				return;
 			}

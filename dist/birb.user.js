@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.25.8
+// @version      2025.10.25.15
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1300,7 +1300,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		});
 
 		onClick(canvas, () => {
-			if (currentAnimation === Animations.HEART) {
+			if (currentAnimation === Animations.HEART && (Date.now() - lastPetTimestamp < 1000)) {
 				// Currently being pet, don't open menu
 				return;
 			}
