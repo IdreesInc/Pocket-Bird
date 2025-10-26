@@ -1,6 +1,8 @@
 import Frame from './frame.js';
 import Layer from './layer.js';
 import Anim from './anim.js';
+import { Birb, Animations } from './birb.js';
+
 import {
 	Directions,
 	isDebug,
@@ -169,77 +171,12 @@ Promise.all([
 	const SPRITE_SHEET = birbPixels;
 	const FEATHER_SPRITE_SHEET = featherPixels;
 
-	const layers = {
-		base: new Layer(getLayer(SPRITE_SHEET, 0)),
-		down: new Layer(getLayer(SPRITE_SHEET, 1)),
-		heartOne: new Layer(getLayer(SPRITE_SHEET, 2)),
-		heartTwo: new Layer(getLayer(SPRITE_SHEET, 3)),
-		heartThree: new Layer(getLayer(SPRITE_SHEET, 4)),
-		tuftBase: new Layer(getLayer(SPRITE_SHEET, 5), "tuft"),
-		tuftDown: new Layer(getLayer(SPRITE_SHEET, 6), "tuft"),
-		wingsUp: new Layer(getLayer(SPRITE_SHEET, 7)),
-		wingsDown: new Layer(getLayer(SPRITE_SHEET, 8)),
-		happyEye: new Layer(getLayer(SPRITE_SHEET, 9)),
-	};
-
 	const featherLayers = {
 		feather: new Layer(getLayer(FEATHER_SPRITE_SHEET, 0, FEATHER_SPRITE_WIDTH)),
 	};
 
-	const birbFrames = {
-		base: new Frame([layers.base, layers.tuftBase]),
-		headDown: new Frame([layers.down, layers.tuftDown]),
-		wingsDown: new Frame([layers.base, layers.tuftBase, layers.wingsDown]),
-		wingsUp: new Frame([layers.down, layers.tuftDown, layers.wingsUp]),
-		heartOne: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartOne]),
-		heartTwo: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartTwo]),
-		heartThree: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartThree]),
-		heartFour: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartTwo]),
-	};
-
 	const featherFrames = {
 		feather: new Frame([featherLayers.feather]),
-	};
-
-	const Animations = {
-		STILL: new Anim([birbFrames.base], [1000]),
-		BOB: new Anim([
-			birbFrames.base,
-			birbFrames.headDown
-		], [
-			420,
-			420
-		]),
-		FLYING: new Anim([
-			birbFrames.base,
-			birbFrames.wingsUp,
-			birbFrames.headDown,
-			birbFrames.wingsDown,
-		], [
-			30,
-			80,
-			30,
-			60,
-		]),
-		HEART: new Anim([
-			birbFrames.heartOne,
-			birbFrames.heartTwo,
-			birbFrames.heartThree,
-			birbFrames.heartFour,
-			birbFrames.heartThree,
-			birbFrames.heartFour,
-			birbFrames.heartThree,
-			birbFrames.heartFour,
-		], [
-			60,
-			80,
-			250,
-			250,
-			250,
-			250,
-			250,
-			250,
-		], false),
 	};
 
 	const FEATHER_ANIMATIONS = {
@@ -282,10 +219,9 @@ Promise.all([
 	];
 
 	const styleElement = document.createElement("style");
-	const canvas = document.createElement("canvas");
 
-	/** @type {CanvasRenderingContext2D} */
-	const ctx = canvas.getContext("2d");
+	/** @type {Birb} */
+	let birb;
 
 	const States = {
 		IDLE: "idle",
@@ -296,9 +232,6 @@ Promise.all([
 	let frozen = false;
 	let stateStart = Date.now();
 	let currentState = States.IDLE;
-	let animStart = Date.now();
-	let currentAnimation = Animations.BOB;
-	let direction = Directions.RIGHT;
 	let ticks = 0;
 	// Bird's current position
 	let birdY = 0;
@@ -466,10 +399,8 @@ Promise.all([
 		styleElement.innerHTML = STYLESHEET;
 		document.head.appendChild(styleElement);
 
-		canvas.id = "birb";
-		canvas.width = birbFrames.base.getPixels()[0].length * CANVAS_PIXEL_SIZE;
-		canvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
-		document.body.appendChild(canvas);
+		birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT);
+		birb.setAnimation(Animations.BOB);
 
 		window.addEventListener("scroll", () => {
 			lastActionTimestamp = Date.now();
@@ -482,13 +413,17 @@ Promise.all([
 			}
 		});
 
-		onClick(canvas, () => {
-			if (currentAnimation === Animations.HEART && (Date.now() - lastPetTimestamp < PET_MENU_COOLDOWN)) {
+		const birbElement = birb.getElement();
+
+		onClick(birbElement, () => {
+			if (birb.getCurrentAnimation() === Animations.HEART && (Date.now() - lastPetTimestamp < PET_MENU_COOLDOWN)) {
 				// Currently being pet, don't open menu
 				return;
 			}
 			insertMenu(menuItems, `${birdBirb().toLowerCase()}OS`, updateMenuLocation);
-		}); canvas.addEventListener("mouseover", () => {
+		});
+		
+		birbElement.addEventListener("mouseover", () => {
 			lastActionTimestamp = Date.now();
 			if (currentState === States.IDLE) {
 				petStack.push(Date.now());
@@ -504,7 +439,7 @@ Promise.all([
 			}
 		});
 
-		canvas.addEventListener("touchmove", (e) => {
+		birbElement.addEventListener("touchmove", (e) => {
 			pet();
 		});
 
@@ -533,7 +468,7 @@ Promise.all([
 		}
 
 		if (currentState === States.IDLE && !frozen && !isMenuOpen()) {
-			if (Math.random() < HOP_CHANCE && currentAnimation !== Animations.HEART) {
+			if (Math.random() < HOP_CHANCE && birb.getCurrentAnimation() !== Animations.HEART) {
 				hop();
 			} else if (Date.now() - lastActionTimestamp > AFK_TIME) {
 				// Idle for a while, do something
@@ -565,7 +500,7 @@ Promise.all([
 	function draw() {
 		requestAnimationFrame(draw);
 
-		if (!visible) {
+		if (!birb.isVisible()) {
 			return;
 		}
 
@@ -593,14 +528,13 @@ Promise.all([
 			focusOnGround();
 		}
 
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		if (currentAnimation.draw(ctx, direction, animStart, CANVAS_PIXEL_SIZE, SPECIES[currentSpecies])) {
-			setAnimation(Animations.STILL);
+		if (birb.draw(SPECIES[currentSpecies])) {
+			birb.setAnimation(Animations.STILL);
 		}
 
 		// Update HTML element position
-		setX(birdX);
-		setY(birdY);
+		birb.setX(birdX);
+		birb.setY(birdY);
 	}
 
 	/**
@@ -751,7 +685,7 @@ Promise.all([
 	 */
 	function updateMenuLocation(menu) {
 		let x = birdX;
-		let y = canvas.offsetTop + canvas.height / 2 + WINDOW_PIXEL_SIZE * 10;
+		let y = birb.getElementTop() + birb.getElementHeight() / 2 + WINDOW_PIXEL_SIZE * 10;
 		const offset = 20;
 		if (x < window.innerWidth / 2) {
 			// Left side
@@ -826,7 +760,7 @@ Promise.all([
 			if (!speciesCtx) {
 				return;
 			}
-			birbFrames.base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type);
+			birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type);
 			speciesElement.appendChild(speciesCanvas);
 			content.appendChild(speciesElement);
 			if (unlocked) {
@@ -906,7 +840,7 @@ Promise.all([
 			birdX = targetX;
 			birdY = targetY;
 		} else {
-			direction = targetX > birdX ? Directions.RIGHT : Directions.LEFT;
+			birb.setDirection(targetX > birdX ? Directions.RIGHT : Directions.LEFT);
 		}
 		return complete;
 	}
@@ -979,7 +913,7 @@ Promise.all([
 	}
 
 	function getCanvasWidth() {
-		return canvas.width * BIRB_CSS_SCALE
+		return birb.getElementWidth();
 	}
 
 	function hop() {
@@ -988,7 +922,7 @@ Promise.all([
 		}
 		if (currentState === States.IDLE) {
 			setState(States.HOP);
-			setAnimation(Animations.FLYING);
+			birb.setAnimation(Animations.FLYING);
 			if ((Math.random() < 0.5 && birdX - HOP_DISTANCE > focusedBounds.left) || birdX + HOP_DISTANCE > focusedBounds.right) {
 				targetX = birdX - HOP_DISTANCE;
 			} else {
@@ -999,14 +933,14 @@ Promise.all([
 	}
 
 	function pet() {
-		if (currentState === States.IDLE && currentAnimation !== Animations.HEART) {
-			setAnimation(Animations.HEART);
+		if (currentState === States.IDLE && birb.getCurrentAnimation() !== Animations.HEART) {
+			birb.setAnimation(Animations.HEART);
 			lastPetTimestamp = Date.now();
 		}
 	}
 
 	function hideBirb() {
-		canvas.style.display = "none";
+		birb.setVisible(false);
 		visible = false;
 	}
 
@@ -1018,7 +952,7 @@ Promise.all([
 		targetX = x;
 		targetY = y;
 		setState(States.FLYING);
-		setAnimation(Animations.FLYING);
+		birb.setAnimation(Animations.FLYING);
 	}
 
 	/**
@@ -1026,15 +960,6 @@ Promise.all([
 	 */
 	function isAbsolute() {
 		return focusedElement !== null && (currentState === States.IDLE || currentState === States.HOP);
-	}
-
-	/**
-	 * Set the current animation and reset the animation timer
-	 * @param {Anim} animation
-	 */
-	function setAnimation(animation) {
-		currentAnimation = animation;
-		animStart = Date.now();
 	}
 
 	/**
@@ -1047,13 +972,9 @@ Promise.all([
 		startY = birdY;
 		currentState = state;
 		if (state === States.IDLE) {
-			setAnimation(Animations.BOB);
+			birb.setAnimation(Animations.BOB);
 		}
-		if (isAbsolute()) {
-			canvas.classList.add("birb-absolute");
-		} else {
-			canvas.classList.remove("birb-absolute");
-		}
+		birb.setAbsolutePositioned(isAbsolute());
 		setY(birdY);
 	}
 
@@ -1061,23 +982,14 @@ Promise.all([
 	 * @param {number} x
 	 */
 	function setX(x) {
-		let mod = getCanvasWidth() / -2 - (WINDOW_PIXEL_SIZE * (direction === Directions.RIGHT ? 2 : -2));
-		canvas.style.left = `${x + mod}px`;
+		birb.setX(x);
 	}
 
 	/**
 	 * @param {number} y
 	 */
 	function setY(y) {
-		let bottom;
-		if (isAbsolute()) {
-			// Position is absolute, convert from fixed
-			bottom = y - window.scrollY;
-		} else {
-			// Position is fixed
-			bottom = y;
-		}
-		canvas.style.bottom = `${bottom}px`;
+		birb.setY(y);
 	}
 
 	// Helper functions

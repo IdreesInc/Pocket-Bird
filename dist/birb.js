@@ -493,6 +493,284 @@
 	}
 
 	/**
+	 * @typedef {keyof typeof Animations} AnimationType
+	 */
+
+	const Animations = /** @type {const} */ ({
+		STILL: "STILL",
+		BOB: "BOB",
+		FLYING: "FLYING",
+		HEART: "HEART"
+	});
+
+	class Birb {
+		animStart = Date.now();
+		x = 0;
+		y = 0;
+		direction = Directions.RIGHT;
+		isAbsolutePositioned = false;
+		visible = true;
+		/** @type {AnimationType} */
+		currentAnimation = Animations.STILL;
+
+		/**
+		 * @param {number} birbCssScale
+		 * @param {number} canvasPixelSize
+		 * @param {string[][]} spriteSheet The loaded sprite sheet pixel data
+		 * @param {number} spriteWidth
+		 * @param {number} spriteHeight
+		 */
+		constructor(birbCssScale, canvasPixelSize, spriteSheet, spriteWidth, spriteHeight) {
+			this.birbCssScale = birbCssScale;
+			this.canvasPixelSize = canvasPixelSize;
+			this.windowPixelSize = canvasPixelSize * birbCssScale;
+			this.spriteWidth = spriteWidth;
+			this.spriteHeight = spriteHeight;
+
+			// Build layers from sprite sheet
+			this.layers = {
+				base: new Layer(this.getLayer(spriteSheet, 0)),
+				down: new Layer(this.getLayer(spriteSheet, 1)),
+				heartOne: new Layer(this.getLayer(spriteSheet, 2)),
+				heartTwo: new Layer(this.getLayer(spriteSheet, 3)),
+				heartThree: new Layer(this.getLayer(spriteSheet, 4)),
+				tuftBase: new Layer(this.getLayer(spriteSheet, 5), "tuft"),
+				tuftDown: new Layer(this.getLayer(spriteSheet, 6), "tuft"),
+				wingsUp: new Layer(this.getLayer(spriteSheet, 7)),
+				wingsDown: new Layer(this.getLayer(spriteSheet, 8)),
+				happyEye: new Layer(this.getLayer(spriteSheet, 9)),
+			};
+
+			// Build frames from layers
+			this.frames = {
+				base: new Frame([this.layers.base, this.layers.tuftBase]),
+				headDown: new Frame([this.layers.down, this.layers.tuftDown]),
+				wingsDown: new Frame([this.layers.base, this.layers.tuftBase, this.layers.wingsDown]),
+				wingsUp: new Frame([this.layers.down, this.layers.tuftDown, this.layers.wingsUp]),
+				heartOne: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartOne]),
+				heartTwo: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartTwo]),
+				heartThree: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartThree]),
+				heartFour: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartTwo]),
+			};
+
+			// Build animations from frames
+			this.animations = {
+				[Animations.STILL]: new Anim([this.frames.base], [1000]),
+				[Animations.BOB]: new Anim([
+					this.frames.base,
+					this.frames.headDown
+				], [
+					420,
+					420
+				]),
+				[Animations.FLYING]: new Anim([
+					this.frames.base,
+					this.frames.wingsUp,
+					this.frames.headDown,
+					this.frames.wingsDown,
+				], [
+					30,
+					80,
+					30,
+					60,
+				]),
+				[Animations.HEART]: new Anim([
+					this.frames.heartOne,
+					this.frames.heartTwo,
+					this.frames.heartThree,
+					this.frames.heartFour,
+					this.frames.heartThree,
+					this.frames.heartFour,
+					this.frames.heartThree,
+					this.frames.heartFour,
+				], [
+					60,
+					80,
+					250,
+					250,
+					250,
+					250,
+					250,
+					250,
+				], false),
+			};
+
+			// Create canvas element
+			this.canvas = document.createElement("canvas");
+			this.canvas.id = "birb";
+			this.canvas.width = this.frames.base.getPixels()[0].length * canvasPixelSize;
+			this.canvas.height = spriteHeight * canvasPixelSize;
+
+			this.ctx = this.canvas.getContext("2d");
+
+			// Append to document
+			document.body.appendChild(this.canvas);
+		}
+
+		/**
+		 * Draw the current animation frame
+		 * @param {BirdType} species The species color data
+		 * @returns {boolean} Whether the animation has completed (for non-looping animations)
+		 */
+		draw(species) {
+			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			const anim = this.animations[this.currentAnimation];
+			return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species);
+		}
+
+		/**
+		 * Get a layer from the sprite sheet array
+		 * @param {string[][]} array
+		 * @param {number} sprite
+		 * @returns {string[][]}
+		 */
+		getLayer(array, sprite) {
+			// From an array of a horizontal sprite sheet, get the layer for a specific sprite
+			const layer = [];
+			for (let y = 0; y < this.spriteWidth; y++) {
+				layer.push(array[y].slice(sprite * this.spriteWidth, (sprite + 1) * this.spriteWidth));
+			}
+			return layer;
+		}
+
+		/**
+		 * @returns {AnimationType} The current animation key
+		 */
+		getCurrentAnimation() {
+			return this.currentAnimation;
+		}
+
+		/**
+		 * Set the current animation by name and reset the animation timer
+		 * @param {AnimationType} animationName
+		 */
+		setAnimation(animationName) {
+			this.currentAnimation = animationName;
+			this.animStart = Date.now();
+		}
+
+		/**
+		 * Get the frames object
+		 * @returns {Record<string, Frame>}
+		 */
+		getFrames() {
+			return this.frames;
+		}
+
+		/**
+		 * Get the canvas element
+		 * @returns {HTMLCanvasElement}
+		 */
+		getElement() {
+			return this.canvas;
+		}
+
+		/**
+		 * Get the canvas width in CSS pixels
+		 * @returns {number}
+		 */
+		getElementWidth() {
+			return this.canvas.width * this.birbCssScale;
+		}
+
+		/**
+		 * Get the canvas height in CSS pixels
+		 * @returns {number}
+		 */
+		getElementHeight() {
+			return this.canvas.height * this.birbCssScale;
+		}
+
+		getElementTop() {
+			const rect = this.canvas.getBoundingClientRect();
+			return rect.top;
+		}
+
+		/**
+		 * Set the X position
+		 * @param {number} x
+		 */
+		setX(x) {
+			this.x = x;
+			let mod = this.getElementWidth() / -2 - (this.windowPixelSize * (this.direction === Directions.RIGHT ? 2 : -2));
+			this.canvas.style.left = `${x + mod}px`;
+		}
+
+		/**
+		 * Set the Y position
+		 * @param {number} y
+		 */
+		setY(y) {
+			this.y = y;
+			let bottom;
+			if (this.isAbsolutePositioned) {
+				// Position is absolute, convert from fixed
+				bottom = y - window.scrollY;
+			} else {
+				// Position is fixed
+				bottom = y;
+			}
+			this.canvas.style.bottom = `${bottom}px`;
+		}
+
+		/**
+		 * Get the current X position
+		 * @returns {number}
+		 */
+		getX() {
+			return this.x;
+		}
+
+		/**
+		 * Get the current Y position
+		 * @returns {number}
+		 */
+		getY() {
+			return this.y;
+		}
+
+		/**
+		 * Set the direction the bird is facing
+		 * @param {number} direction
+		 */
+		setDirection(direction) {
+			this.direction = direction;
+		}
+
+		/**
+		 * Set whether the element should be absolutely positioned
+		 * @param {boolean} absolute
+		 */
+		setAbsolutePositioned(absolute) {
+			this.isAbsolutePositioned = absolute;
+			if (absolute) {
+				this.canvas.classList.add("birb-absolute");
+			} else {
+				this.canvas.classList.remove("birb-absolute");
+			}
+			// Update Y position to apply the new positioning mode
+			this.setY(this.y);
+		}
+
+		/**
+		 * Set visibility of the bird
+		 * @param {boolean} visible
+		 */
+		setVisible(visible) {
+			this.visible = visible;
+			this.canvas.style.display = visible ? "" : "none";
+		}
+
+		/**
+		 * Get visibility of the bird
+		 * @returns {boolean}
+		 */
+		isVisible() {
+			return this.visible;
+		}
+	}
+
+	/**
 	 * @typedef {Object} SavedStickyNote
 	 * @property {string} id
 	 * @property {string} site
@@ -1264,77 +1542,12 @@
 		const SPRITE_SHEET = birbPixels;
 		const FEATHER_SPRITE_SHEET = featherPixels;
 
-		const layers = {
-			base: new Layer(getLayer(SPRITE_SHEET, 0)),
-			down: new Layer(getLayer(SPRITE_SHEET, 1)),
-			heartOne: new Layer(getLayer(SPRITE_SHEET, 2)),
-			heartTwo: new Layer(getLayer(SPRITE_SHEET, 3)),
-			heartThree: new Layer(getLayer(SPRITE_SHEET, 4)),
-			tuftBase: new Layer(getLayer(SPRITE_SHEET, 5), "tuft"),
-			tuftDown: new Layer(getLayer(SPRITE_SHEET, 6), "tuft"),
-			wingsUp: new Layer(getLayer(SPRITE_SHEET, 7)),
-			wingsDown: new Layer(getLayer(SPRITE_SHEET, 8)),
-			happyEye: new Layer(getLayer(SPRITE_SHEET, 9)),
-		};
-
 		const featherLayers = {
 			feather: new Layer(getLayer(FEATHER_SPRITE_SHEET, 0, FEATHER_SPRITE_WIDTH)),
 		};
 
-		const birbFrames = {
-			base: new Frame([layers.base, layers.tuftBase]),
-			headDown: new Frame([layers.down, layers.tuftDown]),
-			wingsDown: new Frame([layers.base, layers.tuftBase, layers.wingsDown]),
-			wingsUp: new Frame([layers.down, layers.tuftDown, layers.wingsUp]),
-			heartOne: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartOne]),
-			heartTwo: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartTwo]),
-			heartThree: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartThree]),
-			heartFour: new Frame([layers.base, layers.tuftBase, layers.happyEye, layers.heartTwo]),
-		};
-
 		const featherFrames = {
 			feather: new Frame([featherLayers.feather]),
-		};
-
-		const Animations = {
-			STILL: new Anim([birbFrames.base], [1000]),
-			BOB: new Anim([
-				birbFrames.base,
-				birbFrames.headDown
-			], [
-				420,
-				420
-			]),
-			FLYING: new Anim([
-				birbFrames.base,
-				birbFrames.wingsUp,
-				birbFrames.headDown,
-				birbFrames.wingsDown,
-			], [
-				30,
-				80,
-				30,
-				60,
-			]),
-			HEART: new Anim([
-				birbFrames.heartOne,
-				birbFrames.heartTwo,
-				birbFrames.heartThree,
-				birbFrames.heartFour,
-				birbFrames.heartThree,
-				birbFrames.heartFour,
-				birbFrames.heartThree,
-				birbFrames.heartFour,
-			], [
-				60,
-				80,
-				250,
-				250,
-				250,
-				250,
-				250,
-				250,
-			], false),
 		};
 
 		const FEATHER_ANIMATIONS = {
@@ -1377,10 +1590,9 @@
 		];
 
 		const styleElement = document.createElement("style");
-		const canvas = document.createElement("canvas");
 
-		/** @type {CanvasRenderingContext2D} */
-		const ctx = canvas.getContext("2d");
+		/** @type {Birb} */
+		let birb;
 
 		const States = {
 			IDLE: "idle",
@@ -1391,9 +1603,6 @@
 		let frozen = false;
 		let stateStart = Date.now();
 		let currentState = States.IDLE;
-		let animStart = Date.now();
-		let currentAnimation = Animations.BOB;
-		let direction = Directions.RIGHT;
 		let ticks = 0;
 		// Bird's current position
 		let birdY = 0;
@@ -1561,10 +1770,8 @@
 			styleElement.innerHTML = STYLESHEET;
 			document.head.appendChild(styleElement);
 
-			canvas.id = "birb";
-			canvas.width = birbFrames.base.getPixels()[0].length * CANVAS_PIXEL_SIZE;
-			canvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
-			document.body.appendChild(canvas);
+			birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT);
+			birb.setAnimation(Animations.BOB);
 
 			window.addEventListener("scroll", () => {
 				lastActionTimestamp = Date.now();
@@ -1577,13 +1784,17 @@
 				}
 			});
 
-			onClick(canvas, () => {
-				if (currentAnimation === Animations.HEART && (Date.now() - lastPetTimestamp < PET_MENU_COOLDOWN)) {
+			const birbElement = birb.getElement();
+
+			onClick(birbElement, () => {
+				if (birb.getCurrentAnimation() === Animations.HEART && (Date.now() - lastPetTimestamp < PET_MENU_COOLDOWN)) {
 					// Currently being pet, don't open menu
 					return;
 				}
 				insertMenu(menuItems, `${birdBirb().toLowerCase()}OS`, updateMenuLocation);
-			}); canvas.addEventListener("mouseover", () => {
+			});
+			
+			birbElement.addEventListener("mouseover", () => {
 				lastActionTimestamp = Date.now();
 				if (currentState === States.IDLE) {
 					petStack.push(Date.now());
@@ -1599,7 +1810,7 @@
 				}
 			});
 
-			canvas.addEventListener("touchmove", (e) => {
+			birbElement.addEventListener("touchmove", (e) => {
 				pet();
 			});
 
@@ -1628,7 +1839,7 @@
 			}
 
 			if (currentState === States.IDLE && !frozen && !isMenuOpen()) {
-				if (Math.random() < HOP_CHANCE && currentAnimation !== Animations.HEART) {
+				if (Math.random() < HOP_CHANCE && birb.getCurrentAnimation() !== Animations.HEART) {
 					hop();
 				} else if (Date.now() - lastActionTimestamp > AFK_TIME) {
 					// Idle for a while, do something
@@ -1660,7 +1871,7 @@
 		function draw() {
 			requestAnimationFrame(draw);
 
-			if (!visible) {
+			if (!birb.isVisible()) {
 				return;
 			}
 
@@ -1688,14 +1899,13 @@
 				focusOnGround();
 			}
 
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			if (currentAnimation.draw(ctx, direction, animStart, CANVAS_PIXEL_SIZE, SPECIES[currentSpecies])) {
-				setAnimation(Animations.STILL);
+			if (birb.draw(SPECIES[currentSpecies])) {
+				birb.setAnimation(Animations.STILL);
 			}
 
 			// Update HTML element position
-			setX(birdX);
-			setY(birdY);
+			birb.setX(birdX);
+			birb.setY(birdY);
 		}
 
 		/**
@@ -1843,7 +2053,7 @@
 		 */
 		function updateMenuLocation(menu) {
 			let x = birdX;
-			let y = canvas.offsetTop + canvas.height / 2 + WINDOW_PIXEL_SIZE * 10;
+			let y = birb.getElementTop() + birb.getElementHeight() / 2 + WINDOW_PIXEL_SIZE * 10;
 			const offset = 20;
 			if (x < window.innerWidth / 2) {
 				// Left side
@@ -1917,7 +2127,7 @@
 				if (!speciesCtx) {
 					return;
 				}
-				birbFrames.base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type);
+				birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type);
 				speciesElement.appendChild(speciesCanvas);
 				content.appendChild(speciesElement);
 				if (unlocked) {
@@ -1997,7 +2207,7 @@
 				birdX = targetX;
 				birdY = targetY;
 			} else {
-				direction = targetX > birdX ? Directions.RIGHT : Directions.LEFT;
+				birb.setDirection(targetX > birdX ? Directions.RIGHT : Directions.LEFT);
 			}
 			return complete;
 		}
@@ -2069,17 +2279,13 @@
 			focusedBounds = { left, right, top };
 		}
 
-		function getCanvasWidth() {
-			return canvas.width * BIRB_CSS_SCALE
-		}
-
 		function hop() {
 			if (frozen) {
 				return;
 			}
 			if (currentState === States.IDLE) {
 				setState(States.HOP);
-				setAnimation(Animations.FLYING);
+				birb.setAnimation(Animations.FLYING);
 				if ((Math.random() < 0.5 && birdX - HOP_DISTANCE > focusedBounds.left) || birdX + HOP_DISTANCE > focusedBounds.right) {
 					targetX = birdX - HOP_DISTANCE;
 				} else {
@@ -2090,14 +2296,14 @@
 		}
 
 		function pet() {
-			if (currentState === States.IDLE && currentAnimation !== Animations.HEART) {
-				setAnimation(Animations.HEART);
+			if (currentState === States.IDLE && birb.getCurrentAnimation() !== Animations.HEART) {
+				birb.setAnimation(Animations.HEART);
 				lastPetTimestamp = Date.now();
 			}
 		}
 
 		function hideBirb() {
-			canvas.style.display = "none";
+			birb.setVisible(false);
 			visible = false;
 		}
 
@@ -2109,7 +2315,7 @@
 			targetX = x;
 			targetY = y;
 			setState(States.FLYING);
-			setAnimation(Animations.FLYING);
+			birb.setAnimation(Animations.FLYING);
 		}
 
 		/**
@@ -2117,15 +2323,6 @@
 		 */
 		function isAbsolute() {
 			return focusedElement !== null && (currentState === States.IDLE || currentState === States.HOP);
-		}
-
-		/**
-		 * Set the current animation and reset the animation timer
-		 * @param {Anim} animation
-		 */
-		function setAnimation(animation) {
-			currentAnimation = animation;
-			animStart = Date.now();
 		}
 
 		/**
@@ -2138,37 +2335,17 @@
 			startY = birdY;
 			currentState = state;
 			if (state === States.IDLE) {
-				setAnimation(Animations.BOB);
+				birb.setAnimation(Animations.BOB);
 			}
-			if (isAbsolute()) {
-				canvas.classList.add("birb-absolute");
-			} else {
-				canvas.classList.remove("birb-absolute");
-			}
+			birb.setAbsolutePositioned(isAbsolute());
 			setY(birdY);
-		}
-
-		/**
-		 * @param {number} x
-		 */
-		function setX(x) {
-			let mod = getCanvasWidth() / -2 - (WINDOW_PIXEL_SIZE * (direction === Directions.RIGHT ? 2 : -2));
-			canvas.style.left = `${x + mod}px`;
 		}
 
 		/**
 		 * @param {number} y
 		 */
 		function setY(y) {
-			let bottom;
-			if (isAbsolute()) {
-				// Position is absolute, convert from fixed
-				bottom = y - window.scrollY;
-			} else {
-				// Position is fixed
-				bottom = y;
-			}
-			canvas.style.bottom = `${bottom}px`;
+			birb.setY(y);
 		}
 
 		// Helper functions
