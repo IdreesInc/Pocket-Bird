@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.26.421
+// @version      2025.10.26.454
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1342,28 +1342,27 @@
 }
 
 #birb-field-guide {
-	width: 330px !important;
+	width: 322px !important;
 }
 
 .birb-grid-content {
-	width: 100%;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
-	flex-direction: row;
-	padding-top: 4px;
-	padding-bottom: 4px;
+	display: grid;
+	grid-template-rows: repeat(3, auto);
+	grid-auto-flow: column;
+	gap: 10px;
+	padding-top: 8px;
+	padding-bottom: 8px;
 	padding-left: 10px;
 	padding-right: 10px;
 	box-sizing: border-box;
+	justify-content: start;
+	align-items: start;
 }
 
 .birb-grid-item {
 	width: 64px;
 	height: 64px;
 	overflow: hidden;
-	margin-top: 6px;
-	margin-bottom: 6px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -1376,7 +1375,7 @@
 
 .birb-grid-item canvas {
 	image-rendering: pixelated;
-	transform: scale(2);
+	transform: scale(2) !important;
 	padding-bottom: var(--birb-border-size);
 }
 
