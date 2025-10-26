@@ -1,16 +1,12 @@
 (function () {
 	'use strict';
 
-	// @ts-check
-
 	const Directions = {
 		LEFT: -1,
 		RIGHT: 1,
 	};
 
-	// @ts-check
-
-	// Sprite theme color indicators
+	/** Indicators for parts of the base bird sprite sheet */
 	const Sprite = {
 		THEME_HIGHLIGHT: "theme-highlight",
 		TRANSPARENT: "transparent",
@@ -210,8 +206,6 @@
 		}),
 	};
 
-	// @ts-check
-
 	class Layer {
 		/**
 		 * @param {string[][]} pixels
@@ -222,8 +216,6 @@
 			this.tag = tag;
 		}
 	}
-
-	// @ts-check
 
 	class Frame {
 
@@ -290,9 +282,6 @@
 					ctx.fillRect(x * canvasPixelSize, y * canvasPixelSize, canvasPixelSize, canvasPixelSize);
 				}		}	}
 	}
-
-	// @ts-check
-
 
 	// @ts-ignore
 	const SHARED_CONFIG = {
@@ -1017,7 +1006,6 @@
 		const canvas = document.createElement("canvas");
 
 		/** @type {CanvasRenderingContext2D} */
-		// @ts-expect-error
 		const ctx = canvas.getContext("2d");
 
 		const States = {
@@ -1389,7 +1377,6 @@
 
 			const textarea = noteElement.querySelector(".birb-sticky-note-input");
 			if (textarea && textarea instanceof HTMLTextAreaElement) {
-				/** @type {NodeJS.Timeout | undefined} */
 				let saveTimeout;
 				// Save after debounce
 				textarea.addEventListener("input", () => {

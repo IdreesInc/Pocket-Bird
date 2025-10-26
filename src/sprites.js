@@ -1,6 +1,4 @@
-// @ts-check
-
-// Sprite theme color indicators
+/** Indicators for parts of the base bird sprite sheet */
 export const Sprite = {
 	THEME_HIGHLIGHT: "theme-highlight",
 	TRANSPARENT: "transparent",

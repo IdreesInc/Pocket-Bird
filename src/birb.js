@@ -1,5 +1,3 @@
-// @ts-check
-
 import {
 	Directions
 } from './sharedConstants.js';
@@ -402,7 +400,6 @@ Promise.all([
 	const canvas = document.createElement("canvas");
 
 	/** @type {CanvasRenderingContext2D} */
-	// @ts-expect-error
 	const ctx = canvas.getContext("2d");
 
 	const States = {
@@ -774,7 +771,6 @@ Promise.all([
 
 		const textarea = noteElement.querySelector(".birb-sticky-note-input");
 		if (textarea && textarea instanceof HTMLTextAreaElement) {
-			/** @type {NodeJS.Timeout | undefined} */
 			let saveTimeout;
 			// Save after debounce
 			textarea.addEventListener("input", () => {

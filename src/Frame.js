@@ -1,4 +1,3 @@
-// @ts-check
 import { Directions } from './sharedConstants.js';
 import { Sprite, BirdType } from './sprites.js';
 import Layer from './layer.js';
