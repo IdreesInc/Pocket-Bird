@@ -55,7 +55,7 @@ const DEFAULT_SETTINGS = {
 	birbMode: false
 };
 
-
+// Rendering constants
 const SPRITE_WIDTH = 32;
 const SPRITE_HEIGHT = 32;
 const FEATHER_SPRITE_WIDTH = 32;
@@ -64,36 +64,41 @@ const UI_CSS_SCALE = isMobile() ? 0.9 : 1;
 const CANVAS_PIXEL_SIZE = 1;
 const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
 
+// Build-time assets
 const STYLESHEET = `___STYLESHEET___`;
 const SPRITE_SHEET = "__SPRITE_SHEET__";
 const FEATHER_SPRITE_SHEET = "__FEATHER_SPRITE_SHEET__";
 
+// Element IDs
 const FIELD_GUIDE_ID = "birb-field-guide";
 const FEATHER_ID = "birb-feather";
 
 const DEFAULT_BIRD = "bluebird";
+
+// Birb movement
 const HOP_SPEED = 0.07;
 const FLY_SPEED = isMobile() ? 0.125 : 0.25;
 const HOP_DISTANCE = 45;
-/** Speed at which the feather falls per tick */
-const FEATHER_FALL_SPEED = 1;
-/** Time in milliseconds until the user is considered AFK */
-const AFK_TIME = isDebug() ? 0 : 1000 * 30;
+
+// Timing constants (in milliseconds)
 const UPDATE_INTERVAL = 1000 / 60; // 60 FPS
-// Per-frame chances
-const HOP_CHANCE = 1 / (60 * 3); // 3 seconds
-const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // 20 seconds
-const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // 2 hours
-/** Multiplier after petting that increases the feather drop chance */
-const PET_FEATHER_BOOST = 2;
-/** How long the pet boost lasts in milliseconds */
+const AFK_TIME = isDebug() ? 0 : 1000 * 30;
 const PET_BOOST_DURATION = 1000 * 60 * 5;
+const PET_MENU_COOLDOWN = 1000;
+const URL_CHECK_INTERVAL = 500;
+
+// Random event chances per tick
+const HOP_CHANCE = 1 / (60 * 3); // Every 3 seconds
+const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // Every 20 seconds
+const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // Every 2 hours
+
+// Feathers
+const FEATHER_FALL_SPEED = 1;
+const PET_FEATHER_BOOST = 2;
+
+// Focus element constraints
 const MIN_FOCUS_ELEMENT_WIDTH = 100;
 const MIN_FOCUS_ELEMENT_TOP = 80;
-/** Time between checking whether the URL has changed */
-const URL_CHECK_INTERVAL = 500;
-/** Time after petting before the menu can be opened */
-const PET_MENU_COOLDOWN = 1000;
 
 /** @type {Partial<Settings>} */
 let userSettings = {};
@@ -851,10 +856,6 @@ Promise.all([
 		if (fieldGuide) {
 			fieldGuide.remove();
 		}
-	}
-
-	function isSafari() {
-		return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 	}
 
 	/**
