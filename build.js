@@ -68,7 +68,7 @@ const userScriptHeader =
 
 // Bundle with rollup
 const bundle = await rollup({
-	input: 'src/birb.js',
+	input: 'src/application.js',
 });
 
 await bundle.write({
