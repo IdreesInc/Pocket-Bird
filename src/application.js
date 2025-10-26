@@ -18,7 +18,7 @@ import {
 	getLayer
 } from './shared.js';
 import {
-	SPRITE,
+	Sprite,
 	SPRITE_SHEET_COLOR_MAP,
 	SPECIES
 } from './sprites.js';
@@ -138,7 +138,7 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 					const b = pixels[index + 2];
 					const a = pixels[index + 3];
 					if (a === 0) {
-						row.push(SPRITE.TRANSPARENT);
+						row.push(Sprite.TRANSPARENT);
 						continue;
 					}
 					const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
@@ -148,7 +148,7 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 					}
 					if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
 						error(`Unknown color: ${hex}`);
-						row.push(SPRITE.TRANSPARENT);
+						row.push(Sprite.TRANSPARENT);
 					}
 					row.push(SPRITE_SHEET_COLOR_MAP[hex]);
 				}
@@ -192,7 +192,7 @@ Promise.all([
 		new MenuItem(`Pet ${birdBirb()}`, pet),
 		new MenuItem("Field Guide", insertFieldGuide),
 		new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote)),
-		new MenuItem(`Hide ${birdBirb()}`, hideBirb),
+		new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false)),
 		new DebugMenuItem("Freeze/Unfreeze", () => {
 			frozen = !frozen;
 		}),
@@ -251,7 +251,7 @@ Promise.all([
 	let petStack = [];
 	let currentSpecies = DEFAULT_BIRD;
 	let unlockedSpecies = [DEFAULT_BIRD];
-	let visible = true;
+	// let visible = true;
 	let lastPetTimestamp = 0;
 	/** @type {StickyNote[]} */
 	let stickyNotes = [];
@@ -464,7 +464,7 @@ Promise.all([
 
 		// Hide bird if the browser is fullscreen
 		if (document.fullscreenElement) {
-			hideBirb();
+			birb.setVisible(false);
 			// Won't be restored on fullscreen exit
 		}
 
@@ -491,7 +491,7 @@ Promise.all([
 
 		// Double the chance of a feather if recently pet
 		const petMod = Date.now() - lastPetTimestamp < PET_BOOST_DURATION ? PET_FEATHER_BOOST : 1;
-		if (visible && Math.random() < FEATHER_CHANCE * petMod) {
+		if (birb.isVisible() && Math.random() < FEATHER_CHANCE * petMod) {
 			lastPetTimestamp = 0;
 			activateFeather();
 		}
@@ -799,7 +799,7 @@ Promise.all([
 	function switchSpecies(type) {
 		currentSpecies = type;
 		// Update CSS variable --birb-highlight to be wing color
-		document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[SPRITE.THEME_HIGHLIGHT]);
+		document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[Sprite.THEME_HIGHLIGHT]);
 		save();
 	}
 
@@ -924,11 +924,6 @@ Promise.all([
 		}
 	}
 
-	function hideBirb() {
-		birb.setVisible(false);
-		visible = false;
-	}
-
 	/**
 	 * @param {number} x
 	 * @param {number} y
@@ -960,21 +955,7 @@ Promise.all([
 			birb.setAnimation(Animations.BOB);
 		}
 		birb.setAbsolutePositioned(isAbsolute());
-		setY(birdY);
-	}
-
-	/**
-	 * @param {number} x
-	 */
-	function setX(x) {
-		birb.setX(x);
-	}
-
-	/**
-	 * @param {number} y
-	 */
-	function setY(y) {
-		birb.setY(y);
+		birb.setY(birdY);
 	}
 
 	// Helper functions
