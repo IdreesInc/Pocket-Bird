@@ -2129,7 +2129,6 @@
 					speciesElement.classList.add("birb-grid-item-locked");
 				}
 				speciesElement.addEventListener("mouseover", () => {
-					log("mouseover");
 					description.innerHTML = generateDescription(id);
 				});
 				speciesElement.addEventListener("mouseout", () => {

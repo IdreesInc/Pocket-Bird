@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.26.454
+// @version      2025.10.26.455
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -2143,7 +2143,6 @@
 					speciesElement.classList.add("birb-grid-item-locked");
 				}
 				speciesElement.addEventListener("mouseover", () => {
-					log("mouseover");
 					description.innerHTML = generateDescription(id);
 				});
 				speciesElement.addEventListener("mouseout", () => {
