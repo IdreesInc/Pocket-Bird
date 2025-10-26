@@ -1286,6 +1286,10 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 		});
 
 		onClick(canvas, () => {
+			if (currentAnimation === Animations.HEART) {
+				// Currently being pet, don't open menu
+				return;
+			}
 			insertMenu();
 		});
 
@@ -1298,11 +1302,15 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 				}
 				const pets = petStack.filter((time) => Date.now() - time < 1000).length;
 				if (pets >= 3) {
-					setAnimation(Animations.HEART);
+					pet();
 					// Clear the stack
 					petStack = [];
 				}
 			}
+		});
+
+		canvas.addEventListener("touchmove", (e) => {
+			pet();
 		});
 
 		drawStickyNotes();
@@ -1791,7 +1799,23 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	 */
 	function onClick(element, action) {
 		element.addEventListener("click", (e) => action(e));
-		element.addEventListener("touchstart", (e) => action(e));
+		element.addEventListener("touchend", (e) => {
+			if (e instanceof TouchEvent === false) {
+				return;
+			} else if (element instanceof HTMLElement === false) {
+				return;
+			}
+			const touch = e.changedTouches[0];
+			const rect = element.getBoundingClientRect();
+			if (
+				touch.clientX >= rect.left &&
+				touch.clientX <= rect.right &&
+				touch.clientY >= rect.top &&
+				touch.clientY <= rect.bottom
+			) {
+				action(e);
+			}
+		});
 	}
 
 	/**
@@ -1951,7 +1975,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	function getFullWindowHeight() {
 		return document.documentElement.clientHeight;
 	}
-	
+
 	function focusOnGround() {
 		console.log("Focusing on ground");
 		focusedElement = null;
@@ -2021,7 +2045,7 @@ Promise.all([loadSpriteSheetPixels(SPRITE_SHEET), loadSpriteSheetPixels(DECORATI
 	}
 
 	function pet() {
-		if (currentState === States.IDLE) {
+		if (currentState === States.IDLE && currentAnimation !== Animations.HEART) {
 			setAnimation(Animations.HEART);
 			lastPetTimestamp = Date.now();
 		}

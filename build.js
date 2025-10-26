@@ -20,17 +20,39 @@ const spriteSheets = [
 const STYLESHEET_PATH = "./stylesheet.css";
 const STYLESHEET_KEY = "___STYLESHEET___";
 
-let version = "0.0.0";
-// Try to read version from manifest.json
+const now = new Date();
+const versionDate = `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
+let buildNumber = 1;
+
+// Get build number from manifest.json
 try {
 	const manifest = JSON.parse(readFileSync('manifest.json', 'utf8'));
 	if (manifest.version) {
-		version = manifest.version;
+		if (manifest.version.startsWith(versionDate)) {
+			// Same day, increment build number
+			const parts = manifest.version.split('.');
+			if (parts.length === 4) {
+				buildNumber = parseInt(parts[3], 10) + 1;
+			}
+		}
 	}
 } catch (e) {
 	console.error("Could not read version from manifest.json");
 	throw e;
 }
+
+const version = `${versionDate}.${buildNumber}`;
+
+// Update manifest.json with new version
+try {
+	const manifest = JSON.parse(readFileSync('manifest.json', 'utf8'));
+	manifest.version = version;
+	writeFileSync('manifest.json', JSON.stringify(manifest, null, 4), 'utf8');
+} catch (e) {
+	console.error("Could not update version in manifest.json");
+	throw e;
+}
+
 
 const userScriptHeader =
 `// ==UserScript==
