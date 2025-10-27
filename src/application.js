@@ -215,7 +215,14 @@ Promise.all([
 		new MenuItem("Toggle Birb Mode", () => {
 			userSettings.birbMode = !userSettings.birbMode;
 			save();
-			insertModal(`${birdBirb()} Mode`, `Your ${birdBirb().toLowerCase()} shall now be referred to as "${birdBirb()}"${userSettings.birbMode ? "\n\nWelcome back to 2012" : ""}`);
+			const message = makeElement("birb-message-content");
+			message.appendChild(document.createTextNode(`Your ${birdBirb().toLowerCase()} shall now be referred to as "${birdBirb()}"`));
+			if (userSettings.birbMode) {
+				message.appendChild(document.createElement("br"));
+				message.appendChild(document.createElement("br"));
+				message.appendChild(document.createTextNode("Welcome back to 2012"));
+			}
+			insertModal(`${birdBirb()} Mode`, message);
 		}),
 		new Separator(),
 		new MenuItem("__VERSION__", () => { alert("Thank you for using Pocket Bird! You are on version: __VERSION__") }, false),
@@ -552,34 +559,37 @@ Promise.all([
 	 * Create a window element with header and content
 	 * @param {string} id
 	 * @param {string} title
-	 * @param {string} contentHtml
+	 * @param {HTMLElement} contentElement
 	 * @param {() => void} [onClose]
 	 * @returns {HTMLElement}
 	 */
-	function createWindow(id, title, contentHtml, onClose) {
+	function createWindow(id, title, contentElement, onClose) {
 		const window = makeElement("birb-window", undefined, id);
-		window.innerHTML = `
-			<div class="birb-window-header">
-				<div class="birb-window-title">${title}</div>
-				<div class="birb-window-close">x</div>
-			</div>
-			<div class="birb-window-content">
-				${contentHtml}
-			</div>
-		`;
+		
+		const header = makeElement("birb-window-header");
+		const titleElement = makeElement("birb-window-title");
+		titleElement.textContent = title;
+		const closeButton = makeElement("birb-window-close");
+		closeButton.textContent = "x";
+		
+		header.appendChild(titleElement);
+		header.appendChild(closeButton);
+		
+		const contentWrapper = makeElement("birb-window-content");
+		contentWrapper.appendChild(contentElement);
+		
+		window.appendChild(header);
+		window.appendChild(contentWrapper);
 
 		document.body.appendChild(window);
-		makeDraggable(window.querySelector(".birb-window-header"));
+		makeDraggable(header);
 
-		const closeButton = window.querySelector(".birb-window-close");
-		if (closeButton) {
-			makeClosable(() => {
-				if (onClose) {
-					onClose();
-				}
-				window.remove();
-			}, closeButton);
-		}
+		makeClosable(() => {
+			if (onClose) {
+				onClose();
+			}
+			window.remove();
+		}, closeButton);
 
 		return window;
 	}
@@ -639,7 +649,13 @@ Promise.all([
 	function unlockBird(birdType) {
 		if (!unlockedSpecies.includes(birdType)) {
 			unlockedSpecies.push(birdType);
-			insertModal("New Bird Unlocked!", `You've found a <b>${SPECIES[birdType].name}</b> feather! Use the Field Guide to switch your bird's species.`);
+			const message = makeElement("birb-message-content");
+			message.appendChild(document.createTextNode("You've found a "));
+			const bold = document.createElement("b");
+			bold.textContent = SPECIES[birdType].name;
+			message.appendChild(bold);
+			message.appendChild(document.createTextNode(" feather! Use the Field Guide to switch your bird's species."));
+			insertModal("New Bird Unlocked!", message);
 		}
 		save();
 	}
@@ -666,18 +682,14 @@ Promise.all([
 
 	/**
 	 * @param {string} title
-	 * @param {string} message
+	 * @param {HTMLElement} content
 	 */
-	function insertModal(title, message) {
+	function insertModal(title, content) {
 		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
 			return;
 		}
 
-		const modal = createWindow("birb-modal", title, `
-			<div class="birb-message-content">
-				${message}
-			</div>
-		`);
+		const modal = createWindow("birb-modal", title, content);
 
 		modal.style.width = "270px";
 		centerElement(modal);
@@ -713,30 +725,39 @@ Promise.all([
 			return;
 		}
 
+		const contentContainer = document.createElement("div");
+		const content = makeElement("birb-grid-content");
+		const description = makeElement("birb-field-guide-description");
+		contentContainer.appendChild(content);
+		contentContainer.appendChild(description);
+
 		const fieldGuide = createWindow(
 			FIELD_GUIDE_ID,
 			"Field Guide",
-			`<div class="birb-grid-content"></div>
-			<div class="birb-field-guide-description"></div>`
-		)
-
-		const content = fieldGuide.querySelector(".birb-grid-content");
-		if (!content) {
-			return;
-		}
-		content.innerHTML = "";
+			contentContainer
+		);
 
 		const generateDescription = (/** @type {string} */ speciesId) => {
 			const type = SPECIES[speciesId];
 			const unlocked = unlockedSpecies.includes(speciesId);
-			return "<b>" + type.name + "</b><div style='height: 0.3em'></div>" + (!unlocked ? "Not yet unlocked" : type.description);
+			
+			const boldName = document.createElement("b");
+			boldName.textContent = type.name;
+			
+			const spacer = document.createElement("div");
+			spacer.style.height = "0.3em";
+			
+			const descText = document.createTextNode(!unlocked ? "Not yet unlocked" : type.description);
+			
+			const fragment = document.createDocumentFragment();
+			fragment.appendChild(boldName);
+			fragment.appendChild(spacer);
+			fragment.appendChild(descText);
+			
+			return fragment;
 		};
 
-		const description = fieldGuide.querySelector(".birb-field-guide-description");
-		if (!description) {
-			return;
-		}
-		description.innerHTML = generateDescription(currentSpecies);
+		description.appendChild(generateDescription(currentSpecies));
 		for (const [id, type] of Object.entries(SPECIES)) {
 			const unlocked = unlockedSpecies.includes(id);
 			const speciesElement = makeElement("birb-grid-item");
@@ -765,10 +786,12 @@ Promise.all([
 				speciesElement.classList.add("birb-grid-item-locked");
 			}
 			speciesElement.addEventListener("mouseover", () => {
-				description.innerHTML = generateDescription(id);
+				description.textContent = "";
+				description.appendChild(generateDescription(id));
 			});
 			speciesElement.addEventListener("mouseout", () => {
-				description.innerHTML = generateDescription(currentSpecies);
+				description.textContent = "";
+				description.appendChild(generateDescription(currentSpecies));
 			});
 		}
 		centerElement(fieldGuide);

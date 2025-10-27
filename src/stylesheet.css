@@ -243,8 +243,8 @@
 	padding-left: 10px;
 	padding-right: 10px;
 	box-sizing: border-box;
-	justify-content: start;
-	align-items: start;
+	justify-content: center;
+	align-items: center;
 }
 
 .birb-grid-item {
@@ -289,6 +289,7 @@
 
 .birb-field-guide-description {
 	width: calc(100% - 20px);
+	margin-left: 10px;
 	margin-top: 5px;
 	padding: 8px;
 	padding-top: 4px;
@@ -305,11 +306,9 @@
 
 .birb-message-content {
 	box-sizing: border-box;
+	margin: 2px;
 	width: 100%;
-	margin-top: 10px;
-	padding: 8px;
-	padding-top: 4px;
-	padding-bottom: 4px;
+	padding: 10px;
 	font-size: 14px;
 	color: rgb(124, 108, 75);
 }
