@@ -1605,7 +1605,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.26.537", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.26.537"); }, false),
+			new MenuItem("2025.10.26.538", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.26.538"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -1758,6 +1758,12 @@
 
 		function init() {
 			log("Sprite sheets loaded successfully, initializing bird...");
+
+			if (window !== window.top) {
+				// Skip installation if within an iframe
+				log("In iframe, skipping Birb script initialization");
+				return;
+			}
 
 			// Preload font
 			const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
