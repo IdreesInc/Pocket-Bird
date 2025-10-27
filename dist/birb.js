@@ -1397,8 +1397,9 @@
 }
 
 .birb-field-guide-description {
-	width: calc(100% - 20px);
+	max-width: calc(100% - 20px);
 	margin-left: 10px;
+	margin-right: 10px;
 	margin-top: 5px;
 	padding: 8px;
 	padding-top: 4px;
@@ -1605,7 +1606,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.26.538", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.26.538"); }, false),
+			new MenuItem("2025.10.26.552", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.26.552"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2273,7 +2274,12 @@
 			if (largeElements.length === 0) {
 				return;
 			}
-			const randomElement = largeElements[Math.floor(Math.random() * largeElements.length)];
+			// Ensure the bird doesn't land on fixed or sticky elements
+			const nonFixedElements = largeElements.filter((el) => {
+				const style = window.getComputedStyle(el);
+				return style.position !== "fixed" && style.position !== "sticky";
+			});
+			const randomElement = nonFixedElements[Math.floor(Math.random() * nonFixedElements.length)];
 			focusedElement = randomElement;
 			log("Focusing on element: ", focusedElement);
 			updateFocusedElementBounds();

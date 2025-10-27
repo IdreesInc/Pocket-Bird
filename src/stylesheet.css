@@ -288,8 +288,9 @@
 }
 
 .birb-field-guide-description {
-	width: calc(100% - 20px);
+	max-width: calc(100% - 20px);
 	margin-left: 10px;
+	margin-right: 10px;
 	margin-top: 5px;
 	padding: 8px;
 	padding-top: 4px;

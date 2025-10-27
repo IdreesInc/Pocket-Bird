@@ -897,7 +897,12 @@ Promise.all([
 		if (largeElements.length === 0) {
 			return;
 		}
-		const randomElement = largeElements[Math.floor(Math.random() * largeElements.length)];
+		// Ensure the bird doesn't land on fixed or sticky elements
+		const nonFixedElements = largeElements.filter((el) => {
+			const style = window.getComputedStyle(el);
+			return style.position !== "fixed" && style.position !== "sticky";
+		});
+		const randomElement = nonFixedElements[Math.floor(Math.random() * nonFixedElements.length)];
 		focusedElement = randomElement;
 		log("Focusing on element: ", focusedElement);
 		updateFocusedElementBounds();
