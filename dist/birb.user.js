@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.26.455
+// @version      2025.10.26.500
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -858,29 +858,38 @@
 	 * @returns {HTMLElement}
 	 */
 	function renderStickyNote(stickyNote, onSave, onDelete) {
-		let html = `
-		<div class="birb-window-header">
-			<div class="birb-window-title">Sticky Note</div>
-			<div class="birb-window-close">x</div>
-		</div>
-		<div class="birb-window-content">
-			<textarea class="birb-sticky-note-input" style="width: 150px;" placeholder="Write your notes here and they'll stick to the page!">${stickyNote.content}</textarea>
-		</div>`;
 		const noteElement = makeElement("birb-window");
 		noteElement.classList.add("birb-sticky-note");
-		noteElement.innerHTML = html;
+		
+		// Create header
+		const header = makeElement("birb-window-header");
+		const titleDiv = makeElement("birb-window-title", "Sticky Note");
+		const closeButton = makeElement("birb-window-close", "x");
+		header.appendChild(titleDiv);
+		header.appendChild(closeButton);
+		
+		// Create content
+		const content = makeElement("birb-window-content");
+		const textarea = document.createElement("textarea");
+		textarea.className = "birb-sticky-note-input";
+		textarea.style.width = "150px";
+		textarea.placeholder = "Write your notes here and they'll stick to the page!";
+		textarea.value = stickyNote.content;
+		content.appendChild(textarea);
+		
+		noteElement.appendChild(header);
+		noteElement.appendChild(content);
 
 		noteElement.style.top = `${stickyNote.top}px`;
 		noteElement.style.left = `${stickyNote.left}px`;
 		document.body.appendChild(noteElement);
 
-		makeDraggable(noteElement.querySelector(".birb-window-header"), true, (top, left) => {
+		makeDraggable(header, true, (top, left) => {
 			stickyNote.top = top;
 			stickyNote.left = left;
 			onSave();
 		});
 
-		const closeButton = noteElement.querySelector(".birb-window-close");
 		if (closeButton) {
 			makeClosable(() => {
 				if (confirm("Are you sure you want to delete this sticky note?")) {
@@ -890,7 +899,6 @@
 			}, closeButton);
 		}
 
-		const textarea = noteElement.querySelector(".birb-sticky-note-input");
 		if (textarea && textarea instanceof HTMLTextAreaElement) {
 			let saveTimeout;
 			// Save after debounce
@@ -1015,7 +1023,8 @@
 		}
 		let menu = makeElement("birb-window", undefined, MENU_ID);
 		let header = makeElement("birb-window-header");
-		header.innerHTML = `<div class="birb-window-title">${title}</div>`;
+		const titleDiv = makeElement("birb-window-title", title);
+		header.appendChild(titleDiv);
 		let content = makeElement("birb-window-content");
 		const removeCallback = () => removeMenu();
 		for (const item of menuItems) {
@@ -1071,7 +1080,9 @@
 			error("Birb: Content not found");
 			return;
 		}
-		content.innerHTML = "";
+		while (content.firstChild) {
+			content.removeChild(content.firstChild);
+		}
 		const removeCallback = () => removeMenu();
 		for (const item of menuItems) {
 			if (!item.isDebug || isDebug()) {
@@ -1600,7 +1611,9 @@
 				userSettings.birbMode = !userSettings.birbMode;
 				save();
 				insertModal(`${birdBirb()} Mode`, `Your ${birdBirb().toLowerCase()} shall now be referred to as "${birdBirb()}"${userSettings.birbMode ? "\n\nWelcome back to 2012" : ""}`);
-			})
+			}),
+			new Separator(),
+			new MenuItem("2025.10.26.500", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.26.500"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -1752,11 +1765,6 @@
 		}
 
 		function init() {
-			if (window !== window.top) {
-				// Skip installation if within an iframe
-				log("In iframe, skipping Birb script initialization");
-				return;
-			}
 			log("Sprite sheets loaded successfully, initializing bird...");
 
 			// Preload font
@@ -1775,13 +1783,18 @@
 				font-style: normal;
 			}
 		`;
-			const fontStyle = document.createElement("style");
-			fontStyle.innerHTML = fontFace;
-			document.head.appendChild(fontStyle);
+
+			try {
+				const fontStyle = document.createElement("style");
+				fontStyle.textContent = fontFace;
+				document.head.appendChild(fontStyle);
+			} catch (e) {
+				error("Failed to load font: " + e);
+			}
 
 			load();
 
-			styleElement.innerHTML = STYLESHEET;
+			styleElement.textContent = STYLESHEET;
 			document.head.appendChild(styleElement);
 
 			birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT);
@@ -1885,7 +1898,7 @@
 		function draw() {
 			requestAnimationFrame(draw);
 
-			if (!birb.isVisible()) {
+			if (!birb || !birb.isVisible()) {
 				return;
 			}
 

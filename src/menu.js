@@ -72,7 +72,8 @@ export function insertMenu(menuItems, title, updateLocationCallback) {
 	}
 	let menu = makeElement("birb-window", undefined, MENU_ID);
 	let header = makeElement("birb-window-header");
-	header.innerHTML = `<div class="birb-window-title">${title}</div>`;
+	const titleDiv = makeElement("birb-window-title", title);
+	header.appendChild(titleDiv);
 	let content = makeElement("birb-window-content");
 	const removeCallback = () => removeMenu();
 	for (const item of menuItems) {
@@ -128,7 +129,9 @@ export function switchMenuItems(menuItems, updateLocationCallback) {
 		error("Birb: Content not found");
 		return;
 	}
-	content.innerHTML = "";
+	while (content.firstChild) {
+		content.removeChild(content.firstChild);
+	}
 	const removeCallback = () => removeMenu();
 	for (const item of menuItems) {
 		if (!item.isDebug || isDebug()) {

@@ -80,6 +80,9 @@ await bundle.close();
 
 let birbJs = readFileSync('dist/birb.bundled.js', 'utf8');
 
+// Replace version placeholder
+birbJs = birbJs.replaceAll('__VERSION__', version);
+
 // Compile and insert sprite sheets
 for (const spriteSheet of spriteSheets) {
 	const dataUri = readFileSync(spriteSheet.path, 'base64');

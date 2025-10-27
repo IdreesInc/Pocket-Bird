@@ -216,7 +216,9 @@ Promise.all([
 			userSettings.birbMode = !userSettings.birbMode;
 			save();
 			insertModal(`${birdBirb()} Mode`, `Your ${birdBirb().toLowerCase()} shall now be referred to as "${birdBirb()}"${userSettings.birbMode ? "\n\nWelcome back to 2012" : ""}`);
-		})
+		}),
+		new Separator(),
+		new MenuItem("__VERSION__", () => { alert("Thank you for using Pocket Bird! You are on version: __VERSION__") }, false),
 	];
 
 	const styleElement = document.createElement("style");
@@ -368,11 +370,6 @@ Promise.all([
 	}
 
 	function init() {
-		if (window !== window.top) {
-			// Skip installation if within an iframe
-			log("In iframe, skipping Birb script initialization");
-			return;
-		}
 		log("Sprite sheets loaded successfully, initializing bird...");
 
 		// Preload font
@@ -391,13 +388,18 @@ Promise.all([
 				font-style: normal;
 			}
 		`;
-		const fontStyle = document.createElement("style");
-		fontStyle.innerHTML = fontFace;
-		document.head.appendChild(fontStyle);
+
+		try {
+			const fontStyle = document.createElement("style");
+			fontStyle.textContent = fontFace;
+			document.head.appendChild(fontStyle);
+		} catch (e) {
+			error("Failed to load font: " + e);
+		}
 
 		load();
 
-		styleElement.innerHTML = STYLESHEET;
+		styleElement.textContent = STYLESHEET;
 		document.head.appendChild(styleElement);
 
 		birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT);
@@ -501,7 +503,7 @@ Promise.all([
 	function draw() {
 		requestAnimationFrame(draw);
 
-		if (!birb.isVisible()) {
+		if (!birb || !birb.isVisible()) {
 			return;
 		}
 
