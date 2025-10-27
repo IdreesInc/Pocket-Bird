@@ -111,7 +111,7 @@ export function renderStickyNote(stickyNote, onSave, onDelete) {
 
 	if (closeButton) {
 		makeClosable(() => {
-			if (confirm("Are you sure you want to delete this sticky note?")) {
+			if (stickyNote.content.trim() === "" || confirm("Are you sure you want to delete this sticky note?")) {
 				onDelete();
 				noteElement.remove();
 			}

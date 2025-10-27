@@ -878,7 +878,7 @@
 
 		if (closeButton) {
 			makeClosable(() => {
-				if (confirm("Are you sure you want to delete this sticky note?")) {
+				if (stickyNote.content.trim() === "" || confirm("Are you sure you want to delete this sticky note?")) {
 					onDelete();
 					noteElement.remove();
 				}
@@ -1605,7 +1605,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.26.536", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.26.536"); }, false),
+			new MenuItem("2025.10.26.537", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.26.537"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
