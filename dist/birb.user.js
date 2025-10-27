@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.26.552
+// @version      2025.10.26.568
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1620,7 +1620,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.26.552", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.26.552"); }, false),
+			new MenuItem("2025.10.26.568", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.26.568"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2277,7 +2277,7 @@
 			if (frozen) {
 				return;
 			}
-			const elements = document.querySelectorAll("img, video");
+			const elements = document.querySelectorAll("img, video, .birb-sticky-note");
 			const inWindow = Array.from(elements).filter((img) => {
 				const rect = img.getBoundingClientRect();
 				return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
@@ -2306,7 +2306,10 @@
 				focusedBounds = { left: 0, right: window.innerWidth, top: getFullWindowHeight() };
 				return;
 			}
-			const { left, right, top } = focusedElement.getBoundingClientRect();
+			let { left, right, top } = focusedElement.getBoundingClientRect();
+			if (focusedElement.classList.contains("birb-sticky-note")) {
+				top -= 4 * UI_CSS_SCALE;
+			}
 			focusedBounds = { left, right, top };
 		}
 

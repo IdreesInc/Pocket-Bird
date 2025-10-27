@@ -886,7 +886,7 @@ Promise.all([
 		if (frozen) {
 			return;
 		}
-		const elements = document.querySelectorAll("img, video");
+		const elements = document.querySelectorAll("img, video, .birb-sticky-note");
 		const inWindow = Array.from(elements).filter((img) => {
 			const rect = img.getBoundingClientRect();
 			return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
@@ -915,7 +915,10 @@ Promise.all([
 			focusedBounds = { left: 0, right: window.innerWidth, top: getFullWindowHeight() };
 			return;
 		}
-		const { left, right, top } = focusedElement.getBoundingClientRect();
+		let { left, right, top } = focusedElement.getBoundingClientRect();
+		if (focusedElement.classList.contains("birb-sticky-note")) {
+			top -= 4 * UI_CSS_SCALE;
+		}
 		focusedBounds = { left, right, top };
 	}
 
