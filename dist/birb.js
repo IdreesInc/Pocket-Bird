@@ -1482,7 +1482,7 @@
 
 	// Focus element constraints
 	const MIN_FOCUS_ELEMENT_WIDTH = 100;
-	const MIN_FOCUS_ELEMENT_TOP = 80;
+	const MIN_FOCUS_ELEMENT_TOP = 40;
 
 	/** @type {Partial<Settings>} */
 	let userSettings = {};
@@ -1606,7 +1606,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.26.568", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.26.568"); }, false),
+			new MenuItem("2025.10.28.45", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.28.45"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -1853,6 +1853,8 @@
 			}, URL_CHECK_INTERVAL);
 
 			setInterval(update, UPDATE_INTERVAL);
+
+			focusOnElement(true);
 		}
 
 		function update() {
@@ -1906,7 +1908,7 @@
 			// Update the bird's position
 			if (currentState === States.IDLE) {
 				if (focusedElement && !isWithinHorizontalBounds()) {
-					focusOnGround();
+					flySomewhere();
 				}
 				birdY = getFocusedY();
 			} else if (currentState === States.FLYING) {
@@ -1921,8 +1923,8 @@
 			// Adjust startY to account for scrolling
 			startY += targetY - oldTargetY;
 			if (targetY < 0 || targetY > window.innerHeight) {
-				// Fly to ground if the focused element moves out of bounds
-				focusOnGround();
+				// Fly to another element or the ground if the focused element moves out of bounds
+				flySomewhere();
 			}
 
 			if (birb.draw(SPECIES[currentSpecies])) {
@@ -1952,19 +1954,19 @@
 		 */
 		function createWindow(id, title, contentElement, onClose) {
 			const window = makeElement("birb-window", undefined, id);
-			
+
 			const header = makeElement("birb-window-header");
 			const titleElement = makeElement("birb-window-title");
 			titleElement.textContent = title;
 			const closeButton = makeElement("birb-window-close");
 			closeButton.textContent = "x";
-			
+
 			header.appendChild(titleElement);
 			header.appendChild(closeButton);
-			
+
 			const contentWrapper = makeElement("birb-window-content");
 			contentWrapper.appendChild(contentElement);
-			
+
 			window.appendChild(header);
 			window.appendChild(contentWrapper);
 
@@ -2123,20 +2125,20 @@
 			const generateDescription = (/** @type {string} */ speciesId) => {
 				const type = SPECIES[speciesId];
 				const unlocked = unlockedSpecies.includes(speciesId);
-				
+
 				const boldName = document.createElement("b");
 				boldName.textContent = type.name;
-				
+
 				const spacer = document.createElement("div");
 				spacer.style.height = "0.3em";
-				
+
 				const descText = document.createTextNode(!unlocked ? "Not yet unlocked" : type.description);
-				
+
 				const fragment = document.createDocumentFragment();
 				fragment.appendChild(boldName);
 				fragment.appendChild(spacer);
 				fragment.appendChild(descText);
-				
+
 				return fragment;
 			};
 
@@ -2253,15 +2255,34 @@
 			return document.documentElement.clientHeight;
 		}
 
+		/**
+		 * Fly to either an element or the ground
+		 */
+		function flySomewhere() {
+			// On mobile, always prefer to focus on an element
+			// If not mobile, 50% chance to focus on ground
+			// if ((!isMobile() && coinFlip()) || !focusOnElement()) {
+			// 	focusOnGround();
+			// }
+			if (!focusOnElement()) {
+				focusOnGround();
+			}
+		}
+
 		function focusOnGround() {
 			focusedElement = null;
 			focusedBounds = { left: 0, right: window.innerWidth, top: getSafeWindowHeight() };
 			flyTo(Math.random() * window.innerWidth, 0);
 		}
 
-		function focusOnElement() {
+		/**
+		 * Focus on an element within the viewport
+		 * @param {boolean} [teleport] Whether to teleport to the element instead of flying
+		 * @returns Whether an element to focus on was found
+		 */
+		function focusOnElement(teleport = false) {
 			if (frozen) {
-				return;
+				return false;
 			}
 			const elements = document.querySelectorAll("img, video, .birb-sticky-note");
 			const inWindow = Array.from(elements).filter((img) => {
@@ -2271,19 +2292,34 @@
 			/** @type {HTMLElement[]} */
 			// @ts-expect-error
 			const largeElements = Array.from(inWindow).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_FOCUS_ELEMENT_WIDTH);
-			if (largeElements.length === 0) {
-				return;
-			}
 			// Ensure the bird doesn't land on fixed or sticky elements
 			const nonFixedElements = largeElements.filter((el) => {
 				const style = window.getComputedStyle(el);
 				return style.position !== "fixed" && style.position !== "sticky";
 			});
+			if (nonFixedElements.length === 0) {
+				return false;
+			}
 			const randomElement = nonFixedElements[Math.floor(Math.random() * nonFixedElements.length)];
 			focusedElement = randomElement;
 			log("Focusing on element: ", focusedElement);
 			updateFocusedElementBounds();
-			flyTo(getFocusedElementRandomX(), getFocusedY());
+			if (teleport) {
+				teleportTo(getFocusedElementRandomX(), getFocusedY());
+			} else {
+				flyTo(getFocusedElementRandomX(), getFocusedY());
+			}
+			return randomElement !== null;
+		}
+
+		/**
+		 * @param {number} x
+		 * @param {number} y
+		 */
+		function teleportTo(x, y) {
+			birdX = x;
+			birdY = y;
+			setState(States.IDLE);
 		}
 
 		function updateFocusedElementBounds() {
@@ -2294,7 +2330,23 @@
 			}
 			let { left, right, top } = focusedElement.getBoundingClientRect();
 			if (focusedElement.classList.contains("birb-sticky-note")) {
-				top -= 4 * UI_CSS_SCALE;
+				top -= 4.5 * UI_CSS_SCALE;
+				if (focusedBounds.left !== left) {
+					// Sticky note has moved
+					const oldWidth = focusedBounds.right - focusedBounds.left;
+					const newWidth = right - left;
+					if (oldWidth === newWidth) {
+						// Move bird along with note
+						if (currentState === States.IDLE) {
+							birdX += left - focusedBounds.left;
+						} else if (currentState === States.HOP) {
+							startX += left - focusedBounds.left;
+							startY += top - focusedBounds.top;
+							targetX += left - focusedBounds.left;
+							targetY += top - focusedBounds.top;
+						}
+					}
+				}
 			}
 			focusedBounds = { left, right, top };
 		}
