@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.28.46
+// @version      2025.10.28.47
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1480,7 +1480,7 @@
 
 	// Timing constants (in milliseconds)
 	const UPDATE_INTERVAL = 1000 / 60; // 60 FPS
-	const AFK_TIME = isDebug() ? 0 : 1000 * 5;
+	const AFK_TIME = isDebug() ? 0 : 1000 * 15;
 	const PET_BOOST_DURATION = 1000 * 60 * 5;
 	const PET_MENU_COOLDOWN = 1000;
 	const URL_CHECK_INTERVAL = 500;
@@ -1620,7 +1620,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.28.46", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.28.46"); }, false),
+			new MenuItem("2025.10.28.47", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.28.47"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
