@@ -85,7 +85,7 @@ const HOP_DISTANCE = 45;
 
 // Timing constants (in milliseconds)
 const UPDATE_INTERVAL = 1000 / 60; // 60 FPS
-const AFK_TIME = isDebug() ? 0 : 1000 * 30;
+const AFK_TIME = isDebug() ? 0 : 1000 * 5;
 const PET_BOOST_DURATION = 1000 * 60 * 5;
 const PET_MENU_COOLDOWN = 1000;
 const URL_CHECK_INTERVAL = 500;
