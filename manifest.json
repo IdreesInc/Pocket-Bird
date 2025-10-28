@@ -4,6 +4,11 @@
     "description": "It's a bird, in your browser. What more could you want?",
     "version": "2025.10.26.568",
     "homepage_url": "https://idreesinc.com",
+    "icons": {
+        "48": "images/icons/transparent/48x48x1.png",
+        "96": "images/icons/transparent/96x96x1.png",
+        "128": "images/icons/transparent/128x128x1.png"
+    },
     "content_scripts": [
         {
             "matches": [
