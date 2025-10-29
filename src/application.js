@@ -80,7 +80,7 @@ const DEFAULT_BIRD = "bluebird";
 
 // Birb movement
 const HOP_SPEED = 0.07;
-const FLY_SPEED = isMobile() ? 0.125 : 0.25;
+const FLY_SPEED = isMobile() ? 0.175 : 0.25;
 const HOP_DISTANCE = 35;
 
 // Timing constants (in milliseconds)

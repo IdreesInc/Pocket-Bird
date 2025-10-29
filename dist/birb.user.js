@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.28.93
+// @version      2025.10.28.95
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1521,7 +1521,7 @@
 
 	// Birb movement
 	const HOP_SPEED = 0.07;
-	const FLY_SPEED = isMobile() ? 0.125 : 0.25;
+	const FLY_SPEED = isMobile() ? 0.175 : 0.25;
 	const HOP_DISTANCE = 35;
 
 	// Timing constants (in milliseconds)
@@ -1666,7 +1666,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.28.93", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.28.93"); }, false),
+			new MenuItem("2025.10.28.95", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.28.95"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
