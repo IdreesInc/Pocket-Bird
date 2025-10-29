@@ -101,7 +101,7 @@ const PET_FEATHER_BOOST = 2;
 
 // Focus element constraints
 const MIN_FOCUS_ELEMENT_WIDTH = 100;
-const MIN_FOCUS_ELEMENT_TOP = 40;
+const MIN_FOCUS_ELEMENT_TOP = 80;
 
 /** @type {Partial<Settings>} */
 let userSettings = {};

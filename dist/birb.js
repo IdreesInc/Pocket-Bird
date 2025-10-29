@@ -1528,7 +1528,7 @@
 
 	// Focus element constraints
 	const MIN_FOCUS_ELEMENT_WIDTH = 100;
-	const MIN_FOCUS_ELEMENT_TOP = 40;
+	const MIN_FOCUS_ELEMENT_TOP = 80;
 
 	/** @type {Partial<Settings>} */
 	let userSettings = {};
@@ -1652,7 +1652,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.28.81", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.28.81"); }, false),
+			new MenuItem("2025.10.28.84", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.28.84"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
