@@ -81,7 +81,7 @@ const DEFAULT_BIRD = "bluebird";
 // Birb movement
 const HOP_SPEED = 0.07;
 const FLY_SPEED = isMobile() ? 0.125 : 0.25;
-const HOP_DISTANCE = 45;
+const HOP_DISTANCE = 35;
 
 // Timing constants (in milliseconds)
 const UPDATE_INTERVAL = 1000 / 60; // 60 FPS
@@ -532,7 +532,7 @@ Promise.all([
 			birdY = getFocusedY();
 		} else if (currentState === States.FLYING) {
 			// Fly to target location (even if in the air)
-			if (updateParabolicPath(FLY_SPEED)) {
+			if (updateParabolicPath(FLY_SPEED, 2)) {
 				setState(States.IDLE);
 			}
 		}
