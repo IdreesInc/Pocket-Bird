@@ -1675,7 +1675,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.28.165", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.28.165"); }, false),
+			new MenuItem("2025.10.29.2", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.29.2"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -1999,6 +1999,12 @@
 			if (birb.draw(SPECIES[currentSpecies])) {
 				birb.setAnimation(Animations.STILL);
 			}
+
+			// Clamp startY, birdY, targetY to a bit above the top of the window
+			const maxY = getWindowHeight() * 1.5;
+			startY = Math.min(startY, maxY);
+			birdY = Math.min(birdY, maxY);
+			targetY = Math.min(targetY, maxY);
 
 			// Update HTML element position
 			birb.setX(birdX);
