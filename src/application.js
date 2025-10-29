@@ -204,6 +204,9 @@ Promise.all([
 				unlockBird(type);
 			}
 		}),
+		new DebugMenuItem("Add Feather", () => {
+			activateFeather();
+		}),
 		new DebugMenuItem("Disable Debug", () => {
 			setDebug(false);
 		}),

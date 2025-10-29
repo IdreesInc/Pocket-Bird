@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.29.2
+// @version      2025.10.29.20
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1666,6 +1666,9 @@
 					unlockBird(type);
 				}
 			}),
+			new DebugMenuItem("Add Feather", () => {
+				activateFeather();
+			}),
 			new DebugMenuItem("Disable Debug", () => {
 				setDebug(false);
 			}),
@@ -1689,7 +1692,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.29.2", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.29.2"); }, false),
+			new MenuItem("2025.10.29.20", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.29.20"); }, false),
 		];
 
 		const styleElement = document.createElement("style");

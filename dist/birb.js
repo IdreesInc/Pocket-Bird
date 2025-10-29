@@ -1652,6 +1652,9 @@
 					unlockBird(type);
 				}
 			}),
+			new DebugMenuItem("Add Feather", () => {
+				activateFeather();
+			}),
 			new DebugMenuItem("Disable Debug", () => {
 				setDebug(false);
 			}),
@@ -1675,7 +1678,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.29.2", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.29.2"); }, false),
+			new MenuItem("2025.10.29.20", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.29.20"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
