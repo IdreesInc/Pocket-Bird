@@ -58,6 +58,9 @@ class Frame {
 	 * @param {number} canvasPixelSize
 	 */
 	draw(ctx, direction, canvasPixelSize, species) {
+		// Clear the canvas before drawing the new frame
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		
 		const pixels = this.getPixels(species?.tags[0]);
 		for (let y = 0; y < pixels.length; y++) {
 			const row = pixels[y];

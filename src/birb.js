@@ -125,7 +125,6 @@ export class Birb {
 	 * @returns {boolean} Whether the animation has completed (for non-looping animations)
 	 */
 	draw(species) {
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		const anim = this.animations[this.currentAnimation];
 		return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species);
 	}
