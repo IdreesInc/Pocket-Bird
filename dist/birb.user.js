@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.10.28.152
+// @version      2025.10.28.157
 // @description  birb
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
@@ -1552,9 +1552,10 @@
 	const PET_BOOST_DURATION = 1000 * 60 * 5;
 	const PET_MENU_COOLDOWN = 1000;
 	const URL_CHECK_INTERVAL = 500;
+	const HOP_DELAY = 500;
 
 	// Random event chances per tick
-	const HOP_CHANCE = 1 / (60 * 3); // Every 3 seconds
+	const HOP_CHANCE = 1 / (60 * 2.5); // Every 2.5 seconds
 	const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // Every 20 seconds
 	const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // Every 2 hours
 
@@ -1688,7 +1689,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.28.152", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.28.152"); }, false),
+			new MenuItem("2025.10.28.157", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.28.157"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -1941,7 +1942,7 @@
 
 		function update() {
 			ticks++;
-
+			
 			// Hide bird if the browser is fullscreen
 			if (document.fullscreenElement) {
 				birb.setVisible(false);
@@ -1949,7 +1950,7 @@
 			}
 
 			if (currentState === States.IDLE && !frozen && !isMenuOpen()) {
-				if (Math.random() < HOP_CHANCE && birb.getCurrentAnimation() !== Animations.HEART) {
+				if (Date.now() - stateStart > HOP_DELAY && Math.random() < HOP_CHANCE && birb.getCurrentAnimation() !== Animations.HEART) {
 					hop();
 				} else if (Date.now() - lastActionTimestamp > AFK_TIME) {
 					// Idle for a while, do something
