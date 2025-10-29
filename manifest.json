@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Pocket Bird",
     "description": "It's a bird, in your browser. What more could you want?",
-    "version": "2025.10.28.157",
+    "version": "2025.10.28.165",
     "homepage_url": "https://idreesinc.com",
     "icons": {
         "48": "images/icons/transparent/48x48x1.png",

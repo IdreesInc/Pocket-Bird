@@ -480,7 +480,7 @@ Promise.all([
 
 	function update() {
 		ticks++;
-		
+
 		// Hide bird if the browser is fullscreen
 		if (document.fullscreenElement) {
 			birb.setVisible(false);
@@ -898,9 +898,16 @@ Promise.all([
 			const rect = img.getBoundingClientRect();
 			return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= getWindowHeight();
 		});
+		const visible = Array.from(inWindow).filter((img) => {
+			const style = window.getComputedStyle(img);
+			if (style.display === "none" || style.visibility === "hidden" || (style.opacity && parseFloat(style.opacity) < 0.25)) {
+				return false;
+			}
+			return true;
+		});
 		/** @type {HTMLElement[]} */
 		// @ts-expect-error
-		const largeElements = Array.from(inWindow).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_FOCUS_ELEMENT_WIDTH);
+		const largeElements = Array.from(visible).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_FOCUS_ELEMENT_WIDTH);
 		// Ensure the bird doesn't land on fixed or sticky elements
 		const nonFixedElements = largeElements.filter((el) => {
 			const style = window.getComputedStyle(el);
