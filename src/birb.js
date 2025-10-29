@@ -1,4 +1,4 @@
-import { Directions, getLayer } from './shared.js';
+import { Directions, getLayer, getWindowHeight, getFixedWindowHeight } from './shared.js';
 import Layer from './layer.js';
 import Frame from './frame.js';
 import Anim from './anim.js';
@@ -201,7 +201,8 @@ export class Birb {
 		let bottom;
 		if (this.isAbsolutePositioned) {
 			// Position is absolute, convert from fixed
-			bottom = y - window.scrollY;
+			// Account for address bar shrinkage on iOS
+			bottom = y - window.scrollY - (getWindowHeight() - getFixedWindowHeight());
 		} else {
 			// Position is fixed
 			bottom = y;

@@ -187,6 +187,27 @@
 		return layer;
 	}
 
+	/**
+	 * The height of the inner browser window
+	 * Will be the same as getFixedWindowHeight() on most browsers
+	 * On iOS, it will vary to be the height excluding the current address bar size (potentially greater than fixed height)
+	 */
+	function getWindowHeight() {
+		// Necessary because iOS 26 Safari is terrible and won't render
+		// fixed/sticky elements behind the address bar
+		return window.innerHeight;
+	}
+
+	/**
+	 * The fixed height of the inner browser window
+	 * Will be the same as getWindowHeight() on most browsers
+	 * On iOS, it will always be the height of the window when the address bar is fully expanded
+	 * @returns The true height of the inner browser window
+	 */
+	function getFixedWindowHeight() {
+		return document.documentElement.clientHeight;
+	}
+
 	/** Indicators for parts of the base bird sprite sheet */
 	const Sprite = {
 		THEME_HIGHLIGHT: "theme-highlight",
@@ -752,7 +773,8 @@
 			let bottom;
 			if (this.isAbsolutePositioned) {
 				// Position is absolute, convert from fixed
-				bottom = y - window.scrollY;
+				// Account for address bar shrinkage on iOS
+				bottom = y - window.scrollY - (getWindowHeight() - getFixedWindowHeight());
 			} else {
 				// Position is fixed
 				bottom = y;
@@ -1652,7 +1674,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.10.28.95", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.28.95"); }, false),
+			new MenuItem("2025.10.28.152", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.10.28.152"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -1968,7 +1990,7 @@
 			targetY = getFocusedY();
 			// Adjust startY to account for scrolling
 			startY += targetY - oldTargetY;
-			if (targetY < 0 || targetY > window.innerHeight) {
+			if (targetY < 0 || targetY > getWindowHeight()) {
 				// Fly to another element or the ground if the focused element moves out of bounds
 				flySomewhere();
 			}
@@ -2098,8 +2120,8 @@
 				return;
 			}
 			const y = parseInt(feather.style.top || "0") + FEATHER_FALL_SPEED;
-			feather.style.top = `${Math.min(y, window.innerHeight - feather.offsetHeight)}px`;
-			if (y < window.innerHeight - feather.offsetHeight) {
+			feather.style.top = `${Math.min(y, getWindowHeight() - feather.offsetHeight)}px`;
+			if (y < getWindowHeight() - feather.offsetHeight) {
 				feather.style.left = `${Math.sin(3.14 * 2 * (ticks / 120)) * 25}px`;
 			}
 		}
@@ -2109,7 +2131,7 @@
 		 */
 		function centerElement(element) {
 			element.style.left = `${window.innerWidth / 2 - element.offsetWidth / 2}px`;
-			element.style.top = `${window.innerHeight / 2 - element.offsetHeight / 2}px`;
+			element.style.top = `${getWindowHeight() / 2 - element.offsetHeight / 2}px`;
 		}
 
 		/**
@@ -2141,7 +2163,7 @@
 				// Right side
 				x -= (menu.offsetWidth + offset) * UI_CSS_SCALE;
 			}
-			if (y > window.innerHeight / 2) {
+			if (y > getWindowHeight() / 2) {
 				// Top side
 				y -= (menu.offsetHeight + offset + 10) * UI_CSS_SCALE;
 			} else {
@@ -2256,7 +2278,7 @@
 			const dy = targetY - startY;
 			const distance = Math.sqrt(dx * dx + dy * dy);
 			const time = Date.now() - stateStart;
-			if (distance > Math.max(window.innerWidth, window.innerHeight) / 2) {
+			if (distance > Math.max(window.innerWidth, getWindowHeight()) / 2) {
 				speed *= 1.3;
 			}
 			const amount = Math.min(1, time / (distance / speed));
@@ -2282,23 +2304,7 @@
 		}
 
 		function getFocusedY() {
-			return getFullWindowHeight() - focusedBounds.top;
-		}
-
-		/**
-		 * @returns The render-safe height of the inner browser window
-		 */
-		function getSafeWindowHeight() {
-			// Necessary because iOS 26 Safari is terrible and won't render
-			// fixed elements behind the address bar
-			return window.innerHeight;
-		}
-
-		/**
-		 * @returns The true height of the inner browser window
-		 */
-		function getFullWindowHeight() {
-			return document.documentElement.clientHeight;
+			return getWindowHeight() - focusedBounds.top;
 		}
 
 		/**
@@ -2317,7 +2323,7 @@
 
 		function focusOnGround() {
 			focusedElement = null;
-			focusedBounds = { left: 0, right: window.innerWidth, top: getSafeWindowHeight() };
+			updateFocusedElementBounds();
 			flyTo(Math.random() * window.innerWidth, 0);
 		}
 
@@ -2333,7 +2339,7 @@
 			const elements = document.querySelectorAll("img, video, .birb-sticky-note");
 			const inWindow = Array.from(elements).filter((img) => {
 				const rect = img.getBoundingClientRect();
-				return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= window.innerHeight;
+				return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= getWindowHeight();
 			});
 			/** @type {HTMLElement[]} */
 			// @ts-expect-error
@@ -2371,7 +2377,7 @@
 		function updateFocusedElementBounds() {
 			if (focusedElement === null) {
 				// Update ground location to bottom of window
-				focusedBounds = { left: 0, right: window.innerWidth, top: getFullWindowHeight() };
+				focusedBounds = { left: 0, right: window.innerWidth, top: getWindowHeight() };
 				return;
 			}
 			let { left, right, top } = focusedElement.getBoundingClientRect();
