@@ -1,7 +1,7 @@
 // @ts-check
 
 import { rollup } from 'rollup';
-import { readFileSync, writeFileSync, mkdirSync, unlinkSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, unlinkSync, cpSync } from 'fs';
 
 const spriteSheets = [
 	{
@@ -56,8 +56,8 @@ const userScriptHeader =
 // @version      ${version}
 // @description  birb
 // @author       Idrees
-// @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
-// @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
+// @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
+// @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
 // @match        *://*/*
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -80,6 +80,9 @@ await bundle.close();
 
 let birbJs = readFileSync('dist/birb.bundled.js', 'utf8');
 
+// Delete bundled file
+unlinkSync('./dist/birb.bundled.js');
+
 // Replace version placeholder
 birbJs = birbJs.replaceAll('__VERSION__', version);
 
@@ -96,9 +99,20 @@ birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent);
 // Build standard javascript file
 writeFileSync('./dist/birb.js', birbJs);
 
-// Delete bundled file
-unlinkSync('./dist/birb.bundled.js');
-
 // Build user script
+mkdirSync('./dist/userscript', { recursive: true });
 const userScript = userScriptHeader + birbJs;
-writeFileSync('./dist/birb.user.js', userScript);
+writeFileSync('./dist/userscript/birb.user.js', userScript);
+
+// Build browser extension
+mkdirSync('./dist/extension', { recursive: true });
+// Copy birb.js
+writeFileSync('./dist/extension/birb.js', birbJs);
+// Copy manifest.json
+const manifestContent = readFileSync('./manifest.json', 'utf8');
+writeFileSync('./dist/extension/manifest.json', manifestContent);
+// Copy icons folder
+mkdirSync('./dist/extension/images/icons', { recursive: true });
+cpSync('./images/icons/transparent', './dist/extension/images/icons/transparent', { recursive: true });
+
+console.log(`Build completed: version ${version}`);

@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.11.2.44
+// @version      2025.11.2.60
 // @description  birb
 // @author       Idrees
-// @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
-// @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/birb.user.js
+// @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
+// @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
 // @match        *://*/*
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -1881,7 +1881,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.2.44", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.2.44"); }, false),
+			new MenuItem("2025.11.2.60", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.2.60"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
