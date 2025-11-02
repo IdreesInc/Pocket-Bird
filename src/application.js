@@ -2,6 +2,7 @@ import Frame from './frame.js';
 import Layer from './layer.js';
 import Anim from './anim.js';
 import { Birb, Animations } from './birb.js';
+import { getContext } from './context.js';
 
 import {
 	Directions,
@@ -270,34 +271,9 @@ Promise.all([
 	/** @type {StickyNote[]} */
 	let stickyNotes = [];
 
-	/**
-	 * @returns {boolean} Whether the script is running in a userscript extension context
-	 */
-	function isUserScript() {
-		// @ts-expect-error
-		return typeof GM_getValue === "function";
-	}
-
-	function isTestEnvironment() {
-		return window.location.hostname === "127.0.0.1"
-			|| window.location.hostname === "localhost"
-			|| window.location.hostname.startsWith("192.168.");
-	}
-
 	function load() {
 		/** @type {Record<string, any>} */
-		let saveData = {};
-
-		if (isUserScript()) {
-			log("Loading save data from UserScript storage");
-			// @ts-expect-error
-			saveData = GM_getValue("birbSaveData", {}) ?? {};
-		} else if (isTestEnvironment()) {
-			log("Test environment detected, loading save data from localStorage");
-			saveData = JSON.parse(localStorage.getItem("birbSaveData") ?? "{}");
-		} else {
-			log("Not a UserScript");
-		}
+		let saveData = getContext().getSaveData();
 
 		debug("Loaded data: " + JSON.stringify(saveData));
 
@@ -340,29 +316,11 @@ Promise.all([
 			}));
 		}
 
-		if (isUserScript()) {
-			log("Saving data to UserScript storage");
-			// @ts-expect-error
-			GM_setValue("birbSaveData", saveData);
-		} else if (isTestEnvironment()) {
-			log("Test environment detected, saving data to localStorage");
-			localStorage.setItem("birbSaveData", JSON.stringify(saveData));
-		} else {
-			log("Not a UserScript");
-		}
+		getContext().putSaveData(saveData);
 	}
 
 	function resetSaveData() {
-		if (isUserScript()) {
-			log("Resetting save data in UserScript storage");
-			// @ts-expect-error
-			GM_deleteValue("birbSaveData");
-		} else if (isTestEnvironment()) {
-			log("Test environment detected, resetting save data in localStorage");
-			localStorage.removeItem("birbSaveData");
-		} else {
-			log("Not a UserScript");
-		}
+		getContext().resetSaveData();
 		load();
 	}
 
