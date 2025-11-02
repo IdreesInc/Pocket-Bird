@@ -114,5 +114,8 @@ writeFileSync('./dist/extension/manifest.json', manifestContent);
 // Copy icons folder
 mkdirSync('./dist/extension/images/icons', { recursive: true });
 cpSync('./images/icons/transparent', './dist/extension/images/icons/transparent', { recursive: true });
+// Copy fonts folder
+mkdirSync('./dist/extension/fonts', { recursive: true });
+cpSync('./fonts', './dist/extension/fonts', { recursive: true });
 
 console.log(`Build completed: version ${version}`);
