@@ -54,7 +54,7 @@ const userScriptHeader =
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
 // @version      ${version}
-// @description  birb
+// @description  It's a bird that hops around your web browser, the future is here 
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
 // @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
