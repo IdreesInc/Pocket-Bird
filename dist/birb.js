@@ -839,6 +839,8 @@
 		}
 	}
 
+	const SAVE_KEY = "birbSaveData";
+
 	/**
 	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
 	 */
@@ -858,9 +860,9 @@
 
 		/**
 		 * @abstract
-		 * @returns {BirbSaveData|{}}
+		 * @returns {Promise<BirbSaveData|{}>}
 		 */
-		getSaveData() {
+		async getSaveData() {
 			throw new Error("Method not implemented");
 		}
 
@@ -868,7 +870,7 @@
 		 * @abstract
 		 * @param {BirbSaveData} saveData
 		 */
-		putSaveData(saveData) {
+		async putSaveData(saveData) {
 			throw new Error("Method not implemented");
 		}
 
@@ -882,45 +884,62 @@
 
 	class LocalContext extends Context {
 
+		/**
+		 * @override
+		 * @returns {boolean}
+		 */
 		isContextActive() {
 			return window.location.hostname === "127.0.0.1"
 				|| window.location.hostname === "localhost"
 				|| window.location.hostname.startsWith("192.168.");
 		}
 
-		getSaveData() {
+		/**
+		 * @override
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
 			log("Loading save data from localStorage");
-			return JSON.parse(localStorage.getItem("birbSaveData") ?? "{}");
+			return JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}");
 		}
 
 		/**
 		 * @override
 		 * @param {BirbSaveData} saveData
 		 */
-		putSaveData(saveData) {
+		async putSaveData(saveData) {
 			log("Saving data to localStorage");
-			localStorage.setItem("birbSaveData", JSON.stringify(saveData));
+			localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
 		}
 
+		/** @override */
 		resetSaveData() {
 			log("Resetting save data in localStorage");
-			localStorage.removeItem("birbSaveData");
+			localStorage.removeItem(SAVE_KEY);
 		}
 	}
 
 	class UserScriptContext extends Context {
 
+		/**
+		 * @override
+		 * @returns {boolean}
+		 */
 		isContextActive() {
 			// @ts-expect-error
 			return typeof GM_getValue === "function";
 		}
 
-		getSaveData() {
+		/**
+		 * @override
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
 			log("Loading save data from UserScript storage");
 			/** @type {BirbSaveData|{}} */
 			let saveData = {};
 			// @ts-expect-error
-			saveData = GM_getValue("birbSaveData", {}) ?? {};
+			saveData = GM_getValue(SAVE_KEY, {}) ?? {};
 			return saveData;
 		}
 
@@ -928,22 +947,75 @@
 		 * @override
 		 * @param {BirbSaveData} saveData
 		 */
-		putSaveData(saveData) {
+		async putSaveData(saveData) {
 			log("Saving data to UserScript storage");
 			// @ts-expect-error
-			GM_setValue("birbSaveData", saveData);
+			GM_setValue(SAVE_KEY, saveData);
 		}
 
+		/** @override */
 		resetSaveData() {
 			log("Resetting save data in UserScript storage");
 			// @ts-expect-error
-			GM_deleteValue("birbSaveData");
+			GM_deleteValue(SAVE_KEY);
+		}
+	}
+
+	class BrowserExtensionContext extends Context {
+
+		/**
+		 * @override
+		 * @returns {boolean}
+		 */
+		isContextActive() {
+			// @ts-expect-error
+			return typeof chrome !== "undefined";
+		}
+
+		/**
+		 * @override
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
+			log("Loading save data from browser extension storage");
+			return new Promise((resolve) => {
+				// @ts-expect-error
+				chrome.storage.sync.get([SAVE_KEY], (result) => {
+					resolve(result[SAVE_KEY] ?? {});
+				});
+			});
+		}
+
+		/**
+		 * @override
+		 * @param {BirbSaveData} saveData
+		 */
+		async putSaveData(saveData) {
+			log("Saving data to browser extension storage");
+			// @ts-expect-error
+			chrome.storage.sync.set({ [SAVE_KEY]: saveData }, function () {
+				// @ts-expect-error
+				if (chrome.runtime.lastError) {
+					// @ts-expect-error
+					console.error(chrome.runtime.lastError);
+				} else {
+					console.log("Settings saved successfully");
+				}
+			});
+		}
+
+		/** @override */
+		resetSaveData() {
+			log("Resetting save data in browser extension storage");
+			// @ts-expect-error
+			chrome.storage.sync.clear();
 		}
 	}
 
 	const CONTEXTS = [
-		new LocalContext(),
 		new UserScriptContext(),
+		new BrowserExtensionContext(),
+		new LocalContext()
 	];
 
 	function getContext() {
@@ -1795,7 +1867,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.2.0", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.2.0"); }, false),
+			new MenuItem("2025.11.2.44", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.2.44"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -1835,13 +1907,13 @@
 		/** @type {StickyNote[]} */
 		let stickyNotes = [];
 
-		function load() {
-			/** @type {Record<string, any>} */
-			let saveData = getContext().getSaveData();
+		async function load() {
+			/** @type {BirbSaveData|Object} */
+			let saveData = await getContext().getSaveData();
 
 			debug("Loaded data: " + JSON.stringify(saveData));
 
-			if (!saveData.settings) {
+			if (!('settings' in saveData)) {
 				log("No user settings found in save data, starting fresh");
 			}
 
@@ -1937,8 +2009,10 @@
 				error("Failed to load font: " + e);
 			}
 
-			load();
+			load().then(onLoad);
+		}
 
+		function onLoad() {
 			styleElement.textContent = STYLESHEET;
 			document.head.appendChild(styleElement);
 

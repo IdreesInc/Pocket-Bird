@@ -271,13 +271,13 @@ Promise.all([
 	/** @type {StickyNote[]} */
 	let stickyNotes = [];
 
-	function load() {
-		/** @type {Record<string, any>} */
-		let saveData = getContext().getSaveData();
+	async function load() {
+		/** @type {BirbSaveData|Object} */
+		let saveData = await getContext().getSaveData();
 
 		debug("Loaded data: " + JSON.stringify(saveData));
 
-		if (!saveData.settings) {
+		if (!('settings' in saveData)) {
 			log("No user settings found in save data, starting fresh");
 		}
 
@@ -373,8 +373,10 @@ Promise.all([
 			error("Failed to load font: " + e);
 		}
 
-		load();
+		load().then(onLoad);
+	}
 
+	function onLoad() {
 		styleElement.textContent = STYLESHEET;
 		document.head.appendChild(styleElement);
 
