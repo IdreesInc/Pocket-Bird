@@ -1,7 +1,8 @@
 // @ts-check
 
 import { rollup } from 'rollup';
-import { readFileSync, writeFileSync, mkdirSync, unlinkSync, cpSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, unlinkSync, cpSync, createWriteStream } from 'fs';
+import archiver from 'archiver';
 
 const spriteSheets = [
 	{
@@ -117,5 +118,21 @@ cpSync('./images/icons/transparent', './dist/extension/images/icons/transparent'
 // Copy fonts folder
 mkdirSync('./dist/extension/fonts', { recursive: true });
 cpSync('./fonts', './dist/extension/fonts', { recursive: true });
+
+// Compress extension folder into zip
+const output = createWriteStream('./dist/extension.zip');
+const archive = archiver('zip');
+
+output.on('close', () => {
+	console.log(`Created zip file: ${archive.pointer()} total bytes`);
+});
+
+archive.on('error', (err) => {
+	throw err;
+});
+
+archive.pipe(output);
+archive.directory('./dist/extension/', false);
+archive.finalize();
 
 console.log(`Build completed: version ${version}`);

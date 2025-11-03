@@ -10,6 +10,7 @@
     "dev": "nodemon --watch src --watch stylesheet.css --watch build.js --exec \"npm run build\""
   },
   "devDependencies": {
+    "archiver": "^7.0.1",
     "nodemon": "^3.1.10",
     "rollup": "^4.52.5"
   }
