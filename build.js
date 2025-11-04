@@ -21,10 +21,10 @@ const STYLESHEET_KEY = "___STYLESHEET___";
 const now = new Date();
 const versionDate = `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
 
-// Get current build number from manifest.json
+// Get current build number from the browser-manifest.json
 let buildNumber = 0;
 try {
-	const manifest = JSON.parse(readFileSync('manifest.json', 'utf8'));
+	const manifest = JSON.parse(readFileSync('browser-manifest.json', 'utf8'));
 	if (manifest.version) {
 		if (manifest.version.startsWith(versionDate)) {
 			// Same day, increment build number
@@ -35,18 +35,18 @@ try {
 		}
 	}
 } catch (e) {
-	console.error("Could not read version from manifest.json");
+	console.error("Could not read version from browser-manifest.json");
 	throw e;
 }
 
 // Update manifest.json with new version
 const version = `${versionDate}.${buildNumber}`;
 try {
-	const manifest = JSON.parse(readFileSync('manifest.json', 'utf8'));
+	const manifest = JSON.parse(readFileSync('browser-manifest.json', 'utf8'));
 	manifest.version = version;
-	writeFileSync('manifest.json', JSON.stringify(manifest, null, 4), 'utf8');
+	writeFileSync('browser-manifest.json', JSON.stringify(manifest, null, 4), 'utf8');
 } catch (e) {
-	console.error("Could not update version in manifest.json");
+	console.error("Could not update version in browser-manifest.json");
 	throw e;
 }
 
@@ -110,7 +110,7 @@ mkdirSync('./dist/extension', { recursive: true });
 // Copy birb.js
 writeFileSync('./dist/extension/birb.js', birbJs);
 // Copy manifest.json
-const manifestContent = readFileSync('./manifest.json', 'utf8');
+const manifestContent = readFileSync('./browser-manifest.json', 'utf8');
 writeFileSync('./dist/extension/manifest.json', manifestContent);
 // Copy icons folder
 mkdirSync('./dist/extension/images/icons', { recursive: true });
