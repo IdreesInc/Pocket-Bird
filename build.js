@@ -17,6 +17,7 @@ const spriteSheets = [
 
 const STYLESHEET_PATH = "./src/stylesheet.css";
 const STYLESHEET_KEY = "___STYLESHEET___";
+const BROWSER_MANIFEST = "./browser-manifest.json";
 
 const now = new Date();
 const versionDate = `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
@@ -24,7 +25,7 @@ const versionDate = `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}
 // Get current build number from the browser-manifest.json
 let buildNumber = 0;
 try {
-	const manifest = JSON.parse(readFileSync('browser-manifest.json', 'utf8'));
+	const manifest = JSON.parse(readFileSync(BROWSER_MANIFEST, 'utf8'));
 	if (manifest.version) {
 		if (manifest.version.startsWith(versionDate)) {
 			// Same day, increment build number
@@ -35,18 +36,18 @@ try {
 		}
 	}
 } catch (e) {
-	console.error("Could not read version from browser-manifest.json");
+	console.error("Could not read version from browser manifest");
 	throw e;
 }
 
 // Update manifest.json with new version
 const version = `${versionDate}.${buildNumber}`;
 try {
-	const manifest = JSON.parse(readFileSync('browser-manifest.json', 'utf8'));
+	const manifest = JSON.parse(readFileSync(BROWSER_MANIFEST, 'utf8'));
 	manifest.version = version;
-	writeFileSync('browser-manifest.json', JSON.stringify(manifest, null, 4), 'utf8');
+	writeFileSync(BROWSER_MANIFEST, JSON.stringify(manifest, null, 4), 'utf8');
 } catch (e) {
-	console.error("Could not update version in browser-manifest.json");
+	console.error("Could not update version in browser manifest");
 	throw e;
 }
 
@@ -107,14 +108,18 @@ writeFileSync('./dist/userscript/birb.user.js', userScript);
 
 // Build browser extension
 mkdirSync('./dist/extension', { recursive: true });
+
 // Copy birb.js
 writeFileSync('./dist/extension/birb.js', birbJs);
+
 // Copy manifest.json
-const manifestContent = readFileSync('./browser-manifest.json', 'utf8');
+const manifestContent = readFileSync(BROWSER_MANIFEST, 'utf8');
 writeFileSync('./dist/extension/manifest.json', manifestContent);
+
 // Copy icons folder
 mkdirSync('./dist/extension/images/icons', { recursive: true });
 cpSync('./images/icons/transparent', './dist/extension/images/icons/transparent', { recursive: true });
+
 // Copy fonts folder
 mkdirSync('./dist/extension/fonts', { recursive: true });
 cpSync('./fonts', './dist/extension/fonts', { recursive: true });
