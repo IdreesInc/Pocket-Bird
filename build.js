@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync, mkdirSync, unlinkSync, cpSync, createWrite
 import archiver from 'archiver';
 
 // Path constants
+const BUILD_CACHE_PATH = "./build-cache.json";
 const SRC_DIR = "./src";
 const SPRITES_DIR = "./sprites";
 const IMAGES_DIR = "./images";
@@ -22,6 +23,9 @@ const APPLICATION_ENTRY = SRC_DIR + "/application.js";
 const BUNDLED_OUTPUT = DIST_DIR + "/birb.bundled.js";
 const BIRB_OUTPUT = DIST_DIR + "/birb.js";
 
+const VERSION_KEY = "__VERSION__";
+const STYLESHEET_KEY = "___STYLESHEET___";
+
 const spriteSheets = [
 	{
 		key: "__SPRITE_SHEET__",
@@ -33,65 +37,34 @@ const spriteSheets = [
 	}
 ];
 
-const STYLESHEET_KEY = "___STYLESHEET___";
+/** @type {Record<string, any>} */
+let buildCache = {};
+try {
+	const cacheContent = readFileSync(BUILD_CACHE_PATH, 'utf8');
+	buildCache = JSON.parse(cacheContent);
+} catch (e) {
+	console.warn("No build cache found, starting fresh");
+}
 
 const now = new Date();
 const versionDate = `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
 
-// Get current build number from the browser-manifest.json
+// Get current build number from the build cache
 let buildNumber = 0;
-try {
-	const manifest = JSON.parse(readFileSync(BROWSER_MANIFEST, 'utf8'));
-	if (manifest.version) {
-		if (manifest.version.startsWith(versionDate)) {
-			// Same day, increment build number
-			const parts = manifest.version.split('.');
-			if (parts.length === 4) {
-				buildNumber = parseInt(parts[3], 10) + 1;
-			}
-		}
+
+if (buildCache.version && buildCache.version.startsWith(versionDate)) {
+	// Same day, increment build number
+	const parts = buildCache.version.split('.');
+	if (parts.length === 4) {
+		buildNumber = parseInt(parts[3], 10) + 1;
 	}
-} catch (e) {
-	console.error("Could not read version from browser manifest");
-	throw e;
 }
 
 const version = `${versionDate}.${buildNumber}`;
 
-// Update browser manifest with new version
-try {
-	const manifest = JSON.parse(readFileSync(BROWSER_MANIFEST, 'utf8'));
-	manifest.version = version;
-	writeFileSync(BROWSER_MANIFEST, JSON.stringify(manifest, null, 4), 'utf8');
-} catch (e) {
-	console.error("Could not update version in browser manifest");
-	throw e;
-}
-
-try {
-	const obsidianManifest = JSON.parse(readFileSync(OBSIDIAN_MANIFEST, 'utf8'));
-	obsidianManifest.version = version;
-	writeFileSync(OBSIDIAN_MANIFEST, JSON.stringify(obsidianManifest, null, 4), 'utf8');
-} catch (e) {
-	console.error("Could not update version in Obsidian manifest");
-}
-
-const userScriptHeader =
-`// ==UserScript==
-// @name         Pocket Bird
-// @namespace    https://idreesinc.com
-// @version      ${version}
-// @description  It's a bird that hops around your web browser, the future is here 
-// @author       Idrees
-// @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
-// @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
-// @match        *://*/*
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_deleteValue
-// ==/UserScript==
-
-`;
+// Update build cache
+buildCache.version = version;
+writeFileSync(BUILD_CACHE_PATH, JSON.stringify(buildCache), 'utf8');
 
 // Bundle with rollup
 const bundle = await rollup({
@@ -111,7 +84,7 @@ let birbJs = readFileSync(BUNDLED_OUTPUT, 'utf8');
 unlinkSync(BUNDLED_OUTPUT);
 
 // Replace version placeholder
-birbJs = birbJs.replaceAll('__VERSION__', version);
+birbJs = birbJs.replaceAll(VERSION_KEY, version);
 
 // Compile and insert sprite sheets
 for (const spriteSheet of spriteSheets) {
@@ -127,6 +100,22 @@ birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent);
 writeFileSync(BIRB_OUTPUT, birbJs);
 
 // Build user script
+const userScriptHeader =
+	`// ==UserScript==
+// @name         Pocket Bird
+// @namespace    https://idreesinc.com
+// @version      ${version}
+// @description  It's a bird that hops around your web browser, the future is here 
+// @author       Idrees
+// @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
+// @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
+// @match        *://*/*
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_deleteValue
+// ==/UserScript==
+
+`;
 mkdirSync(USERSCRIPT_DIR, { recursive: true });
 const userScript = userScriptHeader + birbJs;
 writeFileSync(USERSCRIPT_DIR + '/birb.user.js', userScript);
@@ -138,8 +127,9 @@ mkdirSync(EXTENSION_DIR, { recursive: true });
 writeFileSync(EXTENSION_DIR + '/birb.js', birbJs);
 
 // Copy manifest.json
-const manifestContent = readFileSync(BROWSER_MANIFEST, 'utf8');
-writeFileSync(EXTENSION_DIR + '/manifest.json', manifestContent);
+let browserManifest = readFileSync(BROWSER_MANIFEST, 'utf8');
+browserManifest = browserManifest.replace(VERSION_KEY, version);
+writeFileSync(EXTENSION_DIR + '/manifest.json', browserManifest);
 
 // Copy icons folder
 mkdirSync(EXTENSION_DIR + '/images/icons', { recursive: true });
@@ -172,7 +162,8 @@ mkdirSync(OBSIDIAN_DIR, { recursive: true });
 writeFileSync(OBSIDIAN_DIR + '/main.js', birbJs);
 
 // Copy manifest.json
-const obsidianManifestContent = readFileSync(OBSIDIAN_MANIFEST, 'utf8');
-writeFileSync(OBSIDIAN_DIR + '/manifest.json', obsidianManifestContent);
+let obsidianManifest = readFileSync(OBSIDIAN_MANIFEST, 'utf8');
+obsidianManifest = obsidianManifest.replace(/"version":\s*".*"/, `"version": "${version}"`);
+writeFileSync(OBSIDIAN_DIR + '/manifest.json', obsidianManifest);
 
 console.log(`Build complete: ${version}`);

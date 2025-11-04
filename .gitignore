@@ -2,3 +2,4 @@
 .DS_Store
 /dist/birb.bundled.js
 obsidian-test.sh
+build-cache.json

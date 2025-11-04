@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.js",
-    "dev": "nodemon --watch src --watch stylesheet.css --watch build.js --exec \"npm run build\""
+    "dev": "nodemon --watch src --watch package.json --watch stylesheet.css --watch build.js --watch obsidian-manifest.json --watch browser-manifest.json --exec \"npm run build\""
   },
   "devDependencies": {
     "archiver": "^7.0.1",
