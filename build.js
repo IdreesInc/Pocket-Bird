@@ -135,4 +135,4 @@ archive.pipe(output);
 archive.directory('./dist/extension/', false);
 archive.finalize();
 
-console.log(`Build completed: version ${version}`);
+console.log(`Build complete: ${version}`);
