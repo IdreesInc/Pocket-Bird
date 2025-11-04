@@ -1012,8 +1012,43 @@
 		}
 	}
 
+	class ObsidianContext extends Context {
+
+		/**
+		 * @override
+		 * @returns {boolean}
+		 */
+		isContextActive() {
+			// @ts-expect-error
+			return typeof app !== "undefined" && typeof app.vault !== "undefined";
+		}
+
+		/**
+		 * @override
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
+			log("Loading save data from Obsidian plugin storage unimplemented");
+			return {};
+		}
+
+		/**
+		 * @override
+		 * @param {BirbSaveData} saveData
+		 */
+		async putSaveData(saveData) {
+			log("Saving data to Obsidian plugin storage unimplemented");
+		}
+
+		/** @override */
+		resetSaveData() {
+			log("Resetting save data in Obsidian plugin storage unimplemented");
+		}
+	}
+
 	const CONTEXTS = [
 		new UserScriptContext(),
+		new ObsidianContext(),
 		new BrowserExtensionContext(),
 		new LocalContext()
 	];
@@ -1025,7 +1060,7 @@
 			}
 		}
 		error("No applicable context found, defaulting to LocalContext");
-		return CONTEXTS[0];
+		return new LocalContext();
 	}
 
 	/**
@@ -1867,7 +1902,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.3.34", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.3.34"); }, false),
+			new MenuItem("2025.11.3.37", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.3.37"); }, false),
 		];
 
 		const styleElement = document.createElement("style");

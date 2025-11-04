@@ -174,8 +174,43 @@ class BrowserExtensionContext extends Context {
 	}
 }
 
+class ObsidianContext extends Context {
+
+	/**
+	 * @override
+	 * @returns {boolean}
+	 */
+	isContextActive() {
+		// @ts-expect-error
+		return typeof app !== "undefined" && typeof app.vault !== "undefined";
+	}
+
+	/**
+	 * @override
+	 * @returns {Promise<BirbSaveData|{}>}
+	 */
+	async getSaveData() {
+		log("Loading save data from Obsidian plugin storage unimplemented");
+		return {};
+	}
+
+	/**
+	 * @override
+	 * @param {BirbSaveData} saveData
+	 */
+	async putSaveData(saveData) {
+		log("Saving data to Obsidian plugin storage unimplemented");
+	}
+
+	/** @override */
+	resetSaveData() {
+		log("Resetting save data in Obsidian plugin storage unimplemented");
+	}
+}
+
 const CONTEXTS = [
 	new UserScriptContext(),
+	new ObsidianContext(),
 	new BrowserExtensionContext(),
 	new LocalContext()
 ];
@@ -187,5 +222,5 @@ export function getContext() {
 		}
 	}
 	error("No applicable context found, defaulting to LocalContext");
-	return CONTEXTS[0];
+	return new LocalContext();
 }
