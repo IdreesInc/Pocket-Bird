@@ -4,20 +4,34 @@ import { rollup } from 'rollup';
 import { readFileSync, writeFileSync, mkdirSync, unlinkSync, cpSync, createWriteStream } from 'fs';
 import archiver from 'archiver';
 
+// Path constants
+const SRC_DIR = "./src";
+const SPRITES_DIR = "./sprites";
+const IMAGES_DIR = "./images";
+const FONTS_DIR = "./fonts";
+const DIST_DIR = "./dist";
+
+const BROWSER_MANIFEST = "./browser-manifest.json";
+const STYLESHEET_PATH = SRC_DIR + "/stylesheet.css";
+const APPLICATION_ENTRY = SRC_DIR + "/application.js";
+const BUNDLED_OUTPUT = DIST_DIR + "/birb.bundled.js";
+const BIRB_OUTPUT = DIST_DIR + "/birb.js";
+const USERSCRIPT_DIR = DIST_DIR + "/userscript";
+const EXTENSION_DIR = DIST_DIR + "/extension";
+const EXTENSION_ZIP = DIST_DIR + "/extension.zip";
+
 const spriteSheets = [
 	{
 		key: "__SPRITE_SHEET__",
-		path: "./sprites/birb.png"
+		path: SPRITES_DIR + "/birb.png"
 	},
 	{
 		key: "__FEATHER_SPRITE_SHEET__",
-		path: "./sprites/feather.png"
+		path: SPRITES_DIR + "/feather.png"
 	}
 ];
 
-const STYLESHEET_PATH = "./src/stylesheet.css";
 const STYLESHEET_KEY = "___STYLESHEET___";
-const BROWSER_MANIFEST = "./browser-manifest.json";
 
 const now = new Date();
 const versionDate = `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
@@ -70,20 +84,20 @@ const userScriptHeader =
 
 // Bundle with rollup
 const bundle = await rollup({
-	input: 'src/application.js',
+	input: APPLICATION_ENTRY,
 });
 
 await bundle.write({
-	file: 'dist/birb.bundled.js',
+	file: BUNDLED_OUTPUT,
 	format: 'iife',
 });
 
 await bundle.close();
 
-let birbJs = readFileSync('dist/birb.bundled.js', 'utf8');
+let birbJs = readFileSync(BUNDLED_OUTPUT, 'utf8');
 
 // Delete bundled file
-unlinkSync('./dist/birb.bundled.js');
+unlinkSync(BUNDLED_OUTPUT);
 
 // Replace version placeholder
 birbJs = birbJs.replaceAll('__VERSION__', version);
@@ -99,33 +113,33 @@ const stylesheetContent = readFileSync(STYLESHEET_PATH, 'utf8');
 birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent);
 
 // Build standard javascript file
-writeFileSync('./dist/birb.js', birbJs);
+writeFileSync(BIRB_OUTPUT, birbJs);
 
 // Build user script
-mkdirSync('./dist/userscript', { recursive: true });
+mkdirSync(USERSCRIPT_DIR, { recursive: true });
 const userScript = userScriptHeader + birbJs;
-writeFileSync('./dist/userscript/birb.user.js', userScript);
+writeFileSync(USERSCRIPT_DIR + '/birb.user.js', userScript);
 
 // Build browser extension
-mkdirSync('./dist/extension', { recursive: true });
+mkdirSync(EXTENSION_DIR, { recursive: true });
 
 // Copy birb.js
-writeFileSync('./dist/extension/birb.js', birbJs);
+writeFileSync(EXTENSION_DIR + '/birb.js', birbJs);
 
 // Copy manifest.json
 const manifestContent = readFileSync(BROWSER_MANIFEST, 'utf8');
-writeFileSync('./dist/extension/manifest.json', manifestContent);
+writeFileSync(EXTENSION_DIR + '/manifest.json', manifestContent);
 
 // Copy icons folder
-mkdirSync('./dist/extension/images/icons', { recursive: true });
-cpSync('./images/icons/transparent', './dist/extension/images/icons/transparent', { recursive: true });
+mkdirSync(EXTENSION_DIR + '/images/icons', { recursive: true });
+cpSync(IMAGES_DIR + '/icons/transparent', EXTENSION_DIR + '/images/icons/transparent', { recursive: true });
 
 // Copy fonts folder
-mkdirSync('./dist/extension/fonts', { recursive: true });
-cpSync('./fonts', './dist/extension/fonts', { recursive: true });
+mkdirSync(EXTENSION_DIR + '/fonts', { recursive: true });
+cpSync(FONTS_DIR, EXTENSION_DIR + '/fonts', { recursive: true });
 
 // Compress extension folder into zip
-const output = createWriteStream('./dist/extension.zip');
+const output = createWriteStream(EXTENSION_ZIP);
 const archive = archiver('zip');
 
 output.on('close', () => {
@@ -137,7 +151,7 @@ archive.on('error', (err) => {
 });
 
 archive.pipe(output);
-archive.directory('./dist/extension/', false);
+archive.directory(EXTENSION_DIR + '/', false);
 archive.finalize();
 
 console.log(`Build complete: ${version}`);
