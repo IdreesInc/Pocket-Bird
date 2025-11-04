@@ -12,13 +12,15 @@ const FONTS_DIR = "./fonts";
 const DIST_DIR = "./dist";
 
 const BROWSER_MANIFEST = "./browser-manifest.json";
+const OBSIDIAN_MANIFEST = "./obsidian-manifest.json";
+const USERSCRIPT_DIR = DIST_DIR + "/userscript";
+const EXTENSION_DIR = DIST_DIR + "/extension";
+const OBSIDIAN_DIR = DIST_DIR + "/obsidian";
+
 const STYLESHEET_PATH = SRC_DIR + "/stylesheet.css";
 const APPLICATION_ENTRY = SRC_DIR + "/application.js";
 const BUNDLED_OUTPUT = DIST_DIR + "/birb.bundled.js";
 const BIRB_OUTPUT = DIST_DIR + "/birb.js";
-const USERSCRIPT_DIR = DIST_DIR + "/userscript";
-const EXTENSION_DIR = DIST_DIR + "/extension";
-const EXTENSION_ZIP = DIST_DIR + "/extension.zip";
 
 const spriteSheets = [
 	{
@@ -54,8 +56,9 @@ try {
 	throw e;
 }
 
-// Update manifest.json with new version
 const version = `${versionDate}.${buildNumber}`;
+
+// Update browser manifest with new version
 try {
 	const manifest = JSON.parse(readFileSync(BROWSER_MANIFEST, 'utf8'));
 	manifest.version = version;
@@ -63,6 +66,14 @@ try {
 } catch (e) {
 	console.error("Could not update version in browser manifest");
 	throw e;
+}
+
+try {
+	const obsidianManifest = JSON.parse(readFileSync(OBSIDIAN_MANIFEST, 'utf8'));
+	obsidianManifest.version = version;
+	writeFileSync(OBSIDIAN_MANIFEST, JSON.stringify(obsidianManifest, null, 4), 'utf8');
+} catch (e) {
+	console.error("Could not update version in Obsidian manifest");
 }
 
 const userScriptHeader =
@@ -139,7 +150,7 @@ mkdirSync(EXTENSION_DIR + '/fonts', { recursive: true });
 cpSync(FONTS_DIR, EXTENSION_DIR + '/fonts', { recursive: true });
 
 // Compress extension folder into zip
-const output = createWriteStream(EXTENSION_ZIP);
+const output = createWriteStream(DIST_DIR + "/extension.zip");
 const archive = archiver('zip');
 
 output.on('close', () => {
@@ -153,5 +164,15 @@ archive.on('error', (err) => {
 archive.pipe(output);
 archive.directory(EXTENSION_DIR + '/', false);
 archive.finalize();
+
+// Build Obsidian plugin
+mkdirSync(OBSIDIAN_DIR, { recursive: true });
+
+// Copy birb.js to main.js
+writeFileSync(OBSIDIAN_DIR + '/main.js', birbJs);
+
+// Copy manifest.json
+const obsidianManifestContent = readFileSync(OBSIDIAN_MANIFEST, 'utf8');
+writeFileSync(OBSIDIAN_DIR + '/manifest.json', obsidianManifestContent);
 
 console.log(`Build complete: ${version}`);
