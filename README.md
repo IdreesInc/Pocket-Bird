@@ -55,7 +55,7 @@ Feathers will occasionally fall from the top of your browser window. Clicking on
 
 ### How do I change my bird's appearance?
 
-Once you've unlocked new species by collecting feathers, you can change your bird's appearance by opening the Pocket Bird menu (click the bird) and selecting "Field Guide".
+Once you've unlocked new species by collecting feathers, you can change your bird's appearance by opening the Pocket Bird menu (via clicking the bird) and selecting "Field Guide".
 
 ### How do I add sticky notes?
 
@@ -73,4 +73,4 @@ Pocket Bird needs these permissions in order to insert the bird and sticky notes
 
 If you'd like to get in touch, check out the [Discord](https://discord.gg/6yxE9prcNc) to suggest features, report bugs, and stay updated on development!
 
-Also feel free to check out my other projects on [my website](https://idreesinc.com/)!
+Also feel free to check out my other open-source projects like [Monocraft](https://github.com/IdreesInc/Monocraft), [PicoChat](https://github.com/IdreesInc/PicoChat), and more on [my website](https://idreesinc.com/)!
