@@ -21,7 +21,7 @@ It's a pet bird that hops around your browser, what more could you want?
 - Add sticky notes that stay on the page even after you refresh
 - And most importantly, you can pet the bird!
 
-## Installation
+## Adoption Guide
 
 ### Google Chrome + Microsoft Edge
 
