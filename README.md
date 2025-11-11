@@ -23,9 +23,7 @@ It's a pet bird that hops around your browser, what more could you want?
 
 ## Installation
 
-### Browser Extension
-
-### Google Chrome / Microsoft Edge
+### Google Chrome + Microsoft Edge
 
 1. Go to the [Chrome Web Store page](https://chromewebstore.google.com/detail/pocket-bird/lbbdngkbbgaecefacpnhnhleggabghak)
 2. Click "Add to Chrome" (or "Add to Edge" if using Microsoft Edge)
