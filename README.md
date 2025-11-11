@@ -67,6 +67,8 @@ Open the Pocket Bird menu by clicking the bird and select "Sticky Note". From th
 
 Open the Pocket Bird menu by clicking the bird and select "Settings". From there, you can toggle the bird's visibility on and off temporarily on the current page.
 
-### How can I get in touch?
+## Getting in Touch
 
 If you'd like to get in touch, check out the [Discord](https://discord.gg/6yxE9prcNc) to suggest features, report bugs, and stay updated on development!
+
+Also feel free to check out my other projects on [my website](https://idreesinc.com/)!
