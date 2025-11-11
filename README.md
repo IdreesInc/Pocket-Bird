@@ -65,6 +65,10 @@ Open the Pocket Bird menu by clicking the bird and select "Sticky Note". From th
 
 Open the Pocket Bird menu by clicking the bird and select "Settings". From there, you can toggle the bird's visibility on and off temporarily on the current page.
 
+### Why does Pocket Bird need permission to read and change my data on websites I visit?
+
+Pocket Bird needs these permissions in order to insert the bird and sticky notes into your webpages. Pocket Bird does not collect any of your data or browsing history and all data is stored locally on your device!
+
 ## Getting in Touch
 
 If you'd like to get in touch, check out the [Discord](https://discord.gg/6yxE9prcNc) to suggest features, report bugs, and stay updated on development!
