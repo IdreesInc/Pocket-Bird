@@ -165,6 +165,12 @@ module.exports = class MyPlugin extends Plugin {
 	onload() {
 		${birbJs}
 	}
+
+	onunload() {
+		// Remove the birb when the plugin is unloaded
+		document.getElementById('birb')?.remove();
+		console.log('Pocket Bird unloaded!');
+	}
 };`
 
 // Create main.js with plugin code
