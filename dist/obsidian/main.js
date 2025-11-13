@@ -918,6 +918,10 @@ module.exports = class MyPlugin extends Plugin {
 			}
 			return true;
 		}
+
+		areStickyNotesEnabled() {
+			return true;
+		}
 	}
 
 	class LocalContext extends Context {
@@ -1081,6 +1085,11 @@ module.exports = class MyPlugin extends Plugin {
 		/** @override */
 		resetSaveData() {
 			log("Resetting save data in Obsidian plugin storage unimplemented");
+		}
+
+		/** @override */
+		areStickyNotesEnabled() {
+			return false;
 		}
 	}
 
@@ -1879,7 +1888,9 @@ module.exports = class MyPlugin extends Plugin {
 		const menuItems = [
 			new MenuItem(`Pet ${birdBirb()}`, pet),
 			new MenuItem("Field Guide", insertFieldGuide),
-			new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote)),
+			...(getContext().areStickyNotesEnabled() ? [
+				new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote))
+			] : []),
 			new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false)),
 			new DebugMenuItem("Freeze/Unfreeze", () => {
 				frozen = !frozen;
@@ -1916,7 +1927,7 @@ module.exports = class MyPlugin extends Plugin {
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.13.6", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.6"); }, false),
+			new MenuItem("2025.11.13.8", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.8"); }, false),
 		];
 
 		const styleElement = document.createElement("style");

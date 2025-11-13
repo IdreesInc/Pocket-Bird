@@ -75,6 +75,10 @@ export class Context {
 		}
 		return true;
 	}
+
+	areStickyNotesEnabled() {
+		return true;
+	}
 }
 
 export class LocalContext extends Context {
@@ -238,6 +242,11 @@ class ObsidianContext extends Context {
 	/** @override */
 	resetSaveData() {
 		log("Resetting save data in Obsidian plugin storage unimplemented");
+	}
+
+	/** @override */
+	areStickyNotesEnabled() {
+		return false;
 	}
 }
 

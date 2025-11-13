@@ -194,7 +194,9 @@ Promise.all([
 	const menuItems = [
 		new MenuItem(`Pet ${birdBirb()}`, pet),
 		new MenuItem("Field Guide", insertFieldGuide),
-		new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote)),
+		...(getContext().areStickyNotesEnabled() ? [
+			new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote))
+		] : []),
 		new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false)),
 		new DebugMenuItem("Freeze/Unfreeze", () => {
 			frozen = !frozen;

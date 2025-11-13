@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.11.13.6
+// @version      2025.11.13.8
 // @description  It's a bird that hops around your web browser, the future is here 
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -928,6 +928,10 @@
 			}
 			return true;
 		}
+
+		areStickyNotesEnabled() {
+			return true;
+		}
 	}
 
 	class LocalContext extends Context {
@@ -1091,6 +1095,11 @@
 		/** @override */
 		resetSaveData() {
 			log("Resetting save data in Obsidian plugin storage unimplemented");
+		}
+
+		/** @override */
+		areStickyNotesEnabled() {
+			return false;
 		}
 	}
 
@@ -1889,7 +1898,9 @@
 		const menuItems = [
 			new MenuItem(`Pet ${birdBirb()}`, pet),
 			new MenuItem("Field Guide", insertFieldGuide),
-			new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote)),
+			...(getContext().areStickyNotesEnabled() ? [
+				new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote))
+			] : []),
 			new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false)),
 			new DebugMenuItem("Freeze/Unfreeze", () => {
 				frozen = !frozen;
@@ -1926,7 +1937,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.13.6", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.6"); }, false),
+			new MenuItem("2025.11.13.8", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.8"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
