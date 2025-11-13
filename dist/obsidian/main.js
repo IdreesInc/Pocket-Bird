@@ -2,6 +2,7 @@
 const { Plugin, Notice } = require('obsidian');
 module.exports = class PocketBird extends Plugin {
 	onload() {
+		console.log("Loading Pocket Bird version 2025.11.13.27...");
 		const OBSIDIAN_PLUGIN = this;
 		(function () {
 	'use strict';
@@ -887,6 +888,17 @@ module.exports = class PocketBird extends Plugin {
 		}
 
 		/**
+		 * @returns {string[]} A list of CSS selectors for focusable elements
+		 */
+		getFocusableElements() {
+			return ["img", "video", ".birb-sticky-note"];
+		}
+
+		getFocusElementTopMargin() {
+			return 80;
+		}
+
+		/**
 		 * @returns {string} The current path of the active page in this context
 		 */
 		getPath() {
@@ -1087,6 +1099,21 @@ module.exports = class PocketBird extends Plugin {
 		/** @override */
 		resetSaveData() {
 			this.putSaveData({});
+		}
+
+		/** @override */
+		getFocusElementTopMargin() {
+			return 10;
+		}
+
+		/** @override */
+		getFocusableElements() {
+			const elements = [
+				".workspace-leaf",
+				".cm-callout",
+				".HyperMD-codeblock-begin"
+			];
+			return super.getFocusableElements().concat(elements);
 		}
 
 		/** @override */
@@ -1800,7 +1827,6 @@ module.exports = class PocketBird extends Plugin {
 
 	// Focus element constraints
 	const MIN_FOCUS_ELEMENT_WIDTH = 100;
-	const MIN_FOCUS_ELEMENT_TOP = 80;
 
 	/** @type {Partial<Settings>} */
 	let userSettings = {};
@@ -1929,7 +1955,7 @@ module.exports = class PocketBird extends Plugin {
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.13.16", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.16"); }, false),
+			new MenuItem("2025.11.13.27", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.27"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2556,7 +2582,8 @@ module.exports = class PocketBird extends Plugin {
 			if (frozen) {
 				return false;
 			}
-			const elements = document.querySelectorAll("img, video, .birb-sticky-note");
+			const MIN_FOCUS_ELEMENT_TOP = getContext().getFocusElementTopMargin();
+			const elements = document.querySelectorAll(getContext().getFocusableElements().join(", "));
 			const inWindow = Array.from(elements).filter((img) => {
 				const rect = img.getBoundingClientRect();
 				return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= getWindowHeight();
@@ -2720,6 +2747,7 @@ module.exports = class PocketBird extends Plugin {
 
 })();
 
+		console.log("Pocket Bird loaded!");
 	}
 
 	onunload() {

@@ -104,7 +104,6 @@ const PET_FEATHER_BOOST = 2;
 
 // Focus element constraints
 const MIN_FOCUS_ELEMENT_WIDTH = 100;
-const MIN_FOCUS_ELEMENT_TOP = 80;
 
 /** @type {Partial<Settings>} */
 let userSettings = {};
@@ -864,7 +863,8 @@ Promise.all([
 		if (frozen) {
 			return false;
 		}
-		const elements = document.querySelectorAll("img, video, .birb-sticky-note");
+		const MIN_FOCUS_ELEMENT_TOP = getContext().getFocusElementTopMargin();
+		const elements = document.querySelectorAll(getContext().getFocusableElements().join(", "));
 		const inWindow = Array.from(elements).filter((img) => {
 			const rect = img.getBoundingClientRect();
 			return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= getWindowHeight();

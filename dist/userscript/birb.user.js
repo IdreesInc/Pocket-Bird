@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.11.13.16
+// @version      2025.11.13.27
 // @description  It's a bird that hops around your web browser, the future is here 
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -896,6 +896,17 @@
 		}
 
 		/**
+		 * @returns {string[]} A list of CSS selectors for focusable elements
+		 */
+		getFocusableElements() {
+			return ["img", "video", ".birb-sticky-note"];
+		}
+
+		getFocusElementTopMargin() {
+			return 80;
+		}
+
+		/**
 		 * @returns {string} The current path of the active page in this context
 		 */
 		getPath() {
@@ -1096,6 +1107,21 @@
 		/** @override */
 		resetSaveData() {
 			this.putSaveData({});
+		}
+
+		/** @override */
+		getFocusElementTopMargin() {
+			return 10;
+		}
+
+		/** @override */
+		getFocusableElements() {
+			const elements = [
+				".workspace-leaf",
+				".cm-callout",
+				".HyperMD-codeblock-begin"
+			];
+			return super.getFocusableElements().concat(elements);
 		}
 
 		/** @override */
@@ -1809,7 +1835,6 @@
 
 	// Focus element constraints
 	const MIN_FOCUS_ELEMENT_WIDTH = 100;
-	const MIN_FOCUS_ELEMENT_TOP = 80;
 
 	/** @type {Partial<Settings>} */
 	let userSettings = {};
@@ -1938,7 +1963,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.13.16", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.16"); }, false),
+			new MenuItem("2025.11.13.27", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.27"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2565,7 +2590,8 @@
 			if (frozen) {
 				return false;
 			}
-			const elements = document.querySelectorAll("img, video, .birb-sticky-note");
+			const MIN_FOCUS_ELEMENT_TOP = getContext().getFocusElementTopMargin();
+			const elements = document.querySelectorAll(getContext().getFocusableElements().join(", "));
 			const inWindow = Array.from(elements).filter((img) => {
 				const rect = img.getBoundingClientRect();
 				return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= getWindowHeight();

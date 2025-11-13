@@ -163,8 +163,10 @@ const obsidianPlugin = `
 const { Plugin, Notice } = require('obsidian');
 module.exports = class PocketBird extends Plugin {
 	onload() {
+		console.log("Loading Pocket Bird version ${version}...");
 		const OBSIDIAN_PLUGIN = this;
 		${birbJs}
+		console.log("Pocket Bird loaded!");
 	}
 
 	onunload() {

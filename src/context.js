@@ -43,6 +43,17 @@ export class Context {
 	}
 
 	/**
+	 * @returns {string[]} A list of CSS selectors for focusable elements
+	 */
+	getFocusableElements() {
+		return ["img", "video", ".birb-sticky-note"];
+	}
+
+	getFocusElementTopMargin() {
+		return 80;
+	}
+
+	/**
 	 * @returns {string} The current path of the active page in this context
 	 */
 	getPath() {
@@ -243,6 +254,21 @@ class ObsidianContext extends Context {
 	/** @override */
 	resetSaveData() {
 		this.putSaveData({});
+	}
+
+	/** @override */
+	getFocusElementTopMargin() {
+		return 10;
+	}
+
+	/** @override */
+	getFocusableElements() {
+		const elements = [
+			".workspace-leaf",
+			".cm-callout",
+			".HyperMD-codeblock-begin"
+		];
+		return super.getFocusableElements().concat(elements);
 	}
 
 	/** @override */
