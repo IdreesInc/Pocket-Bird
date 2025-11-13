@@ -884,6 +884,40 @@ module.exports = class MyPlugin extends Plugin {
 		resetSaveData() {
 			throw new Error("Method not implemented");
 		}
+
+		/**
+		 * @returns {string} The current path of the active page in this context
+		 */
+		getPath() {
+			// Default to website URL
+			return window.location.href;
+		}
+
+		/**
+		 * Checks if a path is applicable given the context
+		 * @param {string} path Can be a site URL or another context-specific path
+		 * @returns {boolean} Whether the path matches the current context state
+		 */
+		isPathApplicable(path) {
+			// Default to website URL matching
+			const currentUrl = window.location.href;
+			const stickyNoteWebsite = path.split("?")[0];
+			const currentWebsite = currentUrl.split("?")[0];
+
+			if (stickyNoteWebsite !== currentWebsite) {
+				return false;
+			}
+
+			const pathParams = parseUrlParams(path);
+			const currentParams = parseUrlParams(currentUrl);
+
+			if (window.location.hostname === "www.youtube.com") {
+				if (currentParams.v !== undefined && currentParams.v !== pathParams.v) {
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 
 	class LocalContext extends Context {
@@ -1068,6 +1102,21 @@ module.exports = class MyPlugin extends Plugin {
 	}
 
 	/**
+	 * Parse URL parameters into a key-value map
+	 * @param {string} url
+	 * @returns {Record<string, string>}
+	 */
+	function parseUrlParams(url) {
+		const queryString = url.split("?")[1];
+		if (!queryString) return {};
+
+		return queryString.split("&").reduce((params, param) => {
+			const [key, value] = param.split("=");
+			return { ...params, [key]: value };
+		}, {});
+	}
+
+	/**
 	 * @typedef {Object} SavedStickyNote
 	 * @property {string} id
 	 * @property {string} site
@@ -1091,46 +1140,6 @@ module.exports = class MyPlugin extends Plugin {
 			this.top = top;
 			this.left = left;
 		}
-	}
-
-	/**
-	 * Parse URL parameters into a key-value map
-	 * @param {string} url
-	 * @returns {Record<string, string>}
-	 */
-	function parseUrlParams(url) {
-		const queryString = url.split("?")[1];
-		if (!queryString) return {};
-
-		return queryString.split("&").reduce((params, param) => {
-			const [key, value] = param.split("=");
-			return { ...params, [key]: value };
-		}, {});
-	}
-
-	/**
-	 * @param {StickyNote} stickyNote
-	 * @returns {boolean} Whether the given sticky note is applicable to the current site/page
-	 */
-	function isStickyNoteApplicable(stickyNote) {
-		const stickyNoteUrl = stickyNote.site;
-		const currentUrl = window.location.href;
-		const stickyNoteWebsite = stickyNoteUrl.split("?")[0];
-		const currentWebsite = currentUrl.split("?")[0];
-
-		if (stickyNoteWebsite !== currentWebsite) {
-			return false;
-		}
-
-		const stickyNoteParams = parseUrlParams(stickyNoteUrl);
-		const currentParams = parseUrlParams(currentUrl);
-
-		if (window.location.hostname === "www.youtube.com") {
-			if (currentParams.v !== undefined && currentParams.v !== stickyNoteParams.v) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/**
@@ -1215,8 +1224,9 @@ module.exports = class MyPlugin extends Plugin {
 		const existingNotes = document.querySelectorAll(".birb-sticky-note");
 		existingNotes.forEach(note => note.remove());
 		// Render all sticky notes
+		const context = getContext();
 		for (let stickyNote of stickyNotes) {
-			if (isStickyNoteApplicable(stickyNote)) {
+			if (context.isPathApplicable(stickyNote.site)) {
 				renderStickyNote(stickyNote, onSave, () => onDelete(stickyNote));
 			}
 		}
@@ -1229,7 +1239,7 @@ module.exports = class MyPlugin extends Plugin {
 	 */
 	function createNewStickyNote(stickyNotes, onSave, onDelete) {
 		const id = Date.now().toString();
-		const site = window.location.href;
+		const site = getContext().getPath();
 		const stickyNote = new StickyNote(id, site, "");
 		const element = renderStickyNote(stickyNote, onSave, () => onDelete(stickyNote));
 		element.style.left = `${window.innerWidth / 2 - element.offsetWidth / 2}px`;
@@ -1906,7 +1916,7 @@ module.exports = class MyPlugin extends Plugin {
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.13.2", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.2"); }, false),
+			new MenuItem("2025.11.13.6", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.6"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2101,12 +2111,12 @@ module.exports = class MyPlugin extends Plugin {
 
 			drawStickyNotes(stickyNotes, save, deleteStickyNote);
 
-			let lastUrl = (window.location.href ?? "").split("?")[0];
+			let lastPath = getContext().getPath().split("?")[0];
 			setInterval(() => {
-				const currentUrl = (window.location.href ?? "").split("?")[0];
-				if (currentUrl !== lastUrl) {
-					log("URL changed, updating sticky notes");
-					lastUrl = currentUrl;
+				const currentPath = getContext().getPath().split("?")[0];
+				if (currentPath !== lastPath) {
+					log("Path changed, updating sticky notes");
+					lastPath = currentPath;
 					drawStickyNotes(stickyNotes, save, deleteStickyNote);
 				}
 			}, URL_CHECK_INTERVAL);

@@ -426,12 +426,12 @@ Promise.all([
 
 		drawStickyNotes(stickyNotes, save, deleteStickyNote);
 
-		let lastUrl = (window.location.href ?? "").split("?")[0];
+		let lastPath = getContext().getPath().split("?")[0];
 		setInterval(() => {
-			const currentUrl = (window.location.href ?? "").split("?")[0];
-			if (currentUrl !== lastUrl) {
-				log("URL changed, updating sticky notes");
-				lastUrl = currentUrl;
+			const currentPath = getContext().getPath().split("?")[0];
+			if (currentPath !== lastPath) {
+				log("Path changed, updating sticky notes");
+				lastPath = currentPath;
 				drawStickyNotes(stickyNotes, save, deleteStickyNote);
 			}
 		}, URL_CHECK_INTERVAL);

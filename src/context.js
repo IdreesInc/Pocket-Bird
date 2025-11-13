@@ -1,4 +1,3 @@
-
 import { debug, log, error } from "./shared.js";
 
 const SAVE_KEY = "birbSaveData";
@@ -41,6 +40,40 @@ export class Context {
 	 */
 	resetSaveData() {
 		throw new Error("Method not implemented");
+	}
+
+	/**
+	 * @returns {string} The current path of the active page in this context
+	 */
+	getPath() {
+		// Default to website URL
+		return window.location.href;
+	}
+
+	/**
+	 * Checks if a path is applicable given the context
+	 * @param {string} path Can be a site URL or another context-specific path
+	 * @returns {boolean} Whether the path matches the current context state
+	 */
+	isPathApplicable(path) {
+		// Default to website URL matching
+		const currentUrl = window.location.href;
+		const stickyNoteWebsite = path.split("?")[0];
+		const currentWebsite = currentUrl.split("?")[0];
+
+		if (stickyNoteWebsite !== currentWebsite) {
+			return false;
+		}
+
+		const pathParams = parseUrlParams(path);
+		const currentParams = parseUrlParams(currentUrl);
+
+		if (window.location.hostname === "www.youtube.com") {
+			if (currentParams.v !== undefined && currentParams.v !== pathParams.v) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
 
@@ -223,4 +256,19 @@ export function getContext() {
 	}
 	error("No applicable context found, defaulting to LocalContext");
 	return new LocalContext();
+}
+
+/**
+ * Parse URL parameters into a key-value map
+ * @param {string} url
+ * @returns {Record<string, string>}
+ */
+function parseUrlParams(url) {
+	const queryString = url.split("?")[1];
+	if (!queryString) return {};
+
+	return queryString.split("&").reduce((params, param) => {
+		const [key, value] = param.split("=");
+		return { ...params, [key]: value };
+	}, {});
 }
