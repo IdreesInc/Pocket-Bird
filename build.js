@@ -158,8 +158,17 @@ archive.finalize();
 // Build Obsidian plugin
 mkdirSync(OBSIDIAN_DIR, { recursive: true });
 
-// Copy birb.js to main.js
-writeFileSync(OBSIDIAN_DIR + '/main.js', birbJs);
+// Wrap birb.js with plugin boilerplate
+const obsidianPlugin = `
+const { Plugin, Notice } = require('obsidian');
+module.exports = class MyPlugin extends Plugin {
+	onload() {
+		${birbJs}
+	}
+};`
+
+// Create main.js with plugin code
+writeFileSync(OBSIDIAN_DIR + '/main.js', obsidianPlugin);
 
 // Copy manifest.json
 let obsidianManifest = readFileSync(OBSIDIAN_MANIFEST, 'utf8');

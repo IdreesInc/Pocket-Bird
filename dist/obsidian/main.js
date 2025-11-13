@@ -1,4 +1,8 @@
-(function () {
+
+const { Plugin, Notice } = require('obsidian');
+module.exports = class MyPlugin extends Plugin {
+	onload() {
+		(function () {
 	'use strict';
 
 	const Directions = {
@@ -1902,7 +1906,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.3.40", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.3.40"); }, false),
+			new MenuItem("2025.11.13.1", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.1"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2692,3 +2696,6 @@
 	});
 
 })();
+
+	}
+};
