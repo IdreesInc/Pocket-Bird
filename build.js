@@ -161,8 +161,9 @@ mkdirSync(OBSIDIAN_DIR, { recursive: true });
 // Wrap birb.js with plugin boilerplate
 const obsidianPlugin = `
 const { Plugin, Notice } = require('obsidian');
-module.exports = class MyPlugin extends Plugin {
+module.exports = class PocketBird extends Plugin {
 	onload() {
+		const OBSIDIAN_PLUGIN = this;
 		${birbJs}
 	}
 

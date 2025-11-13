@@ -227,21 +227,22 @@ class ObsidianContext extends Context {
 	 * @returns {Promise<BirbSaveData|{}>}
 	 */
 	async getSaveData() {
-		log("Loading save data from Obsidian plugin storage unimplemented");
-		return {};
+		// @ts-expect-error
+		return await OBSIDIAN_PLUGIN.loadData() ?? {};
 	}
 
 	/**
 	 * @override
-	 * @param {BirbSaveData} saveData
+	 * @param {BirbSaveData|{}} saveData
 	 */
 	async putSaveData(saveData) {
-		log("Saving data to Obsidian plugin storage unimplemented");
+		// @ts-expect-error
+		return await OBSIDIAN_PLUGIN.saveData(saveData);
 	}
 
 	/** @override */
 	resetSaveData() {
-		log("Resetting save data in Obsidian plugin storage unimplemented");
+		this.putSaveData({});
 	}
 
 	/** @override */

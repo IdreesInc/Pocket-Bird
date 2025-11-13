@@ -1066,21 +1066,22 @@
 		 * @returns {Promise<BirbSaveData|{}>}
 		 */
 		async getSaveData() {
-			log("Loading save data from Obsidian plugin storage unimplemented");
-			return {};
+			// @ts-expect-error
+			return await OBSIDIAN_PLUGIN.loadData() ?? {};
 		}
 
 		/**
 		 * @override
-		 * @param {BirbSaveData} saveData
+		 * @param {BirbSaveData|{}} saveData
 		 */
 		async putSaveData(saveData) {
-			log("Saving data to Obsidian plugin storage unimplemented");
+			// @ts-expect-error
+			return await OBSIDIAN_PLUGIN.saveData(saveData);
 		}
 
 		/** @override */
 		resetSaveData() {
-			log("Resetting save data in Obsidian plugin storage unimplemented");
+			this.putSaveData({});
 		}
 
 		/** @override */
@@ -1923,7 +1924,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.13.8", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.8"); }, false),
+			new MenuItem("2025.11.13.16", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.16"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
