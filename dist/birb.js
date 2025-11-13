@@ -880,6 +880,55 @@
 		resetSaveData() {
 			throw new Error("Method not implemented");
 		}
+
+		/**
+		 * @returns {string[]} A list of CSS selectors for focusable elements
+		 */
+		getFocusableElements() {
+			return ["img", "video", ".birb-sticky-note"];
+		}
+
+		getFocusElementTopMargin() {
+			return 80;
+		}
+
+		/**
+		 * @returns {string} The current path of the active page in this context
+		 */
+		getPath() {
+			// Default to website URL
+			return window.location.href;
+		}
+
+		/**
+		 * Checks if a path is applicable given the context
+		 * @param {string} path Can be a site URL or another context-specific path
+		 * @returns {boolean} Whether the path matches the current context state
+		 */
+		isPathApplicable(path) {
+			// Default to website URL matching
+			const currentUrl = window.location.href;
+			const stickyNoteWebsite = path.split("?")[0];
+			const currentWebsite = currentUrl.split("?")[0];
+
+			if (stickyNoteWebsite !== currentWebsite) {
+				return false;
+			}
+
+			const pathParams = parseUrlParams(path);
+			const currentParams = parseUrlParams(currentUrl);
+
+			if (window.location.hostname === "www.youtube.com") {
+				if (currentParams.v !== undefined && currentParams.v !== pathParams.v) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		areStickyNotesEnabled() {
+			return true;
+		}
 	}
 
 	class LocalContext extends Context {
@@ -1012,8 +1061,64 @@
 		}
 	}
 
+	class ObsidianContext extends Context {
+
+		/**
+		 * @override
+		 * @returns {boolean}
+		 */
+		isContextActive() {
+			// @ts-expect-error
+			return typeof app !== "undefined" && typeof app.vault !== "undefined";
+		}
+
+		/**
+		 * @override
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
+			// @ts-expect-error
+			return await OBSIDIAN_PLUGIN.loadData() ?? {};
+		}
+
+		/**
+		 * @override
+		 * @param {BirbSaveData|{}} saveData
+		 */
+		async putSaveData(saveData) {
+			// @ts-expect-error
+			return await OBSIDIAN_PLUGIN.saveData(saveData);
+		}
+
+		/** @override */
+		resetSaveData() {
+			this.putSaveData({});
+		}
+
+		/** @override */
+		getFocusElementTopMargin() {
+			return 10;
+		}
+
+		/** @override */
+		getFocusableElements() {
+			const elements = [
+				".workspace-leaf",
+				".cm-callout",
+				".HyperMD-codeblock-begin"
+			];
+			return super.getFocusableElements().concat(elements);
+		}
+
+		/** @override */
+		areStickyNotesEnabled() {
+			return false;
+		}
+	}
+
 	const CONTEXTS = [
 		new UserScriptContext(),
+		new ObsidianContext(),
 		new BrowserExtensionContext(),
 		new LocalContext()
 	];
@@ -1025,7 +1130,22 @@
 			}
 		}
 		error("No applicable context found, defaulting to LocalContext");
-		return CONTEXTS[0];
+		return new LocalContext();
+	}
+
+	/**
+	 * Parse URL parameters into a key-value map
+	 * @param {string} url
+	 * @returns {Record<string, string>}
+	 */
+	function parseUrlParams(url) {
+		const queryString = url.split("?")[1];
+		if (!queryString) return {};
+
+		return queryString.split("&").reduce((params, param) => {
+			const [key, value] = param.split("=");
+			return { ...params, [key]: value };
+		}, {});
 	}
 
 	/**
@@ -1052,46 +1172,6 @@
 			this.top = top;
 			this.left = left;
 		}
-	}
-
-	/**
-	 * Parse URL parameters into a key-value map
-	 * @param {string} url
-	 * @returns {Record<string, string>}
-	 */
-	function parseUrlParams(url) {
-		const queryString = url.split("?")[1];
-		if (!queryString) return {};
-
-		return queryString.split("&").reduce((params, param) => {
-			const [key, value] = param.split("=");
-			return { ...params, [key]: value };
-		}, {});
-	}
-
-	/**
-	 * @param {StickyNote} stickyNote
-	 * @returns {boolean} Whether the given sticky note is applicable to the current site/page
-	 */
-	function isStickyNoteApplicable(stickyNote) {
-		const stickyNoteUrl = stickyNote.site;
-		const currentUrl = window.location.href;
-		const stickyNoteWebsite = stickyNoteUrl.split("?")[0];
-		const currentWebsite = currentUrl.split("?")[0];
-
-		if (stickyNoteWebsite !== currentWebsite) {
-			return false;
-		}
-
-		const stickyNoteParams = parseUrlParams(stickyNoteUrl);
-		const currentParams = parseUrlParams(currentUrl);
-
-		if (window.location.hostname === "www.youtube.com") {
-			if (currentParams.v !== undefined && currentParams.v !== stickyNoteParams.v) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/**
@@ -1176,8 +1256,9 @@
 		const existingNotes = document.querySelectorAll(".birb-sticky-note");
 		existingNotes.forEach(note => note.remove());
 		// Render all sticky notes
+		const context = getContext();
 		for (let stickyNote of stickyNotes) {
-			if (isStickyNoteApplicable(stickyNote)) {
+			if (context.isPathApplicable(stickyNote.site)) {
 				renderStickyNote(stickyNote, onSave, () => onDelete(stickyNote));
 			}
 		}
@@ -1190,7 +1271,7 @@
 	 */
 	function createNewStickyNote(stickyNotes, onSave, onDelete) {
 		const id = Date.now().toString();
-		const site = window.location.href;
+		const site = getContext().getPath();
 		const stickyNote = new StickyNote(id, site, "");
 		const element = renderStickyNote(stickyNote, onSave, () => onDelete(stickyNote));
 		element.style.left = `${window.innerWidth / 2 - element.offsetWidth / 2}px`;
@@ -1740,7 +1821,6 @@
 
 	// Focus element constraints
 	const MIN_FOCUS_ELEMENT_WIDTH = 100;
-	const MIN_FOCUS_ELEMENT_TOP = 80;
 
 	/** @type {Partial<Settings>} */
 	let userSettings = {};
@@ -1830,7 +1910,9 @@
 		const menuItems = [
 			new MenuItem(`Pet ${birdBirb()}`, pet),
 			new MenuItem("Field Guide", insertFieldGuide),
-			new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote)),
+			...(getContext().areStickyNotesEnabled() ? [
+				new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote))
+			] : []),
 			new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false)),
 			new DebugMenuItem("Freeze/Unfreeze", () => {
 				frozen = !frozen;
@@ -1867,7 +1949,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.3.10", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.3.10"); }, false),
+			new MenuItem("2025.11.13.27", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.27"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2062,12 +2144,12 @@
 
 			drawStickyNotes(stickyNotes, save, deleteStickyNote);
 
-			let lastUrl = (window.location.href ?? "").split("?")[0];
+			let lastPath = getContext().getPath().split("?")[0];
 			setInterval(() => {
-				const currentUrl = (window.location.href ?? "").split("?")[0];
-				if (currentUrl !== lastUrl) {
-					log("URL changed, updating sticky notes");
-					lastUrl = currentUrl;
+				const currentPath = getContext().getPath().split("?")[0];
+				if (currentPath !== lastPath) {
+					log("Path changed, updating sticky notes");
+					lastPath = currentPath;
 					drawStickyNotes(stickyNotes, save, deleteStickyNote);
 				}
 			}, URL_CHECK_INTERVAL);
@@ -2494,7 +2576,8 @@
 			if (frozen) {
 				return false;
 			}
-			const elements = document.querySelectorAll("img, video, .birb-sticky-note");
+			const MIN_FOCUS_ELEMENT_TOP = getContext().getFocusElementTopMargin();
+			const elements = document.querySelectorAll(getContext().getFocusableElements().join(", "));
 			const inWindow = Array.from(elements).filter((img) => {
 				const rect = img.getBoundingClientRect();
 				return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= getWindowHeight();

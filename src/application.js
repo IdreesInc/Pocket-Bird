@@ -104,7 +104,6 @@ const PET_FEATHER_BOOST = 2;
 
 // Focus element constraints
 const MIN_FOCUS_ELEMENT_WIDTH = 100;
-const MIN_FOCUS_ELEMENT_TOP = 80;
 
 /** @type {Partial<Settings>} */
 let userSettings = {};
@@ -194,7 +193,9 @@ Promise.all([
 	const menuItems = [
 		new MenuItem(`Pet ${birdBirb()}`, pet),
 		new MenuItem("Field Guide", insertFieldGuide),
-		new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote)),
+		...(getContext().areStickyNotesEnabled() ? [
+			new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote))
+		] : []),
 		new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false)),
 		new DebugMenuItem("Freeze/Unfreeze", () => {
 			frozen = !frozen;
@@ -426,12 +427,12 @@ Promise.all([
 
 		drawStickyNotes(stickyNotes, save, deleteStickyNote);
 
-		let lastUrl = (window.location.href ?? "").split("?")[0];
+		let lastPath = getContext().getPath().split("?")[0];
 		setInterval(() => {
-			const currentUrl = (window.location.href ?? "").split("?")[0];
-			if (currentUrl !== lastUrl) {
-				log("URL changed, updating sticky notes");
-				lastUrl = currentUrl;
+			const currentPath = getContext().getPath().split("?")[0];
+			if (currentPath !== lastPath) {
+				log("Path changed, updating sticky notes");
+				lastPath = currentPath;
 				drawStickyNotes(stickyNotes, save, deleteStickyNote);
 			}
 		}, URL_CHECK_INTERVAL);
@@ -862,7 +863,8 @@ Promise.all([
 		if (frozen) {
 			return false;
 		}
-		const elements = document.querySelectorAll("img, video, .birb-sticky-note");
+		const MIN_FOCUS_ELEMENT_TOP = getContext().getFocusElementTopMargin();
+		const elements = document.querySelectorAll(getContext().getFocusableElements().join(", "));
 		const inWindow = Array.from(elements).filter((img) => {
 			const rect = img.getBoundingClientRect();
 			return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= getWindowHeight();

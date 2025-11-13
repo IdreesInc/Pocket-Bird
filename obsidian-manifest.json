@@ -1,0 +1,10 @@
+{
+    "id": "pocket-bird",
+    "name": "Pocket Bird",
+    "version": "__VERSION__",
+    "minAppVersion": "0.15.0",
+    "description": "It's a pet bird in your Obsidian, what more could you want?",
+    "author": "Idrees Hassan",
+    "authorUrl": "https://idreesinc.com",
+    "isDesktopOnly": false
+}

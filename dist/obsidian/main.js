@@ -1,18 +1,10 @@
-// ==UserScript==
-// @name         Pocket Bird
-// @namespace    https://idreesinc.com
-// @version      2025.11.13.27
-// @description  It's a bird that hops around your web browser, the future is here 
-// @author       Idrees
-// @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
-// @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
-// @match        *://*/*
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_deleteValue
-// ==/UserScript==
 
-(function () {
+const { Plugin, Notice } = require('obsidian');
+module.exports = class PocketBird extends Plugin {
+	onload() {
+		console.log("Loading Pocket Bird version 2025.11.13.27...");
+		const OBSIDIAN_PLUGIN = this;
+		(function () {
 	'use strict';
 
 	const Directions = {
@@ -2754,3 +2746,13 @@
 	});
 
 })();
+
+		console.log("Pocket Bird loaded!");
+	}
+
+	onunload() {
+		// Remove the birb when the plugin is unloaded
+		document.getElementById('birb')?.remove();
+		console.log('Pocket Bird unloaded!');
+	}
+};

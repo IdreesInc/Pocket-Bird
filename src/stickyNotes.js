@@ -3,6 +3,7 @@ import {
 	makeDraggable,
 	makeClosable
 } from './shared.js';
+import { getContext } from './context.js';
 
 /**
  * @typedef {Object} SavedStickyNote
@@ -28,46 +29,6 @@ export class StickyNote {
 		this.top = top;
 		this.left = left;
 	}
-}
-
-/**
- * Parse URL parameters into a key-value map
- * @param {string} url
- * @returns {Record<string, string>}
- */
-export function parseUrlParams(url) {
-	const queryString = url.split("?")[1];
-	if (!queryString) return {};
-
-	return queryString.split("&").reduce((params, param) => {
-		const [key, value] = param.split("=");
-		return { ...params, [key]: value };
-	}, {});
-}
-
-/**
- * @param {StickyNote} stickyNote
- * @returns {boolean} Whether the given sticky note is applicable to the current site/page
- */
-export function isStickyNoteApplicable(stickyNote) {
-	const stickyNoteUrl = stickyNote.site;
-	const currentUrl = window.location.href;
-	const stickyNoteWebsite = stickyNoteUrl.split("?")[0];
-	const currentWebsite = currentUrl.split("?")[0];
-
-	if (stickyNoteWebsite !== currentWebsite) {
-		return false;
-	}
-
-	const stickyNoteParams = parseUrlParams(stickyNoteUrl);
-	const currentParams = parseUrlParams(currentUrl);
-
-	if (window.location.hostname === "www.youtube.com") {
-		if (currentParams.v !== undefined && currentParams.v !== stickyNoteParams.v) {
-			return false;
-		}
-	}
-	return true;
 }
 
 /**
@@ -152,8 +113,9 @@ export function drawStickyNotes(stickyNotes, onSave, onDelete) {
 	const existingNotes = document.querySelectorAll(".birb-sticky-note");
 	existingNotes.forEach(note => note.remove());
 	// Render all sticky notes
+	const context = getContext();
 	for (let stickyNote of stickyNotes) {
-		if (isStickyNoteApplicable(stickyNote)) {
+		if (context.isPathApplicable(stickyNote.site)) {
 			renderStickyNote(stickyNote, onSave, () => onDelete(stickyNote));
 		}
 	}
@@ -166,7 +128,7 @@ export function drawStickyNotes(stickyNotes, onSave, onDelete) {
  */
 export function createNewStickyNote(stickyNotes, onSave, onDelete) {
 	const id = Date.now().toString();
-	const site = window.location.href;
+	const site = getContext().getPath();
 	const stickyNote = new StickyNote(id, site, "");
 	const element = renderStickyNote(stickyNote, onSave, () => onDelete(stickyNote));
 	element.style.left = `${window.innerWidth / 2 - element.offsetWidth / 2}px`;
