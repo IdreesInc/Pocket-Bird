@@ -70,8 +70,9 @@
 	 * @param {HTMLElement|null} element The element to detect drag events on
 	 * @param {boolean} [parent] Whether to move the parent element when the child is dragged
 	 * @param {(top: number, left: number) => void} [callback] Callback for when element is moved
+	 * @param {HTMLElement} [pageElement] The page element to constrain movement within
 	 */
-	function makeDraggable(element, parent = true, callback = () => { }) {
+	function makeDraggable(element, parent = true, callback = () => { }, pageElement) {
 		if (!element) {
 			return;
 		}
@@ -117,9 +118,12 @@
 		});
 
 		document.addEventListener("mousemove", (e) => {
+			const page = pageElement || document.documentElement;
+			const maxX = page.scrollWidth - elementToMove.clientWidth;
+			const maxY = page.scrollHeight - elementToMove.clientHeight;
 			if (isMouseDown) {
-				elementToMove.style.left = `${Math.max(0, e.clientX - offsetX)}px`;
-				elementToMove.style.top = `${Math.max(0, e.clientY - offsetY)}px`;
+				elementToMove.style.left = `${Math.max(0, Math.min(maxX, e.clientX - offsetX))}px`;
+				elementToMove.style.top = `${Math.max(0, Math.min(maxY, e.clientY - offsetY))}px`;
 			}
 		});
 
@@ -840,6 +844,7 @@
 	}
 
 	const SAVE_KEY = "birbSaveData";
+	const ROOT_PATH = "";
 
 	/**
 	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
@@ -1070,7 +1075,6 @@
 	}
 
 	class ObsidianContext extends Context {
-
 		/**
 		 * @override
 		 * @returns {boolean}
@@ -1085,8 +1089,12 @@
 		 * @returns {Promise<BirbSaveData|{}>}
 		 */
 		async getSaveData() {
-			// @ts-expect-error
-			return await OBSIDIAN_PLUGIN.loadData() ?? {};
+			return new Promise((resolve) => {
+				// @ts-expect-error
+				OBSIDIAN_PLUGIN.loadData().then((data) => {
+					resolve(data ?? {});
+				});
+			});
 		}
 
 		/**
@@ -1095,7 +1103,7 @@
 		 */
 		async putSaveData(saveData) {
 			// @ts-expect-error
-			return await OBSIDIAN_PLUGIN.saveData(saveData);
+			await OBSIDIAN_PLUGIN.saveData(saveData);
 		}
 
 		/** @override */
@@ -1116,8 +1124,36 @@
 		}
 
 		/** @override */
-		areStickyNotesEnabled() {
-			return false;
+		getPath() {
+			// @ts-expect-error
+			const file = app.workspace.getActiveFile();
+			if (file && this.getActiveEditorElement()) {
+				return file.path;
+			} else {
+				return ROOT_PATH;
+			}
+		}
+
+		/** @override */
+		getActivePage() {
+			if (this.getPath() === ROOT_PATH) {
+				// Root page, use document element
+				return document.documentElement
+			}
+			return this.getActiveEditorElement() ?? document.documentElement;
+		}
+
+		/** @override */
+		isPathApplicable(path) {
+			return path === this.getPath();
+		}
+
+		/** @returns {HTMLElement|null} */
+		getActiveEditorElement() {
+			// @ts-expect-error
+			const activeLeaf = app.workspace.activeLeaf;
+			const leafElement = activeLeaf?.view?.containerEl;
+			return leafElement?.querySelector(".cm-scroller") ?? null;
 		}
 	}
 
@@ -1217,7 +1253,7 @@
 			stickyNote.top = top;
 			stickyNote.left = left;
 			onSave();
-		});
+		}, page);
 
 		if (closeButton) {
 			makeClosable(() => {
@@ -1574,6 +1610,7 @@
 	flex-grow: 1;
 	user-select: none;
 	color: var(--birb-background-color);
+	white-space: nowrap;
 }
 
 .birb-window-close {
@@ -1815,7 +1852,7 @@
 	const AFK_TIME = isDebug() ? 0 : 1000 * 5;
 	const PET_BOOST_DURATION = 1000 * 60 * 5;
 	const PET_MENU_COOLDOWN = 1000;
-	const URL_CHECK_INTERVAL = 500;
+	const URL_CHECK_INTERVAL = 250;
 	const HOP_DELAY = 500;
 
 	// Random event chances per tick
@@ -1957,7 +1994,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.13.80", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.80"); }, false),
+			new MenuItem("2025.11.14.16", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.14.16"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2156,7 +2193,7 @@
 			setInterval(() => {
 				const currentPath = getContext().getPath().split("?")[0];
 				if (currentPath !== lastPath) {
-					log("Path changed, updating sticky notes");
+					log("Path changed, updating sticky notes: " + currentPath);
 					lastPath = currentPath;
 					drawStickyNotes(stickyNotes, save, deleteStickyNote);
 				}

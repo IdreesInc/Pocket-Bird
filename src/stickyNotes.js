@@ -69,7 +69,7 @@ export function renderStickyNote(stickyNote, page, onSave, onDelete) {
 		stickyNote.top = top;
 		stickyNote.left = left;
 		onSave();
-	});
+	}, page);
 
 	if (closeButton) {
 		makeClosable(() => {

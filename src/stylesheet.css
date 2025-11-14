@@ -119,6 +119,7 @@
 	flex-grow: 1;
 	user-select: none;
 	color: var(--birb-background-color);
+	white-space: nowrap;
 }
 
 .birb-window-close {

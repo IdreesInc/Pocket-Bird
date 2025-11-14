@@ -1,6 +1,7 @@
 import { debug, log, error } from "./shared.js";
 
 const SAVE_KEY = "birbSaveData";
+const ROOT_PATH = "";
 
 /**
  * @typedef {import('./application.js').BirbSaveData} BirbSaveData
@@ -231,7 +232,6 @@ class BrowserExtensionContext extends Context {
 }
 
 export class ObsidianContext extends Context {
-
 	/**
 	 * @override
 	 * @returns {boolean}
@@ -246,8 +246,12 @@ export class ObsidianContext extends Context {
 	 * @returns {Promise<BirbSaveData|{}>}
 	 */
 	async getSaveData() {
-		// @ts-expect-error
-		return await OBSIDIAN_PLUGIN.loadData() ?? {};
+		return new Promise((resolve) => {
+			// @ts-expect-error
+			OBSIDIAN_PLUGIN.loadData().then((data) => {
+				resolve(data ?? {});
+			});
+		});
 	}
 
 	/**
@@ -256,7 +260,7 @@ export class ObsidianContext extends Context {
 	 */
 	async putSaveData(saveData) {
 		// @ts-expect-error
-		return await OBSIDIAN_PLUGIN.saveData(saveData);
+		await OBSIDIAN_PLUGIN.saveData(saveData);
 	}
 
 	/** @override */
@@ -277,8 +281,36 @@ export class ObsidianContext extends Context {
 	}
 
 	/** @override */
-	areStickyNotesEnabled() {
-		return false;
+	getPath() {
+		// @ts-expect-error
+		const file = app.workspace.getActiveFile();
+		if (file && this.getActiveEditorElement()) {
+			return file.path;
+		} else {
+			return ROOT_PATH;
+		}
+	}
+
+	/** @override */
+	getActivePage() {
+		if (this.getPath() === ROOT_PATH) {
+			// Root page, use document element
+			return document.documentElement
+		}
+		return this.getActiveEditorElement() ?? document.documentElement;
+	}
+
+	/** @override */
+	isPathApplicable(path) {
+		return path === this.getPath();
+	}
+
+	/** @returns {HTMLElement|null} */
+	getActiveEditorElement() {
+		// @ts-expect-error
+		const activeLeaf = app.workspace.activeLeaf;
+		const leafElement = activeLeaf?.view?.containerEl;
+		return leafElement?.querySelector(".cm-scroller") ?? null;
 	}
 }
 

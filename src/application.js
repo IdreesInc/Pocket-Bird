@@ -90,7 +90,7 @@ const UPDATE_INTERVAL = 1000 / 60; // 60 FPS
 const AFK_TIME = isDebug() ? 0 : 1000 * 5;
 const PET_BOOST_DURATION = 1000 * 60 * 5;
 const PET_MENU_COOLDOWN = 1000;
-const URL_CHECK_INTERVAL = 500;
+const URL_CHECK_INTERVAL = 250;
 const HOP_DELAY = 500;
 
 // Random event chances per tick
@@ -431,7 +431,7 @@ Promise.all([
 		setInterval(() => {
 			const currentPath = getContext().getPath().split("?")[0];
 			if (currentPath !== lastPath) {
-				log("Path changed, updating sticky notes");
+				log("Path changed, updating sticky notes: " + currentPath);
 				lastPath = currentPath;
 				drawStickyNotes(stickyNotes, save, deleteStickyNote);
 			}
