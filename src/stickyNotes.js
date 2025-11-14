@@ -41,6 +41,9 @@ export class StickyNote {
 export function renderStickyNote(stickyNote, page, onSave, onDelete) {
 	const noteElement = makeElement("birb-window");
 	noteElement.classList.add("birb-sticky-note");
+	const color = getColor(stickyNote.id);
+	noteElement.style.setProperty("--birb-highlight", color);
+	noteElement.style.setProperty("--birb-border-color", color);
 	
 	// Create header
 	const header = makeElement("birb-window-header");
@@ -77,7 +80,7 @@ export function renderStickyNote(stickyNote, page, onSave, onDelete) {
 				onDelete();
 				noteElement.remove();
 			}
-		}, closeButton);
+		}, closeButton, false);
 	}
 
 	if (textarea && textarea instanceof HTMLTextAreaElement) {
@@ -143,4 +146,15 @@ export function createNewStickyNote(stickyNotes, onSave, onDelete) {
 	stickyNote.left = parseInt(element.style.left, 10);
 	stickyNotes.push(stickyNote);
 	onSave();
+}
+
+/**
+ * Get a color based on the mod of the sticky note ID
+ * @param {string} id
+ * @returns {string} A color hex code
+ */
+function getColor(id) {
+	const colors = ["#ff8baa", "#79bcff", "#d18bff", "#6de192", "#ffd17c", "#ffb37c", "#ff7c7c"];
+	const index = parseInt(id, 10) % colors.length;
+	return colors[index];
 }

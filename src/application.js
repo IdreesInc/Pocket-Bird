@@ -91,7 +91,7 @@ const UPDATE_INTERVAL = 1000 / 60; // 60 FPS
 const AFK_TIME = isDebug() ? 0 : 1000 * 5;
 const PET_BOOST_DURATION = 1000 * 60 * 5;
 const PET_MENU_COOLDOWN = 1000;
-const URL_CHECK_INTERVAL = 250;
+const URL_CHECK_INTERVAL = 150;
 const HOP_DELAY = 500;
 
 // Random event chances per tick
@@ -346,31 +346,6 @@ Promise.all([
 			// Skip installation if within an iframe
 			log("In iframe, skipping Birb script initialization");
 			return;
-		}
-
-		// Preload font
-		const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
-		const fontLink = document.createElement("link");
-		fontLink.rel = "stylesheet";
-		fontLink.href = `url(${MONOCRAFT_SRC}) format('opentype')`;
-		document.head.appendChild(fontLink);
-
-		// Add stylesheet font-face
-		const fontFace = `
-			@font-face {
-				font-family: 'Monocraft';
-				src: url(${MONOCRAFT_SRC}) format('opentype');
-				font-weight: normal;
-				font-style: normal;
-			}
-		`;
-
-		try {
-			const fontStyle = document.createElement("style");
-			fontStyle.textContent = fontFace;
-			document.head.appendChild(fontStyle);
-		} catch (e) {
-			error("Failed to load font: " + e);
 		}
 
 		load().then(onLoad);

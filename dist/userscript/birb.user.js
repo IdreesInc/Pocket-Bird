@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.11.14.47
-// @description  It's a bird that hops around your web browser, the future is here 
+// @version      2025.11.14.205
+// @description  It's a pet bird in your browser, what more could you want?
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
 // @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -113,6 +113,7 @@
 			offsetX = touch.clientX - elementToMove.offsetLeft;
 			offsetY = touch.clientY - elementToMove.offsetTop;
 			e.preventDefault();
+			e.stopPropagation();
 		});
 
 		document.addEventListener("mouseup", (e) => {
@@ -153,8 +154,9 @@
 	/**
 	 * @param {() => void} func
 	 * @param {Element} [closeButton]
+	 * @param {boolean} [allowEscape] Whether to allow closing with the Escape key
 	 */
-	function makeClosable(func, closeButton) {
+	function makeClosable(func, closeButton, allowEscape = true) {
 		if (closeButton) {
 			onClick(closeButton, func);
 		}
@@ -162,7 +164,7 @@
 			if (closeButton && !document.body.contains(closeButton)) {
 				return;
 			}
-			if (e.key === "Escape") {
+			if (allowEscape && e.key === "Escape") {
 				func();
 			}
 		});
@@ -1244,6 +1246,9 @@
 	function renderStickyNote(stickyNote, page, onSave, onDelete) {
 		const noteElement = makeElement("birb-window");
 		noteElement.classList.add("birb-sticky-note");
+		const color = getColor(stickyNote.id);
+		noteElement.style.setProperty("--birb-highlight", color);
+		noteElement.style.setProperty("--birb-border-color", color);
 		
 		// Create header
 		const header = makeElement("birb-window-header");
@@ -1280,7 +1285,7 @@
 					onDelete();
 					noteElement.remove();
 				}
-			}, closeButton);
+			}, closeButton, false);
 		}
 
 		if (textarea && textarea instanceof HTMLTextAreaElement) {
@@ -1346,6 +1351,17 @@
 		stickyNote.left = parseInt(element.style.left, 10);
 		stickyNotes.push(stickyNote);
 		onSave();
+	}
+
+	/**
+	 * Get a color based on the mod of the sticky note ID
+	 * @param {string} id
+	 * @returns {string} A color hex code
+	 */
+	function getColor(id) {
+		const colors = ["#ff8baa", "#79bcff", "#d18bff", "#6de192", "#ffd17c", "#ffb37c", "#ff7c7c"];
+		const index = parseInt(id, 10) % colors.length;
+		return colors[index];
 	}
 
 	const MENU_ID = "birb-menu";
@@ -1522,7 +1538,14 @@
 	const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
 
 	// Build-time assets
-	const STYLESHEET = `:root {
+	const STYLESHEET = `@font-face {
+	font-family: 'Monocraft';
+	src: url("https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf") format('opentype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+:root {
 	--birb-border-size: 2px;
 	--birb-neg-border-size: calc(var(--birb-border-size) * -1);
 	--birb-double-border-size: calc(var(--birb-border-size) * 2);
@@ -1842,6 +1865,17 @@
 .birb-sticky-note {
 	position: absolute;
 	box-sizing: border-box;
+	animation: fade-in 0.15s ease-in;
+}
+
+@keyframes fade-in {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
 }
 
 .birb-sticky-note > .birb-window-content {
@@ -1864,7 +1898,8 @@
 }
 
 .birb-sticky-note-input:focus {
-	outline: none;
+	outline: none !important;
+	box-shadow: none !important;
 }`;
 	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABD5JREFUeJztnTFrFEEYht9JLAJidwju2YpdBAvzAyIWaXJXpRS0MBCwEBTJDwghhaAgGLTSyupMY2UqG9PYWQRb7yJyYJEIacxnkZ11bm5n9+7Y3Zm9ex8Imezd7Te7O9+zM7N7G4AQQgghhBBCCJkJlO8KkPAREXG9ppRiGyK1hY23BvgUkI7dbjYBAJ1ud6BcRR0IITOKxLSiSFpRNFTOkmNR8VtRJF8WF0U2NobKZccnpEzmfFeA5NNuNvG00UCn3R4qV8nB58942mgkZULqDgVYI3wJqNPtYrvfH1i23e8nQ2BCCCkFcwj8ZXEx+alqCJxWhypjE0ICQFKoOrZPAZl1oPwImTFE5Hzy3/hddXzfAvIhf0LK5ILvCtSNgxs3vMRVSikREZ+3nvB2F0JmFN3z0b0/9oKqx9cUBJleeEYfAzPp2BuqFr3v9W4XkcqPgS1dtoEZIe0CAM/AxAOy220JAG/zn3HsoNs/83R0cu8DNM+85g9yvqJVJBQwAYDdbksXvcx/KqWSOoTW+7Pzwkee1pHMiyDmzjQaH/QyETHfU0qDsIc+xnKIiITWEEl5PGh+8HqsfQp4FMxUWNvpJcvoPzdOAZriOVy7DzwCdm6/SV7f7bYH5mPKkFEIAiZE41vAGYhSKpHetHNlXsnRXynkWDhXIiIydzEaWHbveQ8f1+ew8uoMAHDy+wgA8P5JNHCWKUJGQwLGoIBvrbTxoPlBv7ewuITUDHGJ7/uPY3x9cd3LBaOyuDKvZOXVGT6uz6EICWYKELGA7r9O70JrASKWIAwZpQYb4yD4FjAJm7Wdnrx/Es36cc6VX6jD9VBwDoH1jbeu1035wZpzSGOSYfLZn96QgLX87Nj2cNy1TaPGJuFwurcsC6v7SpcBYGHVr/x8C3htp+d1Ys8VP+4I1SbPMisaCwune8vY+PUJAPDy8m0AwN3DdyMF+P7jGAAm6orr+Gk9UFvAGt0TTVkXQAnWlv/i26/8+KULuPp6mLgEZOZbySJy9j7rJMGRBWizsLqPmw8Pce3qpdTPWgdiIgH5FjAhmlDEpzndWxYzB+x8q0BA4sr/mRAgDAmmYYsPE/S+fAuYkJDpby3JxoUOMDjyqap9OwWIGkkwV4CI5/VsCZ18OwEANDYPXJ/9H2RC6fgWMCGh099aShr4nZ9vgfO2712C5oXJkPMut2JpEtLyS6OxeVDYhvsWMCEkF9GdEFuEWoIh599Ij8OKNwL9raXM9xUpP2RciTYFbNep6DoQQjJRX19cP084hwhDJleAWkJ5EixTPDo2UoRXVR0IIU4UzofeAyKcKsynYXSePU6eiqHLZT6gwPqid2r8sutACMnHfmJO6Pk41n+FU0qh8+xx8rdZRom9Lr3erPjs+RESBvGXEYAa5ONYj8Q3h6J2uQry4oe+swmZduqWg2Pfl+dcUQUb7js+IWS6+Ac8zd6eLzTjoQAAAABJRU5ErkJggg==";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
@@ -1885,7 +1920,7 @@
 	const AFK_TIME = isDebug() ? 0 : 1000 * 5;
 	const PET_BOOST_DURATION = 1000 * 60 * 5;
 	const PET_MENU_COOLDOWN = 1000;
-	const URL_CHECK_INTERVAL = 250;
+	const URL_CHECK_INTERVAL = 150;
 	const HOP_DELAY = 500;
 
 	// Random event chances per tick
@@ -2025,7 +2060,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.14.47", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.14.47"); }, false),
+			new MenuItem("2025.11.14.205", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.14.205"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2140,31 +2175,6 @@
 				// Skip installation if within an iframe
 				log("In iframe, skipping Birb script initialization");
 				return;
-			}
-
-			// Preload font
-			const MONOCRAFT_SRC = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
-			const fontLink = document.createElement("link");
-			fontLink.rel = "stylesheet";
-			fontLink.href = `url(${MONOCRAFT_SRC}) format('opentype')`;
-			document.head.appendChild(fontLink);
-
-			// Add stylesheet font-face
-			const fontFace = `
-			@font-face {
-				font-family: 'Monocraft';
-				src: url(${MONOCRAFT_SRC}) format('opentype');
-				font-weight: normal;
-				font-style: normal;
-			}
-		`;
-
-			try {
-				const fontStyle = document.createElement("style");
-				fontStyle.textContent = fontFace;
-				document.head.appendChild(fontStyle);
-			} catch (e) {
-				error("Failed to load font: " + e);
 			}
 
 			load().then(onLoad);

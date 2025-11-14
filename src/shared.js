@@ -96,6 +96,7 @@ export function makeDraggable(element, parent = true, callback = () => { }, page
 		offsetX = touch.clientX - elementToMove.offsetLeft;
 		offsetY = touch.clientY - elementToMove.offsetTop;
 		e.preventDefault();
+		e.stopPropagation();
 	});
 
 	document.addEventListener("mouseup", (e) => {
@@ -136,8 +137,9 @@ export function makeDraggable(element, parent = true, callback = () => { }, page
 /**
  * @param {() => void} func
  * @param {Element} [closeButton]
+ * @param {boolean} [allowEscape] Whether to allow closing with the Escape key
  */
-export function makeClosable(func, closeButton) {
+export function makeClosable(func, closeButton, allowEscape = true) {
 	if (closeButton) {
 		onClick(closeButton, func);
 	}
@@ -145,7 +147,7 @@ export function makeClosable(func, closeButton) {
 		if (closeButton && !document.body.contains(closeButton)) {
 			return;
 		}
-		if (e.key === "Escape") {
+		if (allowEscape && e.key === "Escape") {
 			func();
 		}
 	});
