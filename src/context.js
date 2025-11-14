@@ -62,6 +62,14 @@ export class Context {
 	}
 
 	/**
+	 * @returns {HTMLElement} The current active page element where sticky notes can be applied
+	 */
+	getActivePage() {
+		// Default to root element
+		return document.documentElement;
+	}
+
+	/**
 	 * Checks if a path is applicable given the context
 	 * @param {string} path Can be a site URL or another context-specific path
 	 * @returns {boolean} Whether the path matches the current context state

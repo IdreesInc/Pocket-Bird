@@ -33,11 +33,12 @@ export class StickyNote {
 
 /**
  * @param {StickyNote} stickyNote
+ * @param {HTMLElement} page
  * @param {() => void} onSave
  * @param {() => void} onDelete
  * @returns {HTMLElement}
  */
-export function renderStickyNote(stickyNote, onSave, onDelete) {
+export function renderStickyNote(stickyNote, page, onSave, onDelete) {
 	const noteElement = makeElement("birb-window");
 	noteElement.classList.add("birb-sticky-note");
 	
@@ -62,7 +63,7 @@ export function renderStickyNote(stickyNote, onSave, onDelete) {
 
 	noteElement.style.top = `${stickyNote.top}px`;
 	noteElement.style.left = `${stickyNote.left}px`;
-	document.body.appendChild(noteElement);
+	page.appendChild(noteElement);
 
 	makeDraggable(header, true, (top, left) => {
 		stickyNote.top = top;
@@ -113,10 +114,11 @@ export function drawStickyNotes(stickyNotes, onSave, onDelete) {
 	const existingNotes = document.querySelectorAll(".birb-sticky-note");
 	existingNotes.forEach(note => note.remove());
 	// Render all sticky notes
+	const pageElement = getContext().getActivePage();
 	const context = getContext();
 	for (let stickyNote of stickyNotes) {
 		if (context.isPathApplicable(stickyNote.site)) {
-			renderStickyNote(stickyNote, onSave, () => onDelete(stickyNote));
+			renderStickyNote(stickyNote, pageElement, onSave, () => onDelete(stickyNote));
 		}
 	}
 }
@@ -130,9 +132,10 @@ export function createNewStickyNote(stickyNotes, onSave, onDelete) {
 	const id = Date.now().toString();
 	const site = getContext().getPath();
 	const stickyNote = new StickyNote(id, site, "");
-	const element = renderStickyNote(stickyNote, onSave, () => onDelete(stickyNote));
-	element.style.left = `${window.innerWidth / 2 - element.offsetWidth / 2}px`;
-	element.style.top = `${window.scrollY + window.innerHeight / 2 - element.offsetHeight / 2}px`;
+	const page = getContext().getActivePage();
+	const element = renderStickyNote(stickyNote, page, onSave, () => onDelete(stickyNote));
+	element.style.left = `${page.clientWidth / 2 - element.offsetWidth / 2}px`;
+	element.style.top = `${page.scrollTop + page.clientHeight / 2 - element.offsetHeight / 2}px`;
 	stickyNote.top = parseInt(element.style.top, 10);
 	stickyNote.left = parseInt(element.style.left, 10);
 	stickyNotes.push(stickyNote);

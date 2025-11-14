@@ -2,7 +2,7 @@
 const { Plugin, Notice } = require('obsidian');
 module.exports = class PocketBird extends Plugin {
 	onload() {
-		console.log("Loading Pocket Bird version 2025.11.13.64...");
+		console.log("Loading Pocket Bird version 2025.11.13.80...");
 		const OBSIDIAN_PLUGIN = this;
 		(function () {
 	'use strict';
@@ -907,6 +907,14 @@ module.exports = class PocketBird extends Plugin {
 		}
 
 		/**
+		 * @returns {HTMLElement} The current active page element where sticky notes can be applied
+		 */
+		getActivePage() {
+			// Default to root element
+			return document.documentElement;
+		}
+
+		/**
 		 * Checks if a path is applicable given the context
 		 * @param {string} path Can be a site URL or another context-specific path
 		 * @returns {boolean} Whether the path matches the current context state
@@ -1179,11 +1187,12 @@ module.exports = class PocketBird extends Plugin {
 
 	/**
 	 * @param {StickyNote} stickyNote
+	 * @param {HTMLElement} page
 	 * @param {() => void} onSave
 	 * @param {() => void} onDelete
 	 * @returns {HTMLElement}
 	 */
-	function renderStickyNote(stickyNote, onSave, onDelete) {
+	function renderStickyNote(stickyNote, page, onSave, onDelete) {
 		const noteElement = makeElement("birb-window");
 		noteElement.classList.add("birb-sticky-note");
 		
@@ -1208,7 +1217,7 @@ module.exports = class PocketBird extends Plugin {
 
 		noteElement.style.top = `${stickyNote.top}px`;
 		noteElement.style.left = `${stickyNote.left}px`;
-		document.body.appendChild(noteElement);
+		page.appendChild(noteElement);
 
 		makeDraggable(header, true, (top, left) => {
 			stickyNote.top = top;
@@ -1259,10 +1268,11 @@ module.exports = class PocketBird extends Plugin {
 		const existingNotes = document.querySelectorAll(".birb-sticky-note");
 		existingNotes.forEach(note => note.remove());
 		// Render all sticky notes
+		const pageElement = getContext().getActivePage();
 		const context = getContext();
 		for (let stickyNote of stickyNotes) {
 			if (context.isPathApplicable(stickyNote.site)) {
-				renderStickyNote(stickyNote, onSave, () => onDelete(stickyNote));
+				renderStickyNote(stickyNote, pageElement, onSave, () => onDelete(stickyNote));
 			}
 		}
 	}
@@ -1276,9 +1286,10 @@ module.exports = class PocketBird extends Plugin {
 		const id = Date.now().toString();
 		const site = getContext().getPath();
 		const stickyNote = new StickyNote(id, site, "");
-		const element = renderStickyNote(stickyNote, onSave, () => onDelete(stickyNote));
-		element.style.left = `${window.innerWidth / 2 - element.offsetWidth / 2}px`;
-		element.style.top = `${window.scrollY + window.innerHeight / 2 - element.offsetHeight / 2}px`;
+		const page = getContext().getActivePage();
+		const element = renderStickyNote(stickyNote, page, onSave, () => onDelete(stickyNote));
+		element.style.left = `${page.clientWidth / 2 - element.offsetWidth / 2}px`;
+		element.style.top = `${page.scrollTop + page.clientHeight / 2 - element.offsetHeight / 2}px`;
 		stickyNote.top = parseInt(element.style.top, 10);
 		stickyNote.left = parseInt(element.style.left, 10);
 		stickyNotes.push(stickyNote);
@@ -1952,7 +1963,7 @@ module.exports = class PocketBird extends Plugin {
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.13.64", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.64"); }, false),
+			new MenuItem("2025.11.13.80", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.80"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
