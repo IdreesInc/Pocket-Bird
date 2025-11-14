@@ -305,6 +305,11 @@ export class ObsidianContext extends Context {
 		return path === this.getPath();
 	}
 
+	/** @override */
+	areStickyNotesEnabled() {
+		return this.getPath() !== ROOT_PATH;
+	}
+
 	/** @returns {HTMLElement|null} */
 	getActiveEditorElement() {
 		// @ts-expect-error

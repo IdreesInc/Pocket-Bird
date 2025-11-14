@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2025.11.14.16
+// @version      2025.11.14.47
 // @description  It's a bird that hops around your web browser, the future is here 
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -1162,6 +1162,11 @@
 			return path === this.getPath();
 		}
 
+		/** @override */
+		areStickyNotesEnabled() {
+			return this.getPath() !== ROOT_PATH;
+		}
+
 		/** @returns {HTMLElement|null} */
 		getActiveEditorElement() {
 			// @ts-expect-error
@@ -1327,6 +1332,9 @@
 	 * @param {(note: StickyNote) => void} onDelete
 	 */
 	function createNewStickyNote(stickyNotes, onSave, onDelete) {
+		if (getContext().areStickyNotesEnabled() === false) {
+			return;
+		}
 		const id = Date.now().toString();
 		const site = getContext().getPath();
 		const stickyNote = new StickyNote(id, site, "");
@@ -1348,23 +1356,34 @@
 		 * @param {string} text
 		 * @param {() => void} action
 		 * @param {boolean} [removeMenu]
-		 * @param {boolean} [isDebug]
 		 */
-		constructor(text, action, removeMenu = true, isDebug = false) {
+		constructor(text, action, removeMenu = true) {
 			this.text = text;
 			this.action = action;
 			this.removeMenu = removeMenu;
-			this.isDebug = isDebug;
 		}
 	}
 
-	class DebugMenuItem extends MenuItem {
+	class ConditionalMenuItem extends MenuItem {
+		/**
+		 * @param {string} text
+		 * @param {() => void} action
+		 * @param {() => boolean} condition
+		 * @param {boolean} [removeMenu]
+		 */
+		constructor(text, action, condition, removeMenu = true) {
+			super(text, action, removeMenu);
+			this.condition = condition;
+		}
+	}
+
+	class DebugMenuItem extends ConditionalMenuItem {
 		/**
 		 * @param {string} text
 		 * @param {() => void} action
 		 */
 		constructor(text, action, removeMenu = true) {
-			super(text, action, removeMenu, true);
+			super(text, action, () => isDebug(), removeMenu);
 		}
 	}
 
@@ -1410,7 +1429,7 @@
 		let content = makeElement("birb-window-content");
 		const removeCallback = () => removeMenu();
 		for (const item of menuItems) {
-			if (!item.isDebug || isDebug()) {
+			if (!(item instanceof ConditionalMenuItem) || item.condition()) {
 				content.appendChild(makeMenuItem(item, removeCallback));
 			}
 		}
@@ -1467,7 +1486,7 @@
 		}
 		const removeCallback = () => removeMenu();
 		for (const item of menuItems) {
-			if (!item.isDebug || isDebug()) {
+			if (!(item instanceof ConditionalMenuItem) || item.condition()) {
 				content.appendChild(makeMenuItem(item, removeCallback));
 			}
 		}
@@ -1969,9 +1988,7 @@
 		const menuItems = [
 			new MenuItem(`Pet ${birdBirb()}`, pet),
 			new MenuItem("Field Guide", insertFieldGuide),
-			...(getContext().areStickyNotesEnabled() ? [
-				new MenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote))
-			] : []),
+			new ConditionalMenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote), () => getContext().areStickyNotesEnabled()),
 			new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false)),
 			new DebugMenuItem("Freeze/Unfreeze", () => {
 				frozen = !frozen;
@@ -2008,7 +2025,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.14.16", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.14.16"); }, false),
+			new MenuItem("2025.11.14.47", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.14.47"); }, false),
 		];
 
 		const styleElement = document.createElement("style");

@@ -129,6 +129,9 @@ export function drawStickyNotes(stickyNotes, onSave, onDelete) {
  * @param {(note: StickyNote) => void} onDelete
  */
 export function createNewStickyNote(stickyNotes, onSave, onDelete) {
+	if (getContext().areStickyNotesEnabled() === false) {
+		return;
+	}
 	const id = Date.now().toString();
 	const site = getContext().getPath();
 	const stickyNote = new StickyNote(id, site, "");
