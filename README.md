@@ -35,6 +35,10 @@ It's a pet bird that hops around your computer, what more could you want?
 2. Click "Add to Firefox"
 3. Confirm any permission prompts that appear
 
+### Obsidian
+
+_Coming soon!_
+
 ### Userscript
 
 *Note that this is mainly used for beta testing new features, installation via browser extension is recommended for the best experience.*
