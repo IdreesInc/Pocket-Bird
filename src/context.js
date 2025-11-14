@@ -1,6 +1,7 @@
 import { debug, log, error } from "./shared.js";
 
 const SAVE_KEY = "birbSaveData";
+const ROOT_PATH = "";
 
 /**
  * @typedef {import('./application.js').BirbSaveData} BirbSaveData
@@ -59,6 +60,14 @@ export class Context {
 	getPath() {
 		// Default to website URL
 		return window.location.href;
+	}
+
+	/**
+	 * @returns {HTMLElement} The current active page element where sticky notes can be applied
+	 */
+	getActivePage() {
+		// Default to root element
+		return document.documentElement;
 	}
 
 	/**
@@ -222,8 +231,7 @@ class BrowserExtensionContext extends Context {
 	}
 }
 
-class ObsidianContext extends Context {
-
+export class ObsidianContext extends Context {
 	/**
 	 * @override
 	 * @returns {boolean}
@@ -238,8 +246,12 @@ class ObsidianContext extends Context {
 	 * @returns {Promise<BirbSaveData|{}>}
 	 */
 	async getSaveData() {
-		// @ts-expect-error
-		return await OBSIDIAN_PLUGIN.loadData() ?? {};
+		return new Promise((resolve) => {
+			// @ts-expect-error
+			OBSIDIAN_PLUGIN.loadData().then((data) => {
+				resolve(data ?? {});
+			});
+		});
 	}
 
 	/**
@@ -248,7 +260,7 @@ class ObsidianContext extends Context {
 	 */
 	async putSaveData(saveData) {
 		// @ts-expect-error
-		return await OBSIDIAN_PLUGIN.saveData(saveData);
+		await OBSIDIAN_PLUGIN.saveData(saveData);
 	}
 
 	/** @override */
@@ -257,23 +269,53 @@ class ObsidianContext extends Context {
 	}
 
 	/** @override */
-	getFocusElementTopMargin() {
-		return 10;
-	}
-
-	/** @override */
 	getFocusableElements() {
 		const elements = [
 			".workspace-leaf",
 			".cm-callout",
-			".HyperMD-codeblock-begin"
+			".HyperMD-codeblock-begin",
+			".status-bar",
+			".mobile-navbar"
 		];
 		return super.getFocusableElements().concat(elements);
 	}
 
 	/** @override */
+	getPath() {
+		// @ts-expect-error
+		const file = app.workspace.getActiveFile();
+		if (file && this.getActiveEditorElement()) {
+			return file.path;
+		} else {
+			return ROOT_PATH;
+		}
+	}
+
+	/** @override */
+	getActivePage() {
+		if (this.getPath() === ROOT_PATH) {
+			// Root page, use document element
+			return document.documentElement
+		}
+		return this.getActiveEditorElement() ?? document.documentElement;
+	}
+
+	/** @override */
+	isPathApplicable(path) {
+		return path === this.getPath();
+	}
+
+	/** @override */
 	areStickyNotesEnabled() {
-		return false;
+		return this.getPath() !== ROOT_PATH;
+	}
+
+	/** @returns {HTMLElement|null} */
+	getActiveEditorElement() {
+		// @ts-expect-error
+		const activeLeaf = app.workspace.activeLeaf;
+		const leafElement = activeLeaf?.view?.containerEl;
+		return leafElement?.querySelector(".cm-scroller") ?? null;
 	}
 }
 

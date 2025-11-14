@@ -12,8 +12,11 @@ const IMAGES_DIR = "./images";
 const FONTS_DIR = "./fonts";
 const DIST_DIR = "./dist";
 
-const BROWSER_MANIFEST = "./browser-manifest.json";
-const OBSIDIAN_MANIFEST = "./obsidian-manifest.json";
+const BROWSER_MANIFEST = "./platform-specific/extension/manifest.json";
+const OBSIDIAN_MANIFEST = "./platform-specific/obsidian/manifest.json";
+const USERSCRIPT_HEADER = "./platform-specific/userscript/header.txt"; 
+const OBSIDIAN_WRAPPER = "./platform-specific/obsidian/wrapper.js";
+
 const USERSCRIPT_DIR = DIST_DIR + "/userscript";
 const EXTENSION_DIR = DIST_DIR + "/extension";
 const OBSIDIAN_DIR = DIST_DIR + "/obsidian";
@@ -23,8 +26,12 @@ const APPLICATION_ENTRY = SRC_DIR + "/application.js";
 const BUNDLED_OUTPUT = DIST_DIR + "/birb.bundled.js";
 const BIRB_OUTPUT = DIST_DIR + "/birb.js";
 
+const MONOCRAFT_URL = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
+
 const VERSION_KEY = "__VERSION__";
 const STYLESHEET_KEY = "___STYLESHEET___";
+const MONOCRAFT_SRC_KEY = "__MONOCRAFT_SRC__";
+const CODE_KEY = "__CODE__";
 
 const spriteSheets = [
 	{
@@ -66,6 +73,10 @@ const version = `${versionDate}.${buildNumber}`;
 buildCache.version = version;
 writeFileSync(BUILD_CACHE_PATH, JSON.stringify(buildCache), 'utf8');
 
+// =============================================
+// Build JavaScript function
+// =============================================
+
 // Bundle with rollup
 const bundle = await rollup({
 	input: APPLICATION_ENTRY,
@@ -94,33 +105,27 @@ for (const spriteSheet of spriteSheets) {
 
 // Insert stylesheet
 const stylesheetContent = readFileSync(STYLESHEET_PATH, 'utf8');
-birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent);
+birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent).replace(MONOCRAFT_SRC_KEY, MONOCRAFT_URL);
 
-// Build standard javascript file
+
+// Write bundled JavaScript function
 writeFileSync(BIRB_OUTPUT, birbJs);
 
-// Build user script
-const userScriptHeader =
-	`// ==UserScript==
-// @name         Pocket Bird
-// @namespace    https://idreesinc.com
-// @version      ${version}
-// @description  It's a bird that hops around your web browser, the future is here 
-// @author       Idrees
-// @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
-// @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
-// @match        *://*/*
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_deleteValue
-// ==/UserScript==
+// =============================================
+// Build userscript
+// =============================================
 
-`;
+// Get userscript header
+const userScriptHeader = readFileSync(USERSCRIPT_HEADER, 'utf8').replaceAll(VERSION_KEY, version);
+
 mkdirSync(USERSCRIPT_DIR, { recursive: true });
-const userScript = userScriptHeader + birbJs;
+const userScript = userScriptHeader + "\n" + birbJs;
 writeFileSync(USERSCRIPT_DIR + '/birb.user.js', userScript);
 
+// =============================================
 // Build browser extension
+// =============================================
+
 mkdirSync(EXTENSION_DIR, { recursive: true });
 
 // Copy birb.js
@@ -155,26 +160,19 @@ archive.pipe(output);
 archive.directory(EXTENSION_DIR + '/', false);
 archive.finalize();
 
+// =============================================
 // Build Obsidian plugin
+// =============================================
+
 mkdirSync(OBSIDIAN_DIR, { recursive: true });
 
 // Wrap birb.js with plugin boilerplate
-const obsidianPlugin = `
-const { Plugin, Notice } = require('obsidian');
-module.exports = class PocketBird extends Plugin {
-	onload() {
-		console.log("Loading Pocket Bird version ${version}...");
-		const OBSIDIAN_PLUGIN = this;
-		${birbJs}
-		console.log("Pocket Bird loaded!");
-	}
+let obsidianPlugin = readFileSync(OBSIDIAN_WRAPPER, 'utf8').replace(VERSION_KEY, version).replace(CODE_KEY, birbJs);
 
-	onunload() {
-		// Remove the birb when the plugin is unloaded
-		document.getElementById('birb')?.remove();
-		console.log('Pocket Bird unloaded!');
-	}
-};`
+// Encode font to data URI since Obsidian plugins can't have external font files
+const monocraftFontData = readFileSync(FONTS_DIR + '/Monocraft.otf', 'base64');
+const monocraftDataUri = `data:font/otf;base64,${monocraftFontData}`;
+obsidianPlugin = obsidianPlugin.replace(MONOCRAFT_URL, monocraftDataUri);
 
 // Create main.js with plugin code
 writeFileSync(OBSIDIAN_DIR + '/main.js', obsidianPlugin);

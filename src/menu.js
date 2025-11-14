@@ -15,23 +15,34 @@ export class MenuItem {
 	 * @param {string} text
 	 * @param {() => void} action
 	 * @param {boolean} [removeMenu]
-	 * @param {boolean} [isDebug]
 	 */
-	constructor(text, action, removeMenu = true, isDebug = false) {
+	constructor(text, action, removeMenu = true) {
 		this.text = text;
 		this.action = action;
 		this.removeMenu = removeMenu;
-		this.isDebug = isDebug;
 	}
 }
 
-export class DebugMenuItem extends MenuItem {
+export class ConditionalMenuItem extends MenuItem {
+	/**
+	 * @param {string} text
+	 * @param {() => void} action
+	 * @param {() => boolean} condition
+	 * @param {boolean} [removeMenu]
+	 */
+	constructor(text, action, condition, removeMenu = true) {
+		super(text, action, removeMenu);
+		this.condition = condition;
+	}
+}
+
+export class DebugMenuItem extends ConditionalMenuItem {
 	/**
 	 * @param {string} text
 	 * @param {() => void} action
 	 */
 	constructor(text, action, removeMenu = true) {
-		super(text, action, removeMenu, true);
+		super(text, action, () => isDebug(), removeMenu);
 	}
 }
 
@@ -77,7 +88,7 @@ export function insertMenu(menuItems, title, updateLocationCallback) {
 	let content = makeElement("birb-window-content");
 	const removeCallback = () => removeMenu();
 	for (const item of menuItems) {
-		if (!item.isDebug || isDebug()) {
+		if (!(item instanceof ConditionalMenuItem) || item.condition()) {
 			content.appendChild(makeMenuItem(item, removeCallback));
 		}
 	}
@@ -134,7 +145,7 @@ export function switchMenuItems(menuItems, updateLocationCallback) {
 	}
 	const removeCallback = () => removeMenu();
 	for (const item of menuItems) {
-		if (!item.isDebug || isDebug()) {
+		if (!(item instanceof ConditionalMenuItem) || item.condition()) {
 			content.appendChild(makeMenuItem(item, removeCallback));
 		}
 	}

@@ -67,8 +67,9 @@ export function onClick(element, action) {
  * @param {HTMLElement|null} element The element to detect drag events on
  * @param {boolean} [parent] Whether to move the parent element when the child is dragged
  * @param {(top: number, left: number) => void} [callback] Callback for when element is moved
+ * @param {HTMLElement} [pageElement] The page element to constrain movement within
  */
-export function makeDraggable(element, parent = true, callback = () => { }) {
+export function makeDraggable(element, parent = true, callback = () => { }, pageElement) {
 	if (!element) {
 		return;
 	}
@@ -95,6 +96,7 @@ export function makeDraggable(element, parent = true, callback = () => { }) {
 		offsetX = touch.clientX - elementToMove.offsetLeft;
 		offsetY = touch.clientY - elementToMove.offsetTop;
 		e.preventDefault();
+		e.stopPropagation();
 	});
 
 	document.addEventListener("mouseup", (e) => {
@@ -114,9 +116,12 @@ export function makeDraggable(element, parent = true, callback = () => { }) {
 	});
 
 	document.addEventListener("mousemove", (e) => {
+		const page = pageElement || document.documentElement;
+		const maxX = page.scrollWidth - elementToMove.clientWidth;
+		const maxY = page.scrollHeight - elementToMove.clientHeight;
 		if (isMouseDown) {
-			elementToMove.style.left = `${Math.max(0, e.clientX - offsetX)}px`;
-			elementToMove.style.top = `${Math.max(0, e.clientY - offsetY)}px`;
+			elementToMove.style.left = `${Math.max(0, Math.min(maxX, e.clientX - offsetX))}px`;
+			elementToMove.style.top = `${Math.max(0, Math.min(maxY, e.clientY - offsetY))}px`;
 		}
 	});
 
@@ -132,8 +137,9 @@ export function makeDraggable(element, parent = true, callback = () => { }) {
 /**
  * @param {() => void} func
  * @param {Element} [closeButton]
+ * @param {boolean} [allowEscape] Whether to allow closing with the Escape key
  */
-export function makeClosable(func, closeButton) {
+export function makeClosable(func, closeButton, allowEscape = true) {
 	if (closeButton) {
 		onClick(closeButton, func);
 	}
@@ -141,7 +147,7 @@ export function makeClosable(func, closeButton) {
 		if (closeButton && !document.body.contains(closeButton)) {
 			return;
 		}
-		if (e.key === "Escape") {
+		if (allowEscape && e.key === "Escape") {
 			func();
 		}
 	});

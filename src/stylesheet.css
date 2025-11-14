@@ -1,3 +1,10 @@
+@font-face {
+	font-family: 'Monocraft';
+	src: url("__MONOCRAFT_SRC__") format('opentype');
+	font-weight: normal;
+	font-style: normal;
+}
+
 :root {
 	--birb-border-size: 2px;
 	--birb-neg-border-size: calc(var(--birb-border-size) * -1);
@@ -119,6 +126,7 @@
 	flex-grow: 1;
 	user-select: none;
 	color: var(--birb-background-color);
+	white-space: nowrap;
 }
 
 .birb-window-close {
@@ -317,6 +325,17 @@
 .birb-sticky-note {
 	position: absolute;
 	box-sizing: border-box;
+	animation: fade-in 0.15s ease-in;
+}
+
+@keyframes fade-in {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
 }
 
 .birb-sticky-note > .birb-window-content {
@@ -339,5 +358,6 @@
 }
 
 .birb-sticky-note-input:focus {
-	outline: none;
+	outline: none !important;
+	box-shadow: none !important;
 }

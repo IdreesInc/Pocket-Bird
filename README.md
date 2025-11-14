@@ -3,10 +3,11 @@
 ![License](https://img.shields.io/github/license/IdreesInc/Pocket-Bird)
 [![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/lbbdngkbbgaecefacpnhnhleggabghak)](https://chromewebstore.google.com/detail/pocket-bird/lbbdngkbbgaecefacpnhnhleggabghak)
 [![Mozilla Add-on Version](https://img.shields.io/amo/v/pocket-bird)](https://addons.mozilla.org/en-US/firefox/addon/pocket-bird/)
+[![Discord](https://img.shields.io/discord/1398471368403583120?logo=discord&logoColor=fff&label=discord&color=5865F2)](https://discord.gg/6yxE9prcNc)
 
 ![](images/preview.png)
 
-It's a pet bird that hops around your browser, what more could you want?
+It's a pet bird that hops around your computer, what more could you want?
 
 ### Get it for [Google Chrome](https://chromewebstore.google.com/detail/pocket-bird/lbbdngkbbgaecefacpnhnhleggabghak)
 
@@ -16,7 +17,7 @@ It's a pet bird that hops around your browser, what more could you want?
 
 ## Features
 
-- A cute little pixel art bird hops around your webpages as you browse
+- A cute little pixel art bird hops around your apps and websites
 - Collect rare falling feathers to unlock over 10+ different species of birds
 - Add sticky notes that stay on the page even after you refresh
 - And most importantly, you can pet the bird!
@@ -51,7 +52,7 @@ Simply move your cursor back and forth over your bird until a heart appears! You
 
 ### How do I collect feathers?
 
-Feathers will occasionally fall from the top of your browser window. Clicking on a feather will add a new species to your field guide, allowing you to change the appearance of your pet!
+Feathers will occasionally fall from the top of your window. Clicking on a feather will add a new species to your field guide, allowing you to change the appearance of your pet!
 
 ### How do I change my bird's appearance?
 
@@ -67,7 +68,7 @@ Open the Pocket Bird menu by clicking the bird and select "Settings". From there
 
 ### Why does Pocket Bird need permission to read and change my data on websites I visit?
 
-Pocket Bird needs these permissions in order to insert the bird and sticky notes into your webpages. Pocket Bird does not collect any of your data or browsing history and all data is stored locally on your device!
+If you are running Pocket bird on a browser, the extension needs these permissions in order to insert the bird and sticky notes into your webpages. Pocket Bird does not collect any of your data or browsing history and all data is stored locally on your device!
 
 ## Getting in Touch
 
