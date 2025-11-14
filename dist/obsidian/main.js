@@ -2,7 +2,7 @@
 const { Plugin, Notice } = require('obsidian');
 module.exports = class PocketBird extends Plugin {
 	onload() {
-		console.log("Loading Pocket Bird version 2025.11.13.47...");
+		console.log("Loading Pocket Bird version 2025.11.13.64...");
 		const OBSIDIAN_PLUGIN = this;
 		(function () {
 	'use strict';
@@ -1952,7 +1952,7 @@ module.exports = class PocketBird extends Plugin {
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.13.47", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.47"); }, false),
+			new MenuItem("2025.11.13.64", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.64"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2596,7 +2596,11 @@ module.exports = class PocketBird extends Plugin {
 			// @ts-expect-error
 			const largeElements = Array.from(visible).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_FOCUS_ELEMENT_WIDTH);
 			// Ensure the bird doesn't land on fixed or sticky elements
+			const fixedAllowed = getContext() instanceof ObsidianContext;
 			const nonFixedElements = largeElements.filter((el) => {
+				if (fixedAllowed) {
+					return true;
+				}
 				const style = window.getComputedStyle(el);
 				return style.position !== "fixed" && style.position !== "sticky";
 			});

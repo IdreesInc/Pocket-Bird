@@ -222,7 +222,7 @@ class BrowserExtensionContext extends Context {
 	}
 }
 
-class ObsidianContext extends Context {
+export class ObsidianContext extends Context {
 
 	/**
 	 * @override

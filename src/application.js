@@ -2,7 +2,7 @@ import Frame from './frame.js';
 import Layer from './layer.js';
 import Anim from './anim.js';
 import { Birb, Animations } from './birb.js';
-import { getContext } from './context.js';
+import { getContext, ObsidianContext } from './context.js';
 
 import {
 	Directions,
@@ -880,7 +880,11 @@ Promise.all([
 		// @ts-expect-error
 		const largeElements = Array.from(visible).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_FOCUS_ELEMENT_WIDTH);
 		// Ensure the bird doesn't land on fixed or sticky elements
+		const fixedAllowed = getContext() instanceof ObsidianContext;
 		const nonFixedElements = largeElements.filter((el) => {
+			if (fixedAllowed) {
+				return true;
+			}
 			const style = window.getComputedStyle(el);
 			return style.position !== "fixed" && style.position !== "sticky";
 		});
