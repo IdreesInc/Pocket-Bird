@@ -2,7 +2,7 @@
 const { Plugin, Notice } = require('obsidian');
 module.exports = class PocketBird extends Plugin {
 	onload() {
-		console.log("Loading Pocket Bird version 2025.11.13.27...");
+		console.log("Loading Pocket Bird version 2025.11.13.47...");
 		const OBSIDIAN_PLUGIN = this;
 		(function () {
 	'use strict';
@@ -1102,16 +1102,13 @@ module.exports = class PocketBird extends Plugin {
 		}
 
 		/** @override */
-		getFocusElementTopMargin() {
-			return 10;
-		}
-
-		/** @override */
 		getFocusableElements() {
 			const elements = [
 				".workspace-leaf",
 				".cm-callout",
-				".HyperMD-codeblock-begin"
+				".HyperMD-codeblock-begin",
+				".status-bar",
+				".mobile-navbar"
 			];
 			return super.getFocusableElements().concat(elements);
 		}
@@ -1955,7 +1952,7 @@ module.exports = class PocketBird extends Plugin {
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.13.27", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.27"); }, false),
+			new MenuItem("2025.11.13.47", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.47"); }, false),
 		];
 
 		const styleElement = document.createElement("style");

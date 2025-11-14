@@ -1096,16 +1096,13 @@
 		}
 
 		/** @override */
-		getFocusElementTopMargin() {
-			return 10;
-		}
-
-		/** @override */
 		getFocusableElements() {
 			const elements = [
 				".workspace-leaf",
 				".cm-callout",
-				".HyperMD-codeblock-begin"
+				".HyperMD-codeblock-begin",
+				".status-bar",
+				".mobile-navbar"
 			];
 			return super.getFocusableElements().concat(elements);
 		}
@@ -1949,7 +1946,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.13.27", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.27"); }, false),
+			new MenuItem("2025.11.13.47", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.13.47"); }, false),
 		];
 
 		const styleElement = document.createElement("style");

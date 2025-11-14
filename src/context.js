@@ -257,16 +257,13 @@ class ObsidianContext extends Context {
 	}
 
 	/** @override */
-	getFocusElementTopMargin() {
-		return 10;
-	}
-
-	/** @override */
 	getFocusableElements() {
 		const elements = [
 			".workspace-leaf",
 			".cm-callout",
-			".HyperMD-codeblock-begin"
+			".HyperMD-codeblock-begin",
+			".status-bar",
+			".mobile-navbar"
 		];
 		return super.getFocusableElements().concat(elements);
 	}
