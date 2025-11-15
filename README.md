@@ -37,7 +37,11 @@ It's a pet bird that hops around your computer, what more could you want?
 
 ### Obsidian
 
-_Coming soon!_
+1. Install the [Beta Plugin Manager (BRAT)](https://obsidian.md/plugins?id=obsidian42-brat) plugin for Obsidian
+2. Enable the BRAT plugin and open its settings
+3. In the BRAT settings, click "Add Beta Plugin" and enter the following URL: `https://github.com/IdreesInc/Pocket-Bird`
+4. Select "Latest version" and click "Add Plugin"
+5. Enjoy a pet bird in your Obsidian notes!
 
 ### Userscript
 
