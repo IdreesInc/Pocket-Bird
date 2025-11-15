@@ -67,7 +67,8 @@ if (buildCache.version && buildCache.version.startsWith(versionDate)) {
 	}
 }
 
-const version = `${versionDate}.${buildNumber}`;
+// const version = `${versionDate}.${buildNumber}`;
+const version = `${versionDate}`; // Disable build number for now
 
 // Update build cache
 buildCache.version = version;
