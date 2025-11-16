@@ -852,6 +852,7 @@ module.exports = class PocketBird extends Plugin {
 
 	const SAVE_KEY = "birbSaveData";
 	const ROOT_PATH = "";
+	const SET_CONTEXT = "__CONTEXT__";
 
 	/**
 	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
@@ -1038,7 +1039,7 @@ module.exports = class PocketBird extends Plugin {
 		 */
 		isContextActive() {
 			// @ts-expect-error
-			return typeof chrome !== "undefined";
+			return typeof chrome !== "undefined" && typeof chrome.storage !== "undefined" && typeof chrome.storage.sync !== "undefined";
 		}
 
 		/**
@@ -1082,6 +1083,7 @@ module.exports = class PocketBird extends Plugin {
 	}
 
 	class ObsidianContext extends Context {
+
 		/**
 		 * @override
 		 * @returns {boolean}
@@ -1169,15 +1171,29 @@ module.exports = class PocketBird extends Plugin {
 		}
 	}
 
-	const CONTEXTS = [
+	const contextProcessingOrder = [
 		new UserScriptContext(),
 		new ObsidianContext(),
 		new BrowserExtensionContext(),
 		new LocalContext()
 	];
 
+	const CONTEXTS_BY_KEY = {
+		"local": LocalContext,
+		"userscript": UserScriptContext,
+		"browser-extension": BrowserExtensionContext,
+		"obsidian": ObsidianContext
+	};
+
+	/**
+	 * Determines and returns the current context
+	 * @returns {Context}
+	 */
 	function getContext() {
-		for (const context of CONTEXTS) {
+		if (CONTEXTS_BY_KEY[SET_CONTEXT]) {
+			return new CONTEXTS_BY_KEY[SET_CONTEXT]();
+		}
+		for (const context of contextProcessingOrder) {
 			if (context.isContextActive()) {
 				return context;
 			}

@@ -1,3 +1,4 @@
+export const Birb = () => {
 (function () {
 	'use strict';
 
@@ -847,7 +848,7 @@
 
 	const SAVE_KEY = "birbSaveData";
 	const ROOT_PATH = "";
-	const SET_CONTEXT = "__CONTEXT__";
+	const SET_CONTEXT = "local";
 
 	/**
 	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
@@ -2832,3 +2833,5 @@
 	});
 
 })();
+
+};
