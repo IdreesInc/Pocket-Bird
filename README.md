@@ -64,6 +64,8 @@ Pocket Bird can also be embedded directly into your own website! Just include th
 <script src="https://cdn.jsdelivr.net/gh/IdreesInc/Pocket-Bird@main/dist/web/birb.embed.js"></script>
 ```
 
+Let me know if you decide to add it to your website and I will link you down below!
+
 ## FAQ
 
 ### How do I pet the bird?
