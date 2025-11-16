@@ -950,15 +950,15 @@ export const Birb = () => {
 		}
 	}
 
-	class LocalContext extends Context {
-
+	class VencordContext extends Context {
+		
 		/**
 		 * @override
 		 * @returns {Promise<BirbSaveData|{}>}
 		 */
 		async getSaveData() {
-			log("Loading save data from localStorage");
-			return JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}");
+			// @ts-expect-error
+			return await Vencord.Api.DataStore.get(SAVE_KEY) ?? {};
 		}
 
 		/**
@@ -966,14 +966,14 @@ export const Birb = () => {
 		 * @param {BirbSaveData} saveData
 		 */
 		async putSaveData(saveData) {
-			log("Saving data to localStorage");
-			localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+			// @ts-expect-error
+			await Vencord.Api.DataStore.set(SAVE_KEY, saveData);
 		}
 
 		/** @override */
 		resetSaveData() {
-			log("Resetting save data in localStorage");
-			localStorage.removeItem(SAVE_KEY);
+			// @ts-expect-error
+			Vencord.Api.DataStore.del(SAVE_KEY);
 		}
 	}
 
@@ -1677,6 +1677,13 @@ export const Birb = () => {
 	color: black !important;
 	background-color: transparent !important;
 	border: none !important;
+}
+
+.birb-sticky-note-input::placeholder {
+	font-family: "Monocraft", monospace !important;
+	font-size: 14px !important;
+	background-color: transparent !important;
+	color: rgba(0, 0, 0, 0.35) !important;
 }
 
 .birb-sticky-note-input:focus {
@@ -2616,7 +2623,7 @@ export const Birb = () => {
 		});
 	}
 
-	initializeApplication(new LocalContext());
+	initializeApplication(new VencordContext());
 
 })();
 

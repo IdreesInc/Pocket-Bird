@@ -1678,6 +1678,13 @@
 	border: none !important;
 }
 
+.birb-sticky-note-input::placeholder {
+	font-family: "Monocraft", monospace !important;
+	font-size: 14px !important;
+	background-color: transparent !important;
+	color: rgba(0, 0, 0, 0.35) !important;
+}
+
 .birb-sticky-note-input:focus {
 	outline: none !important;
 	box-shadow: none !important;

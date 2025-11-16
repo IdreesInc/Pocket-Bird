@@ -976,9 +976,9 @@
 				// @ts-expect-error
 				if (chrome.runtime.lastError) {
 					// @ts-expect-error
-					console.error(chrome.runtime.lastError);
+					error(chrome.runtime.lastError);
 				} else {
-					console.log("Settings saved successfully");
+					log("Settings saved successfully");
 				}
 			});
 		}
@@ -1691,6 +1691,13 @@
 	color: black !important;
 	background-color: transparent !important;
 	border: none !important;
+}
+
+.birb-sticky-note-input::placeholder {
+	font-family: "Monocraft", monospace !important;
+	font-size: 14px !important;
+	background-color: transparent !important;
+	color: rgba(0, 0, 0, 0.35) !important;
 }
 
 .birb-sticky-note-input:focus {

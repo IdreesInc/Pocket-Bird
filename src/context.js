@@ -181,9 +181,9 @@ export class BrowserExtensionContext extends Context {
 			// @ts-expect-error
 			if (chrome.runtime.lastError) {
 				// @ts-expect-error
-				console.error(chrome.runtime.lastError);
+				error(chrome.runtime.lastError);
 			} else {
-				console.log("Settings saved successfully");
+				log("Settings saved successfully");
 			}
 		});
 	}
@@ -273,6 +273,33 @@ export class ObsidianContext extends Context {
 		const activeLeaf = app.workspace.activeLeaf;
 		const leafElement = activeLeaf?.view?.containerEl;
 		return leafElement?.querySelector(".cm-scroller") ?? null;
+	}
+}
+
+export class VencordContext extends Context {
+	
+	/**
+	 * @override
+	 * @returns {Promise<BirbSaveData|{}>}
+	 */
+	async getSaveData() {
+		// @ts-expect-error
+		return await Vencord.Api.DataStore.get(SAVE_KEY) ?? {};
+	}
+
+	/**
+	 * @override
+	 * @param {BirbSaveData} saveData
+	 */
+	async putSaveData(saveData) {
+		// @ts-expect-error
+		await Vencord.Api.DataStore.set(SAVE_KEY, saveData);
+	}
+
+	/** @override */
+	resetSaveData() {
+		// @ts-expect-error
+		Vencord.Api.DataStore.del(SAVE_KEY);
 	}
 }
 
