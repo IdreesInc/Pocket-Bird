@@ -4,6 +4,7 @@ export const Directions = {
 };
 
 let debugMode = location.hostname === "127.0.0.1";
+let context = null;
 
 /**
  * @returns {boolean} Whether debug mode is enabled
@@ -17,6 +18,17 @@ export function isDebug() {
  */
 export function setDebug(value) {
 	debugMode = value;
+}
+
+export function getContext() {
+	if (!context) {
+		throw new Error("Context requested before being set");
+	}
+	return context;
+}
+
+export function setContext(newContext) {
+	context = newContext;
 }
 
 /**

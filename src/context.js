@@ -1,7 +1,8 @@
 import { debug, log, error } from "./shared.js";
 
-const SAVE_KEY = "birbSaveData";
+export const SAVE_KEY = "birbSaveData";
 const ROOT_PATH = "";
+const SET_CONTEXT = "__CONTEXT__"
 
 /**
  * @typedef {import('./application.js').BirbSaveData} BirbSaveData
@@ -11,14 +12,6 @@ const ROOT_PATH = "";
  * @abstract
  */
 export class Context {
-
-	/**
-	 * @abstract
-	 * @returns {boolean} Whether this context is applicable
-	 */
-	isContextActive() {
-		throw new Error("Method not implemented");
-	}
 
 	/**
 	 * @abstract
@@ -105,16 +98,6 @@ export class LocalContext extends Context {
 
 	/**
 	 * @override
-	 * @returns {boolean}
-	 */
-	isContextActive() {
-		return window.location.hostname === "127.0.0.1"
-			|| window.location.hostname === "localhost"
-			|| window.location.hostname.startsWith("192.168.");
-	}
-
-	/**
-	 * @override
 	 * @returns {Promise<BirbSaveData|{}>}
 	 */
 	async getSaveData() {
@@ -139,15 +122,6 @@ export class LocalContext extends Context {
 }
 
 export class UserScriptContext extends Context {
-
-	/**
-	 * @override
-	 * @returns {boolean}
-	 */
-	isContextActive() {
-		// @ts-expect-error
-		return typeof GM_getValue === "function";
-	}
 
 	/**
 	 * @override
@@ -180,16 +154,7 @@ export class UserScriptContext extends Context {
 	}
 }
 
-class BrowserExtensionContext extends Context {
-
-	/**
-	 * @override
-	 * @returns {boolean}
-	 */
-	isContextActive() {
-		// @ts-expect-error
-		return typeof chrome !== "undefined";
-	}
+export class BrowserExtensionContext extends Context {
 
 	/**
 	 * @override
@@ -216,9 +181,9 @@ class BrowserExtensionContext extends Context {
 			// @ts-expect-error
 			if (chrome.runtime.lastError) {
 				// @ts-expect-error
-				console.error(chrome.runtime.lastError);
+				error(chrome.runtime.lastError);
 			} else {
-				console.log("Settings saved successfully");
+				log("Settings saved successfully");
 			}
 		});
 	}
@@ -232,14 +197,6 @@ class BrowserExtensionContext extends Context {
 }
 
 export class ObsidianContext extends Context {
-	/**
-	 * @override
-	 * @returns {boolean}
-	 */
-	isContextActive() {
-		// @ts-expect-error
-		return typeof app !== "undefined" && typeof app.vault !== "undefined";
-	}
 
 	/**
 	 * @override
@@ -319,21 +276,31 @@ export class ObsidianContext extends Context {
 	}
 }
 
-const CONTEXTS = [
-	new UserScriptContext(),
-	new ObsidianContext(),
-	new BrowserExtensionContext(),
-	new LocalContext()
-];
-
-export function getContext() {
-	for (const context of CONTEXTS) {
-		if (context.isContextActive()) {
-			return context;
-		}
+export class VencordContext extends Context {
+	
+	/**
+	 * @override
+	 * @returns {Promise<BirbSaveData|{}>}
+	 */
+	async getSaveData() {
+		// @ts-expect-error
+		return await Vencord.Api.DataStore.get(SAVE_KEY) ?? {};
 	}
-	error("No applicable context found, defaulting to LocalContext");
-	return new LocalContext();
+
+	/**
+	 * @override
+	 * @param {BirbSaveData} saveData
+	 */
+	async putSaveData(saveData) {
+		// @ts-expect-error
+		await Vencord.Api.DataStore.set(SAVE_KEY, saveData);
+	}
+
+	/** @override */
+	resetSaveData() {
+		// @ts-expect-error
+		Vencord.Api.DataStore.del(SAVE_KEY);
+	}
 }
 
 /**

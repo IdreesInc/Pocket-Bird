@@ -1,17 +1,3 @@
-// ==UserScript==
-// @name         Pocket Bird
-// @namespace    https://idreesinc.com
-// @version      2025.11.16
-// @description  It's a pet bird in your browser, what more could you want?
-// @author       Idrees
-// @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
-// @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
-// @match        *://*/*
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_deleteValue
-// ==/UserScript==
-
 (function () {
 	'use strict';
 
@@ -963,19 +949,15 @@
 		}
 	}
 
-	class UserScriptContext extends Context {
+	class LocalContext extends Context {
 
 		/**
 		 * @override
 		 * @returns {Promise<BirbSaveData|{}>}
 		 */
 		async getSaveData() {
-			log("Loading save data from UserScript storage");
-			/** @type {BirbSaveData|{}} */
-			let saveData = {};
-			// @ts-expect-error
-			saveData = GM_getValue(SAVE_KEY, {}) ?? {};
-			return saveData;
+			log("Loading save data from localStorage");
+			return JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}");
 		}
 
 		/**
@@ -983,16 +965,14 @@
 		 * @param {BirbSaveData} saveData
 		 */
 		async putSaveData(saveData) {
-			log("Saving data to UserScript storage");
-			// @ts-expect-error
-			GM_setValue(SAVE_KEY, saveData);
+			log("Saving data to localStorage");
+			localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
 		}
 
 		/** @override */
 		resetSaveData() {
-			log("Resetting save data in UserScript storage");
-			// @ts-expect-error
-			GM_deleteValue(SAVE_KEY);
+			log("Resetting save data in localStorage");
+			localStorage.removeItem(SAVE_KEY);
 		}
 	}
 
@@ -2642,6 +2622,6 @@
 		});
 	}
 
-	initializeApplication(new UserScriptContext());
+	initializeApplication(new LocalContext());
 
 })();
