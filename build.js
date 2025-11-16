@@ -12,6 +12,7 @@ const IMAGES_DIR = "./images";
 const FONTS_DIR = "./fonts";
 const DIST_DIR = "./dist";
 
+const WEB_DIR = DIST_DIR + "/web";
 const USERSCRIPT_DIR = DIST_DIR + "/userscript";
 const EXTENSION_DIR = DIST_DIR + "/extension";
 const OBSIDIAN_DIR = DIST_DIR + "/obsidian";
@@ -31,8 +32,7 @@ const USERSCRIPT_HEADER = SRC_DIR + "/platforms/userscript/header.txt";
 const OBSIDIAN_WRAPPER = SRC_DIR + "/platforms/obsidian/wrapper.js";
 const VENCORD_WRAPPER = SRC_DIR + "/platforms/vencord/wrapper.js";
 
-const BUNDLED_OUTPUT = DIST_DIR + "/birb.bundled.js";
-const BIRB_OUTPUT = DIST_DIR + "/birb.js";
+const TEMP_BUNDLED_OUTPUT = DIST_DIR + "/birb.bundled.js";
 
 const MONOCRAFT_URL = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
 
@@ -95,16 +95,16 @@ async function generateCode(entryPoint, embedFont = false) {
 	});
 
 	await bundle.write({
-		file: BUNDLED_OUTPUT,
+		file: TEMP_BUNDLED_OUTPUT,
 		format: 'iife',
 	});
 
 	await bundle.close();
 
-	let birbJs = readFileSync(BUNDLED_OUTPUT, 'utf8');
+	let birbJs = readFileSync(TEMP_BUNDLED_OUTPUT, 'utf8');
 
 	// Delete bundled file
-	unlinkSync(BUNDLED_OUTPUT);
+	unlinkSync(TEMP_BUNDLED_OUTPUT);
 
 	// Replace version placeholder
 	birbJs = birbJs.replaceAll(VERSION_KEY, version);
@@ -132,11 +132,13 @@ async function generateCode(entryPoint, embedFont = false) {
 
 async function buildWeb() {
 	const birbJs = await generateCode(WEB_ENTRY);
-	writeFileSync(BIRB_OUTPUT, birbJs);
+	mkdirSync(WEB_DIR, { recursive: true });
+	writeFileSync(WEB_DIR + '/birb.js', birbJs);
 }
 
 async function buildUserscript() {
 	const birbJs = await generateCode(USERSCRIPT_ENTRY);
+
 	// Get userscript header
 	const userScriptHeader = readFileSync(USERSCRIPT_HEADER, 'utf8').replaceAll(VERSION_KEY, version);
 
@@ -212,7 +214,7 @@ async function buildVencord() {
 	vencordPlugin = vencordPlugin.replace(CONTEXT_KEY, "local");
 
 	// Create exported birb function
-	writeFileSync(VENCORD_DIR + '/birb.export.js', vencordPlugin);
+	writeFileSync(VENCORD_DIR + '/birb.js', vencordPlugin);
 }
 
 console.log("Starting build...");
