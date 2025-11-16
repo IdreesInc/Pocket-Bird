@@ -56,6 +56,14 @@ It's a pet bird that hops around your computer, what more could you want?
 3. Install my Pocket Bird script by going to this link and clicking install: [https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js](https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js)
 4. Now any websites you visit will have a little bird hopping around!
 
+### Your Own Website
+
+Pocket Bird can also be embedded directly into your own website! Just include the following code snippet anywhere in your HTML:
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/IdreesInc/Pocket-Bird@main/dist/web/birb.embed.js"></script>
+```
+
 ## FAQ
 
 ### How do I pet the bird?

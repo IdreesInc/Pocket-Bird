@@ -130,6 +130,7 @@ async function buildWeb() {
 	const birbJs = await generateCode(WEB_ENTRY);
 	mkdirSync(WEB_DIR, { recursive: true });
 	writeFileSync(WEB_DIR + '/birb.js', birbJs);
+	writeFileSync(WEB_DIR + '/birb.embed.js', birbJs);
 }
 
 async function buildUserscript() {
