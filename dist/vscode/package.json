@@ -1,0 +1,21 @@
+{
+  "name": "pocket-bird",
+  "version": "2025.11.15",
+  "engines": {
+    "vscode": "^1.32.0"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "pocket-bird.helloWorld",
+        "title": "Hello World",
+        "category": "Example"
+      }
+    ]
+  }
+}
+

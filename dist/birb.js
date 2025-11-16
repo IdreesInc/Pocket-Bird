@@ -6,7 +6,7 @@
 		RIGHT: 1,
 	};
 
-	let debugMode = location.hostname === "127.0.0.1";
+	let debugMode = window.location.hostname === "127.0.0.1";
 
 	/**
 	 * @returns {boolean} Whether debug mode is enabled

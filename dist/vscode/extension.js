@@ -1,18 +1,14 @@
-// ==UserScript==
-// @name         Pocket Bird
-// @namespace    https://idreesinc.com
-// @version      2025.11.15
-// @description  It's a pet bird in your browser, what more could you want?
-// @author       Idrees
-// @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
-// @updateURL    https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
-// @match        *://*/*
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_deleteValue
-// ==/UserScript==
+// The module 'vscode' contains the VS Code extensibility API
+const vscode = require("vscode");
 
-(function () {
+module.exports = {
+  activate,
+  deactivate,
+};
+
+function activate(context) {
+	console.log("Loading Pocket Bird...");
+	(function () {
 	'use strict';
 
 	const Directions = {
@@ -2830,3 +2826,9 @@
 	});
 
 })();
+
+	console.log("Pocket Bird loaded!");
+}
+
+function deactivate() {}
+

@@ -1,0 +1,1 @@
+console.log("Birb patch for VSCode loaded.");

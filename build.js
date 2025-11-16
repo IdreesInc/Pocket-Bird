@@ -15,11 +15,14 @@ const DIST_DIR = "./dist";
 const BROWSER_MANIFEST = "./platform-specific/extension/manifest.json";
 const OBSIDIAN_MANIFEST = "./platform-specific/obsidian/manifest.json";
 const USERSCRIPT_HEADER = "./platform-specific/userscript/header.txt"; 
+const VSCODE_PACKAGE = "./platform-specific/vscode/package.json";
 const OBSIDIAN_WRAPPER = "./platform-specific/obsidian/wrapper.js";
+const VSCODE_WRAPPER = "./platform-specific/vscode/extension.js";
 
 const USERSCRIPT_DIR = DIST_DIR + "/userscript";
 const EXTENSION_DIR = DIST_DIR + "/extension";
 const OBSIDIAN_DIR = DIST_DIR + "/obsidian";
+const VSCODE_DIR = DIST_DIR + "/vscode";
 
 const STYLESHEET_PATH = SRC_DIR + "/stylesheet.css";
 const APPLICATION_ENTRY = SRC_DIR + "/application.js";
@@ -182,5 +185,22 @@ writeFileSync(OBSIDIAN_DIR + '/main.js', obsidianPlugin);
 let obsidianManifest = readFileSync(OBSIDIAN_MANIFEST, 'utf8');
 obsidianManifest = obsidianManifest.replace(/"version":\s*".*"/, `"version": "${version}"`);
 writeFileSync(OBSIDIAN_DIR + '/manifest.json', obsidianManifest);
+
+// =============================================
+// Build VSCode extension
+// =============================================
+
+mkdirSync(VSCODE_DIR, { recursive: true });
+
+// Wrap birb.js with VSCode extension boilerplate
+let vscodeExtension = readFileSync(VSCODE_WRAPPER, 'utf8').replace(VERSION_KEY, version).replace(CODE_KEY, birbJs);
+
+// Create extension.js with extension code
+writeFileSync(VSCODE_DIR + '/extension.js', vscodeExtension);
+
+// Copy package.json
+let vscodePackage = readFileSync(VSCODE_PACKAGE, 'utf8');
+vscodePackage = vscodePackage.replace(VERSION_KEY, version);
+writeFileSync(VSCODE_DIR + '/package.json', vscodePackage);
 
 console.log(`Build complete: ${version}`);
