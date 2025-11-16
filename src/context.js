@@ -15,14 +15,6 @@ export class Context {
 
 	/**
 	 * @abstract
-	 * @returns {boolean} Whether this context is applicable
-	 */
-	// isContextActive() {
-	// 	throw new Error("Method not implemented");
-	// }
-
-	/**
-	 * @abstract
 	 * @returns {Promise<BirbSaveData|{}>}
 	 */
 	async getSaveData() {
@@ -102,6 +94,33 @@ export class Context {
 	}
 }
 
+export class LocalContext extends Context {
+
+	/**
+	 * @override
+	 * @returns {Promise<BirbSaveData|{}>}
+	 */
+	async getSaveData() {
+		log("Loading save data from localStorage");
+		return JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}");
+	}
+
+	/**
+	 * @override
+	 * @param {BirbSaveData} saveData
+	 */
+	async putSaveData(saveData) {
+		log("Saving data to localStorage");
+		localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+	}
+
+	/** @override */
+	resetSaveData() {
+		log("Resetting save data in localStorage");
+		localStorage.removeItem(SAVE_KEY);
+	}
+}
+
 export class UserScriptContext extends Context {
 
 	/**
@@ -135,7 +154,7 @@ export class UserScriptContext extends Context {
 	}
 }
 
-class BrowserExtensionContext extends Context {
+export class BrowserExtensionContext extends Context {
 
 	/**
 	 * @override
@@ -256,37 +275,6 @@ export class ObsidianContext extends Context {
 		return leafElement?.querySelector(".cm-scroller") ?? null;
 	}
 }
-
-const contextProcessingOrder = [
-	new UserScriptContext(),
-	new ObsidianContext(),
-	new BrowserExtensionContext(),
-];
-
-const CONTEXTS_BY_KEY = {
-	// "local": LocalContext,
-	"userscript": UserScriptContext,
-	"browser-extension": BrowserExtensionContext,
-	"obsidian": ObsidianContext
-};
-
-/**
- * Determines and returns the current context
- * @returns {Context}
- */
-// export function getContext() {
-// 	if (CONTEXTS_BY_KEY[SET_CONTEXT]) {
-// 		return new CONTEXTS_BY_KEY[SET_CONTEXT]();
-// 	}
-// 	for (const context of contextProcessingOrder) {
-// 		if (context.isContextActive()) {
-// 			return context;
-// 		}
-// 	}
-// 	error("No applicable context found");
-// 	// return new LocalContext();
-// 	return null;
-// }
 
 /**
  * Parse URL parameters into a key-value map

@@ -14,7 +14,7 @@ const DIST_DIR = "./dist";
 
 const BROWSER_MANIFEST = "./platform-specific/extension/manifest.json";
 const OBSIDIAN_MANIFEST = "./platform-specific/obsidian/manifest.json";
-const USERSCRIPT_HEADER = "./platform-specific/userscript/header.txt"; 
+const USERSCRIPT_HEADER = "./platform-specific/userscript/header.txt";
 const OBSIDIAN_WRAPPER = "./platform-specific/obsidian/wrapper.js";
 const VENCORD_WRAPPER = "./platform-specific/vencord/wrapper.js";
 
@@ -24,8 +24,13 @@ const OBSIDIAN_DIR = DIST_DIR + "/obsidian";
 const VENCORD_DIR = DIST_DIR + "/vencord";
 
 const STYLESHEET_PATH = SRC_DIR + "/stylesheet.css";
-// const APPLICATION_ENTRY = SRC_DIR + "/application.js";
-const APPLICATION_ENTRY = SRC_DIR + "/platforms/browser.js";
+
+const WEB_ENTRY = SRC_DIR + "/platforms/web.js";
+const USERSCRIPT_ENTRY = SRC_DIR + "/platforms/userscript.js";
+const BROWSER_EXTENSION_ENTRY = SRC_DIR + "/platforms/extension.js";
+const OBSIDIAN_ENTRY = SRC_DIR + "/platforms/obsidian.js";
+const VENCORD_ENTRY = SRC_DIR + "/platforms/vencord.js";
+
 const BUNDLED_OUTPUT = DIST_DIR + "/birb.bundled.js";
 const BIRB_OUTPUT = DIST_DIR + "/birb.js";
 
@@ -78,128 +83,268 @@ const version = `${versionDate}`; // Disable build number for now
 buildCache.version = version;
 writeFileSync(BUILD_CACHE_PATH, JSON.stringify(buildCache), 'utf8');
 
+/**
+ * @param {string} entryPoint
+ * @param {boolean} [embedFont]
+ * @returns {Promise<string>}
+ */
+async function generateCode(entryPoint, embedFont = false) {
+	// Bundle with rollup
+	const bundle = await rollup({
+		input: entryPoint,
+	});
+
+	await bundle.write({
+		file: BUNDLED_OUTPUT,
+		format: 'iife',
+	});
+
+	await bundle.close();
+
+	let birbJs = readFileSync(BUNDLED_OUTPUT, 'utf8');
+
+	// Delete bundled file
+	unlinkSync(BUNDLED_OUTPUT);
+
+	// Replace version placeholder
+	birbJs = birbJs.replaceAll(VERSION_KEY, version);
+
+	// Compile and insert sprite sheets
+	for (const spriteSheet of spriteSheets) {
+		const dataUri = readFileSync(spriteSheet.path, 'base64');
+		birbJs = birbJs.replaceAll(spriteSheet.key, `data:image/png;base64,${dataUri}`);
+	}
+
+	// Insert stylesheet
+	const stylesheetContent = readFileSync(STYLESHEET_PATH, 'utf8');
+	birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent);
+
+	if (embedFont) {
+		// Encode font to data URI
+		const monocraftFontData = readFileSync(FONTS_DIR + '/Monocraft.otf', 'base64');
+		const monocraftDataUri = `data:font/otf;base64,${monocraftFontData}`;
+		birbJs = birbJs.replaceAll(MONOCRAFT_SRC_KEY, monocraftDataUri);
+	} else {
+		birbJs = birbJs.replaceAll(MONOCRAFT_SRC_KEY, MONOCRAFT_URL);
+	}
+	return birbJs;
+}
+
 // =============================================
 // Build JavaScript function
 // =============================================
 
-// Bundle with rollup
-const bundle = await rollup({
-	input: APPLICATION_ENTRY,
-});
-
-await bundle.write({
-	file: BUNDLED_OUTPUT,
-	format: 'iife',
-});
-
-await bundle.close();
-
-let birbJs = readFileSync(BUNDLED_OUTPUT, 'utf8');
-
-// Delete bundled file
-unlinkSync(BUNDLED_OUTPUT);
-
-// Replace version placeholder
-birbJs = birbJs.replaceAll(VERSION_KEY, version);
-
-// Compile and insert sprite sheets
-for (const spriteSheet of spriteSheets) {
-	const dataUri = readFileSync(spriteSheet.path, 'base64');
-	birbJs = birbJs.replaceAll(spriteSheet.key, `data:image/png;base64,${dataUri}`);
+async function buildWeb() {
+	const birbJs = await generateCode(WEB_ENTRY);
+	writeFileSync(BIRB_OUTPUT, birbJs);
 }
 
-// Insert stylesheet
-const stylesheetContent = readFileSync(STYLESHEET_PATH, 'utf8');
-birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent).replace(MONOCRAFT_SRC_KEY, MONOCRAFT_URL);
+// Bundle with rollup
+// const bundle = await rollup({
+// 	input: APPLICATION_ENTRY,
+// });
+
+// await bundle.write({
+// 	file: BUNDLED_OUTPUT,
+// 	format: 'iife',
+// });
+
+// await bundle.close();
+
+// let birbJs = readFileSync(BUNDLED_OUTPUT, 'utf8');
+
+// // Delete bundled file
+// unlinkSync(BUNDLED_OUTPUT);
+
+// // Replace version placeholder
+// birbJs = birbJs.replaceAll(VERSION_KEY, version);
+
+// // Compile and insert sprite sheets
+// for (const spriteSheet of spriteSheets) {
+// 	const dataUri = readFileSync(spriteSheet.path, 'base64');
+// 	birbJs = birbJs.replaceAll(spriteSheet.key, `data:image/png;base64,${dataUri}`);
+// }
+
+// // Insert stylesheet
+// const stylesheetContent = readFileSync(STYLESHEET_PATH, 'utf8');
+// birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent).replace(MONOCRAFT_SRC_KEY, MONOCRAFT_URL);
 
 
-// Write bundled JavaScript function
-writeFileSync(BIRB_OUTPUT, birbJs);
+// // Write bundled JavaScript function
+// writeFileSync(BIRB_OUTPUT, birbJs);
 
 // =============================================
 // Build userscript
 // =============================================
 
 // Get userscript header
-const userScriptHeader = readFileSync(USERSCRIPT_HEADER, 'utf8').replaceAll(VERSION_KEY, version);
+// const userScriptHeader = readFileSync(USERSCRIPT_HEADER, 'utf8').replaceAll(VERSION_KEY, version);
 
-mkdirSync(USERSCRIPT_DIR, { recursive: true });
-const userScript = userScriptHeader + "\n" + birbJs;
-writeFileSync(USERSCRIPT_DIR + '/birb.user.js', userScript);
+// mkdirSync(USERSCRIPT_DIR, { recursive: true });
+// const userScript = userScriptHeader + "\n" + birbJs;
+// writeFileSync(USERSCRIPT_DIR + '/birb.user.js', userScript);
+
+async function buildUserscript() {
+	const birbJs = await generateCode(USERSCRIPT_ENTRY);
+	// Get userscript header
+	const userScriptHeader = readFileSync(USERSCRIPT_HEADER, 'utf8').replaceAll(VERSION_KEY, version);
+
+	mkdirSync(USERSCRIPT_DIR, { recursive: true });
+	const userScript = userScriptHeader + "\n" + birbJs;
+	writeFileSync(USERSCRIPT_DIR + '/birb.user.js', userScript);
+}
 
 // =============================================
 // Build browser extension
 // =============================================
 
-mkdirSync(EXTENSION_DIR, { recursive: true });
+// mkdirSync(EXTENSION_DIR, { recursive: true });
 
-// Copy birb.js
-writeFileSync(EXTENSION_DIR + '/birb.js', birbJs);
+// // Copy birb.js
+// writeFileSync(EXTENSION_DIR + '/birb.js', birbJs);
 
-// Copy manifest.json
-let browserManifest = readFileSync(BROWSER_MANIFEST, 'utf8');
-browserManifest = browserManifest.replace(VERSION_KEY, version);
-writeFileSync(EXTENSION_DIR + '/manifest.json', browserManifest);
+// // Copy manifest.json
+// let browserManifest = readFileSync(BROWSER_MANIFEST, 'utf8');
+// browserManifest = browserManifest.replace(VERSION_KEY, version);
+// writeFileSync(EXTENSION_DIR + '/manifest.json', browserManifest);
 
-// Copy icons folder
-mkdirSync(EXTENSION_DIR + '/images/icons', { recursive: true });
-cpSync(IMAGES_DIR + '/icons/transparent', EXTENSION_DIR + '/images/icons/transparent', { recursive: true });
+// // Copy icons folder
+// mkdirSync(EXTENSION_DIR + '/images/icons', { recursive: true });
+// cpSync(IMAGES_DIR + '/icons/transparent', EXTENSION_DIR + '/images/icons/transparent', { recursive: true });
 
-// Copy fonts folder
-mkdirSync(EXTENSION_DIR + '/fonts', { recursive: true });
-cpSync(FONTS_DIR, EXTENSION_DIR + '/fonts', { recursive: true });
+// // Copy fonts folder
+// mkdirSync(EXTENSION_DIR + '/fonts', { recursive: true });
+// cpSync(FONTS_DIR, EXTENSION_DIR + '/fonts', { recursive: true });
 
-// Compress extension folder into zip
-const output = createWriteStream(DIST_DIR + "/extension.zip");
-const archive = archiver('zip');
+// // Compress extension folder into zip
+// const output = createWriteStream(DIST_DIR + "/extension.zip");
+// const archive = archiver('zip');
 
-output.on('close', () => {
-	console.log(`Created zip file: ${archive.pointer()} total bytes`);
-});
+// output.on('close', () => {
+// 	console.log(`Created zip file: ${archive.pointer()} total bytes`);
+// });
 
-archive.on('error', (err) => {
-	throw err;
-});
+// archive.on('error', (err) => {
+// 	throw err;
+// });
 
-archive.pipe(output);
-archive.directory(EXTENSION_DIR + '/', false);
-archive.finalize();
+// archive.pipe(output);
+// archive.directory(EXTENSION_DIR + '/', false);
+// archive.finalize();
+
+async function buildExtension() {
+	const birbJs = await generateCode(BROWSER_EXTENSION_ENTRY);
+
+	mkdirSync(EXTENSION_DIR, { recursive: true });
+
+	// Copy birb.js
+	writeFileSync(EXTENSION_DIR + '/birb.js', birbJs);
+
+	// Copy manifest.json
+	let browserManifest = readFileSync(BROWSER_MANIFEST, 'utf8');
+	browserManifest = browserManifest.replace(VERSION_KEY, version);
+	writeFileSync(EXTENSION_DIR + '/manifest.json', browserManifest);
+
+	// Copy icons folder
+	mkdirSync(EXTENSION_DIR + '/images/icons', { recursive: true });
+	cpSync(IMAGES_DIR + '/icons/transparent', EXTENSION_DIR + '/images/icons/transparent', { recursive: true });
+
+	// Copy fonts folder
+	mkdirSync(EXTENSION_DIR + '/fonts', { recursive: true });
+	cpSync(FONTS_DIR, EXTENSION_DIR + '/fonts', { recursive: true });
+
+	// Compress extension folder into zip
+	const output = createWriteStream(DIST_DIR + "/extension.zip");
+	const archive = archiver('zip');
+
+	output.on('close', () => {
+		console.log(`Created zip file: ${archive.pointer()} total bytes`);
+	});
+
+	archive.on('error', (err) => {
+		throw err;
+	});
+
+	archive.pipe(output);
+	archive.directory(EXTENSION_DIR + '/', false);
+	archive.finalize();
+}
 
 // =============================================
 // Build Obsidian plugin
 // =============================================
 
-mkdirSync(OBSIDIAN_DIR, { recursive: true });
+// mkdirSync(OBSIDIAN_DIR, { recursive: true });
 
-// Wrap birb.js with plugin boilerplate
-let obsidianPlugin = readFileSync(OBSIDIAN_WRAPPER, 'utf8').replace(VERSION_KEY, version).replace(CODE_KEY, birbJs);
+// // Wrap birb.js with plugin boilerplate
+// let obsidianPlugin = readFileSync(OBSIDIAN_WRAPPER, 'utf8').replace(VERSION_KEY, version).replace(CODE_KEY, birbJs);
 
-// Encode font to data URI since Obsidian plugins can't have external font files
-const monocraftFontData = readFileSync(FONTS_DIR + '/Monocraft.otf', 'base64');
-const monocraftDataUri = `data:font/otf;base64,${monocraftFontData}`;
-obsidianPlugin = obsidianPlugin.replace(MONOCRAFT_URL, monocraftDataUri);
+// // Encode font to data URI since Obsidian plugins can't have external font files
+// const monocraftFontData = readFileSync(FONTS_DIR + '/Monocraft.otf', 'base64');
+// const monocraftDataUri = `data:font/otf;base64,${monocraftFontData}`;
+// obsidianPlugin = obsidianPlugin.replace(MONOCRAFT_URL, monocraftDataUri);
 
-// Create main.js with plugin code
-writeFileSync(OBSIDIAN_DIR + '/main.js', obsidianPlugin);
+// // Create main.js with plugin code
+// writeFileSync(OBSIDIAN_DIR + '/main.js', obsidianPlugin);
 
-// Copy manifest.json
-let obsidianManifest = readFileSync(OBSIDIAN_MANIFEST, 'utf8');
-obsidianManifest = obsidianManifest.replace(/"version":\s*".*"/, `"version": "${version}"`);
-writeFileSync(OBSIDIAN_DIR + '/manifest.json', obsidianManifest);
+// // Copy manifest.json
+// let obsidianManifest = readFileSync(OBSIDIAN_MANIFEST, 'utf8');
+// obsidianManifest = obsidianManifest.replace(/"version":\s*".*"/, `"version": "${version}"`);
+// writeFileSync(OBSIDIAN_DIR + '/manifest.json', obsidianManifest);
+
+async function buildObsidian() {
+	const birbJs = await generateCode(OBSIDIAN_ENTRY, true);
+
+	mkdirSync(OBSIDIAN_DIR, { recursive: true });
+
+	// Wrap birb.js with plugin boilerplate
+	let obsidianPlugin = readFileSync(OBSIDIAN_WRAPPER, 'utf8').replace(VERSION_KEY, version).replace(CODE_KEY, birbJs);
+
+	// Create main.js with plugin code
+	writeFileSync(OBSIDIAN_DIR + '/main.js', obsidianPlugin);
+
+	// Copy manifest.json
+	let obsidianManifest = readFileSync(OBSIDIAN_MANIFEST, 'utf8');
+	obsidianManifest = obsidianManifest.replace(/"version":\s*".*"/, `"version": "${version}"`);
+	writeFileSync(OBSIDIAN_DIR + '/manifest.json', obsidianManifest);
+}
 
 // =============================================
 // Build Vencord plugin
 // =============================================
 
-mkdirSync(VENCORD_DIR, { recursive: true });
+// mkdirSync(VENCORD_DIR, { recursive: true });
 
-// Wrap birb.js with plugin boilerplate
-let vencordPlugin = readFileSync(VENCORD_WRAPPER, 'utf8').replace(CODE_KEY, birbJs);
+// // Wrap birb.js with plugin boilerplate
+// let vencordPlugin = readFileSync(VENCORD_WRAPPER, 'utf8').replace(CODE_KEY, birbJs);
 
-// Set context to "local"
-vencordPlugin = vencordPlugin.replace(CONTEXT_KEY, "local");
+// // Set context to "local"
+// vencordPlugin = vencordPlugin.replace(CONTEXT_KEY, "local");
 
-// Create exported birb function
-writeFileSync(VENCORD_DIR + '/birb.export.js', vencordPlugin);
+// // Create exported birb function
+// writeFileSync(VENCORD_DIR + '/birb.export.js', vencordPlugin);
 
-console.log(`Build complete: ${version}`);
+// console.log(`Build complete: ${version}`);
+
+async function buildVencord() {
+	const birbJs = await generateCode(VENCORD_ENTRY);
+
+	mkdirSync(VENCORD_DIR, { recursive: true });
+
+	// Wrap birb.js with plugin boilerplate
+	let vencordPlugin = readFileSync(VENCORD_WRAPPER, 'utf8').replace(CODE_KEY, birbJs);
+
+	// Set context to "local"
+	vencordPlugin = vencordPlugin.replace(CONTEXT_KEY, "local");
+
+	// Create exported birb function
+	writeFileSync(VENCORD_DIR + '/birb.export.js', vencordPlugin);
+}
+
+console.log("Starting build...");
+
+await buildWeb();
+await buildUserscript();
+await buildExtension();
+await buildObsidian();
+await buildVencord();

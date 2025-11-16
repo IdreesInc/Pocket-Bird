@@ -1,4 +1,4 @@
-(function (exports) {
+(function () {
 	'use strict';
 
 	const Directions = {
@@ -224,139 +224,6 @@
 	 */
 	function getFixedWindowHeight() {
 		return document.documentElement.clientHeight;
-	}
-
-	const SAVE_KEY = "birbSaveData";
-
-	/**
-	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
-	 */
-
-	/**
-	 * @abstract
-	 */
-	class Context {
-
-		/**
-		 * @abstract
-		 * @returns {boolean} Whether this context is applicable
-		 */
-		// isContextActive() {
-		// 	throw new Error("Method not implemented");
-		// }
-
-		/**
-		 * @abstract
-		 * @returns {Promise<BirbSaveData|{}>}
-		 */
-		async getSaveData() {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @abstract
-		 * @param {BirbSaveData} saveData
-		 */
-		async putSaveData(saveData) {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @abstract
-		 */
-		resetSaveData() {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @returns {string[]} A list of CSS selectors for focusable elements
-		 */
-		getFocusableElements() {
-			return ["img", "video", ".birb-sticky-note"];
-		}
-
-		getFocusElementTopMargin() {
-			return 80;
-		}
-
-		/**
-		 * @returns {string} The current path of the active page in this context
-		 */
-		getPath() {
-			// Default to website URL
-			return window.location.href;
-		}
-
-		/**
-		 * @returns {HTMLElement} The current active page element where sticky notes can be applied
-		 */
-		getActivePage() {
-			// Default to root element
-			return document.documentElement;
-		}
-
-		/**
-		 * Checks if a path is applicable given the context
-		 * @param {string} path Can be a site URL or another context-specific path
-		 * @returns {boolean} Whether the path matches the current context state
-		 */
-		isPathApplicable(path) {
-			// Default to website URL matching
-			const currentUrl = window.location.href;
-			const stickyNoteWebsite = path.split("?")[0];
-			const currentWebsite = currentUrl.split("?")[0];
-
-			if (stickyNoteWebsite !== currentWebsite) {
-				return false;
-			}
-
-			const pathParams = parseUrlParams(path);
-			const currentParams = parseUrlParams(currentUrl);
-
-			if (window.location.hostname === "www.youtube.com") {
-				if (currentParams.v !== undefined && currentParams.v !== pathParams.v) {
-					return false;
-				}
-			}
-			return true;
-		}
-
-		areStickyNotesEnabled() {
-			return true;
-		}
-	}
-
-	/**
-	 * Determines and returns the current context
-	 * @returns {Context}
-	 */
-	// export function getContext() {
-	// 	if (CONTEXTS_BY_KEY[SET_CONTEXT]) {
-	// 		return new CONTEXTS_BY_KEY[SET_CONTEXT]();
-	// 	}
-	// 	for (const context of contextProcessingOrder) {
-	// 		if (context.isContextActive()) {
-	// 			return context;
-	// 		}
-	// 	}
-	// 	error("No applicable context found");
-	// 	// return new LocalContext();
-	// 	return null;
-	// }
-
-	/**
-	 * Parse URL parameters into a key-value map
-	 * @param {string} url
-	 * @returns {Record<string, string>}
-	 */
-	function parseUrlParams(url) {
-		const queryString = url.split("?")[1];
-		if (!queryString) return {};
-
-		return queryString.split("&").reduce((params, param) => {
-			const [key, value] = param.split("=");
-			return { ...params, [key]: value };
-		}, {});
 	}
 
 	/** Indicators for parts of the base bird sprite sheet */
@@ -988,6 +855,140 @@
 		isVisible() {
 			return this.visible;
 		}
+	}
+
+	const SAVE_KEY = "birbSaveData";
+
+	/**
+	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
+	 */
+
+	/**
+	 * @abstract
+	 */
+	class Context {
+
+		/**
+		 * @abstract
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
+			throw new Error("Method not implemented");
+		}
+
+		/**
+		 * @abstract
+		 * @param {BirbSaveData} saveData
+		 */
+		async putSaveData(saveData) {
+			throw new Error("Method not implemented");
+		}
+
+		/**
+		 * @abstract
+		 */
+		resetSaveData() {
+			throw new Error("Method not implemented");
+		}
+
+		/**
+		 * @returns {string[]} A list of CSS selectors for focusable elements
+		 */
+		getFocusableElements() {
+			return ["img", "video", ".birb-sticky-note"];
+		}
+
+		getFocusElementTopMargin() {
+			return 80;
+		}
+
+		/**
+		 * @returns {string} The current path of the active page in this context
+		 */
+		getPath() {
+			// Default to website URL
+			return window.location.href;
+		}
+
+		/**
+		 * @returns {HTMLElement} The current active page element where sticky notes can be applied
+		 */
+		getActivePage() {
+			// Default to root element
+			return document.documentElement;
+		}
+
+		/**
+		 * Checks if a path is applicable given the context
+		 * @param {string} path Can be a site URL or another context-specific path
+		 * @returns {boolean} Whether the path matches the current context state
+		 */
+		isPathApplicable(path) {
+			// Default to website URL matching
+			const currentUrl = window.location.href;
+			const stickyNoteWebsite = path.split("?")[0];
+			const currentWebsite = currentUrl.split("?")[0];
+
+			if (stickyNoteWebsite !== currentWebsite) {
+				return false;
+			}
+
+			const pathParams = parseUrlParams(path);
+			const currentParams = parseUrlParams(currentUrl);
+
+			if (window.location.hostname === "www.youtube.com") {
+				if (currentParams.v !== undefined && currentParams.v !== pathParams.v) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		areStickyNotesEnabled() {
+			return true;
+		}
+	}
+
+	class LocalContext extends Context {
+
+		/**
+		 * @override
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
+			log("Loading save data from localStorage");
+			return JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}");
+		}
+
+		/**
+		 * @override
+		 * @param {BirbSaveData} saveData
+		 */
+		async putSaveData(saveData) {
+			log("Saving data to localStorage");
+			localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+		}
+
+		/** @override */
+		resetSaveData() {
+			log("Resetting save data in localStorage");
+			localStorage.removeItem(SAVE_KEY);
+		}
+	}
+
+	/**
+	 * Parse URL parameters into a key-value map
+	 * @param {string} url
+	 * @returns {Record<string, string>}
+	 */
+	function parseUrlParams(url) {
+		const queryString = url.split("?")[1];
+		if (!queryString) return {};
+
+		return queryString.split("&").reduce((params, param) => {
+			const [key, value] = param.split("=");
+			return { ...params, [key]: value };
+		}, {});
 	}
 
 	/**
@@ -2614,41 +2615,6 @@
 		});
 	}
 
-	/**
-	 * @typedef {import('../application.js').BirbSaveData} BirbSaveData
-	 */
-
-	class LocalContext extends Context {
-
-		/**
-		 * @override
-		 * @returns {Promise<BirbSaveData|{}>}
-		 */
-		async getSaveData() {
-			log("Loading save data from localStorage");
-			return JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}");
-		}
-
-		/**
-		 * @override
-		 * @param {BirbSaveData} saveData
-		 */
-		async putSaveData(saveData) {
-			log("Saving data to localStorage");
-			localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-		}
-
-		/** @override */
-		resetSaveData() {
-			log("Resetting save data in localStorage");
-			localStorage.removeItem(SAVE_KEY);
-		}
-	}
-
 	initializeApplication(new LocalContext());
 
-	exports.LocalContext = LocalContext;
-
-	return exports;
-
-})({});
+})();
