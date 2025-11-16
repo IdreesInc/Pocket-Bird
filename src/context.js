@@ -276,33 +276,6 @@ export class ObsidianContext extends Context {
 	}
 }
 
-export class VencordContext extends Context {
-	
-	/**
-	 * @override
-	 * @returns {Promise<BirbSaveData|{}>}
-	 */
-	async getSaveData() {
-		// @ts-expect-error
-		return await Vencord.Api.DataStore.get(SAVE_KEY) ?? {};
-	}
-
-	/**
-	 * @override
-	 * @param {BirbSaveData} saveData
-	 */
-	async putSaveData(saveData) {
-		// @ts-expect-error
-		await Vencord.Api.DataStore.set(SAVE_KEY, saveData);
-	}
-
-	/** @override */
-	resetSaveData() {
-		// @ts-expect-error
-		Vencord.Api.DataStore.del(SAVE_KEY);
-	}
-}
-
 /**
  * Parse URL parameters into a key-value map
  * @param {string} url

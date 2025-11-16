@@ -16,7 +16,6 @@ const WEB_DIR = DIST_DIR + "/web";
 const USERSCRIPT_DIR = DIST_DIR + "/userscript";
 const EXTENSION_DIR = DIST_DIR + "/extension";
 const OBSIDIAN_DIR = DIST_DIR + "/obsidian";
-const VENCORD_DIR = DIST_DIR + "/vencord";
 
 const STYLESHEET_PATH = SRC_DIR + "/stylesheet.css";
 
@@ -24,13 +23,11 @@ const WEB_ENTRY = SRC_DIR + "/platforms/web/web.js";
 const USERSCRIPT_ENTRY = SRC_DIR + "/platforms/userscript/userscript.js";
 const BROWSER_EXTENSION_ENTRY = SRC_DIR + "/platforms/extension/extension.js";
 const OBSIDIAN_ENTRY = SRC_DIR + "/platforms/obsidian/obsidian.js";
-const VENCORD_ENTRY = SRC_DIR + "/platforms/vencord/vencord.js";
 
 const BROWSER_MANIFEST = SRC_DIR + "/platforms/extension/manifest.json";
 const OBSIDIAN_MANIFEST = SRC_DIR + "/platforms/obsidian/manifest.json";
 const USERSCRIPT_HEADER = SRC_DIR + "/platforms/userscript/header.txt";
 const OBSIDIAN_WRAPPER = SRC_DIR + "/platforms/obsidian/wrapper.js";
-const VENCORD_WRAPPER = SRC_DIR + "/platforms/vencord/wrapper.js";
 
 const TEMP_BUNDLED_OUTPUT = DIST_DIR + "/birb.bundled.js";
 
@@ -40,7 +37,6 @@ const VERSION_KEY = "__VERSION__";
 const STYLESHEET_KEY = "___STYLESHEET___";
 const MONOCRAFT_SRC_KEY = "__MONOCRAFT_SRC__";
 const CODE_KEY = "__CODE__";
-const CONTEXT_KEY = "__CONTEXT__";
 
 const spriteSheets = [
 	{
@@ -202,27 +198,11 @@ async function buildObsidian() {
 	writeFileSync(OBSIDIAN_DIR + '/manifest.json', obsidianManifest);
 }
 
-async function buildVencord() {
-	const birbJs = await generateCode(VENCORD_ENTRY);
-
-	mkdirSync(VENCORD_DIR, { recursive: true });
-
-	// Wrap birb.js with plugin boilerplate
-	let vencordPlugin = readFileSync(VENCORD_WRAPPER, 'utf8').replace(CODE_KEY, birbJs);
-
-	// Set context to "local"
-	vencordPlugin = vencordPlugin.replace(CONTEXT_KEY, "local");
-
-	// Create exported birb function
-	writeFileSync(VENCORD_DIR + '/birb.js', vencordPlugin);
-}
-
 console.log("Starting build...");
 
 await buildWeb();
 await buildUserscript();
 await buildExtension();
 await buildObsidian();
-await buildVencord();
 
 console.log("Build completed successfully!");
