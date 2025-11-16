@@ -9,9 +9,13 @@
 
 It's a pet bird that hops around your computer, what more could you want?
 
-### Get it for [Google Chrome](https://chromewebstore.google.com/detail/pocket-bird/lbbdngkbbgaecefacpnhnhleggabghak)
+### Get it for [Google Chrome](https://chromewebstore.google.com/detail/pocket-bird/lbbdngkbbgaecefacpnhnhleggabghak) 
 
 ### Get it for [Mozilla Firefox](https://addons.mozilla.org/en-US/firefox/addon/pocket-bird/)
+
+### Get it for [Obsidian (beta)](https://github.com/IdreesInc/Pocket-Bird#Obsidian)
+
+### Get it for [TamperMonkey](https://github.com/IdreesInc/Pocket-Bird#Userscript)
 
 #### Join the [Discord](https://discord.gg/6yxE9prcNc) to help me beta test new features and suggest ideas!
 
