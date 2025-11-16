@@ -1,6 +1,6 @@
 import { debug, log, error } from "./shared.js";
 
-const SAVE_KEY = "birbSaveData";
+export const SAVE_KEY = "birbSaveData";
 const ROOT_PATH = "";
 const SET_CONTEXT = "__CONTEXT__"
 
@@ -17,9 +17,9 @@ export class Context {
 	 * @abstract
 	 * @returns {boolean} Whether this context is applicable
 	 */
-	isContextActive() {
-		throw new Error("Method not implemented");
-	}
+	// isContextActive() {
+	// 	throw new Error("Method not implemented");
+	// }
 
 	/**
 	 * @abstract
@@ -102,53 +102,7 @@ export class Context {
 	}
 }
 
-export class LocalContext extends Context {
-
-	/**
-	 * @override
-	 * @returns {boolean}
-	 */
-	isContextActive() {
-		return window.location.hostname === "127.0.0.1"
-			|| window.location.hostname === "localhost"
-			|| window.location.hostname.startsWith("192.168.");
-	}
-
-	/**
-	 * @override
-	 * @returns {Promise<BirbSaveData|{}>}
-	 */
-	async getSaveData() {
-		log("Loading save data from localStorage");
-		return JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}");
-	}
-
-	/**
-	 * @override
-	 * @param {BirbSaveData} saveData
-	 */
-	async putSaveData(saveData) {
-		log("Saving data to localStorage");
-		localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-	}
-
-	/** @override */
-	resetSaveData() {
-		log("Resetting save data in localStorage");
-		localStorage.removeItem(SAVE_KEY);
-	}
-}
-
 export class UserScriptContext extends Context {
-
-	/**
-	 * @override
-	 * @returns {boolean}
-	 */
-	isContextActive() {
-		// @ts-expect-error
-		return typeof GM_getValue === "function";
-	}
 
 	/**
 	 * @override
@@ -182,15 +136,6 @@ export class UserScriptContext extends Context {
 }
 
 class BrowserExtensionContext extends Context {
-
-	/**
-	 * @override
-	 * @returns {boolean}
-	 */
-	isContextActive() {
-		// @ts-expect-error
-		return typeof chrome !== "undefined" && typeof chrome.storage !== "undefined" && typeof chrome.storage.sync !== "undefined";
-	}
 
 	/**
 	 * @override
@@ -233,15 +178,6 @@ class BrowserExtensionContext extends Context {
 }
 
 export class ObsidianContext extends Context {
-
-	/**
-	 * @override
-	 * @returns {boolean}
-	 */
-	isContextActive() {
-		// @ts-expect-error
-		return typeof app !== "undefined" && typeof app.vault !== "undefined";
-	}
 
 	/**
 	 * @override
@@ -325,11 +261,10 @@ const contextProcessingOrder = [
 	new UserScriptContext(),
 	new ObsidianContext(),
 	new BrowserExtensionContext(),
-	new LocalContext()
 ];
 
 const CONTEXTS_BY_KEY = {
-	"local": LocalContext,
+	// "local": LocalContext,
 	"userscript": UserScriptContext,
 	"browser-extension": BrowserExtensionContext,
 	"obsidian": ObsidianContext
@@ -339,18 +274,19 @@ const CONTEXTS_BY_KEY = {
  * Determines and returns the current context
  * @returns {Context}
  */
-export function getContext() {
-	if (CONTEXTS_BY_KEY[SET_CONTEXT]) {
-		return new CONTEXTS_BY_KEY[SET_CONTEXT]();
-	}
-	for (const context of contextProcessingOrder) {
-		if (context.isContextActive()) {
-			return context;
-		}
-	}
-	error("No applicable context found, defaulting to LocalContext");
-	return new LocalContext();
-}
+// export function getContext() {
+// 	if (CONTEXTS_BY_KEY[SET_CONTEXT]) {
+// 		return new CONTEXTS_BY_KEY[SET_CONTEXT]();
+// 	}
+// 	for (const context of contextProcessingOrder) {
+// 		if (context.isContextActive()) {
+// 			return context;
+// 		}
+// 	}
+// 	error("No applicable context found");
+// 	// return new LocalContext();
+// 	return null;
+// }
 
 /**
  * Parse URL parameters into a key-value map

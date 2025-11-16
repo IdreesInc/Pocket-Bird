@@ -2,9 +2,11 @@ import Frame from './frame.js';
 import Layer from './layer.js';
 import Anim from './anim.js';
 import { Birb, Animations } from './birb.js';
-import { getContext, ObsidianContext } from './context.js';
+import { Context, ObsidianContext } from './context.js';
 
 import {
+	getContext,
+	setContext,
 	Directions,
 	isDebug,
 	setDebug,
@@ -109,68 +111,24 @@ const MIN_FOCUS_ELEMENT_WIDTH = 100;
 /** @type {Partial<Settings>} */
 let userSettings = {};
 
-/**
- * Load the sprite sheet and return the pixel-map template
- * @param {string} dataUri
- * @param {boolean} [templateColors]
- * @returns {Promise<string[][]>}
+
+/** 
+ * @param {Context} context
  */
-function loadSpriteSheetPixels(dataUri, templateColors = true) {
-	return new Promise((resolve, reject) => {
-		const img = new Image();
-		img.src = dataUri;
-		img.onload = () => {
-			const canvas = document.createElement('canvas');
-			canvas.width = img.width;
-			canvas.height = img.height;
-			const ctx = canvas.getContext('2d');
-			if (!ctx) {
-				reject(new Error('Failed to get canvas context'));
-				return;
-			}
-			ctx.drawImage(img, 0, 0);
-			const imageData = ctx.getImageData(0, 0, img.width, img.height);
-			const pixels = imageData.data;
-			const hexArray = [];
-			for (let y = 0; y < img.height; y++) {
-				const row = [];
-				for (let x = 0; x < img.width; x++) {
-					const index = (y * img.width + x) * 4;
-					const r = pixels[index];
-					const g = pixels[index + 1];
-					const b = pixels[index + 2];
-					const a = pixels[index + 3];
-					if (a === 0) {
-						row.push(Sprite.TRANSPARENT);
-						continue;
-					}
-					const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-					if (!templateColors) {
-						row.push(hex);
-						continue;
-					}
-					if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
-						error(`Unknown color: ${hex}`);
-						row.push(Sprite.TRANSPARENT);
-					}
-					row.push(SPRITE_SHEET_COLOR_MAP[hex]);
-				}
-				hexArray.push(row);
-			}
-			resolve(hexArray);
-		};
-		img.onerror = (err) => {
-			reject(err);
-		};
-	});
+export async function initializeApplication(context) {
+	log("birbOS booting up...");
+	setContext(context);
+	log("Loading sprite sheets...");
+	const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET);
+	const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET);
+	startApplication(birbPixels, featherPixels);
 }
 
-log("Loading sprite sheets...");
-
-Promise.all([
-	loadSpriteSheetPixels(SPRITE_SHEET),
-	loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)
-]).then(([birbPixels, featherPixels]) => {
+/**
+ * @param {string[][]} birbPixels
+ * @param {string[][]} featherPixels
+ */
+function startApplication(birbPixels, featherPixels) {
 
 	const SPRITE_SHEET = birbPixels;
 	const FEATHER_SPRITE_SHEET = featherPixels;
@@ -851,10 +809,11 @@ Promise.all([
 			return true;
 		});
 		/** @type {HTMLElement[]} */
-		// @ts-expect-error
 		const largeElements = Array.from(visible).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_FOCUS_ELEMENT_WIDTH);
 		// Ensure the bird doesn't land on fixed or sticky elements
-		const fixedAllowed = getContext() instanceof ObsidianContext;
+		// const fixedAllowed = getContext() instanceof ObsidianContext;
+		// TODO: FIX
+		const fixedAllowed = true;
 		const nonFixedElements = largeElements.filter((el) => {
 			if (fixedAllowed) {
 				return true;
@@ -1008,6 +967,60 @@ Promise.all([
 	// Run the birb
 	init();
 	draw();
-}).catch((e) => {
-	error("Error while loading sprite sheets: ", e);
-});
+}
+
+/**
+ * Load the sprite sheet and return the pixel-map template
+ * @param {string} dataUri
+ * @param {boolean} [templateColors]
+ * @returns {Promise<string[][]>}
+ */
+function loadSpriteSheetPixels(dataUri, templateColors = true) {
+	return new Promise((resolve, reject) => {
+		const img = new Image();
+		img.src = dataUri;
+		img.onload = () => {
+			const canvas = document.createElement('canvas');
+			canvas.width = img.width;
+			canvas.height = img.height;
+			const ctx = canvas.getContext('2d');
+			if (!ctx) {
+				reject(new Error('Failed to get canvas context'));
+				return;
+			}
+			ctx.drawImage(img, 0, 0);
+			const imageData = ctx.getImageData(0, 0, img.width, img.height);
+			const pixels = imageData.data;
+			const hexArray = [];
+			for (let y = 0; y < img.height; y++) {
+				const row = [];
+				for (let x = 0; x < img.width; x++) {
+					const index = (y * img.width + x) * 4;
+					const r = pixels[index];
+					const g = pixels[index + 1];
+					const b = pixels[index + 2];
+					const a = pixels[index + 3];
+					if (a === 0) {
+						row.push(Sprite.TRANSPARENT);
+						continue;
+					}
+					const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+					if (!templateColors) {
+						row.push(hex);
+						continue;
+					}
+					if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
+						error(`Unknown color: ${hex}`);
+						row.push(Sprite.TRANSPARENT);
+					}
+					row.push(SPRITE_SHEET_COLOR_MAP[hex]);
+				}
+				hexArray.push(row);
+			}
+			resolve(hexArray);
+		};
+		img.onerror = (err) => {
+			reject(err);
+		};
+	});
+}

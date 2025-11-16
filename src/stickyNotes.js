@@ -1,9 +1,9 @@
 import {
+	getContext,
 	makeElement,
 	makeDraggable,
 	makeClosable
 } from './shared.js';
-import { getContext } from './context.js';
 
 /**
  * @typedef {Object} SavedStickyNote

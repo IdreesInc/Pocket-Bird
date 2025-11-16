@@ -1,5 +1,5 @@
 export const Birb = () => {
-(function () {
+(function (exports) {
 	'use strict';
 
 	const Directions = {
@@ -8,6 +8,7 @@ export const Birb = () => {
 	};
 
 	let debugMode = location.hostname === "127.0.0.1";
+	let context = null;
 
 	/**
 	 * @returns {boolean} Whether debug mode is enabled
@@ -21,6 +22,17 @@ export const Birb = () => {
 	 */
 	function setDebug(value) {
 		debugMode = value;
+	}
+
+	function getContext() {
+		if (!context) {
+			throw new Error("Context requested before being set");
+		}
+		return context;
+	}
+
+	function setContext(newContext) {
+		context = newContext;
 	}
 
 	/**
@@ -213,6 +225,139 @@ export const Birb = () => {
 	 */
 	function getFixedWindowHeight() {
 		return document.documentElement.clientHeight;
+	}
+
+	const SAVE_KEY = "birbSaveData";
+
+	/**
+	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
+	 */
+
+	/**
+	 * @abstract
+	 */
+	class Context {
+
+		/**
+		 * @abstract
+		 * @returns {boolean} Whether this context is applicable
+		 */
+		// isContextActive() {
+		// 	throw new Error("Method not implemented");
+		// }
+
+		/**
+		 * @abstract
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
+			throw new Error("Method not implemented");
+		}
+
+		/**
+		 * @abstract
+		 * @param {BirbSaveData} saveData
+		 */
+		async putSaveData(saveData) {
+			throw new Error("Method not implemented");
+		}
+
+		/**
+		 * @abstract
+		 */
+		resetSaveData() {
+			throw new Error("Method not implemented");
+		}
+
+		/**
+		 * @returns {string[]} A list of CSS selectors for focusable elements
+		 */
+		getFocusableElements() {
+			return ["img", "video", ".birb-sticky-note"];
+		}
+
+		getFocusElementTopMargin() {
+			return 80;
+		}
+
+		/**
+		 * @returns {string} The current path of the active page in this context
+		 */
+		getPath() {
+			// Default to website URL
+			return window.location.href;
+		}
+
+		/**
+		 * @returns {HTMLElement} The current active page element where sticky notes can be applied
+		 */
+		getActivePage() {
+			// Default to root element
+			return document.documentElement;
+		}
+
+		/**
+		 * Checks if a path is applicable given the context
+		 * @param {string} path Can be a site URL or another context-specific path
+		 * @returns {boolean} Whether the path matches the current context state
+		 */
+		isPathApplicable(path) {
+			// Default to website URL matching
+			const currentUrl = window.location.href;
+			const stickyNoteWebsite = path.split("?")[0];
+			const currentWebsite = currentUrl.split("?")[0];
+
+			if (stickyNoteWebsite !== currentWebsite) {
+				return false;
+			}
+
+			const pathParams = parseUrlParams(path);
+			const currentParams = parseUrlParams(currentUrl);
+
+			if (window.location.hostname === "www.youtube.com") {
+				if (currentParams.v !== undefined && currentParams.v !== pathParams.v) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		areStickyNotesEnabled() {
+			return true;
+		}
+	}
+
+	/**
+	 * Determines and returns the current context
+	 * @returns {Context}
+	 */
+	// export function getContext() {
+	// 	if (CONTEXTS_BY_KEY[SET_CONTEXT]) {
+	// 		return new CONTEXTS_BY_KEY[SET_CONTEXT]();
+	// 	}
+	// 	for (const context of contextProcessingOrder) {
+	// 		if (context.isContextActive()) {
+	// 			return context;
+	// 		}
+	// 	}
+	// 	error("No applicable context found");
+	// 	// return new LocalContext();
+	// 	return null;
+	// }
+
+	/**
+	 * Parse URL parameters into a key-value map
+	 * @param {string} url
+	 * @returns {Record<string, string>}
+	 */
+	function parseUrlParams(url) {
+		const queryString = url.split("?")[1];
+		if (!queryString) return {};
+
+		return queryString.split("&").reduce((params, param) => {
+			const [key, value] = param.split("=");
+			return { ...params, [key]: value };
+		}, {});
 	}
 
 	/** Indicators for parts of the base bird sprite sheet */
@@ -844,373 +989,6 @@ export const Birb = () => {
 		isVisible() {
 			return this.visible;
 		}
-	}
-
-	const SAVE_KEY = "birbSaveData";
-	const ROOT_PATH = "";
-	const SET_CONTEXT = "local";
-
-	/**
-	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
-	 */
-
-	/**
-	 * @abstract
-	 */
-	class Context {
-
-		/**
-		 * @abstract
-		 * @returns {boolean} Whether this context is applicable
-		 */
-		isContextActive() {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @abstract
-		 * @returns {Promise<BirbSaveData|{}>}
-		 */
-		async getSaveData() {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @abstract
-		 * @param {BirbSaveData} saveData
-		 */
-		async putSaveData(saveData) {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @abstract
-		 */
-		resetSaveData() {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @returns {string[]} A list of CSS selectors for focusable elements
-		 */
-		getFocusableElements() {
-			return ["img", "video", ".birb-sticky-note"];
-		}
-
-		getFocusElementTopMargin() {
-			return 80;
-		}
-
-		/**
-		 * @returns {string} The current path of the active page in this context
-		 */
-		getPath() {
-			// Default to website URL
-			return window.location.href;
-		}
-
-		/**
-		 * @returns {HTMLElement} The current active page element where sticky notes can be applied
-		 */
-		getActivePage() {
-			// Default to root element
-			return document.documentElement;
-		}
-
-		/**
-		 * Checks if a path is applicable given the context
-		 * @param {string} path Can be a site URL or another context-specific path
-		 * @returns {boolean} Whether the path matches the current context state
-		 */
-		isPathApplicable(path) {
-			// Default to website URL matching
-			const currentUrl = window.location.href;
-			const stickyNoteWebsite = path.split("?")[0];
-			const currentWebsite = currentUrl.split("?")[0];
-
-			if (stickyNoteWebsite !== currentWebsite) {
-				return false;
-			}
-
-			const pathParams = parseUrlParams(path);
-			const currentParams = parseUrlParams(currentUrl);
-
-			if (window.location.hostname === "www.youtube.com") {
-				if (currentParams.v !== undefined && currentParams.v !== pathParams.v) {
-					return false;
-				}
-			}
-			return true;
-		}
-
-		areStickyNotesEnabled() {
-			return true;
-		}
-	}
-
-	class LocalContext extends Context {
-
-		/**
-		 * @override
-		 * @returns {boolean}
-		 */
-		isContextActive() {
-			return window.location.hostname === "127.0.0.1"
-				|| window.location.hostname === "localhost"
-				|| window.location.hostname.startsWith("192.168.");
-		}
-
-		/**
-		 * @override
-		 * @returns {Promise<BirbSaveData|{}>}
-		 */
-		async getSaveData() {
-			log("Loading save data from localStorage");
-			return JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}");
-		}
-
-		/**
-		 * @override
-		 * @param {BirbSaveData} saveData
-		 */
-		async putSaveData(saveData) {
-			log("Saving data to localStorage");
-			localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-		}
-
-		/** @override */
-		resetSaveData() {
-			log("Resetting save data in localStorage");
-			localStorage.removeItem(SAVE_KEY);
-		}
-	}
-
-	class UserScriptContext extends Context {
-
-		/**
-		 * @override
-		 * @returns {boolean}
-		 */
-		isContextActive() {
-			// @ts-expect-error
-			return typeof GM_getValue === "function";
-		}
-
-		/**
-		 * @override
-		 * @returns {Promise<BirbSaveData|{}>}
-		 */
-		async getSaveData() {
-			log("Loading save data from UserScript storage");
-			/** @type {BirbSaveData|{}} */
-			let saveData = {};
-			// @ts-expect-error
-			saveData = GM_getValue(SAVE_KEY, {}) ?? {};
-			return saveData;
-		}
-
-		/**
-		 * @override
-		 * @param {BirbSaveData} saveData
-		 */
-		async putSaveData(saveData) {
-			log("Saving data to UserScript storage");
-			// @ts-expect-error
-			GM_setValue(SAVE_KEY, saveData);
-		}
-
-		/** @override */
-		resetSaveData() {
-			log("Resetting save data in UserScript storage");
-			// @ts-expect-error
-			GM_deleteValue(SAVE_KEY);
-		}
-	}
-
-	class BrowserExtensionContext extends Context {
-
-		/**
-		 * @override
-		 * @returns {boolean}
-		 */
-		isContextActive() {
-			// @ts-expect-error
-			return typeof chrome !== "undefined" && typeof chrome.storage !== "undefined" && typeof chrome.storage.sync !== "undefined";
-		}
-
-		/**
-		 * @override
-		 * @returns {Promise<BirbSaveData|{}>}
-		 */
-		async getSaveData() {
-			log("Loading save data from browser extension storage");
-			return new Promise((resolve) => {
-				// @ts-expect-error
-				chrome.storage.sync.get([SAVE_KEY], (result) => {
-					resolve(result[SAVE_KEY] ?? {});
-				});
-			});
-		}
-
-		/**
-		 * @override
-		 * @param {BirbSaveData} saveData
-		 */
-		async putSaveData(saveData) {
-			log("Saving data to browser extension storage");
-			// @ts-expect-error
-			chrome.storage.sync.set({ [SAVE_KEY]: saveData }, function () {
-				// @ts-expect-error
-				if (chrome.runtime.lastError) {
-					// @ts-expect-error
-					console.error(chrome.runtime.lastError);
-				} else {
-					console.log("Settings saved successfully");
-				}
-			});
-		}
-
-		/** @override */
-		resetSaveData() {
-			log("Resetting save data in browser extension storage");
-			// @ts-expect-error
-			chrome.storage.sync.clear();
-		}
-	}
-
-	class ObsidianContext extends Context {
-
-		/**
-		 * @override
-		 * @returns {boolean}
-		 */
-		isContextActive() {
-			// @ts-expect-error
-			return typeof app !== "undefined" && typeof app.vault !== "undefined";
-		}
-
-		/**
-		 * @override
-		 * @returns {Promise<BirbSaveData|{}>}
-		 */
-		async getSaveData() {
-			return new Promise((resolve) => {
-				// @ts-expect-error
-				OBSIDIAN_PLUGIN.loadData().then((data) => {
-					resolve(data ?? {});
-				});
-			});
-		}
-
-		/**
-		 * @override
-		 * @param {BirbSaveData|{}} saveData
-		 */
-		async putSaveData(saveData) {
-			// @ts-expect-error
-			await OBSIDIAN_PLUGIN.saveData(saveData);
-		}
-
-		/** @override */
-		resetSaveData() {
-			this.putSaveData({});
-		}
-
-		/** @override */
-		getFocusableElements() {
-			const elements = [
-				".workspace-leaf",
-				".cm-callout",
-				".HyperMD-codeblock-begin",
-				".status-bar",
-				".mobile-navbar"
-			];
-			return super.getFocusableElements().concat(elements);
-		}
-
-		/** @override */
-		getPath() {
-			// @ts-expect-error
-			const file = app.workspace.getActiveFile();
-			if (file && this.getActiveEditorElement()) {
-				return file.path;
-			} else {
-				return ROOT_PATH;
-			}
-		}
-
-		/** @override */
-		getActivePage() {
-			if (this.getPath() === ROOT_PATH) {
-				// Root page, use document element
-				return document.documentElement
-			}
-			return this.getActiveEditorElement() ?? document.documentElement;
-		}
-
-		/** @override */
-		isPathApplicable(path) {
-			return path === this.getPath();
-		}
-
-		/** @override */
-		areStickyNotesEnabled() {
-			return this.getPath() !== ROOT_PATH;
-		}
-
-		/** @returns {HTMLElement|null} */
-		getActiveEditorElement() {
-			// @ts-expect-error
-			const activeLeaf = app.workspace.activeLeaf;
-			const leafElement = activeLeaf?.view?.containerEl;
-			return leafElement?.querySelector(".cm-scroller") ?? null;
-		}
-	}
-
-	const contextProcessingOrder = [
-		new UserScriptContext(),
-		new ObsidianContext(),
-		new BrowserExtensionContext(),
-		new LocalContext()
-	];
-
-	const CONTEXTS_BY_KEY = {
-		"local": LocalContext,
-		"userscript": UserScriptContext,
-		"browser-extension": BrowserExtensionContext,
-		"obsidian": ObsidianContext
-	};
-
-	/**
-	 * Determines and returns the current context
-	 * @returns {Context}
-	 */
-	function getContext() {
-		if (CONTEXTS_BY_KEY[SET_CONTEXT]) {
-			return new CONTEXTS_BY_KEY[SET_CONTEXT]();
-		}
-		for (const context of contextProcessingOrder) {
-			if (context.isContextActive()) {
-				return context;
-			}
-		}
-		error("No applicable context found, defaulting to LocalContext");
-		return new LocalContext();
-	}
-
-	/**
-	 * Parse URL parameters into a key-value map
-	 * @param {string} url
-	 * @returns {Record<string, string>}
-	 */
-	function parseUrlParams(url) {
-		const queryString = url.split("?")[1];
-		if (!queryString) return {};
-
-		return queryString.split("&").reduce((params, param) => {
-			const [key, value] = param.split("=");
-			return { ...params, [key]: value };
-		}, {});
 	}
 
 	/**
@@ -1941,68 +1719,24 @@ export const Birb = () => {
 	/** @type {Partial<Settings>} */
 	let userSettings = {};
 
-	/**
-	 * Load the sprite sheet and return the pixel-map template
-	 * @param {string} dataUri
-	 * @param {boolean} [templateColors]
-	 * @returns {Promise<string[][]>}
+
+	/** 
+	 * @param {Context} context
 	 */
-	function loadSpriteSheetPixels(dataUri, templateColors = true) {
-		return new Promise((resolve, reject) => {
-			const img = new Image();
-			img.src = dataUri;
-			img.onload = () => {
-				const canvas = document.createElement('canvas');
-				canvas.width = img.width;
-				canvas.height = img.height;
-				const ctx = canvas.getContext('2d');
-				if (!ctx) {
-					reject(new Error('Failed to get canvas context'));
-					return;
-				}
-				ctx.drawImage(img, 0, 0);
-				const imageData = ctx.getImageData(0, 0, img.width, img.height);
-				const pixels = imageData.data;
-				const hexArray = [];
-				for (let y = 0; y < img.height; y++) {
-					const row = [];
-					for (let x = 0; x < img.width; x++) {
-						const index = (y * img.width + x) * 4;
-						const r = pixels[index];
-						const g = pixels[index + 1];
-						const b = pixels[index + 2];
-						const a = pixels[index + 3];
-						if (a === 0) {
-							row.push(Sprite.TRANSPARENT);
-							continue;
-						}
-						const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-						if (!templateColors) {
-							row.push(hex);
-							continue;
-						}
-						if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
-							error(`Unknown color: ${hex}`);
-							row.push(Sprite.TRANSPARENT);
-						}
-						row.push(SPRITE_SHEET_COLOR_MAP[hex]);
-					}
-					hexArray.push(row);
-				}
-				resolve(hexArray);
-			};
-			img.onerror = (err) => {
-				reject(err);
-			};
-		});
+	async function initializeApplication(context) {
+		log("birbOS booting up...");
+		setContext(context);
+		log("Loading sprite sheets...");
+		const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET);
+		const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET);
+		startApplication(birbPixels, featherPixels);
 	}
 
-	log("Loading sprite sheets...");
-
-	Promise.all([
-		loadSpriteSheetPixels(SPRITE_SHEET),
-		loadSpriteSheetPixels(FEATHER_SPRITE_SHEET)
-	]).then(([birbPixels, featherPixels]) => {
+	/**
+	 * @param {string[][]} birbPixels
+	 * @param {string[][]} featherPixels
+	 */
+	function startApplication(birbPixels, featherPixels) {
 
 		const SPRITE_SHEET = birbPixels;
 		const FEATHER_SPRITE_SHEET = featherPixels;
@@ -2063,7 +1797,7 @@ export const Birb = () => {
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.15", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.15"); }, false),
+			new MenuItem("2025.11.16", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.16"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2679,16 +2413,11 @@ export const Birb = () => {
 				return true;
 			});
 			/** @type {HTMLElement[]} */
-			// @ts-expect-error
 			const largeElements = Array.from(visible).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_FOCUS_ELEMENT_WIDTH);
-			// Ensure the bird doesn't land on fixed or sticky elements
-			const fixedAllowed = getContext() instanceof ObsidianContext;
 			const nonFixedElements = largeElements.filter((el) => {
-				if (fixedAllowed) {
+				{
 					return true;
 				}
-				const style = window.getComputedStyle(el);
-				return style.position !== "fixed" && style.position !== "sticky";
 			});
 			if (nonFixedElements.length === 0) {
 				return false;
@@ -2828,10 +2557,101 @@ export const Birb = () => {
 		// Run the birb
 		init();
 		draw();
-	}).catch((e) => {
-		error("Error while loading sprite sheets: ", e);
-	});
+	}
 
-})();
+	/**
+	 * Load the sprite sheet and return the pixel-map template
+	 * @param {string} dataUri
+	 * @param {boolean} [templateColors]
+	 * @returns {Promise<string[][]>}
+	 */
+	function loadSpriteSheetPixels(dataUri, templateColors = true) {
+		return new Promise((resolve, reject) => {
+			const img = new Image();
+			img.src = dataUri;
+			img.onload = () => {
+				const canvas = document.createElement('canvas');
+				canvas.width = img.width;
+				canvas.height = img.height;
+				const ctx = canvas.getContext('2d');
+				if (!ctx) {
+					reject(new Error('Failed to get canvas context'));
+					return;
+				}
+				ctx.drawImage(img, 0, 0);
+				const imageData = ctx.getImageData(0, 0, img.width, img.height);
+				const pixels = imageData.data;
+				const hexArray = [];
+				for (let y = 0; y < img.height; y++) {
+					const row = [];
+					for (let x = 0; x < img.width; x++) {
+						const index = (y * img.width + x) * 4;
+						const r = pixels[index];
+						const g = pixels[index + 1];
+						const b = pixels[index + 2];
+						const a = pixels[index + 3];
+						if (a === 0) {
+							row.push(Sprite.TRANSPARENT);
+							continue;
+						}
+						const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+						if (!templateColors) {
+							row.push(hex);
+							continue;
+						}
+						if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
+							error(`Unknown color: ${hex}`);
+							row.push(Sprite.TRANSPARENT);
+						}
+						row.push(SPRITE_SHEET_COLOR_MAP[hex]);
+					}
+					hexArray.push(row);
+				}
+				resolve(hexArray);
+			};
+			img.onerror = (err) => {
+				reject(err);
+			};
+		});
+	}
+
+	/**
+	 * @typedef {import('../application.js').BirbSaveData} BirbSaveData
+	 */
+
+	class LocalContext extends Context {
+
+		/**
+		 * @override
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
+			log("Loading save data from localStorage");
+			return JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}");
+		}
+
+		/**
+		 * @override
+		 * @param {BirbSaveData} saveData
+		 */
+		async putSaveData(saveData) {
+			log("Saving data to localStorage");
+			localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+		}
+
+		/** @override */
+		resetSaveData() {
+			log("Resetting save data in localStorage");
+			localStorage.removeItem(SAVE_KEY);
+		}
+	}
+
+	initializeApplication(new LocalContext());
+
+	exports.LocalContext = LocalContext;
+
+	return exports;
+
+})({});
 
 };

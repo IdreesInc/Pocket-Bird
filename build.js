@@ -24,7 +24,8 @@ const OBSIDIAN_DIR = DIST_DIR + "/obsidian";
 const VENCORD_DIR = DIST_DIR + "/vencord";
 
 const STYLESHEET_PATH = SRC_DIR + "/stylesheet.css";
-const APPLICATION_ENTRY = SRC_DIR + "/application.js";
+// const APPLICATION_ENTRY = SRC_DIR + "/application.js";
+const APPLICATION_ENTRY = SRC_DIR + "/platforms/browser.js";
 const BUNDLED_OUTPUT = DIST_DIR + "/birb.bundled.js";
 const BIRB_OUTPUT = DIST_DIR + "/birb.js";
 
