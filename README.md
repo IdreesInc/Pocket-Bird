@@ -64,6 +64,14 @@ Pocket Bird can also be embedded directly into your own website! Just include th
 <script src="https://cdn.jsdelivr.net/gh/IdreesInc/Pocket-Bird@main/dist/web/birb.embed.js"></script>
 ```
 
+## Sites With Pocket Bird
+
+Here are some websites where you can find Pocket Bird hopping around:
+
+- [https://grepjason.sh](https://grepjason.sh)
+
+*If you've added Pocket Bird to your website, let me know and I'll add it to this list!*
+
 ## FAQ
 
 ### How do I pet the bird?
