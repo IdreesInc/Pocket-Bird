@@ -64,14 +64,6 @@ Pocket Bird can also be embedded directly into your own website! Just include th
 <script src="https://cdn.jsdelivr.net/gh/IdreesInc/Pocket-Bird@main/dist/web/birb.embed.js"></script>
 ```
 
-## Sites With Pocket Bird
-
-Here are some websites where you can find Pocket Bird hopping around:
-
-- [https://grepjason.sh](https://grepjason.sh)
-
-*If you've added Pocket Bird to your website, let me know and I'll add it to this list!*
-
 ## FAQ
 
 ### How do I pet the bird?
@@ -97,6 +89,15 @@ Open the Pocket Bird menu by clicking the bird and select "Settings". From there
 ### Why does Pocket Bird need permission to read and change my data on websites I visit?
 
 If you are running Pocket bird on a browser, the extension needs these permissions in order to insert the bird and sticky notes into your webpages. Pocket Bird does not collect any of your data or browsing history and all data is stored locally on your device!
+
+## Sites With Pocket Bird
+
+Here are some websites where you can find Pocket Bird hopping around:
+
+- [https://grepjason.sh](https://grepjason.sh)
+
+*If you've added Pocket Bird to your website, let me know and I'll add it to this list!*
+
 
 ## Getting in Touch
 
