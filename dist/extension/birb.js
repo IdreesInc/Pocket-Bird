@@ -1819,7 +1819,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2025.11.28", () => { alert("Thank you for using Pocket Bird! You are on version: 2025.11.28"); }, false),
+			new MenuItem("2026.1.1", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.1"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
