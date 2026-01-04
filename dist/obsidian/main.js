@@ -876,9 +876,9 @@ module.exports = class PocketBird extends Plugin {
 				this.audioContext = new AudioContext();
 			}
 
-			const TIMES = [0, 0.06, 0.10, 0.16];
+			const TIMES = [0, 0.06, 0.10, 0.15];
 			const FREQUENCIES = [2200,
-				3500 + Math.random() * 700,
+				3500 + Math.random() * 600,
 				2100 + Math.random() * 200,
 				1600 + Math.random() * 400];
 			const VOLUMES = [0.0001, 0.3, 0.3, 0.0001];
