@@ -12,7 +12,7 @@ export const MENU_EXIT_ID = "birb-menu-exit";
 
 export class MenuItem {
 	/**
-	 * @param {string} text
+	 * @param {string|(() => string)} text
 	 * @param {() => void} action
 	 * @param {boolean} [removeMenu]
 	 */
@@ -61,7 +61,7 @@ function makeMenuItem(item, removeMenuCallback) {
 	if (item instanceof Separator) {
 		return makeElement("birb-window-separator");
 	}
-	let menuItem = makeElement("birb-menu-item", item.text);
+	let menuItem = makeElement("birb-menu-item", typeof item.text === "function" ? item.text() : item.text);
 	onClick(menuItem, () => {
 		if (item.removeMenu) {
 			removeMenuCallback();

@@ -1252,7 +1252,7 @@ module.exports = class PocketBird extends Plugin {
 
 	class MenuItem {
 		/**
-		 * @param {string} text
+		 * @param {string|(() => string)} text
 		 * @param {() => void} action
 		 * @param {boolean} [removeMenu]
 		 */
@@ -1301,7 +1301,7 @@ module.exports = class PocketBird extends Plugin {
 		if (item instanceof Separator) {
 			return makeElement("birb-window-separator");
 		}
-		let menuItem = makeElement("birb-menu-item", item.text);
+		let menuItem = makeElement("birb-menu-item", typeof item.text === "function" ? item.text() : item.text);
 		onClick(menuItem, () => {
 			if (item.removeMenu) {
 				removeMenuCallback();
@@ -1408,7 +1408,8 @@ module.exports = class PocketBird extends Plugin {
 	 * @typedef {typeof DEFAULT_SETTINGS} Settings
 	 */
 	const DEFAULT_SETTINGS = {
-		birbMode: false
+		birbMode: false,
+		soundEnabled: true
 	};
 
 	// Rendering constants
@@ -1621,6 +1622,7 @@ module.exports = class PocketBird extends Plugin {
 
 .birb-menu-item {
 	width: calc(100% - var(--birb-double-border-size));
+	white-space: nowrap;
 	font-size: 14px;
 	padding-top: 4px;
 	padding-bottom: 4px;
@@ -1893,7 +1895,11 @@ module.exports = class PocketBird extends Plugin {
 		const settingsItems = [
 			new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), false),
 			new Separator(),
-			new MenuItem("Toggle Birb Mode", () => {
+			new MenuItem(() => `${userSettings.soundEnabled ? "Disable" : "Enable"} Sound`, () => {
+				userSettings.soundEnabled = !userSettings.soundEnabled;
+				save();
+			}),
+			new MenuItem(() => `Toggle ${birdBirb(true)} Mode`, () => {
 				userSettings.birbMode = !userSettings.birbMode;
 				save();
 				const message = makeElement("birb-message-content");
@@ -2012,8 +2018,8 @@ module.exports = class PocketBird extends Plugin {
 		/**
 		 * Bird or birb, you decide
 		 */
-		function birdBirb() {
-			return settings().birbMode ? "Birb" : "Bird";
+		function birdBirb(invert = false) {
+			return settings().birbMode !== invert ? "Birb" : "Bird";
 		}
 
 		function init() {
@@ -2602,7 +2608,9 @@ module.exports = class PocketBird extends Plugin {
 
 		function pet() {
 			if (currentState === States.IDLE && birb.getCurrentAnimation() !== Animations.HEART) {
-				birdsong.chirp();
+				if (settings().soundEnabled) {
+					birdsong.chirp();
+				}
 				birb.setAnimation(Animations.HEART);
 				lastPetTimestamp = Date.now();
 			}

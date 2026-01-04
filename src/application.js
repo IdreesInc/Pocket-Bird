@@ -61,7 +61,8 @@ import {
  * @typedef {typeof DEFAULT_SETTINGS} Settings
  */
 const DEFAULT_SETTINGS = {
-	birbMode: false
+	birbMode: false,
+	soundEnabled: true
 };
 
 // Rendering constants
@@ -177,7 +178,11 @@ function startApplication(birbPixels, featherPixels) {
 	const settingsItems = [
 		new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), false),
 		new Separator(),
-		new MenuItem("Toggle Birb Mode", () => {
+		new MenuItem(() => `${userSettings.soundEnabled ? "Disable" : "Enable"} Sound`, () => {
+			userSettings.soundEnabled = !userSettings.soundEnabled;
+			save();
+		}),
+		new MenuItem(() => `Toggle ${birdBirb(true)} Mode`, () => {
 			userSettings.birbMode = !userSettings.birbMode;
 			save();
 			const message = makeElement("birb-message-content");
@@ -296,8 +301,8 @@ function startApplication(birbPixels, featherPixels) {
 	/**
 	 * Bird or birb, you decide
 	 */
-	function birdBirb() {
-		return settings().birbMode ? "Birb" : "Bird";
+	function birdBirb(invert = false) {
+		return settings().birbMode !== invert ? "Birb" : "Bird";
 	}
 
 	function init() {
@@ -900,7 +905,9 @@ function startApplication(birbPixels, featherPixels) {
 
 	function pet() {
 		if (currentState === States.IDLE && birb.getCurrentAnimation() !== Animations.HEART) {
-			birdsong.chirp();
+			if (settings().soundEnabled) {
+				birdsong.chirp();
+			}
 			birb.setAnimation(Animations.HEART);
 			lastPetTimestamp = Date.now();
 		}
