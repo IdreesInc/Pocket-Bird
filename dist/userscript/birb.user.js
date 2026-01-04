@@ -1857,16 +1857,16 @@
 		const settingsItems = [
 			new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), false),
 			new Separator(),
-			new MenuItem(() => `${userSettings.soundEnabled ? "Disable" : "Enable"} Sound`, () => {
-				userSettings.soundEnabled = !userSettings.soundEnabled;
+			new MenuItem(() => `${settings().soundEnabled ? "Disable" : "Enable"} Sound`, () => {
+				userSettings.soundEnabled = !settings().soundEnabled;
 				save();
 			}),
 			new MenuItem(() => `Toggle ${birdBirb(true)} Mode`, () => {
-				userSettings.birbMode = !userSettings.birbMode;
+				userSettings.birbMode = !settings().birbMode;
 				save();
 				const message = makeElement("birb-message-content");
 				message.appendChild(document.createTextNode(`Your ${birdBirb().toLowerCase()} shall now be referred to as "${birdBirb()}"`));
-				if (userSettings.birbMode) {
+				if (settings().birbMode) {
 					message.appendChild(document.createElement("br"));
 					message.appendChild(document.createElement("br"));
 					message.appendChild(document.createTextNode("Welcome back to 2012"));
