@@ -198,6 +198,7 @@
 
 .birb-menu-item {
 	width: calc(100% - var(--birb-double-border-size));
+	white-space: nowrap;
 	font-size: 14px;
 	padding-top: 4px;
 	padding-bottom: 4px;

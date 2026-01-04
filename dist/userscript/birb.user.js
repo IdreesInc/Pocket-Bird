@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2026.1.1
+// @version      2026.1.4
 // @description  It's a pet bird in your browser, what more could you want?
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -871,6 +871,50 @@
 		}
 	}
 
+	// @ts-check
+
+	class Birdsong {
+
+		/**
+		 * @type {AudioContext}
+		 */
+		audioContext;
+
+		chirp() {
+			if (!this.audioContext) {
+				this.audioContext = new AudioContext();
+			}
+
+			const TIMES = [0, 0.06, 0.10, 0.15];
+			const FREQUENCIES = [2200,
+				3500 + Math.random() * 600,
+				2100 + Math.random() * 200,
+				1600 + Math.random() * 400];
+			const VOLUMES = [0.0001, 0.3, 0.3, 0.0001];
+
+			const oscillator = this.audioContext.createOscillator();
+			oscillator.type = "sine";
+			const gain = this.audioContext.createGain();
+			oscillator.connect(gain);
+			gain.connect(this.audioContext.destination);
+
+			const now = this.audioContext.currentTime;
+			for (let i = 0; i < TIMES.length; i++) {
+				const time = TIMES[i] + now;
+				if (i === 0) {
+					oscillator.frequency.setValueAtTime(FREQUENCIES[i], time);
+					gain.gain.setValueAtTime(VOLUMES[i], time);
+				} else {
+					oscillator.frequency.exponentialRampToValueAtTime(FREQUENCIES[i], time);
+					gain.gain.exponentialRampToValueAtTime(VOLUMES[i], time);
+				}
+			}
+
+			oscillator.start(now);
+			oscillator.stop(now + TIMES[TIMES.length - 1]);
+		}
+	}
+
 	const SAVE_KEY = "birbSaveData";
 
 	/**
@@ -1170,7 +1214,7 @@
 
 	class MenuItem {
 		/**
-		 * @param {string} text
+		 * @param {string|(() => string)} text
 		 * @param {() => void} action
 		 * @param {boolean} [removeMenu]
 		 */
@@ -1219,7 +1263,7 @@
 		if (item instanceof Separator) {
 			return makeElement("birb-window-separator");
 		}
-		let menuItem = makeElement("birb-menu-item", item.text);
+		let menuItem = makeElement("birb-menu-item", typeof item.text === "function" ? item.text() : item.text);
 		onClick(menuItem, () => {
 			if (item.removeMenu) {
 				removeMenuCallback();
@@ -1326,7 +1370,8 @@
 	 * @typedef {typeof DEFAULT_SETTINGS} Settings
 	 */
 	const DEFAULT_SETTINGS = {
-		birbMode: false
+		birbMode: false,
+		soundEnabled: true
 	};
 
 	// Rendering constants
@@ -1539,6 +1584,7 @@
 
 .birb-menu-item {
 	width: calc(100% - var(--birb-double-border-size));
+	white-space: nowrap;
 	font-size: 14px;
 	padding-top: 4px;
 	padding-bottom: 4px;
@@ -1811,12 +1857,16 @@
 		const settingsItems = [
 			new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), false),
 			new Separator(),
-			new MenuItem("Toggle Birb Mode", () => {
-				userSettings.birbMode = !userSettings.birbMode;
+			new MenuItem(() => `${settings().soundEnabled ? "Disable" : "Enable"} Sound`, () => {
+				userSettings.soundEnabled = !settings().soundEnabled;
+				save();
+			}),
+			new MenuItem(() => `Toggle ${birdBirb(true)} Mode`, () => {
+				userSettings.birbMode = !settings().birbMode;
 				save();
 				const message = makeElement("birb-message-content");
 				message.appendChild(document.createTextNode(`Your ${birdBirb().toLowerCase()} shall now be referred to as "${birdBirb()}"`));
-				if (userSettings.birbMode) {
+				if (settings().birbMode) {
 					message.appendChild(document.createElement("br"));
 					message.appendChild(document.createElement("br"));
 					message.appendChild(document.createTextNode("Welcome back to 2012"));
@@ -1824,7 +1874,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2026.1.1", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.1"); }, false),
+			new MenuItem("2026.1.4", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.4"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -1837,6 +1887,8 @@
 			HOP: "hop",
 			FLYING: "flying",
 		};
+
+		const birdsong = new Birdsong();
 
 		let frozen = false;
 		let stateStart = Date.now();
@@ -1928,8 +1980,8 @@
 		/**
 		 * Bird or birb, you decide
 		 */
-		function birdBirb() {
-			return settings().birbMode ? "Birb" : "Bird";
+		function birdBirb(invert = false) {
+			return settings().birbMode !== invert ? "Birb" : "Bird";
 		}
 
 		function init() {
@@ -2518,6 +2570,9 @@
 
 		function pet() {
 			if (currentState === States.IDLE && birb.getCurrentAnimation() !== Animations.HEART) {
+				if (settings().soundEnabled) {
+					birdsong.chirp();
+				}
 				birb.setAnimation(Animations.HEART);
 				lastPetTimestamp = Date.now();
 			}

@@ -2,6 +2,7 @@ import Frame from './frame.js';
 import Layer from './layer.js';
 import Anim from './anim.js';
 import { Birb, Animations } from './birb.js';
+import { Birdsong } from './sound.js';
 import { Context, ObsidianContext } from './context.js';
 
 import {
@@ -60,7 +61,8 @@ import {
  * @typedef {typeof DEFAULT_SETTINGS} Settings
  */
 const DEFAULT_SETTINGS = {
-	birbMode: false
+	birbMode: false,
+	soundEnabled: true
 };
 
 // Rendering constants
@@ -176,12 +178,16 @@ function startApplication(birbPixels, featherPixels) {
 	const settingsItems = [
 		new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), false),
 		new Separator(),
-		new MenuItem("Toggle Birb Mode", () => {
-			userSettings.birbMode = !userSettings.birbMode;
+		new MenuItem(() => `${settings().soundEnabled ? "Disable" : "Enable"} Sound`, () => {
+			userSettings.soundEnabled = !settings().soundEnabled;
+			save();
+		}),
+		new MenuItem(() => `Toggle ${birdBirb(true)} Mode`, () => {
+			userSettings.birbMode = !settings().birbMode;
 			save();
 			const message = makeElement("birb-message-content");
 			message.appendChild(document.createTextNode(`Your ${birdBirb().toLowerCase()} shall now be referred to as "${birdBirb()}"`));
-			if (userSettings.birbMode) {
+			if (settings().birbMode) {
 				message.appendChild(document.createElement("br"));
 				message.appendChild(document.createElement("br"));
 				message.appendChild(document.createTextNode("Welcome back to 2012"));
@@ -202,6 +208,8 @@ function startApplication(birbPixels, featherPixels) {
 		HOP: "hop",
 		FLYING: "flying",
 	};
+
+	const birdsong = new Birdsong();
 
 	let frozen = false;
 	let stateStart = Date.now();
@@ -293,8 +301,8 @@ function startApplication(birbPixels, featherPixels) {
 	/**
 	 * Bird or birb, you decide
 	 */
-	function birdBirb() {
-		return settings().birbMode ? "Birb" : "Bird";
+	function birdBirb(invert = false) {
+		return settings().birbMode !== invert ? "Birb" : "Bird";
 	}
 
 	function init() {
@@ -897,6 +905,9 @@ function startApplication(birbPixels, featherPixels) {
 
 	function pet() {
 		if (currentState === States.IDLE && birb.getCurrentAnimation() !== Animations.HEART) {
+			if (settings().soundEnabled) {
+				birdsong.chirp();
+			}
 			birb.setAnimation(Animations.HEART);
 			lastPetTimestamp = Date.now();
 		}
