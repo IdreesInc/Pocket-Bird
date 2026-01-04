@@ -2,6 +2,7 @@ import Frame from './frame.js';
 import Layer from './layer.js';
 import Anim from './anim.js';
 import { Birb, Animations } from './birb.js';
+import { Birdsong } from './sound.js';
 import { Context, ObsidianContext } from './context.js';
 
 import {
@@ -202,6 +203,8 @@ function startApplication(birbPixels, featherPixels) {
 		HOP: "hop",
 		FLYING: "flying",
 	};
+
+	const birdsong = new Birdsong();
 
 	let frozen = false;
 	let stateStart = Date.now();
@@ -897,6 +900,7 @@ function startApplication(birbPixels, featherPixels) {
 
 	function pet() {
 		if (currentState === States.IDLE && birb.getCurrentAnimation() !== Animations.HEART) {
+			birdsong.chirp();
 			birb.setAnimation(Animations.HEART);
 			lastPetTimestamp = Date.now();
 		}
