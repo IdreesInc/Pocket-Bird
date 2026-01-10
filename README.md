@@ -95,6 +95,7 @@ If you are running Pocket bird on a browser, the extension needs these permissio
 Here are some websites where you can find Pocket Bird hopping around:
 
 - [https://grepjason.sh](https://grepjason.sh)
+- [https://binarydigit.dev](https://binarydigit.dev)
 
 *If you've added Pocket Bird to your website, let me know and I'll add it to this list!*
 
