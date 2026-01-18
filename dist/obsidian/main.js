@@ -1,7 +1,7 @@
 const { Plugin, Notice } = require('obsidian');
 module.exports = class PocketBird extends Plugin {
 	onload() {
-		console.log("Loading Pocket Bird version 2026.1.4...");
+		console.log("Loading Pocket Bird version 2026.1.10...");
 		const OBSIDIAN_PLUGIN = this;
 		(function () {
 	'use strict';
@@ -881,7 +881,7 @@ module.exports = class PocketBird extends Plugin {
 				3500 + Math.random() * 600,
 				2100 + Math.random() * 200,
 				1600 + Math.random() * 400];
-			const VOLUMES = [0.0001, 0.3, 0.3, 0.0001];
+			const VOLUMES = [0.0001, 0.2, 0.2, 0.0001];
 
 			const oscillator = this.audioContext.createOscillator();
 			oscillator.type = "sine";
@@ -1912,7 +1912,7 @@ module.exports = class PocketBird extends Plugin {
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2026.1.4", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.4"); }, false),
+			new MenuItem("2026.1.10", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.10"); }, false),
 		];
 
 		const styleElement = document.createElement("style");

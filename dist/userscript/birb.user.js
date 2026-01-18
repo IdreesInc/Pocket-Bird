@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2026.1.4
+// @version      2026.1.10
 // @description  It's a pet bird in your browser, what more could you want?
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -890,7 +890,7 @@
 				3500 + Math.random() * 600,
 				2100 + Math.random() * 200,
 				1600 + Math.random() * 400];
-			const VOLUMES = [0.0001, 0.3, 0.3, 0.0001];
+			const VOLUMES = [0.0001, 0.2, 0.2, 0.0001];
 
 			const oscillator = this.audioContext.createOscillator();
 			oscillator.type = "sine";
@@ -1874,7 +1874,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2026.1.4", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.4"); }, false),
+			new MenuItem("2026.1.10", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.10"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
