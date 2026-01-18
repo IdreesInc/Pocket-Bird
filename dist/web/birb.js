@@ -316,7 +316,7 @@
 			[Sprite.BELLY]: "#ebe9e8",
 			[Sprite.UNDERBELLY]: "#ebd9d0",
 			[Sprite.WING]: "#f3d3c1",
-			[Sprite.WING_EDGE]: "#2d2d2dff",
+			[Sprite.WING_EDGE]: "#2d2d2d",
 			[Sprite.THEME_HIGHLIGHT]: "#d7ac93",
 		}),
 		tuftedTitmouse: new BirdType("Tufted Titmouse",

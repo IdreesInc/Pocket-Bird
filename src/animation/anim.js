@@ -1,5 +1,5 @@
 import Frame from "./frame.js";
-import { BirdType } from "./sprites";
+import { BirdType } from "./sprites.js";
 
 class Anim {
 	/**
