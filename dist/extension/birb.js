@@ -1869,7 +1869,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2026.1.10", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.10"); }, false),
+			new MenuItem("2026.1.18", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.18"); }, false),
 		];
 
 		const styleElement = document.createElement("style");

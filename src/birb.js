@@ -1,8 +1,8 @@
 import { Directions, getLayer, getWindowHeight, getFixedWindowHeight } from './shared.js';
-import Layer from './layer.js';
-import Frame from './frame.js';
-import Anim from './anim.js';
-import { BirdType } from './sprites.js';
+import Layer from './animation/layer.js';
+import Frame from './animation/frame.js';
+import Anim from './animation/anim.js';
+import { BirdType } from './animation/sprites.js';
 
 /**
  * @typedef {keyof typeof Animations} AnimationType

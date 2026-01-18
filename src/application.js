@@ -1,6 +1,6 @@
-import Frame from './frame.js';
-import Layer from './layer.js';
-import Anim from './anim.js';
+import Frame from './animation/frame.js';
+import Layer from './animation/layer.js';
+import Anim from './animation/anim.js';
 import { Birb, Animations } from './birb.js';
 import { Birdsong } from './sound.js';
 import { Context, ObsidianContext } from './context.js';
@@ -26,7 +26,7 @@ import {
 	Sprite,
 	SPRITE_SHEET_COLOR_MAP,
 	SPECIES
-} from './sprites.js';
+} from './animation/sprites.js';
 import {
 	StickyNote,
 	createNewStickyNote,

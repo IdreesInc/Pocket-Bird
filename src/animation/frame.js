@@ -1,4 +1,4 @@
-import { Directions } from './shared.js';
+import { Directions } from '../shared.js';
 import { Sprite, BirdType } from './sprites.js';
 import Layer from './layer.js';
 

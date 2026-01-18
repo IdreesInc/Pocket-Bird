@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2026.1.10
+// @version      2026.1.18
 // @description  It's a pet bird in your browser, what more could you want?
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -1874,7 +1874,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2026.1.10", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.10"); }, false),
+			new MenuItem("2026.1.18", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.18"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
