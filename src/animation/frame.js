@@ -1,6 +1,6 @@
 import { Directions } from '../shared.js';
 import { PALETTE, BirdType } from './sprites.js';
-import Layer from './layer.js';
+import Layer, { TAG } from './layer.js';
 
 class Frame {
 
@@ -16,10 +16,10 @@ class Frame {
 		for (let layer of layers) {
 			tags.add(layer.tag);
 		}
-		tags.add("default");
+		tags.add(TAG.DEFAULT);
 		for (let tag of tags) {
 			let maxHeight = layers.reduce((max, layer) => Math.max(max, layer.pixels.length), 0);
-			if (layers[0].tag !== "default") {
+			if (layers[0].tag !== TAG.DEFAULT) {
 				throw new Error("First layer must have the 'default' tag");
 			}
 			this.pixels = layers[0].pixels.map(row => row.slice());
@@ -29,7 +29,7 @@ class Frame {
 			}
 			// Combine layers
 			for (let i = 1; i < layers.length; i++) {
-				if (layers[i].tag === "default" || layers[i].tag === tag) {
+				if (layers[i].tag === TAG.DEFAULT || layers[i].tag === tag) {
 					let layerPixels = layers[i].pixels;
 					let topMargin = maxHeight - layerPixels.length;
 					for (let y = 0; y < layerPixels.length; y++) {
@@ -47,8 +47,8 @@ class Frame {
 	 * @param {string} [tag]
 	 * @returns {string[][]}
 	 */
-	getPixels(tag = "default") {
-		return this.#pixelsByTag[tag] ?? this.#pixelsByTag["default"];
+	getPixels(tag = TAG.DEFAULT) {
+		return this.#pixelsByTag[tag] ?? this.#pixelsByTag[TAG.DEFAULT];
 	}
 
 	/**
