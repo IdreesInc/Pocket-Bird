@@ -19,7 +19,7 @@ import {
 	log,
 	debug,
 	error,
-	getLayer,
+	getLayerPixels,
 	getWindowHeight
 } from './shared.js';
 import {
@@ -136,7 +136,7 @@ function startApplication(birbPixels, featherPixels) {
 	const FEATHER_SPRITE_SHEET = featherPixels;
 
 	const featherLayers = {
-		feather: new Layer(getLayer(FEATHER_SPRITE_SHEET, 0, FEATHER_SPRITE_WIDTH)),
+		feather: new Layer(getLayerPixels(FEATHER_SPRITE_SHEET, 0, FEATHER_SPRITE_WIDTH)),
 	};
 
 	const featherFrames = {

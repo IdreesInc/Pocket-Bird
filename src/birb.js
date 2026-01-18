@@ -1,4 +1,4 @@
-import { Directions, getLayer, getWindowHeight, getFixedWindowHeight } from './shared.js';
+import { Directions, getLayerPixels, getWindowHeight, getFixedWindowHeight } from './shared.js';
 import Layer from './animation/layer.js';
 import Frame from './animation/frame.js';
 import Anim from './animation/anim.js';
@@ -41,16 +41,16 @@ export class Birb {
 
 		// Build layers from sprite sheet
 		this.layers = {
-			base: new Layer(getLayer(spriteSheet, 0, this.spriteWidth)),
-			down: new Layer(getLayer(spriteSheet, 1, this.spriteWidth)),
-			heartOne: new Layer(getLayer(spriteSheet, 2, this.spriteWidth)),
-			heartTwo: new Layer(getLayer(spriteSheet, 3, this.spriteWidth)),
-			heartThree: new Layer(getLayer(spriteSheet, 4, this.spriteWidth)),
-			tuftBase: new Layer(getLayer(spriteSheet, 5, this.spriteWidth), "tuft"),
-			tuftDown: new Layer(getLayer(spriteSheet, 6, this.spriteWidth), "tuft"),
-			wingsUp: new Layer(getLayer(spriteSheet, 7, this.spriteWidth)),
-			wingsDown: new Layer(getLayer(spriteSheet, 8, this.spriteWidth)),
-			happyEye: new Layer(getLayer(spriteSheet, 9, this.spriteWidth)),
+			base: new Layer(getLayerPixels(spriteSheet, 0, this.spriteWidth)),
+			down: new Layer(getLayerPixels(spriteSheet, 1, this.spriteWidth)),
+			heartOne: new Layer(getLayerPixels(spriteSheet, 2, this.spriteWidth)),
+			heartTwo: new Layer(getLayerPixels(spriteSheet, 3, this.spriteWidth)),
+			heartThree: new Layer(getLayerPixels(spriteSheet, 4, this.spriteWidth)),
+			tuftBase: new Layer(getLayerPixels(spriteSheet, 5, this.spriteWidth), "tuft"),
+			tuftDown: new Layer(getLayerPixels(spriteSheet, 6, this.spriteWidth), "tuft"),
+			wingsUp: new Layer(getLayerPixels(spriteSheet, 7, this.spriteWidth)),
+			wingsDown: new Layer(getLayerPixels(spriteSheet, 8, this.spriteWidth)),
+			happyEye: new Layer(getLayerPixels(spriteSheet, 9, this.spriteWidth)),
 		};
 
 		// Build frames from layers

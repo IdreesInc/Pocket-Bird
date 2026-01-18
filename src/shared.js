@@ -193,7 +193,7 @@ export function error() {
  * @param {number} width The width of each sprite
  * @returns {string[][]}
  */
-export function getLayer(spriteSheet, spriteIndex, width) {
+export function getLayerPixels(spriteSheet, spriteIndex, width) {
 	// From an array of a horizontal sprite sheet, get the layer for a specific sprite
 	const layer = [];
 	for (let y = 0; y < width; y++) {

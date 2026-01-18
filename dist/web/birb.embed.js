@@ -196,7 +196,7 @@
 	 * @param {number} width The width of each sprite
 	 * @returns {string[][]}
 	 */
-	function getLayer(spriteSheet, spriteIndex, width) {
+	function getLayerPixels(spriteSheet, spriteIndex, width) {
 		// From an array of a horizontal sprite sheet, get the layer for a specific sprite
 		const layer = [];
 		for (let y = 0; y < width; y++) {
@@ -631,16 +631,16 @@
 
 			// Build layers from sprite sheet
 			this.layers = {
-				base: new Layer(getLayer(spriteSheet, 0, this.spriteWidth)),
-				down: new Layer(getLayer(spriteSheet, 1, this.spriteWidth)),
-				heartOne: new Layer(getLayer(spriteSheet, 2, this.spriteWidth)),
-				heartTwo: new Layer(getLayer(spriteSheet, 3, this.spriteWidth)),
-				heartThree: new Layer(getLayer(spriteSheet, 4, this.spriteWidth)),
-				tuftBase: new Layer(getLayer(spriteSheet, 5, this.spriteWidth), "tuft"),
-				tuftDown: new Layer(getLayer(spriteSheet, 6, this.spriteWidth), "tuft"),
-				wingsUp: new Layer(getLayer(spriteSheet, 7, this.spriteWidth)),
-				wingsDown: new Layer(getLayer(spriteSheet, 8, this.spriteWidth)),
-				happyEye: new Layer(getLayer(spriteSheet, 9, this.spriteWidth)),
+				base: new Layer(getLayerPixels(spriteSheet, 0, this.spriteWidth)),
+				down: new Layer(getLayerPixels(spriteSheet, 1, this.spriteWidth)),
+				heartOne: new Layer(getLayerPixels(spriteSheet, 2, this.spriteWidth)),
+				heartTwo: new Layer(getLayerPixels(spriteSheet, 3, this.spriteWidth)),
+				heartThree: new Layer(getLayerPixels(spriteSheet, 4, this.spriteWidth)),
+				tuftBase: new Layer(getLayerPixels(spriteSheet, 5, this.spriteWidth), "tuft"),
+				tuftDown: new Layer(getLayerPixels(spriteSheet, 6, this.spriteWidth), "tuft"),
+				wingsUp: new Layer(getLayerPixels(spriteSheet, 7, this.spriteWidth)),
+				wingsDown: new Layer(getLayerPixels(spriteSheet, 8, this.spriteWidth)),
+				happyEye: new Layer(getLayerPixels(spriteSheet, 9, this.spriteWidth)),
 			};
 
 			// Build frames from layers
@@ -1795,7 +1795,7 @@
 		const FEATHER_SPRITE_SHEET = featherPixels;
 
 		const featherLayers = {
-			feather: new Layer(getLayer(FEATHER_SPRITE_SHEET, 0, FEATHER_SPRITE_WIDTH)),
+			feather: new Layer(getLayerPixels(FEATHER_SPRITE_SHEET, 0, FEATHER_SPRITE_WIDTH)),
 		};
 
 		const featherFrames = {
