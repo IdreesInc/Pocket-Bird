@@ -23,7 +23,7 @@ import {
 	getWindowHeight
 } from './shared.js';
 import {
-	Sprite,
+	PALETTE,
 	SPRITE_SHEET_COLOR_MAP,
 	SPECIES
 } from './animation/sprites.js';
@@ -730,7 +730,7 @@ function startApplication(birbPixels, featherPixels) {
 	function switchSpecies(type) {
 		currentSpecies = type;
 		// Update CSS variable --birb-highlight to be wing color
-		document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[Sprite.THEME_HIGHLIGHT]);
+		document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
 		save();
 	}
 
@@ -1012,7 +1012,7 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 					const b = pixels[index + 2];
 					const a = pixels[index + 3];
 					if (a === 0) {
-						row.push(Sprite.TRANSPARENT);
+						row.push(PALETTE.TRANSPARENT);
 						continue;
 					}
 					const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
@@ -1022,7 +1022,7 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 					}
 					if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
 						error(`Unknown color: ${hex}`);
-						row.push(Sprite.TRANSPARENT);
+						row.push(PALETTE.TRANSPARENT);
 					}
 					row.push(SPRITE_SHEET_COLOR_MAP[hex]);
 				}
