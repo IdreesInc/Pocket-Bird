@@ -619,6 +619,103 @@
 		}
 	}
 
+	const HAT = {
+		TOP_HAT: 'top-hat'
+	};
+
+	/**
+	 * @param {string[][]} spriteSheet 
+	 * @returns {{ base: Layer[], down: Layer[] }}
+	 */
+	function createHatLayers(spriteSheet) {
+		const hatLayers = {
+			base: [],
+			down: []
+		};
+		for (const hatName in HAT) {
+			const hatKey = HAT[hatName];
+			const hatLayer = buildHatLayer(spriteSheet, hatKey, false);
+			const downHatLayer = buildHatLayer(spriteSheet, hatKey, false, 1);
+			hatLayers.base.push(hatLayer);
+			hatLayers.down.push(downHatLayer);
+		}
+		return hatLayers;
+	}
+
+	/**
+	 * @param {string[][]} spriteSheet 
+	 * @param {string} hatName 
+	 * @param {boolean} [outlineBottom=false]
+	 * @param {number} [yOffset=0]
+	 * @returns {Layer}
+	 */
+	function buildHatLayer(spriteSheet, hatName, outlineBottom = false, yOffset = 0) {
+		const LEFT_PADDING = 6;
+		const RIGHT_PADDING = 14;
+		const TOP_PADDING = 4 + yOffset;
+		const BOTTOM_PADDING = Math.max(0, 16 - yOffset);
+
+		const hatPixels = getLayerPixels(spriteSheet, 0, 12);
+		const paddedHatPixels = [];
+
+		// Top padding
+		for (let y = 0; y < TOP_PADDING; y++) {
+			paddedHatPixels.push(Array(hatPixels[0].length + LEFT_PADDING + RIGHT_PADDING)
+				.fill(PALETTE.TRANSPARENT)
+			);
+		}
+		// Left and right padding
+		for (let y = 0; y < hatPixels.length; y++) {
+			const row = [];
+			for (let x = 0; x < LEFT_PADDING; x++) {
+				row.push(PALETTE.TRANSPARENT);
+			}
+
+			for (let x = 0; x < hatPixels[y].length; x++) {
+				row.push(hatPixels[y][x]);
+			}
+
+			for (let x = 0; x < RIGHT_PADDING; x++) {
+				row.push(PALETTE.TRANSPARENT);
+			}
+
+			paddedHatPixels.push(row);
+		}
+		// Bottom padding
+		for (let y = 0; y < BOTTOM_PADDING; y++) {
+			paddedHatPixels.push(Array(hatPixels[0].length + LEFT_PADDING + RIGHT_PADDING)
+				.fill(PALETTE.TRANSPARENT)
+			);
+		}
+
+		// Add outline
+		let neighborOffsets = [
+			[-1, 0],
+			[1, 0],
+			[0, -1],
+			[-1, -1],
+			[1, -1],
+		];
+		if (outlineBottom) {
+			neighborOffsets.push([0, 1], [-1, 1], [1, 1]);
+		}
+		for (let y = 0; y < paddedHatPixels.length; y++) {
+			for (let x = 0; x < paddedHatPixels[y].length; x++) {
+				const pixel = paddedHatPixels[y][x];
+				if (pixel !== PALETTE.TRANSPARENT && pixel !== PALETTE.BORDER) {
+					for (let [dx, dy] of neighborOffsets) {
+						const newX = x + dx;
+						const newY = y + dy;
+						if (newY >= 0 && newY < paddedHatPixels.length && newX >= 0 && newX < paddedHatPixels[newY].length && paddedHatPixels[newY][newX] === PALETTE.TRANSPARENT) {
+							paddedHatPixels[newY][newX] = PALETTE.BORDER;
+						}
+					}
+				}
+			}
+		}
+		return new Layer(paddedHatPixels);
+	}
+
 	/**
 	 * @typedef {keyof typeof Animations} AnimationType
 	 */
@@ -670,19 +767,18 @@
 			};
 
 			// Build hat layers
-			const hatLayer = this.buildHatLayer(hatSpriteSheet, "top-hat", false);
-			const downHatLayer = this.buildHatLayer(hatSpriteSheet, "top-hat", false, 1);
+			const hatLayers = createHatLayers(hatSpriteSheet);
 
 			// Build frames from layers
 			this.frames = {
-				base: new Frame([this.layers.base, this.layers.tuftBase, hatLayer]),
-				headDown: new Frame([this.layers.down, this.layers.tuftDown, downHatLayer]),
-				wingsDown: new Frame([this.layers.base, this.layers.tuftBase, this.layers.wingsDown, hatLayer]),
-				wingsUp: new Frame([this.layers.down, this.layers.tuftDown, this.layers.wingsUp, downHatLayer]),
-				heartOne: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartOne]),
-				heartTwo: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartTwo]),
-				heartThree: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartThree]),
-				heartFour: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartTwo]),
+				base: new Frame([this.layers.base, this.layers.tuftBase, ...hatLayers.base]),
+				headDown: new Frame([this.layers.down, this.layers.tuftDown, ...hatLayers.down]),
+				wingsDown: new Frame([this.layers.base, this.layers.tuftBase, this.layers.wingsDown, ...hatLayers.base]),
+				wingsUp: new Frame([this.layers.down, this.layers.tuftDown, this.layers.wingsUp, ...hatLayers.down]),
+				heartOne: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, ...hatLayers.base, this.layers.heartOne]),
+				heartTwo: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, ...hatLayers.base,this.layers.heartTwo]),
+				heartThree: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, ...hatLayers.base, this.layers.heartThree]),
+				heartFour: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, ...hatLayers.base, this.layers.heartTwo]),
 			};
 
 			// Build animations from frames
@@ -747,73 +843,6 @@
 		draw(species) {
 			const anim = this.animations[this.currentAnimation];
 			return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species);
-		}
-
-		buildHatLayer(spriteSheet, hatName, outlineBottom = false, yOffset = 0) {
-			const LEFT_PADDING = 6;
-			const RIGHT_PADDING = 14;
-			const TOP_PADDING = 4 + yOffset;
-			const BOTTOM_PADDING = Math.max(0, 16 - yOffset);
-
-			const hatPixels = getLayerPixels(spriteSheet, 0, 12);
-			const paddedHatPixels = [];
-
-			// Top padding
-			for (let y = 0; y < TOP_PADDING; y++) {
-				paddedHatPixels.push(Array(hatPixels[0].length + LEFT_PADDING + RIGHT_PADDING)
-					.fill(PALETTE.TRANSPARENT)
-				);
-			}
-			// Left and right padding
-			for (let y = 0; y < hatPixels.length; y++) {
-				const row = [];
-				for (let x = 0; x < LEFT_PADDING; x++) {
-					row.push(PALETTE.TRANSPARENT);
-				}
-
-				for (let x = 0; x < hatPixels[y].length; x++) {
-					row.push(hatPixels[y][x]);
-				}
-
-				for (let x = 0; x < RIGHT_PADDING; x++) {
-					row.push(PALETTE.TRANSPARENT);
-				}
-
-				paddedHatPixels.push(row);
-			}
-			// Bottom padding
-			for (let y = 0; y < BOTTOM_PADDING; y++) {
-				paddedHatPixels.push(Array(hatPixels[0].length + LEFT_PADDING + RIGHT_PADDING)
-					.fill(PALETTE.TRANSPARENT)
-				);
-			}
-
-			// Add outline
-			let neighborOffsets = [
-				[-1, 0],
-				[1, 0],
-				[0, -1],
-				[-1, -1],
-				[1, -1],
-			];
-			if (outlineBottom) {
-				neighborOffsets.push([0, 1], [-1, 1], [1, 1]);
-			}
-			for (let y = 0; y < paddedHatPixels.length; y++) {
-				for (let x = 0; x < paddedHatPixels[y].length; x++) {
-					const pixel = paddedHatPixels[y][x];
-					if (pixel !== PALETTE.TRANSPARENT && pixel !== PALETTE.BORDER) {
-						for (let [dx, dy] of neighborOffsets) {
-							const newX = x + dx;
-							const newY = y + dy;
-							if (newY >= 0 && newY < paddedHatPixels.length && newX >= 0 && newX < paddedHatPixels[newY].length && paddedHatPixels[newY][newX] === PALETTE.TRANSPARENT) {
-								paddedHatPixels[newY][newX] = PALETTE.BORDER;
-							}
-						}
-					}
-				}
-			}
-			return new Layer(paddedHatPixels);
 		}
 
 
