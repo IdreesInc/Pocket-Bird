@@ -53,20 +53,21 @@ class Frame {
 
 	/**
 	 * @param {CanvasRenderingContext2D} ctx
-	 * @param {BirdType} [species]
-	* @param {number} direction
+	 * @param {number} direction
 	 * @param {number} canvasPixelSize
+	 * @param {{ [key: string]: string }} colorScheme
+	 * @param {string[]} tags
 	 */
-	draw(ctx, direction, canvasPixelSize, species) {
+	draw(ctx, direction, canvasPixelSize, colorScheme, tags) {
 		// Clear the canvas before drawing the new frame
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		
-		const pixels = this.getPixels(species?.tags[0]);
+		const pixels = this.getPixels(tags[0]);
 		for (let y = 0; y < pixels.length; y++) {
 			const row = pixels[y];
 			for (let x = 0; x < pixels[y].length; x++) {
 				const cell = direction === Directions.LEFT ? row[x] : row[pixels[y].length - x - 1];
-				ctx.fillStyle = species?.colors[cell] ?? cell;
+				ctx.fillStyle = colorScheme[cell] ?? cell;
 				ctx.fillRect(x * canvasPixelSize, y * canvasPixelSize, canvasPixelSize, canvasPixelSize);
 			};
 		};

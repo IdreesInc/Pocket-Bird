@@ -499,20 +499,21 @@
 
 		/**
 		 * @param {CanvasRenderingContext2D} ctx
-		 * @param {BirdType} [species]
-		* @param {number} direction
+		 * @param {number} direction
 		 * @param {number} canvasPixelSize
+		 * @param {{ [key: string]: string }} colorScheme
+		 * @param {string[]} tags
 		 */
-		draw(ctx, direction, canvasPixelSize, species) {
+		draw(ctx, direction, canvasPixelSize, colorScheme, tags) {
 			// Clear the canvas before drawing the new frame
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 			
-			const pixels = this.getPixels(species?.tags[0]);
+			const pixels = this.getPixels(tags[0]);
 			for (let y = 0; y < pixels.length; y++) {
 				const row = pixels[y];
 				for (let x = 0; x < pixels[y].length; x++) {
 					const cell = direction === Directions.LEFT ? row[x] : row[pixels[y].length - x - 1];
-					ctx.fillStyle = species?.colors[cell] ?? cell;
+					ctx.fillStyle = colorScheme[cell] ?? cell;
 					ctx.fillRect(x * canvasPixelSize, y * canvasPixelSize, canvasPixelSize, canvasPixelSize);
 				}		}	}
 	}
@@ -575,10 +576,11 @@
 		 * @param {number} direction
 		 * @param {number} timeStart The start time of the animation in milliseconds
 		 * @param {number} canvasPixelSize The size of a canvas pixel in pixels
-		 * @param {BirdType} [species] The species to use for the animation
+		 * @param {{ [key: string]: string }} colorScheme The color scheme to use for the animation
+		 * @param {string[]} tags The tags to use for the animation
 		 * @returns {boolean} Whether the animation is complete
 		 */
-		draw(ctx, direction, timeStart, canvasPixelSize, species) {
+		draw(ctx, direction, timeStart, canvasPixelSize, colorScheme, tags) {
 			// Reset cache if animation was restarted
 			if (this.lastTimeStart !== timeStart) {
 				this.#clearCache();
@@ -595,7 +597,7 @@
 			const currentFrameIndex = this.getCurrentFrameIndex(time);
 			
 			if (this.#shouldRedraw(currentFrameIndex, direction)) {
-				this.frames[currentFrameIndex].draw(ctx, direction, canvasPixelSize, species);
+				this.frames[currentFrameIndex].draw(ctx, direction, canvasPixelSize, colorScheme, tags);
 				this.lastFrameIndex = currentFrameIndex;
 				this.lastDirection = direction;
 			}
@@ -699,7 +701,7 @@
 				}
 			}
 		}
-		return new Layer(paddedHatPixels);
+		return new Layer(paddedHatPixels, hatName);
 	}
 
 	/**
@@ -823,12 +825,13 @@
 
 		/**
 		 * Draw the current animation frame
-		 * @param {BirdType} species The species color data
+		 * @param {BirdType} species The species data
+		 * @param {string} [hat] The name of the current hat
 		 * @returns {boolean} Whether the animation has completed (for non-looping animations)
 		 */
-		draw(species) {
+		draw(species, hat) {
 			const anim = this.animations[this.currentAnimation];
-			return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species);
+			return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species.colors, [...species.tags, hat || '']);
 		}
 
 
@@ -2008,6 +2011,7 @@
 		let petStack = [];
 		let currentSpecies = DEFAULT_BIRD;
 		let unlockedSpecies = [DEFAULT_BIRD];
+		let currentHat = HAT.TOP_HAT;
 		// let visible = true;
 		let lastPetTimestamp = 0;
 		/** @type {StickyNote[]} */
@@ -2228,7 +2232,7 @@
 				flySomewhere();
 			}
 
-			if (birb.draw(SPECIES[currentSpecies])) {
+			if (birb.draw(SPECIES[currentSpecies], currentHat)) {
 				birb.setAnimation(Animations.STILL);
 			}
 
@@ -2317,7 +2321,7 @@
 			if (!featherCtx) {
 				return;
 			}
-			FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type);
+			FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type.colors, type.tags);
 			document.body.appendChild(featherCanvas);
 			onClick(featherCanvas, () => {
 				unlockBird(birdType);
@@ -2463,7 +2467,7 @@
 				if (!speciesCtx) {
 					return;
 				}
-				birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type);
+				birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.colors, type.tags);
 				speciesElement.appendChild(speciesCanvas);
 				content.appendChild(speciesElement);
 				if (unlocked) {

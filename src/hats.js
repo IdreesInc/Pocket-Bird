@@ -2,7 +2,7 @@ import Layer from "./animation/layer.js";
 import { PALETTE } from "./animation/sprites.js";
 import { getLayerPixels } from "./shared.js";
 
-const HAT = {
+export const HAT = {
 	TOP_HAT: 'top-hat'
 };
 
@@ -96,5 +96,5 @@ function buildHatLayer(spriteSheet, hatName, outlineBottom = false, yOffset = 0)
 			}
 		}
 	}
-	return new Layer(paddedHatPixels);
+	return new Layer(paddedHatPixels, hatName);
 }

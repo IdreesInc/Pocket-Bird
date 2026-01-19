@@ -43,6 +43,7 @@ import {
 	switchMenuItems,
 	MENU_EXIT_ID
 } from './menu.js';
+import { HAT } from './hats.js';
 
 
 /**
@@ -236,6 +237,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	let petStack = [];
 	let currentSpecies = DEFAULT_BIRD;
 	let unlockedSpecies = [DEFAULT_BIRD];
+	let currentHat = HAT.TOP_HAT;
 	// let visible = true;
 	let lastPetTimestamp = 0;
 	/** @type {StickyNote[]} */
@@ -456,7 +458,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			flySomewhere();
 		}
 
-		if (birb.draw(SPECIES[currentSpecies])) {
+		if (birb.draw(SPECIES[currentSpecies], currentHat)) {
 			birb.setAnimation(Animations.STILL);
 		}
 
@@ -548,7 +550,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		if (!featherCtx) {
 			return;
 		}
-		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type);
+		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type.colors, type.tags);
 		document.body.appendChild(featherCanvas);
 		onClick(featherCanvas, () => {
 			unlockBird(birdType);
@@ -695,7 +697,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			if (!speciesCtx) {
 				return;
 			}
-			birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type);
+			birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.colors, type.tags);
 			speciesElement.appendChild(speciesCanvas);
 			content.appendChild(speciesElement);
 			if (unlocked) {

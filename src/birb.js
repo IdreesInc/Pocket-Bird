@@ -126,12 +126,13 @@ export class Birb {
 
 	/**
 	 * Draw the current animation frame
-	 * @param {BirdType} species The species color data
+	 * @param {BirdType} species The species data
+	 * @param {string} [hat] The name of the current hat
 	 * @returns {boolean} Whether the animation has completed (for non-looping animations)
 	 */
-	draw(species) {
+	draw(species, hat) {
 		const anim = this.animations[this.currentAnimation];
-		return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species);
+		return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species.colors, [...species.tags, hat || '']);
 	}
 
 
