@@ -613,6 +613,7 @@ module.exports = class PocketBird extends Plugin {
 	}
 
 	const HAT = {
+		NONE: 'none',
 		TOP_HAT: 'top-hat'
 	};
 
@@ -626,6 +627,9 @@ module.exports = class PocketBird extends Plugin {
 			down: []
 		};
 		for (const hatName in HAT) {
+			if (hatName === 'NONE') {
+				continue;
+			}
 			const hatKey = HAT[hatName];
 			const hatLayer = buildHatLayer(spriteSheet, hatKey, false);
 			const downHatLayer = buildHatLayer(spriteSheet, hatKey, false, 1);
@@ -2069,7 +2073,7 @@ module.exports = class PocketBird extends Plugin {
 		let petStack = [];
 		let currentSpecies = DEFAULT_BIRD;
 		let unlockedSpecies = [DEFAULT_BIRD];
-		let currentHat = HAT.TOP_HAT;
+		let currentHat = HAT.NONE;
 		// let visible = true;
 		let lastPetTimestamp = 0;
 		/** @type {StickyNote[]} */

@@ -237,7 +237,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	let petStack = [];
 	let currentSpecies = DEFAULT_BIRD;
 	let unlockedSpecies = [DEFAULT_BIRD];
-	let currentHat = HAT.TOP_HAT;
+	let currentHat = HAT.NONE;
 	// let visible = true;
 	let lastPetTimestamp = 0;
 	/** @type {StickyNote[]} */

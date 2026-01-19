@@ -3,6 +3,7 @@ import { PALETTE } from "./animation/sprites.js";
 import { getLayerPixels } from "./shared.js";
 
 export const HAT = {
+	NONE: 'none',
 	TOP_HAT: 'top-hat'
 };
 
@@ -16,6 +17,9 @@ export function createHatLayers(spriteSheet) {
 		down: []
 	};
 	for (const hatName in HAT) {
+		if (hatName === 'NONE') {
+			continue;
+		}
 		const hatKey = HAT[hatName];
 		const hatLayer = buildHatLayer(spriteSheet, hatKey, false);
 		const downHatLayer = buildHatLayer(spriteSheet, hatKey, false, 1);
