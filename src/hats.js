@@ -2,9 +2,12 @@ import Layer from "./animation/layer.js";
 import { PALETTE } from "./animation/sprites.js";
 import { getLayerPixels } from "./shared.js";
 
+const HAT_WIDTH = 12;
+
 export const HAT = {
-	NONE: 'none',
-	TOP_HAT: 'top-hat'
+	NONE: "none",
+	TOP_HAT: "top-hat",
+	VIKING_HELMET: "viking-helmet",
 };
 
 /**
@@ -16,13 +19,15 @@ export function createHatLayers(spriteSheet) {
 		base: [],
 		down: []
 	};
-	for (const hatName in HAT) {
+	for (let i = 0; i < Object.keys(HAT).length; i++) {
+		const hatName = Object.keys(HAT)[i];
 		if (hatName === 'NONE') {
 			continue;
 		}
+		const index = i - 1;
 		const hatKey = HAT[hatName];
-		const hatLayer = buildHatLayer(spriteSheet, hatKey, false);
-		const downHatLayer = buildHatLayer(spriteSheet, hatKey, false, 1);
+		const hatLayer = buildHatLayer(spriteSheet, hatKey, index, false);
+		const downHatLayer = buildHatLayer(spriteSheet, hatKey, index, false, 1);
 		hatLayers.base.push(hatLayer);
 		hatLayers.down.push(downHatLayer);
 	}
@@ -31,18 +36,19 @@ export function createHatLayers(spriteSheet) {
 
 /**
  * @param {string[][]} spriteSheet 
- * @param {string} hatName 
+ * @param {string} hatName
+ * @param {number} hatIndex
  * @param {boolean} [outlineBottom=false]
  * @param {number} [yOffset=0]
  * @returns {Layer}
  */
-function buildHatLayer(spriteSheet, hatName, outlineBottom = false, yOffset = 0) {
+function buildHatLayer(spriteSheet, hatName, hatIndex, outlineBottom = false, yOffset = 0) {
 	const LEFT_PADDING = 6;
 	const RIGHT_PADDING = 14;
-	const TOP_PADDING = 4 + yOffset;
-	const BOTTOM_PADDING = Math.max(0, 16 - yOffset);
+	const TOP_PADDING = 5 + yOffset;
+	const BOTTOM_PADDING = Math.max(0, 15 - yOffset);
 
-	const hatPixels = getLayerPixels(spriteSheet, 0, 12);
+	const hatPixels = getLayerPixels(spriteSheet, hatIndex, HAT_WIDTH);
 	const paddedHatPixels = [];
 
 	// Top padding

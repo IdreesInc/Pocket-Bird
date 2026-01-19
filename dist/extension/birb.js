@@ -607,9 +607,12 @@
 		}
 	}
 
+	const HAT_WIDTH = 12;
+
 	const HAT = {
-		NONE: 'none',
-		TOP_HAT: 'top-hat'
+		NONE: "none",
+		TOP_HAT: "top-hat",
+		VIKING_HELMET: "viking-helmet",
 	};
 
 	/**
@@ -621,13 +624,15 @@
 			base: [],
 			down: []
 		};
-		for (const hatName in HAT) {
+		for (let i = 0; i < Object.keys(HAT).length; i++) {
+			const hatName = Object.keys(HAT)[i];
 			if (hatName === 'NONE') {
 				continue;
 			}
+			const index = i - 1;
 			const hatKey = HAT[hatName];
-			const hatLayer = buildHatLayer(spriteSheet, hatKey, false);
-			const downHatLayer = buildHatLayer(spriteSheet, hatKey, false, 1);
+			const hatLayer = buildHatLayer(spriteSheet, hatKey, index, false);
+			const downHatLayer = buildHatLayer(spriteSheet, hatKey, index, false, 1);
 			hatLayers.base.push(hatLayer);
 			hatLayers.down.push(downHatLayer);
 		}
@@ -636,18 +641,19 @@
 
 	/**
 	 * @param {string[][]} spriteSheet 
-	 * @param {string} hatName 
+	 * @param {string} hatName
+	 * @param {number} hatIndex
 	 * @param {boolean} [outlineBottom=false]
 	 * @param {number} [yOffset=0]
 	 * @returns {Layer}
 	 */
-	function buildHatLayer(spriteSheet, hatName, outlineBottom = false, yOffset = 0) {
+	function buildHatLayer(spriteSheet, hatName, hatIndex, outlineBottom = false, yOffset = 0) {
 		const LEFT_PADDING = 6;
 		const RIGHT_PADDING = 14;
-		const TOP_PADDING = 4 + yOffset;
-		const BOTTOM_PADDING = Math.max(0, 16 - yOffset);
+		const TOP_PADDING = 5 + yOffset;
+		const BOTTOM_PADDING = Math.max(0, 15 - yOffset);
 
-		const hatPixels = getLayerPixels(spriteSheet, 0, 12);
+		const hatPixels = getLayerPixels(spriteSheet, hatIndex, HAT_WIDTH);
 		const paddedHatPixels = [];
 
 		// Top padding
@@ -1872,7 +1878,7 @@
 }`;
 	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABD9JREFUeJztnT9rFEEYh3+TWATE7hDcsxW7CBbmA0Qs0uSuSiloYSBgIRhCPkCQFIKCYNBKK6szjZWpbEyTziLY5k6RAwsjpDGvRXbWubmd3btzd2c293vgyGRvb9/Z25ln39l/BxBCCCGEkOlC+a4ACR8REdd7Sim2IVJb2HhrgE8B6djtZhMA0Ol2B8pV1IEQMqVITCuKpBVFQ+UsORYVvxVF8nl+XmRtbahcdnxCymTGdwVIPu1mExuNBjrt9lC5SvY/fcJGo5GUCak7FGCN8CWgTreLJ/3+wLQn/X4yBCaEkFIwh8Cf5+eTV1VD4LQ6VBmbEBIAkkLVsX0KyKwD5UfIlCEiZwf/jb9Vx/ctIB/yJ6RMLviuQN3Yv3HDS1yllBIR8XnpCS93IWRK0ZmPzv6YBRFSf7hHHwNTesyGqsfe6XAbkP+FDYjUAi0/7TwRqVyAFPCUknYGlENA4gHZ6bYEgLcTQHHsoNs/++no5F4Ibe55zRdy7lEtEgqYAMBOt6WLXk4AKaWSOoSW/dn9wkc/rSOZZ4HNL9NofNDTRMScp5QGYQ99jOkQEQmtIZLyeNB873Vb+xTwKJhdYWW7l0yj/9w4BWiK53DlPvAI2L79Onl/p9seOB5ThoxCEDAhGt8CzkCUUon0zjtXZpV8+yOFbAvnQkREZi5GA9PuPevhw+oMll6eAgCOf34DALxbjwb2MkXIaEjAGBTwraU2HjTf63kLi0tIzRCX+L4e/cLB8+teThiVxZVZJUsvT/FhdQZFSDBTgIgFdP9VegqtBYhYgjBklBpsjI3gW8AkbFa2e/JuPZr27Zwrv1CH66HgHALrOw9c75vyg3XMIY1Jhsmnv3tDAtbys2Pbw3HXOo0am4TDye6izC3vKV0GgLllv/LzLeCV7Z7XA3uu+HEiVJt+llnRWFg42V3E2o+PAIAXl28DAO4evh0pwNejXwAwUSqu46dloLaANToTTVkWQAnWln/i26t8+6ULuPp6mLgEZPa3kkXkzD7rJMGRBWgzt7yHmw8Pce3qpdTPWhtiIgH5FjAhmlDEpznZXRSzD9j9rQIBiav/T4UAYUgwDVt8mCD78i1gQkKmv7Ugaxc6wODIp6r27RQgaiTBXAEiPq5nS+j4yzEAoLG57/rsvyATSse3gAkJnf7WQtLA73x/A5y1fe8SNE9MhtzvciuWJiEtvzQam/uFrbhvARNCchGdhNgi1BIMuf+N9DzAeCXQ31rInK9I+SHjTLQpYLtORdeBEJKJOnh+/azDOUQYMrkC1BLKk2CZ4tGxkSK8qupACHGicDb0HhDhucJ8Gkbn6ePkqRi6XOYDCqwbvVPjl10HQkg+9hNzQu+PY/0splIKnaePk//NMkrMuvRys+Iz8yMkDOKbEYAa9MexfhPEHIra5SrIix/6l03IeadufXDs6/KcC6pgxX3HJ4ScL/4CWsLSrzMo7i0AAAAASUVORK5CYII=";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
-	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IArs4c6QAAAC5JREFUKJFjYBgFgwEwYhH7j08NE6k2sKALnJCVReFbPH6M0zp0p6ADRgYGBgYAqu4FCZWdtIcAAAAASUVORK5CYII=";
+	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAMCAYAAAB4MH11AAAAAXNSR0IArs4c6QAAAI5JREFUOI1jYBgFo2BIgv9oGJ86gnJM5Dri8NlLyAYhOwZFjgVd5wlZWRS+xePHBC1rqWtnYGBgYKhpqsTwFSOyQgIGoaidvXY7AwMDA8PLixcYGBgYGN59esPAwMDAoGnrwsDAwMCQGuzJwMDAwMiEZgA+jGJZarAnw8ObV1EMZ2BgYHh48yrccAYGBgYAg40ttqzdeHIAAAAASUVORK5CYII=";
 
 	// Element IDs
 	const FIELD_GUIDE_ID = "birb-field-guide";
@@ -2030,7 +2036,7 @@
 		let petStack = [];
 		let currentSpecies = DEFAULT_BIRD;
 		let unlockedSpecies = [DEFAULT_BIRD];
-		let currentHat = HAT.TOP_HAT;
+		let currentHat = HAT.VIKING_HELMET;
 		// let visible = true;
 		let lastPetTimestamp = 0;
 		/** @type {StickyNote[]} */
