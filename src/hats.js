@@ -8,6 +8,7 @@ export const HAT = {
 	NONE: "none",
 	TOP_HAT: "top-hat",
 	VIKING_HELMET: "viking-helmet",
+	COWBOY_HAT: "cowboy-hat",
 };
 
 /**
