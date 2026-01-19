@@ -2,7 +2,7 @@ import { Directions, getLayerPixels, getWindowHeight, getFixedWindowHeight } fro
 import Layer from './animation/layer.js';
 import Frame from './animation/frame.js';
 import Anim from './animation/anim.js';
-import { BirdType } from './animation/sprites.js';
+import { BirdType, PALETTE } from './animation/sprites.js';
 
 /**
  * @typedef {keyof typeof Animations} AnimationType
@@ -31,8 +31,9 @@ export class Birb {
 	 * @param {string[][]} spriteSheet The loaded sprite sheet pixel data
 	 * @param {number} spriteWidth
 	 * @param {number} spriteHeight
+	 * @param {string[][]} hatSpriteSheet The loaded hat sprite sheet pixel data
 	 */
-	constructor(birbCssScale, canvasPixelSize, spriteSheet, spriteWidth, spriteHeight) {
+	constructor(birbCssScale, canvasPixelSize, spriteSheet, spriteWidth, spriteHeight, hatSpriteSheet) {
 		this.birbCssScale = birbCssScale;
 		this.canvasPixelSize = canvasPixelSize;
 		this.windowPixelSize = canvasPixelSize * birbCssScale;
@@ -53,12 +54,16 @@ export class Birb {
 			happyEye: new Layer(getLayerPixels(spriteSheet, 9, this.spriteWidth)),
 		};
 
+		// Build hat layers
+		const hatLayer = this.buildHatLayer(hatSpriteSheet, "top-hat", false);
+		const downHatLayer = this.buildHatLayer(hatSpriteSheet, "top-hat", false, 1);
+
 		// Build frames from layers
 		this.frames = {
-			base: new Frame([this.layers.base, this.layers.tuftBase]),
-			headDown: new Frame([this.layers.down, this.layers.tuftDown]),
-			wingsDown: new Frame([this.layers.base, this.layers.tuftBase, this.layers.wingsDown]),
-			wingsUp: new Frame([this.layers.down, this.layers.tuftDown, this.layers.wingsUp]),
+			base: new Frame([this.layers.base, this.layers.tuftBase, hatLayer]),
+			headDown: new Frame([this.layers.down, this.layers.tuftDown, downHatLayer]),
+			wingsDown: new Frame([this.layers.base, this.layers.tuftBase, this.layers.wingsDown, hatLayer]),
+			wingsUp: new Frame([this.layers.down, this.layers.tuftDown, this.layers.wingsUp, downHatLayer]),
 			heartOne: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartOne]),
 			heartTwo: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartTwo]),
 			heartThree: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartThree]),
@@ -128,6 +133,74 @@ export class Birb {
 		const anim = this.animations[this.currentAnimation];
 		return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species);
 	}
+
+	buildHatLayer(spriteSheet, hatName, outlineBottom = false, yOffset = 0) {
+		const LEFT_PADDING = 6;
+		const RIGHT_PADDING = 14;
+		const TOP_PADDING = 4 + yOffset;
+		const BOTTOM_PADDING = Math.max(0, 16 - yOffset);
+
+		const hatPixels = getLayerPixels(spriteSheet, 0, 12);
+		const paddedHatPixels = [];
+
+		// Top padding
+		for (let y = 0; y < TOP_PADDING; y++) {
+			paddedHatPixels.push(Array(hatPixels[0].length + LEFT_PADDING + RIGHT_PADDING)
+				.fill(PALETTE.TRANSPARENT)
+			);
+		}
+		// Left and right padding
+		for (let y = 0; y < hatPixels.length; y++) {
+			const row = [];
+			for (let x = 0; x < LEFT_PADDING; x++) {
+				row.push(PALETTE.TRANSPARENT);
+			}
+
+			for (let x = 0; x < hatPixels[y].length; x++) {
+				row.push(hatPixels[y][x]);
+			}
+
+			for (let x = 0; x < RIGHT_PADDING; x++) {
+				row.push(PALETTE.TRANSPARENT);
+			}
+
+			paddedHatPixels.push(row);
+		}
+		// Bottom padding
+		for (let y = 0; y < BOTTOM_PADDING; y++) {
+			paddedHatPixels.push(Array(hatPixels[0].length + LEFT_PADDING + RIGHT_PADDING)
+				.fill(PALETTE.TRANSPARENT)
+			);
+		}
+
+		// Add outline
+		let neighborOffsets = [
+			[-1, 0],
+			[1, 0],
+			[0, -1],
+			[-1, -1],
+			[1, -1],
+		];
+		if (outlineBottom) {
+			neighborOffsets.push([0, 1], [-1, 1], [1, 1]);
+		}
+		for (let y = 0; y < paddedHatPixels.length; y++) {
+			for (let x = 0; x < paddedHatPixels[y].length; x++) {
+				const pixel = paddedHatPixels[y][x];
+				if (pixel !== PALETTE.TRANSPARENT && pixel !== PALETTE.BORDER) {
+					for (let [dx, dy] of neighborOffsets) {
+						const newX = x + dx;
+						const newY = y + dy;
+						if (newY >= 0 && newY < paddedHatPixels.length && newX >= 0 && newX < paddedHatPixels[newY].length && paddedHatPixels[newY][newX] === PALETTE.TRANSPARENT) {
+							paddedHatPixels[newY][newX] = PALETTE.BORDER;
+						}
+					}
+				}
+			}
+		}
+		return new Layer(paddedHatPixels);
+	}
+
 
 	/**
 	 * @returns {AnimationType} The current animation key

@@ -78,6 +78,7 @@ const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
 const STYLESHEET = `___STYLESHEET___`;
 const SPRITE_SHEET = "__SPRITE_SHEET__";
 const FEATHER_SPRITE_SHEET = "__FEATHER_SPRITE_SHEET__";
+const HATS_SPRITE_SHEET = "__HATS_SPRITE_SHEET__";
 
 // Element IDs
 const FIELD_GUIDE_ID = "birb-field-guide";
@@ -123,17 +124,20 @@ export async function initializeApplication(context) {
 	log("Loading sprite sheets...");
 	const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET);
 	const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET);
-	startApplication(birbPixels, featherPixels);
+	const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET);
+	startApplication(birbPixels, featherPixels, hatsPixels);
 }
 
 /**
  * @param {string[][]} birbPixels
  * @param {string[][]} featherPixels
+ * @param {string[][]} hatsPixels
  */
-function startApplication(birbPixels, featherPixels) {
+function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 	const SPRITE_SHEET = birbPixels;
 	const FEATHER_SPRITE_SHEET = featherPixels;
+	const HATS_SPRITE_SHEET = hatsPixels;
 
 	const featherLayers = {
 		feather: new Layer(getLayerPixels(FEATHER_SPRITE_SHEET, 0, FEATHER_SPRITE_WIDTH)),
@@ -321,7 +325,7 @@ function startApplication(birbPixels, featherPixels) {
 		styleElement.textContent = STYLESHEET;
 		document.head.appendChild(styleElement);
 
-		birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT);
+		birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT, HATS_SPRITE_SHEET);
 		birb.setAnimation(Animations.BOB);
 
 		window.addEventListener("scroll", () => {
@@ -1021,8 +1025,9 @@ function loadSpriteSheetPixels(dataUri, templateColors = true) {
 						continue;
 					}
 					if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
-						error(`Unknown color: ${hex}`);
-						row.push(PALETTE.TRANSPARENT);
+						// Return the color as-is if not found in the map
+						row.push(hex);
+						continue;
 					}
 					row.push(SPRITE_SHEET_COLOR_MAP[hex]);
 				}

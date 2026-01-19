@@ -646,8 +646,9 @@
 		 * @param {string[][]} spriteSheet The loaded sprite sheet pixel data
 		 * @param {number} spriteWidth
 		 * @param {number} spriteHeight
+		 * @param {string[][]} hatSpriteSheet The loaded hat sprite sheet pixel data
 		 */
-		constructor(birbCssScale, canvasPixelSize, spriteSheet, spriteWidth, spriteHeight) {
+		constructor(birbCssScale, canvasPixelSize, spriteSheet, spriteWidth, spriteHeight, hatSpriteSheet) {
 			this.birbCssScale = birbCssScale;
 			this.canvasPixelSize = canvasPixelSize;
 			this.windowPixelSize = canvasPixelSize * birbCssScale;
@@ -668,12 +669,16 @@
 				happyEye: new Layer(getLayerPixels(spriteSheet, 9, this.spriteWidth)),
 			};
 
+			// Build hat layers
+			const hatLayer = this.buildHatLayer(hatSpriteSheet, "top-hat", false);
+			const downHatLayer = this.buildHatLayer(hatSpriteSheet, "top-hat", false, 1);
+
 			// Build frames from layers
 			this.frames = {
-				base: new Frame([this.layers.base, this.layers.tuftBase]),
-				headDown: new Frame([this.layers.down, this.layers.tuftDown]),
-				wingsDown: new Frame([this.layers.base, this.layers.tuftBase, this.layers.wingsDown]),
-				wingsUp: new Frame([this.layers.down, this.layers.tuftDown, this.layers.wingsUp]),
+				base: new Frame([this.layers.base, this.layers.tuftBase, hatLayer]),
+				headDown: new Frame([this.layers.down, this.layers.tuftDown, downHatLayer]),
+				wingsDown: new Frame([this.layers.base, this.layers.tuftBase, this.layers.wingsDown, hatLayer]),
+				wingsUp: new Frame([this.layers.down, this.layers.tuftDown, this.layers.wingsUp, downHatLayer]),
 				heartOne: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartOne]),
 				heartTwo: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartTwo]),
 				heartThree: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartThree]),
@@ -743,6 +748,74 @@
 			const anim = this.animations[this.currentAnimation];
 			return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species);
 		}
+
+		buildHatLayer(spriteSheet, hatName, outlineBottom = false, yOffset = 0) {
+			const LEFT_PADDING = 6;
+			const RIGHT_PADDING = 14;
+			const TOP_PADDING = 4 + yOffset;
+			const BOTTOM_PADDING = Math.max(0, 16 - yOffset);
+
+			const hatPixels = getLayerPixels(spriteSheet, 0, 12);
+			const paddedHatPixels = [];
+
+			// Top padding
+			for (let y = 0; y < TOP_PADDING; y++) {
+				paddedHatPixels.push(Array(hatPixels[0].length + LEFT_PADDING + RIGHT_PADDING)
+					.fill(PALETTE.TRANSPARENT)
+				);
+			}
+			// Left and right padding
+			for (let y = 0; y < hatPixels.length; y++) {
+				const row = [];
+				for (let x = 0; x < LEFT_PADDING; x++) {
+					row.push(PALETTE.TRANSPARENT);
+				}
+
+				for (let x = 0; x < hatPixels[y].length; x++) {
+					row.push(hatPixels[y][x]);
+				}
+
+				for (let x = 0; x < RIGHT_PADDING; x++) {
+					row.push(PALETTE.TRANSPARENT);
+				}
+
+				paddedHatPixels.push(row);
+			}
+			// Bottom padding
+			for (let y = 0; y < BOTTOM_PADDING; y++) {
+				paddedHatPixels.push(Array(hatPixels[0].length + LEFT_PADDING + RIGHT_PADDING)
+					.fill(PALETTE.TRANSPARENT)
+				);
+			}
+
+			// Add outline
+			let neighborOffsets = [
+				[-1, 0],
+				[1, 0],
+				[0, -1],
+				[-1, -1],
+				[1, -1],
+			];
+			if (outlineBottom) {
+				neighborOffsets.push([0, 1], [-1, 1], [1, 1]);
+			}
+			for (let y = 0; y < paddedHatPixels.length; y++) {
+				for (let x = 0; x < paddedHatPixels[y].length; x++) {
+					const pixel = paddedHatPixels[y][x];
+					if (pixel !== PALETTE.TRANSPARENT && pixel !== PALETTE.BORDER) {
+						for (let [dx, dy] of neighborOffsets) {
+							const newX = x + dx;
+							const newY = y + dy;
+							if (newY >= 0 && newY < paddedHatPixels.length && newX >= 0 && newX < paddedHatPixels[newY].length && paddedHatPixels[newY][newX] === PALETTE.TRANSPARENT) {
+								paddedHatPixels[newY][newX] = PALETTE.BORDER;
+							}
+						}
+					}
+				}
+			}
+			return new Layer(paddedHatPixels);
+		}
+
 
 		/**
 		 * @returns {AnimationType} The current animation key
@@ -1768,6 +1841,7 @@
 }`;
 	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABD5JREFUeJztnTFrFEEYht9JLAJidwju2YpdBAvzAyIWaXJXpRS0MBCwEBTJDwghhaAgGLTSyupMY2UqG9PYWQRb7yJyYJEIacxnkZ11bm5n9+7Y3Zm9ex8Imezd7Te7O9+zM7N7G4AQQgghhBBCCJkJlO8KkPAREXG9ppRiGyK1hY23BvgUkI7dbjYBAJ1ud6BcRR0IITOKxLSiSFpRNFTOkmNR8VtRJF8WF0U2NobKZccnpEzmfFeA5NNuNvG00UCn3R4qV8nB58942mgkZULqDgVYI3wJqNPtYrvfH1i23e8nQ2BCCCkFcwj8ZXEx+alqCJxWhypjE0ICQFKoOrZPAZl1oPwImTFE5Hzy3/hddXzfAvIhf0LK5ILvCtSNgxs3vMRVSikREZ+3nvB2F0JmFN3z0b0/9oKqx9cUBJleeEYfAzPp2BuqFr3v9W4XkcqPgS1dtoEZIe0CAM/AxAOy220JAG/zn3HsoNs/83R0cu8DNM+85g9yvqJVJBQwAYDdbksXvcx/KqWSOoTW+7Pzwkee1pHMiyDmzjQaH/QyETHfU0qDsIc+xnKIiITWEEl5PGh+8HqsfQp4FMxUWNvpJcvoPzdOAZriOVy7DzwCdm6/SV7f7bYH5mPKkFEIAiZE41vAGYhSKpHetHNlXsnRXynkWDhXIiIydzEaWHbveQ8f1+ew8uoMAHDy+wgA8P5JNHCWKUJGQwLGoIBvrbTxoPlBv7ewuITUDHGJ7/uPY3x9cd3LBaOyuDKvZOXVGT6uz6EICWYKELGA7r9O70JrASKWIAwZpQYb4yD4FjAJm7Wdnrx/Es36cc6VX6jD9VBwDoH1jbeu1035wZpzSGOSYfLZn96QgLX87Nj2cNy1TaPGJuFwurcsC6v7SpcBYGHVr/x8C3htp+d1Ys8VP+4I1SbPMisaCwune8vY+PUJAPDy8m0AwN3DdyMF+P7jGAAm6orr+Gk9UFvAGt0TTVkXQAnWlv/i26/8+KULuPp6mLgEZOZbySJy9j7rJMGRBWizsLqPmw8Pce3qpdTPWgdiIgH5FjAhmlDEpzndWxYzB+x8q0BA4sr/mRAgDAmmYYsPE/S+fAuYkJDpby3JxoUOMDjyqap9OwWIGkkwV4CI5/VsCZ18OwEANDYPXJ/9H2RC6fgWMCGh099aShr4nZ9vgfO2712C5oXJkPMut2JpEtLyS6OxeVDYhvsWMCEkF9GdEFuEWoIh599Ij8OKNwL9raXM9xUpP2RciTYFbNep6DoQQjJRX19cP084hwhDJleAWkJ5EixTPDo2UoRXVR0IIU4UzofeAyKcKsynYXSePU6eiqHLZT6gwPqid2r8sutACMnHfmJO6Pk41n+FU0qh8+xx8rdZRom9Lr3erPjs+RESBvGXEYAa5ONYj8Q3h6J2uQry4oe+swmZduqWg2Pfl+dcUQUb7js+IWS6+Ac8zd6eLzTjoQAAAABJRU5ErkJggg==";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
+	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IArs4c6QAAAC5JREFUKJFjYBgFgwEwYhH7j08NE6k2sKALnJCVReFbPH6M0zp0p6ADRgYGBgYAqu4FCZWdtIcAAAAASUVORK5CYII=";
 
 	// Element IDs
 	const FIELD_GUIDE_ID = "birb-field-guide";
@@ -1813,17 +1887,20 @@
 		log("Loading sprite sheets...");
 		const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET);
 		const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET);
-		startApplication(birbPixels, featherPixels);
+		const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET);
+		startApplication(birbPixels, featherPixels, hatsPixels);
 	}
 
 	/**
 	 * @param {string[][]} birbPixels
 	 * @param {string[][]} featherPixels
+	 * @param {string[][]} hatsPixels
 	 */
-	function startApplication(birbPixels, featherPixels) {
+	function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 		const SPRITE_SHEET = birbPixels;
 		const FEATHER_SPRITE_SHEET = featherPixels;
+		const HATS_SPRITE_SHEET = hatsPixels;
 
 		const featherLayers = {
 			feather: new Layer(getLayerPixels(FEATHER_SPRITE_SHEET, 0, FEATHER_SPRITE_WIDTH)),
@@ -2011,7 +2088,7 @@
 			styleElement.textContent = STYLESHEET;
 			document.head.appendChild(styleElement);
 
-			birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT);
+			birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT, HATS_SPRITE_SHEET);
 			birb.setAnimation(Animations.BOB);
 
 			window.addEventListener("scroll", () => {
@@ -2693,8 +2770,9 @@
 							continue;
 						}
 						if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
-							error(`Unknown color: ${hex}`);
-							row.push(PALETTE.TRANSPARENT);
+							// Return the color as-is if not found in the map
+							row.push(hex);
+							continue;
 						}
 						row.push(SPRITE_SHEET_COLOR_MAP[hex]);
 					}
