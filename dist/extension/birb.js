@@ -1513,6 +1513,7 @@
 	 * @typedef {Object} BirbSaveData
 	 * @property {string[]} unlockedSpecies
 	 * @property {string} currentSpecies
+	 * @property {string} currentHat
 	 * @property {Partial<Settings>} settings
 	 * @property {SavedStickyNote[]} [stickyNotes]
 	 */
@@ -1927,6 +1928,7 @@
 	const WARDROBE_ID = "birb-wardrobe";
 
 	const DEFAULT_BIRD = "bluebird";
+	const DEFAULT_HAT = HAT.NONE;
 
 	// Birb movement
 	const HOP_SPEED = 0.07;
@@ -2079,7 +2081,7 @@
 		let petStack = [];
 		let currentSpecies = DEFAULT_BIRD;
 		let unlockedSpecies = [DEFAULT_BIRD];
-		let currentHat = HAT.TOP_HAT;
+		let currentHat = DEFAULT_HAT;
 		// let visible = true;
 		let lastPetTimestamp = 0;
 		/** @type {StickyNote[]} */
@@ -2098,6 +2100,7 @@
 			userSettings = saveData.settings ?? {};
 			unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
 			currentSpecies = saveData.currentSpecies ?? DEFAULT_BIRD;
+			currentHat = saveData.currentHat ?? DEFAULT_HAT;
 			stickyNotes = [];
 
 			if (saveData.stickyNotes) {
@@ -2110,13 +2113,15 @@
 
 			log(stickyNotes.length + " sticky notes loaded");
 			switchSpecies(currentSpecies);
+			switchHat(currentHat);
 		}
 
 		function save() {
 			/** @type {BirbSaveData} */
 			const saveData = {
-				unlockedSpecies,
-				currentSpecies,
+				unlockedSpecies: unlockedSpecies,
+				currentSpecies: currentSpecies,
+				currentHat: currentHat,
 				settings: userSettings
 			};
 
