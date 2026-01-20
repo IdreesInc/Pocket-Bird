@@ -495,11 +495,17 @@ module.exports = class PocketBird extends Plugin {
 		}
 
 		/**
-		 * @param {string} [tag]
+		 * @param {string[]} [tags]
 		 * @returns {string[][]}
 		 */
-		getPixels(tag = TAG.DEFAULT) {
-			return this.#pixelsByTag[tag] ?? this.#pixelsByTag[TAG.DEFAULT];
+		getPixels(tags = [TAG.DEFAULT]) {
+			for (let i = tags.length - 1; i >= 0; i--) {
+				const tag = tags[i];
+				if (this.#pixelsByTag[tag]) {
+					return this.#pixelsByTag[tag];
+				}
+			}
+			return this.#pixelsByTag[TAG.DEFAULT];
 		}
 
 		/**
@@ -513,7 +519,7 @@ module.exports = class PocketBird extends Plugin {
 			// Clear the canvas before drawing the new frame
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 			
-			const pixels = this.getPixels(tags[0]);
+			const pixels = this.getPixels(tags);
 			for (let y = 0; y < pixels.length; y++) {
 				const row = pixels[y];
 				for (let x = 0; x < pixels[y].length; x++) {
@@ -1963,7 +1969,7 @@ module.exports = class PocketBird extends Plugin {
 }`;
 	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABD9JREFUeJztnT9rFEEYh3+TWATE7hDcsxW7CBbmA0Qs0uSuSiloYSBgIRhCPkCQFIKCYNBKK6szjZWpbEyTziLY5k6RAwsjpDGvRXbWubmd3btzd2c293vgyGRvb9/Z25ln39l/BxBCCCGEkOlC+a4ACR8REdd7Sim2IVJb2HhrgE8B6djtZhMA0Ol2B8pV1IEQMqVITCuKpBVFQ+UsORYVvxVF8nl+XmRtbahcdnxCymTGdwVIPu1mExuNBjrt9lC5SvY/fcJGo5GUCak7FGCN8CWgTreLJ/3+wLQn/X4yBCaEkFIwh8Cf5+eTV1VD4LQ6VBmbEBIAkkLVsX0KyKwD5UfIlCEiZwf/jb9Vx/ctIB/yJ6RMLviuQN3Yv3HDS1yllBIR8XnpCS93IWRK0ZmPzv6YBRFSf7hHHwNTesyGqsfe6XAbkP+FDYjUAi0/7TwRqVyAFPCUknYGlENA4gHZ6bYEgLcTQHHsoNs/++no5F4Ibe55zRdy7lEtEgqYAMBOt6WLXk4AKaWSOoSW/dn9wkc/rSOZZ4HNL9NofNDTRMScp5QGYQ99jOkQEQmtIZLyeNB873Vb+xTwKJhdYWW7l0yj/9w4BWiK53DlPvAI2L79Onl/p9seOB5ThoxCEDAhGt8CzkCUUon0zjtXZpV8+yOFbAvnQkREZi5GA9PuPevhw+oMll6eAgCOf34DALxbjwb2MkXIaEjAGBTwraU2HjTf63kLi0tIzRCX+L4e/cLB8+teThiVxZVZJUsvT/FhdQZFSDBTgIgFdP9VegqtBYhYgjBklBpsjI3gW8AkbFa2e/JuPZr27Zwrv1CH66HgHALrOw9c75vyg3XMIY1Jhsmnv3tDAtbys2Pbw3HXOo0am4TDye6izC3vKV0GgLllv/LzLeCV7Z7XA3uu+HEiVJt+llnRWFg42V3E2o+PAIAXl28DAO4evh0pwNejXwAwUSqu46dloLaANToTTVkWQAnWln/i26t8+6ULuPp6mLgEZPa3kkXkzD7rJMGRBWgzt7yHmw8Pce3qpdTPWhtiIgH5FjAhmlDEpznZXRSzD9j9rQIBiav/T4UAYUgwDVt8mCD78i1gQkKmv7Ugaxc6wODIp6r27RQgaiTBXAEiPq5nS+j4yzEAoLG57/rsvyATSse3gAkJnf7WQtLA73x/A5y1fe8SNE9MhtzvciuWJiEtvzQam/uFrbhvARNCchGdhNgi1BIMuf+N9DzAeCXQ31rInK9I+SHjTLQpYLtORdeBEJKJOnh+/azDOUQYMrkC1BLKk2CZ4tGxkSK8qupACHGicDb0HhDhucJ8Gkbn6ePkqRi6XOYDCqwbvVPjl10HQkg+9hNzQu+PY/0splIKnaePk//NMkrMuvRys+Iz8yMkDOKbEYAa9MexfhPEHIra5SrIix/6l03IeadufXDs6/KcC6pgxX3HJ4ScL/4CWsLSrzMo7i0AAAAASUVORK5CYII=";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
-	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAMCAYAAAA+ht7fAAAAAXNSR0IArs4c6QAAAT5JREFUSIljYBgFo2AUjIJRMHgBI7qAgqDqfxj7wfvbWNVAwX8y5P4jsRmR+LjMIQf8R+OjmM1ErqGHz15CNvw/MhtNDgXs7YyAm9EfZk2UZQqCqv+RIwKfuxgYGBg+6+kx/D/NjyIGAyy4dEJjlxjwv6WunYGBgYGhpqmSGEfBPX3p7GOCamEeffHlCQMHK+f/H7+/400N/+3tGT49f84w3ZeT4f9pBgZG048o8hgeXiPNDmHwyDIwMDAwmDzG7qgbD54yzF67neHlxQsMDAwMDO8+vWEoKihm0LR1Ybjx4CmGO2CM14cQ5kliymN4hoSAxwDonkWxAEvexakW5siath4Gjh+/Gd59egMX5BKTZGipKkFX/x8pKaMAWCwXrjqK0z0vvjzB0IcjprGlMEacHBIBoeSLEUAkqqcJAAAmBnNJoDeWTQAAAABJRU5ErkJggg==";
+	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAAAMCAYAAADBJPs9AAAAAXNSR0IArs4c6QAAAXlJREFUSIljYBgFo2AUjIJRMGjAzfDk/8h8poFzyuADN8OT/8tHPcAIJBSgIKj6H4YZGBhwKyRP7j8SZkBjUxOQZW7WPoP/1EpB/w+fvcSAw6Pocihgb2cE3Iz+MGuiLEOKMKLc9llPj+H/aX6cbkBWm7XP4H/WPgO4OvWVcxmRFbDg0vng/W0i3cPwv6WunYGBgYGhpqmSKE/AAunS2ccE1cIC5sWXJwwcrJz/f/z+zohH+f//9vYMn54/Z5juy8nw/zQDA6Ppx/8MDAz49DAwQFPPNKcLGOowAmiNNDuEwSPLwMDAwGDyGLsnbjx4yjB77XaGlxcvMDAwMDC8+/SGoaigmEHT1oXhxoOnGA6HMV4fQpgniSmP4UASIgoDMJp+JKhkmtOF/1n7DHArgDGQkzAOR6E7/n9NWw8Dx4/fDO8+vYELcolJMrRUlaCr/4+UtVAALBUVrjqK0z0vvjzB0IcjJWFLwQRTDz5AiWZC2QkjQGnoFpoBAEIPl1HPwyJ/AAAAAElFTkSuQmCC";
 
 	// Element IDs
 	const FIELD_GUIDE_ID = "birb-field-guide";

@@ -44,11 +44,17 @@ class Frame {
 	}
 
 	/**
-	 * @param {string} [tag]
+	 * @param {string[]} [tags]
 	 * @returns {string[][]}
 	 */
-	getPixels(tag = TAG.DEFAULT) {
-		return this.#pixelsByTag[tag] ?? this.#pixelsByTag[TAG.DEFAULT];
+	getPixels(tags = [TAG.DEFAULT]) {
+		for (let i = tags.length - 1; i >= 0; i--) {
+			const tag = tags[i];
+			if (this.#pixelsByTag[tag]) {
+				return this.#pixelsByTag[tag];
+			}
+		}
+		return this.#pixelsByTag[TAG.DEFAULT];
 	}
 
 	/**
@@ -62,7 +68,7 @@ class Frame {
 		// Clear the canvas before drawing the new frame
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		
-		const pixels = this.getPixels(tags[0]);
+		const pixels = this.getPixels(tags);
 		for (let y = 0; y < pixels.length; y++) {
 			const row = pixels[y];
 			for (let x = 0; x < pixels[y].length; x++) {
