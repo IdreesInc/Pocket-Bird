@@ -11,6 +11,9 @@ export const HAT = {
 	COWBOY_HAT: "cowboy-hat",
 	BOWLER_HAT: "bowler-hat",
 	FEZ: "fez",
+	WIZARD_HAT: "wizard-hat",
+	BASEBALL_CAP: "baseball-cap",
+	FLOWER_HAT: "flower-hat"
 };
 
 export const HAT_METADATA = {
@@ -20,7 +23,7 @@ export const HAT_METADATA = {
 	},
 	[HAT.TOP_HAT]: {
 		name: "Top Hat",
-		description: "For that classy, sophisticated look."
+		description: "The mark of a true gentlebird."
 	},
 	[HAT.VIKING_HELMET]: {
 		name: "Viking Helmet",
@@ -38,6 +41,18 @@ export const HAT_METADATA = {
 		name: "Fez",
 		description: "It's a fez. Fezzes are cool."
 	},
+	[HAT.WIZARD_HAT]: {
+		name: "Wizard Hat",
+		description: "Grants the bearer terrifying mystical power, but luckily birds only use it to summon old ladies with bread crumbs."
+	},
+	[HAT.BASEBALL_CAP]: {
+		name: "Baseball Cap",
+		description: "Birds unfortunately only ever hit 'fowl' balls..."
+	},
+	[HAT.FLOWER_HAT]: {
+		name: "Flower Hat",
+		description: "To be fair, this is less of a hat and more of a dirt clod that your pet happened to pick up."
+	}
 };
 
 /**

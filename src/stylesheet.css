@@ -251,7 +251,8 @@
 }
 
 #birb-wardrobe .birb-grid-content {
-	grid-template-rows: repeat(2, auto);
+	grid-template-columns: repeat(3, auto);
+	grid-auto-flow: row;
 }
 
 .birb-grid-content {

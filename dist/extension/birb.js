@@ -273,6 +273,7 @@
 	 */
 	const SPRITE_SHEET_COLOR_MAP = {
 		"transparent": PALETTE.TRANSPARENT,
+		"#fff000": PALETTE.THEME_HIGHLIGHT,
 		"#ffffff": PALETTE.BORDER,
 		"#000000": PALETTE.OUTLINE,
 		"#010a19": PALETTE.BEAK,
@@ -349,6 +350,7 @@
 			[PALETTE.UNDERBELLY]: "#d7cfcb",
 			[PALETTE.WING]: "#b1b5c5",
 			[PALETTE.WING_EDGE]: "#9d9fa9",
+			[PALETTE.THEME_HIGHLIGHT]: "#b9abcf",
 		}, [TAG.TUFT]),
 		europeanRobin: new BirdType("European Robin",
 			"Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.", {
@@ -622,6 +624,9 @@
 		COWBOY_HAT: "cowboy-hat",
 		BOWLER_HAT: "bowler-hat",
 		FEZ: "fez",
+		WIZARD_HAT: "wizard-hat",
+		BASEBALL_CAP: "baseball-cap",
+		FLOWER_HAT: "flower-hat"
 	};
 
 	const HAT_METADATA = {
@@ -631,7 +636,7 @@
 		},
 		[HAT.TOP_HAT]: {
 			name: "Top Hat",
-			description: "For that classy, sophisticated look."
+			description: "The mark of a true gentlebird."
 		},
 		[HAT.VIKING_HELMET]: {
 			name: "Viking Helmet",
@@ -649,6 +654,18 @@
 			name: "Fez",
 			description: "It's a fez. Fezzes are cool."
 		},
+		[HAT.WIZARD_HAT]: {
+			name: "Wizard Hat",
+			description: "Grants the bearer terrifying mystical power, but luckily birds only use it to summon old ladies with bread crumbs."
+		},
+		[HAT.BASEBALL_CAP]: {
+			name: "Baseball Cap",
+			description: "Birds unfortunately only ever hit 'fowl' balls..."
+		},
+		[HAT.FLOWER_HAT]: {
+			name: "Flower Hat",
+			description: "To be fair, this is less of a hat and more of a dirt clod that your pet happened to pick up."
+		}
 	};
 
 	/**
@@ -1795,7 +1812,8 @@
 }
 
 #birb-wardrobe .birb-grid-content {
-	grid-template-rows: repeat(2, auto);
+	grid-template-columns: repeat(3, auto);
+	grid-auto-flow: row;
 }
 
 .birb-grid-content {
@@ -1926,7 +1944,7 @@
 }`;
 	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABD9JREFUeJztnT9rFEEYh3+TWATE7hDcsxW7CBbmA0Qs0uSuSiloYSBgIRhCPkCQFIKCYNBKK6szjZWpbEyTziLY5k6RAwsjpDGvRXbWubmd3btzd2c293vgyGRvb9/Z25ln39l/BxBCCCGEkOlC+a4ACR8REdd7Sim2IVJb2HhrgE8B6djtZhMA0Ol2B8pV1IEQMqVITCuKpBVFQ+UsORYVvxVF8nl+XmRtbahcdnxCymTGdwVIPu1mExuNBjrt9lC5SvY/fcJGo5GUCak7FGCN8CWgTreLJ/3+wLQn/X4yBCaEkFIwh8Cf5+eTV1VD4LQ6VBmbEBIAkkLVsX0KyKwD5UfIlCEiZwf/jb9Vx/ctIB/yJ6RMLviuQN3Yv3HDS1yllBIR8XnpCS93IWRK0ZmPzv6YBRFSf7hHHwNTesyGqsfe6XAbkP+FDYjUAi0/7TwRqVyAFPCUknYGlENA4gHZ6bYEgLcTQHHsoNs/++no5F4Ibe55zRdy7lEtEgqYAMBOt6WLXk4AKaWSOoSW/dn9wkc/rSOZZ4HNL9NofNDTRMScp5QGYQ99jOkQEQmtIZLyeNB873Vb+xTwKJhdYWW7l0yj/9w4BWiK53DlPvAI2L79Onl/p9seOB5ThoxCEDAhGt8CzkCUUon0zjtXZpV8+yOFbAvnQkREZi5GA9PuPevhw+oMll6eAgCOf34DALxbjwb2MkXIaEjAGBTwraU2HjTf63kLi0tIzRCX+L4e/cLB8+teThiVxZVZJUsvT/FhdQZFSDBTgIgFdP9VegqtBYhYgjBklBpsjI3gW8AkbFa2e/JuPZr27Zwrv1CH66HgHALrOw9c75vyg3XMIY1Jhsmnv3tDAtbys2Pbw3HXOo0am4TDye6izC3vKV0GgLllv/LzLeCV7Z7XA3uu+HEiVJt+llnRWFg42V3E2o+PAIAXl28DAO4evh0pwNejXwAwUSqu46dloLaANToTTVkWQAnWln/i26t8+6ULuPp6mLgEZPa3kkXkzD7rJMGRBWgzt7yHmw8Pce3qpdTPWhtiIgH5FjAhmlDEpznZXRSzD9j9rQIBiav/T4UAYUgwDVt8mCD78i1gQkKmv7Ugaxc6wODIp6r27RQgaiTBXAEiPq5nS+j4yzEAoLG57/rsvyATSse3gAkJnf7WQtLA73x/A5y1fe8SNE9MhtzvciuWJiEtvzQam/uFrbhvARNCchGdhNgi1BIMuf+N9DzAeCXQ31rInK9I+SHjTLQpYLtORdeBEJKJOnh+/azDOUQYMrkC1BLKk2CZ4tGxkSK8qupACHGicDb0HhDhucJ8Gkbn6ePkqRi6XOYDCqwbvVPjl10HQkg+9hNzQu+PY/0splIKnaePk//NMkrMuvRys+Iz8yMkDOKbEYAa9MexfhPEHIra5SrIix/6l03IeadufXDs6/KcC6pgxX3HJ4ScL/4CWsLSrzMo7i0AAAAASUVORK5CYII=";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
-	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAAAMCAYAAADBJPs9AAAAAXNSR0IArs4c6QAAAXlJREFUSIljYBgFo2AUjIJRMGjAzfDk/8h8poFzyuADN8OT/8tHPcAIJBSgIKj6H4YZGBhwKyRP7j8SZkBjUxOQZW7WPoP/1EpB/w+fvcSAw6Pocihgb2cE3Iz+MGuiLEOKMKLc9llPj+H/aX6cbkBWm7XP4H/WPgO4OvWVcxmRFbDg0vng/W0i3cPwv6WunYGBgYGhpqmSKE/AAunS2ccE1cIC5sWXJwwcrJz/f/z+zohH+f//9vYMn54/Z5juy8nw/zQDA6Ppx/8MDAz49DAwQFPPNKcLGOowAmiNNDuEwSPLwMDAwGDyGLsnbjx4yjB77XaGlxcvMDAwMDC8+/SGoaigmEHT1oXhxoOnGA6HMV4fQpgniSmP4UASIgoDMJp+JKhkmtOF/1n7DHArgDGQkzAOR6E7/n9NWw8Dx4/fDO8+vYELcolJMrRUlaCr/4+UtVAALBUVrjqK0z0vvjzB0IcjJWFLwQRTDz5AiWZC2QkjQGnoFpoBAEIPl1HPwyJ/AAAAAElFTkSuQmCC";
+	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAMCAYAAACdrrgZAAAAAXNSR0IArs4c6QAAAjZJREFUWIXtl01oE1EUhb8nim0tjVIrxKKJgkJBWoS4EsmmUFwoCKJZqrtstFWpEKWr0FgQFDcuhIIupboSgosiWAWDFGo3Rlw00AaqhpbUFEOLXhdpxvnJ/DTGVmQODLyZd+beM/fcN/MGfPjw4WPToDZbwP8KEZHqWCllW+ctG6bo34d44HgLVC1+UWnneui5vgEVNKz4GooKcl2aCQADE+FKMp0JFgPCuw5J9XARVs+c6A5M40Zi3XF3nHxBQ7UEBMIfGF05A2vF7wlFufH2sIFW7wqQiclpbAppnjNgfCSmxbh77rinZLqG8KTtW3c38i5gq8HMj8QzHkN7g/bODwiXOp6RmjlKTyjKhf2PaG/tNHBtDcgtfvKaT5JDKZJDKbx20PhITG+EI6qFny/N0bSt2S2+SDTKz3KZB6eaPZvwOpagrWWrJz2mVWwbW//hTRyc4mLoMQCDR14aeJasY53bK4PWfQBEZmdrJsjm8jx8mubz+ykAFpYKXO2/RteJXrK5fC3RAHx99Tte0Dpv2S2soxEsUMeKbhSJxDMcuF+CtdfQcrpPHHaHsvtsPwA/2joAWBy96cRHKcXzK6fJZj+ilEJEDOZoA/0St3locxK5NXyHpvIqC0sF7WLLniDJxHUzX+w6fnqyYsjAkze2euZLc5b7yqvfaz10rY502mpLJJ4h/6XEzOVh2m8Pspzuc7pH9vae105WdgYpjN1zy+GIP/kPcFvaFsP+opZ6Yadpw7T/Ahaj2bhiv50TAAAAAElFTkSuQmCC";
 
 	// Element IDs
 	const FIELD_GUIDE_ID = "birb-field-guide";
@@ -2050,7 +2068,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2026.1.19", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.19"); }, false),
+			new MenuItem("2026.1.20", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.20"); }, false),
 		];
 
 		const styleElement = document.createElement("style");

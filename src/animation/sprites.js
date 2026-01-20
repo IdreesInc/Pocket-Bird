@@ -31,6 +31,7 @@ export const PALETTE = {
  */
 export const SPRITE_SHEET_COLOR_MAP = {
 	"transparent": PALETTE.TRANSPARENT,
+	"#fff000": PALETTE.THEME_HIGHLIGHT,
 	"#ffffff": PALETTE.BORDER,
 	"#000000": PALETTE.OUTLINE,
 	"#010a19": PALETTE.BEAK,
@@ -107,6 +108,7 @@ export const SPECIES = {
 		[PALETTE.UNDERBELLY]: "#d7cfcb",
 		[PALETTE.WING]: "#b1b5c5",
 		[PALETTE.WING_EDGE]: "#9d9fa9",
+		[PALETTE.THEME_HIGHLIGHT]: "#b9abcf",
 	}, [TAG.TUFT]),
 	europeanRobin: new BirdType("European Robin",
 		"Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.", {
