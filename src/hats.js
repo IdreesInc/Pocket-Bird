@@ -13,6 +13,33 @@ export const HAT = {
 	FEZ: "fez",
 };
 
+export const HAT_METADATA = {
+	[HAT.NONE]: {
+		name: "Invisible Hat",
+		description: "It's like you're wearing nothing at all!"
+	},
+	[HAT.TOP_HAT]: {
+		name: "Top Hat",
+		description: "For that classy, sophisticated look."
+	},
+	[HAT.VIKING_HELMET]: {
+		name: "Viking Helmet",
+		description: "Sure, vikings never actually wore this style of helmet, but why let facts get in the way of good fashion?"
+	},
+	[HAT.COWBOY_HAT]: {
+		name: "Cowboy Hat",
+		description: "You can't jam with the console cowboys without the appropriate attire."
+	},
+	[HAT.BOWLER_HAT]: {
+		name: "Bowler Hat",
+		description: "For that authentic, Victorian look!"
+	},
+	[HAT.FEZ]: {
+		name: "Fez",
+		description: "It's a fez. Fezzes are cool."
+	},
+};
+
 /**
  * @param {string[][]} spriteSheet 
  * @returns {{ base: Layer[], down: Layer[] }}

@@ -43,7 +43,7 @@ import {
 	switchMenuItems,
 	MENU_EXIT_ID
 } from './menu.js';
-import { HAT } from './hats.js';
+import { HAT, HAT_METADATA } from './hats.js';
 
 
 /**
@@ -84,6 +84,7 @@ const HATS_SPRITE_SHEET = "__HATS_SPRITE_SHEET__";
 // Element IDs
 const FIELD_GUIDE_ID = "birb-field-guide";
 const FEATHER_ID = "birb-feather";
+const WARDROBE_ID = "birb-wardrobe";
 
 const DEFAULT_BIRD = "bluebird";
 
@@ -159,6 +160,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	const menuItems = [
 		new MenuItem(`Pet ${birdBirb()}`, pet),
 		new MenuItem("Field Guide", insertFieldGuide),
+		new MenuItem("Wardrobe", insertWardrobe),
 		new ConditionalMenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote), () => getContext().areStickyNotesEnabled()),
 		new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false)),
 		new DebugMenuItem("Freeze/Unfreeze", () => {
@@ -650,6 +652,8 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
 			return;
 		}
+		// Remove wardrobe if open
+		removeWardrobe();
 
 		const contentContainer = document.createElement("div");
 		const content = makeElement("birb-grid-content");
@@ -730,6 +734,100 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		}
 	}
 
+	function insertWardrobe() {
+		console.log("Inserting wardrobe");
+		if (document.querySelector("#" + WARDROBE_ID)) {
+			return;
+		}
+		// Remove field guide if open
+		removeFieldGuide();
+
+		const contentContainer = document.createElement("div");
+		const content = makeElement("birb-grid-content");
+		const description = makeElement("birb-field-guide-description");
+		contentContainer.appendChild(content);
+		contentContainer.appendChild(description);
+
+		const wardrobe = createWindow(
+			WARDROBE_ID,
+			"Wardrobe",
+			contentContainer
+		);
+
+		const generateDescription = (/** @type {string} */ hat) => {
+			const metadata = HAT_METADATA[hat] ?? { name: "Unknown Hat", description: "todo" };
+			const unlocked = true;
+
+			const boldName = document.createElement("b");
+			boldName.textContent = metadata.name;
+
+			const spacer = document.createElement("div");
+			spacer.style.height = "0.3em";
+
+			const descText = document.createTextNode(!unlocked ? "Not yet unlocked" : metadata.description);
+
+			const fragment = document.createDocumentFragment();
+			fragment.appendChild(boldName);
+			fragment.appendChild(spacer);
+			fragment.appendChild(descText);
+
+			return fragment;
+		};
+
+		description.appendChild(generateDescription(currentHat));
+		for (const hat of Object.values(HAT)) {
+			const unlocked = true;
+			const hatElement = makeElement("birb-grid-item");
+			if (hat === currentHat) {
+				hatElement.classList.add("birb-grid-item-selected");
+			}
+			const hatCanvas = document.createElement("canvas");
+			hatCanvas.width = SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
+			hatCanvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
+			const hatCtx = hatCanvas.getContext("2d");
+			if (!hatCtx) {
+				return;
+			}
+			console.log(hat);
+			birb.getFrames().base.draw(
+				hatCtx,
+				Directions.RIGHT,
+				CANVAS_PIXEL_SIZE,
+				SPECIES[currentSpecies].colors,
+				[...SPECIES[currentSpecies].tags, hat]
+			);
+			hatElement.appendChild(hatCanvas);
+			content.appendChild(hatElement);
+			if (unlocked) {
+				onClick(hatElement, () => {
+					switchHat(hat);
+					document.querySelectorAll(".birb-grid-item").forEach((element) => {
+						element.classList.remove("birb-grid-item-selected");
+					});
+					hatElement.classList.add("birb-grid-item-selected");
+				});
+			} else {
+				hatElement.classList.add("birb-grid-item-locked");
+			}
+			hatElement.addEventListener("mouseover", () => {
+				description.textContent = "";
+				description.appendChild(generateDescription(hat));
+			});
+			hatElement.addEventListener("mouseout", () => {
+				description.textContent = "";
+				description.appendChild(generateDescription(currentHat));
+			});
+		}
+		centerElement(wardrobe);
+	}
+
+	function removeWardrobe() {
+		const wardrobe = document.querySelector("#" + WARDROBE_ID);
+		if (wardrobe) {
+			wardrobe.remove();
+		}
+	}
+
 	/**
 	 * @param {string} type
 	 */
@@ -737,6 +835,14 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		currentSpecies = type;
 		// Update CSS variable --birb-highlight to be wing color
 		document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+		save();
+	}
+
+	/**
+	 * @param {string} hat
+	 */
+	function switchHat(hat) {
+		currentHat = hat;
 		save();
 	}
 

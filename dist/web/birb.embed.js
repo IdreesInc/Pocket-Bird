@@ -618,6 +618,33 @@
 		FEZ: "fez",
 	};
 
+	const HAT_METADATA = {
+		[HAT.NONE]: {
+			name: "Invisible Hat",
+			description: "It's like you're wearing nothing at all!"
+		},
+		[HAT.TOP_HAT]: {
+			name: "Top Hat",
+			description: "For that classy, sophisticated look."
+		},
+		[HAT.VIKING_HELMET]: {
+			name: "Viking Helmet",
+			description: "Sure, vikings never actually wore this style of helmet, but why let facts get in the way of good fashion?"
+		},
+		[HAT.COWBOY_HAT]: {
+			name: "Cowboy Hat",
+			description: "You can't jam with the console cowboys without the appropriate attire."
+		},
+		[HAT.BOWLER_HAT]: {
+			name: "Bowler Hat",
+			description: "For that authentic, Victorian look!"
+		},
+		[HAT.FEZ]: {
+			name: "Fez",
+			description: "It's a fez. Fezzes are cool."
+		},
+	};
+
 	/**
 	 * @param {string[][]} spriteSheet 
 	 * @returns {{ base: Layer[], down: Layer[] }}
@@ -1737,9 +1764,20 @@
 	width: 322px !important;
 }
 
+#birb-wardrobe {
+	width: calc(322px - 64px - 14px) !important;
+}
+
+#birb-field-guide .birb-grid-content {
+	grid-template-rows: repeat(3, auto);
+}
+
+#birb-wardrobe .birb-grid-content {
+	grid-template-rows: repeat(2, auto);
+}
+
 .birb-grid-content {
 	display: grid;
-	grid-template-rows: repeat(3, auto);
 	grid-auto-flow: column;
 	gap: 10px;
 	padding-top: 8px;
@@ -1866,11 +1904,12 @@
 }`;
 	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABD9JREFUeJztnT9rFEEYh3+TWATE7hDcsxW7CBbmA0Qs0uSuSiloYSBgIRhCPkCQFIKCYNBKK6szjZWpbEyTziLY5k6RAwsjpDGvRXbWubmd3btzd2c293vgyGRvb9/Z25ln39l/BxBCCCGEkOlC+a4ACR8REdd7Sim2IVJb2HhrgE8B6djtZhMA0Ol2B8pV1IEQMqVITCuKpBVFQ+UsORYVvxVF8nl+XmRtbahcdnxCymTGdwVIPu1mExuNBjrt9lC5SvY/fcJGo5GUCak7FGCN8CWgTreLJ/3+wLQn/X4yBCaEkFIwh8Cf5+eTV1VD4LQ6VBmbEBIAkkLVsX0KyKwD5UfIlCEiZwf/jb9Vx/ctIB/yJ6RMLviuQN3Yv3HDS1yllBIR8XnpCS93IWRK0ZmPzv6YBRFSf7hHHwNTesyGqsfe6XAbkP+FDYjUAi0/7TwRqVyAFPCUknYGlENA4gHZ6bYEgLcTQHHsoNs/++no5F4Ibe55zRdy7lEtEgqYAMBOt6WLXk4AKaWSOoSW/dn9wkc/rSOZZ4HNL9NofNDTRMScp5QGYQ99jOkQEQmtIZLyeNB873Vb+xTwKJhdYWW7l0yj/9w4BWiK53DlPvAI2L79Onl/p9seOB5ThoxCEDAhGt8CzkCUUon0zjtXZpV8+yOFbAvnQkREZi5GA9PuPevhw+oMll6eAgCOf34DALxbjwb2MkXIaEjAGBTwraU2HjTf63kLi0tIzRCX+L4e/cLB8+teThiVxZVZJUsvT/FhdQZFSDBTgIgFdP9VegqtBYhYgjBklBpsjI3gW8AkbFa2e/JuPZr27Zwrv1CH66HgHALrOw9c75vyg3XMIY1Jhsmnv3tDAtbys2Pbw3HXOo0am4TDye6izC3vKV0GgLllv/LzLeCV7Z7XA3uu+HEiVJt+llnRWFg42V3E2o+PAIAXl28DAO4evh0pwNejXwAwUSqu46dloLaANToTTVkWQAnWln/i26t8+6ULuPp6mLgEZPa3kkXkzD7rJMGRBWgzt7yHmw8Pce3qpdTPWhtiIgH5FjAhmlDEpznZXRSzD9j9rQIBiav/T4UAYUgwDVt8mCD78i1gQkKmv7Ugaxc6wODIp6r27RQgaiTBXAEiPq5nS+j4yzEAoLG57/rsvyATSse3gAkJnf7WQtLA73x/A5y1fe8SNE9MhtzvciuWJiEtvzQam/uFrbhvARNCchGdhNgi1BIMuf+N9DzAeCXQ31rInK9I+SHjTLQpYLtORdeBEJKJOnh+/azDOUQYMrkC1BLKk2CZ4tGxkSK8qupACHGicDb0HhDhucJ8Gkbn6ePkqRi6XOYDCqwbvVPjl10HQkg+9hNzQu+PY/0splIKnaePk//NMkrMuvRys+Iz8yMkDOKbEYAa9MexfhPEHIra5SrIix/6l03IeadufXDs6/KcC6pgxX3HJ4ScL/4CWsLSrzMo7i0AAAAASUVORK5CYII=";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
-	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAMCAYAAAA+ht7fAAAAAXNSR0IArs4c6QAAATxJREFUSIljYBgFo2AUjIJRMHgBI7qAgqDqfxj7wfvbWNVAwX8y5P4jsRmR+LjMIRX8xyKGYjYTuQYfPnsJ2YL/yGw0ORSwtzMCbkZ/mDVRlikIqv5Hjgh84LONDcNnPT2G/6f54fYgy7Pg0giNXWLA/5a6dgYGBgaGmqZKohwF8/Sls48JqoV59MWXJwwcrJz/f/z+jj81fPrE8O/HD4bpvpwM/08zMDCafkSRxvDwGml2CINHloGBgYHB5DF2R9148JRh9trtDC8vXmBgYGBgePfpDUNRQTGDpq0Lw40HT9GVwwPi9SGEeZKY8hieISHgMQC6Z1EswJJ3caqFObKmrYeB48dvhnef3sAFucQkGVqqStDV/0dKyigAFsuFq47idM+LL08w9OGIaYJ5mJLCglDyxQggEtXTBAAAgRd0Slay6H4AAAAASUVORK5CYII=";
+	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAMCAYAAAA+ht7fAAAAAXNSR0IArs4c6QAAAT5JREFUSIljYBgFo2AUjIJRMHgBI7qAgqDqfxj7wfvbWNVAwX8y5P4jsRmR+LjMIQf8R+OjmM1ErqGHz15CNvw/MhtNDgXs7YyAm9EfZk2UZQqCqv+RIwKfuxgYGBg+6+kx/D/NjyIGAyy4dEJjlxjwv6WunYGBgYGhpqmSGEfBPX3p7GOCamEeffHlCQMHK+f/H7+/400N/+3tGT49f84w3ZeT4f9pBgZG048o8hgeXiPNDmHwyDIwMDAwmDzG7qgbD54yzF67neHlxQsMDAwMDO8+vWEoKihm0LR1Ybjx4CmGO2CM14cQ5kliymN4hoSAxwDonkWxAEvexakW5siath4Gjh+/Gd59egMX5BKTZGipKkFX/x8pKaMAWCwXrjqK0z0vvjzB0IcjprGlMEacHBIBoeSLEUAkqqcJAAAmBnNJoDeWTQAAAABJRU5ErkJggg==";
 
 	// Element IDs
 	const FIELD_GUIDE_ID = "birb-field-guide";
 	const FEATHER_ID = "birb-feather";
+	const WARDROBE_ID = "birb-wardrobe";
 
 	const DEFAULT_BIRD = "bluebird";
 
@@ -1946,6 +1985,7 @@
 		const menuItems = [
 			new MenuItem(`Pet ${birdBirb()}`, pet),
 			new MenuItem("Field Guide", insertFieldGuide),
+			new MenuItem("Wardrobe", insertWardrobe),
 			new ConditionalMenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote), () => getContext().areStickyNotesEnabled()),
 			new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false)),
 			new DebugMenuItem("Freeze/Unfreeze", () => {
@@ -2433,6 +2473,8 @@
 			if (document.querySelector("#" + FIELD_GUIDE_ID)) {
 				return;
 			}
+			// Remove wardrobe if open
+			removeWardrobe();
 
 			const contentContainer = document.createElement("div");
 			const content = makeElement("birb-grid-content");
@@ -2513,6 +2555,96 @@
 			}
 		}
 
+		function insertWardrobe() {
+			console.log("Inserting wardrobe");
+			if (document.querySelector("#" + WARDROBE_ID)) {
+				return;
+			}
+			// Remove field guide if open
+			removeFieldGuide();
+
+			const contentContainer = document.createElement("div");
+			const content = makeElement("birb-grid-content");
+			const description = makeElement("birb-field-guide-description");
+			contentContainer.appendChild(content);
+			contentContainer.appendChild(description);
+
+			const wardrobe = createWindow(
+				WARDROBE_ID,
+				"Wardrobe",
+				contentContainer
+			);
+
+			const generateDescription = (/** @type {string} */ hat) => {
+				const metadata = HAT_METADATA[hat] ?? { name: "Unknown Hat", description: "todo" };
+
+				const boldName = document.createElement("b");
+				boldName.textContent = metadata.name;
+
+				const spacer = document.createElement("div");
+				spacer.style.height = "0.3em";
+
+				const descText = document.createTextNode(metadata.description);
+
+				const fragment = document.createDocumentFragment();
+				fragment.appendChild(boldName);
+				fragment.appendChild(spacer);
+				fragment.appendChild(descText);
+
+				return fragment;
+			};
+
+			description.appendChild(generateDescription(currentHat));
+			for (const hat of Object.values(HAT)) {
+				const hatElement = makeElement("birb-grid-item");
+				if (hat === currentHat) {
+					hatElement.classList.add("birb-grid-item-selected");
+				}
+				const hatCanvas = document.createElement("canvas");
+				hatCanvas.width = SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
+				hatCanvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
+				const hatCtx = hatCanvas.getContext("2d");
+				if (!hatCtx) {
+					return;
+				}
+				console.log(hat);
+				birb.getFrames().base.draw(
+					hatCtx,
+					Directions.RIGHT,
+					CANVAS_PIXEL_SIZE,
+					SPECIES[currentSpecies].colors,
+					[...SPECIES[currentSpecies].tags, hat]
+				);
+				hatElement.appendChild(hatCanvas);
+				content.appendChild(hatElement);
+				{
+					onClick(hatElement, () => {
+						switchHat(hat);
+						document.querySelectorAll(".birb-grid-item").forEach((element) => {
+							element.classList.remove("birb-grid-item-selected");
+						});
+						hatElement.classList.add("birb-grid-item-selected");
+					});
+				}
+				hatElement.addEventListener("mouseover", () => {
+					description.textContent = "";
+					description.appendChild(generateDescription(hat));
+				});
+				hatElement.addEventListener("mouseout", () => {
+					description.textContent = "";
+					description.appendChild(generateDescription(currentHat));
+				});
+			}
+			centerElement(wardrobe);
+		}
+
+		function removeWardrobe() {
+			const wardrobe = document.querySelector("#" + WARDROBE_ID);
+			if (wardrobe) {
+				wardrobe.remove();
+			}
+		}
+
 		/**
 		 * @param {string} type
 		 */
@@ -2520,6 +2652,14 @@
 			currentSpecies = type;
 			// Update CSS variable --birb-highlight to be wing color
 			document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+			save();
+		}
+
+		/**
+		 * @param {string} hat
+		 */
+		function switchHat(hat) {
+			currentHat = hat;
 			save();
 		}
 

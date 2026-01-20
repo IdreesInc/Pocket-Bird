@@ -242,9 +242,20 @@
 	width: 322px !important;
 }
 
+#birb-wardrobe {
+	width: calc(322px - 64px - 14px) !important;
+}
+
+#birb-field-guide .birb-grid-content {
+	grid-template-rows: repeat(3, auto);
+}
+
+#birb-wardrobe .birb-grid-content {
+	grid-template-rows: repeat(2, auto);
+}
+
 .birb-grid-content {
 	display: grid;
-	grid-template-rows: repeat(3, auto);
 	grid-auto-flow: column;
 	gap: 10px;
 	padding-top: 8px;
