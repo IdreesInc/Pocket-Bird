@@ -2167,7 +2167,8 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem(() => `2026.1.22 ${isPetBoostActive() ? "❤" : ""}`, () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.22"); }, false),
+			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
+			new MenuItem("2026.1.22", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.22"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
