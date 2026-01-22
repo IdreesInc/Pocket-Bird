@@ -59,10 +59,11 @@ class Anim {
 	 * @param {number} direction
 	 * @param {number} timeStart The start time of the animation in milliseconds
 	 * @param {number} canvasPixelSize The size of a canvas pixel in pixels
-	 * @param {BirdType} [species] The species to use for the animation
+	 * @param {{ [key: string]: string }} colorScheme The color scheme to use for the animation
+	 * @param {string[]} tags The tags to use for the animation
 	 * @returns {boolean} Whether the animation is complete
 	 */
-	draw(ctx, direction, timeStart, canvasPixelSize, species) {
+	draw(ctx, direction, timeStart, canvasPixelSize, colorScheme, tags) {
 		// Reset cache if animation was restarted
 		if (this.lastTimeStart !== timeStart) {
 			this.#clearCache();
@@ -79,7 +80,7 @@ class Anim {
 		const currentFrameIndex = this.getCurrentFrameIndex(time);
 		
 		if (this.#shouldRedraw(currentFrameIndex, direction)) {
-			this.frames[currentFrameIndex].draw(ctx, direction, canvasPixelSize, species);
+			this.frames[currentFrameIndex].draw(ctx, direction, canvasPixelSize, colorScheme, tags);
 			this.lastFrameIndex = currentFrameIndex;
 			this.lastDirection = direction;
 		}

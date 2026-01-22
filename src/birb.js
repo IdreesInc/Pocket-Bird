@@ -2,7 +2,8 @@ import { Directions, getLayerPixels, getWindowHeight, getFixedWindowHeight } fro
 import Layer from './animation/layer.js';
 import Frame from './animation/frame.js';
 import Anim from './animation/anim.js';
-import { BirdType } from './animation/sprites.js';
+import { BirdType, PALETTE } from './animation/sprites.js';
+import { createHatLayers } from './hats.js';
 
 /**
  * @typedef {keyof typeof Animations} AnimationType
@@ -31,8 +32,9 @@ export class Birb {
 	 * @param {string[][]} spriteSheet The loaded sprite sheet pixel data
 	 * @param {number} spriteWidth
 	 * @param {number} spriteHeight
+	 * @param {string[][]} hatSpriteSheet The loaded hat sprite sheet pixel data
 	 */
-	constructor(birbCssScale, canvasPixelSize, spriteSheet, spriteWidth, spriteHeight) {
+	constructor(birbCssScale, canvasPixelSize, spriteSheet, spriteWidth, spriteHeight, hatSpriteSheet) {
 		this.birbCssScale = birbCssScale;
 		this.canvasPixelSize = canvasPixelSize;
 		this.windowPixelSize = canvasPixelSize * birbCssScale;
@@ -53,16 +55,19 @@ export class Birb {
 			happyEye: new Layer(getLayerPixels(spriteSheet, 9, this.spriteWidth)),
 		};
 
+		// Build hat layers
+		const hatLayers = createHatLayers(hatSpriteSheet);
+
 		// Build frames from layers
 		this.frames = {
-			base: new Frame([this.layers.base, this.layers.tuftBase]),
-			headDown: new Frame([this.layers.down, this.layers.tuftDown]),
-			wingsDown: new Frame([this.layers.base, this.layers.tuftBase, this.layers.wingsDown]),
-			wingsUp: new Frame([this.layers.down, this.layers.tuftDown, this.layers.wingsUp]),
-			heartOne: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartOne]),
-			heartTwo: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartTwo]),
-			heartThree: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartThree]),
-			heartFour: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartTwo]),
+			base: new Frame([this.layers.base, this.layers.tuftBase, ...hatLayers.base]),
+			headDown: new Frame([this.layers.down, this.layers.tuftDown, ...hatLayers.down]),
+			wingsDown: new Frame([this.layers.base, this.layers.tuftBase, this.layers.wingsDown, ...hatLayers.base]),
+			wingsUp: new Frame([this.layers.down, this.layers.tuftDown, this.layers.wingsUp, ...hatLayers.down]),
+			heartOne: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, ...hatLayers.base, this.layers.heartOne]),
+			heartTwo: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, ...hatLayers.base,this.layers.heartTwo]),
+			heartThree: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, ...hatLayers.base, this.layers.heartThree]),
+			heartFour: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, ...hatLayers.base, this.layers.heartTwo]),
 		};
 
 		// Build animations from frames
@@ -121,13 +126,15 @@ export class Birb {
 
 	/**
 	 * Draw the current animation frame
-	 * @param {BirdType} species The species color data
+	 * @param {BirdType} species The species data
+	 * @param {string} [hat] The name of the current hat
 	 * @returns {boolean} Whether the animation has completed (for non-looping animations)
 	 */
-	draw(species) {
+	draw(species, hat) {
 		const anim = this.animations[this.currentAnimation];
-		return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species);
+		return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species.colors, [...species.tags, hat || '']);
 	}
+
 
 	/**
 	 * @returns {AnimationType} The current animation key

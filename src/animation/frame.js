@@ -1,6 +1,6 @@
 import { Directions } from '../shared.js';
 import { PALETTE, BirdType } from './sprites.js';
-import Layer from './layer.js';
+import Layer, { TAG } from './layer.js';
 
 class Frame {
 
@@ -16,10 +16,10 @@ class Frame {
 		for (let layer of layers) {
 			tags.add(layer.tag);
 		}
-		tags.add("default");
+		tags.add(TAG.DEFAULT);
 		for (let tag of tags) {
 			let maxHeight = layers.reduce((max, layer) => Math.max(max, layer.pixels.length), 0);
-			if (layers[0].tag !== "default") {
+			if (layers[0].tag !== TAG.DEFAULT) {
 				throw new Error("First layer must have the 'default' tag");
 			}
 			this.pixels = layers[0].pixels.map(row => row.slice());
@@ -29,7 +29,7 @@ class Frame {
 			}
 			// Combine layers
 			for (let i = 1; i < layers.length; i++) {
-				if (layers[i].tag === "default" || layers[i].tag === tag) {
+				if (layers[i].tag === TAG.DEFAULT || layers[i].tag === tag) {
 					let layerPixels = layers[i].pixels;
 					let topMargin = maxHeight - layerPixels.length;
 					for (let y = 0; y < layerPixels.length; y++) {
@@ -44,29 +44,36 @@ class Frame {
 	}
 
 	/**
-	 * @param {string} [tag]
+	 * @param {string[]} [tags]
 	 * @returns {string[][]}
 	 */
-	getPixels(tag = "default") {
-		return this.#pixelsByTag[tag] ?? this.#pixelsByTag["default"];
+	getPixels(tags = [TAG.DEFAULT]) {
+		for (let i = tags.length - 1; i >= 0; i--) {
+			const tag = tags[i];
+			if (this.#pixelsByTag[tag]) {
+				return this.#pixelsByTag[tag];
+			}
+		}
+		return this.#pixelsByTag[TAG.DEFAULT];
 	}
 
 	/**
 	 * @param {CanvasRenderingContext2D} ctx
-	 * @param {BirdType} [species]
-	* @param {number} direction
+	 * @param {number} direction
 	 * @param {number} canvasPixelSize
+	 * @param {{ [key: string]: string }} colorScheme
+	 * @param {string[]} tags
 	 */
-	draw(ctx, direction, canvasPixelSize, species) {
+	draw(ctx, direction, canvasPixelSize, colorScheme, tags) {
 		// Clear the canvas before drawing the new frame
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		
-		const pixels = this.getPixels(species?.tags[0]);
+		const pixels = this.getPixels(tags);
 		for (let y = 0; y < pixels.length; y++) {
 			const row = pixels[y];
 			for (let x = 0; x < pixels[y].length; x++) {
 				const cell = direction === Directions.LEFT ? row[x] : row[pixels[y].length - x - 1];
-				ctx.fillStyle = species?.colors[cell] ?? cell;
+				ctx.fillStyle = colorScheme[cell] ?? cell;
 				ctx.fillRect(x * canvasPixelSize, y * canvasPixelSize, canvasPixelSize, canvasPixelSize);
 			};
 		};

@@ -226,6 +226,22 @@
 		return document.documentElement.clientHeight;
 	}
 
+	const TAG = {
+		DEFAULT: "default",
+		TUFT: "tuft",
+	};
+
+	class Layer {
+		/**
+		 * @param {string[][]} pixels
+		 * @param {string} [tag]
+		 */
+		constructor(pixels, tag = TAG.DEFAULT) {
+			this.pixels = pixels;
+			this.tag = tag;
+		}
+	}
+
 	/**
 	 * Palette color names
 	 * @type {Record<string, string>}
@@ -257,6 +273,7 @@
 	 */
 	const SPRITE_SHEET_COLOR_MAP = {
 		"transparent": PALETTE.TRANSPARENT,
+		"#fff000": PALETTE.THEME_HIGHLIGHT,
 		"#ffffff": PALETTE.BORDER,
 		"#000000": PALETTE.OUTLINE,
 		"#010a19": PALETTE.BEAK,
@@ -333,7 +350,8 @@
 			[PALETTE.UNDERBELLY]: "#d7cfcb",
 			[PALETTE.WING]: "#b1b5c5",
 			[PALETTE.WING_EDGE]: "#9d9fa9",
-		}, ["tuft"]),
+			[PALETTE.THEME_HIGHLIGHT]: "#b9abcf",
+		}, [TAG.TUFT]),
 		europeanRobin: new BirdType("European Robin",
 			"Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.", {
 			[PALETTE.FOOT]: "#af8e75",
@@ -355,7 +373,7 @@
 			[PALETTE.UNDERBELLY]: "#dc3719",
 			[PALETTE.WING]: "#d23215",
 			[PALETTE.WING_EDGE]: "#b1321c",
-		}, ["tuft"]),
+		}, [TAG.TUFT]),
 		americanGoldfinch: new BirdType("American Goldfinch",
 			"Coloured a brilliant yellow, this bird feeds almost entirely on the seeds of plants such as thistle, sunflowers, and coneflowers.", {
 			[PALETTE.BEAK]: "#ffaf34",
@@ -432,17 +450,6 @@
 		}),
 	};
 
-	class Layer {
-		/**
-		 * @param {string[][]} pixels
-		 * @param {string} [tag]
-		 */
-		constructor(pixels, tag = "default") {
-			this.pixels = pixels;
-			this.tag = tag;
-		}
-	}
-
 	class Frame {
 
 		/** @type {{ [tag: string]: string[][] }} */
@@ -457,10 +464,10 @@
 			for (let layer of layers) {
 				tags.add(layer.tag);
 			}
-			tags.add("default");
+			tags.add(TAG.DEFAULT);
 			for (let tag of tags) {
 				let maxHeight = layers.reduce((max, layer) => Math.max(max, layer.pixels.length), 0);
-				if (layers[0].tag !== "default") {
+				if (layers[0].tag !== TAG.DEFAULT) {
 					throw new Error("First layer must have the 'default' tag");
 				}
 				this.pixels = layers[0].pixels.map(row => row.slice());
@@ -470,7 +477,7 @@
 				}
 				// Combine layers
 				for (let i = 1; i < layers.length; i++) {
-					if (layers[i].tag === "default" || layers[i].tag === tag) {
+					if (layers[i].tag === TAG.DEFAULT || layers[i].tag === tag) {
 						let layerPixels = layers[i].pixels;
 						let topMargin = maxHeight - layerPixels.length;
 						for (let y = 0; y < layerPixels.length; y++) {
@@ -485,29 +492,36 @@
 		}
 
 		/**
-		 * @param {string} [tag]
+		 * @param {string[]} [tags]
 		 * @returns {string[][]}
 		 */
-		getPixels(tag = "default") {
-			return this.#pixelsByTag[tag] ?? this.#pixelsByTag["default"];
+		getPixels(tags = [TAG.DEFAULT]) {
+			for (let i = tags.length - 1; i >= 0; i--) {
+				const tag = tags[i];
+				if (this.#pixelsByTag[tag]) {
+					return this.#pixelsByTag[tag];
+				}
+			}
+			return this.#pixelsByTag[TAG.DEFAULT];
 		}
 
 		/**
 		 * @param {CanvasRenderingContext2D} ctx
-		 * @param {BirdType} [species]
-		* @param {number} direction
+		 * @param {number} direction
 		 * @param {number} canvasPixelSize
+		 * @param {{ [key: string]: string }} colorScheme
+		 * @param {string[]} tags
 		 */
-		draw(ctx, direction, canvasPixelSize, species) {
+		draw(ctx, direction, canvasPixelSize, colorScheme, tags) {
 			// Clear the canvas before drawing the new frame
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 			
-			const pixels = this.getPixels(species?.tags[0]);
+			const pixels = this.getPixels(tags);
 			for (let y = 0; y < pixels.length; y++) {
 				const row = pixels[y];
 				for (let x = 0; x < pixels[y].length; x++) {
 					const cell = direction === Directions.LEFT ? row[x] : row[pixels[y].length - x - 1];
-					ctx.fillStyle = species?.colors[cell] ?? cell;
+					ctx.fillStyle = colorScheme[cell] ?? cell;
 					ctx.fillRect(x * canvasPixelSize, y * canvasPixelSize, canvasPixelSize, canvasPixelSize);
 				}		}	}
 	}
@@ -570,10 +584,11 @@
 		 * @param {number} direction
 		 * @param {number} timeStart The start time of the animation in milliseconds
 		 * @param {number} canvasPixelSize The size of a canvas pixel in pixels
-		 * @param {BirdType} [species] The species to use for the animation
+		 * @param {{ [key: string]: string }} colorScheme The color scheme to use for the animation
+		 * @param {string[]} tags The tags to use for the animation
 		 * @returns {boolean} Whether the animation is complete
 		 */
-		draw(ctx, direction, timeStart, canvasPixelSize, species) {
+		draw(ctx, direction, timeStart, canvasPixelSize, colorScheme, tags) {
 			// Reset cache if animation was restarted
 			if (this.lastTimeStart !== timeStart) {
 				this.#clearCache();
@@ -590,7 +605,7 @@
 			const currentFrameIndex = this.getCurrentFrameIndex(time);
 			
 			if (this.#shouldRedraw(currentFrameIndex, direction)) {
-				this.frames[currentFrameIndex].draw(ctx, direction, canvasPixelSize, species);
+				this.frames[currentFrameIndex].draw(ctx, direction, canvasPixelSize, colorScheme, tags);
 				this.lastFrameIndex = currentFrameIndex;
 				this.lastDirection = direction;
 			}
@@ -598,6 +613,226 @@
 			// Return whether animation is complete (for non-looping animations)
 			return !this.loop && time >= duration;
 		}
+	}
+
+	const HAT_WIDTH = 12;
+
+	const HAT = {
+		NONE: "none",
+		TOP_HAT: "top-hat",
+		VIKING_HELMET: "viking-helmet",
+		COWBOY_HAT: "cowboy-hat",
+		BOWLER_HAT: "bowler-hat",
+		FEZ: "fez",
+		WIZARD_HAT: "wizard-hat",
+		BASEBALL_CAP: "baseball-cap",
+		FLOWER_HAT: "flower-hat"
+	};
+
+	/** @type {{ [hatId: string]: { name: string, description: string } }} */
+	const HAT_METADATA = {
+		[HAT.NONE]: {
+			name: "Invisible Hat",
+			description: "It's like you're wearing nothing at all!"
+		},
+		[HAT.TOP_HAT]: {
+			name: "Top Hat",
+			description: "The mark of a true gentlebird."
+		},
+		[HAT.VIKING_HELMET]: {
+			name: "Viking Helmet",
+			description: "Sure, vikings never actually wore this style of helmet, but why let facts get in the way of good fashion?"
+		},
+		[HAT.COWBOY_HAT]: {
+			name: "Cowboy Hat",
+			description: "You can't jam with the console cowboys without the appropriate attire."
+		},
+		[HAT.BOWLER_HAT]: {
+			name: "Bowler Hat",
+			description: "For that authentic, Victorian look!"
+		},
+		[HAT.FEZ]: {
+			name: "Fez",
+			description: "It's a fez. Fezzes are cool."
+		},
+		[HAT.WIZARD_HAT]: {
+			name: "Wizard Hat",
+			description: "Grants the bearer terrifying mystical power, but luckily birds only use it to summon old ladies with bread crumbs."
+		},
+		[HAT.BASEBALL_CAP]: {
+			name: "Baseball Cap",
+			description: "Birds unfortunately only ever hit 'fowl' balls..."
+		},
+		[HAT.FLOWER_HAT]: {
+			name: "Flower Hat",
+			description: "To be fair, this is less of a hat and more of a dirt clod that your pet happened to pick up."
+		}
+	};
+
+	/**
+	 * @param {string[][]} spriteSheet 
+	 * @returns {{ base: Layer[], down: Layer[] }}
+	 */
+	function createHatLayers(spriteSheet) {
+		const hatLayers = {
+			base: [],
+			down: []
+		};
+		for (let i = 0; i < Object.keys(HAT).length; i++) {
+			const hatName = Object.keys(HAT)[i];
+			if (hatName === 'NONE') {
+				continue;
+			}
+			const index = i - 1;
+			const hatKey = HAT[hatName];
+			const hatLayer = buildHatLayer(spriteSheet, hatKey, index);
+			const downHatLayer = buildHatLayer(spriteSheet, hatKey, index, 1);
+			hatLayers.base.push(hatLayer);
+			hatLayers.down.push(downHatLayer);
+		}
+		return hatLayers;
+	}
+
+	/**
+	 * @param {string[][]} spriteSheet
+	 * @param {string} hatId 
+	 * @returns {Anim}
+	 */
+	function createHatItemAnimation(hatId, spriteSheet) {
+		const hatLayer = buildHatItemLayer(spriteSheet, hatId);
+		const frames = [
+			new Frame([hatLayer])
+		];
+		return new Anim(frames, [1000], true);
+	}
+
+	/**
+	 * @param {string[][]} spriteSheet 
+	 * @param {string} hatName
+	 * @param {number} hatIndex
+	 * @param {number} [yOffset=0]
+	 * @returns {Layer}
+	 */
+	function buildHatLayer(spriteSheet, hatName, hatIndex, yOffset = 0) {
+		const LEFT_PADDING = 6;
+		const RIGHT_PADDING = 14;
+		const TOP_PADDING = 5 + yOffset;
+		const BOTTOM_PADDING = Math.max(0, 15 - yOffset);
+
+		let hatPixels = getLayerPixels(spriteSheet, hatIndex, HAT_WIDTH);
+		hatPixels = pad(hatPixels, TOP_PADDING, BOTTOM_PADDING, LEFT_PADDING, RIGHT_PADDING);
+		hatPixels = drawOutline(hatPixels, false);
+
+		return new Layer(hatPixels, hatName);
+	}
+
+	/**
+	 * @param {string[][]} spriteSheet 
+	 * @param {string} hatId 
+	 * @returns {Layer}
+	 */
+	function buildHatItemLayer(spriteSheet, hatId) {
+		if (hatId === HAT.NONE) {
+			return new Layer([], TAG.DEFAULT);
+		}
+		const hatIndex = Object.values(HAT).indexOf(hatId) - 1;
+		let hatPixels = getLayerPixels(spriteSheet, hatIndex, HAT_WIDTH);
+		hatPixels = pad(hatPixels, 1, 1, 1, 1);
+		hatPixels = drawOutline(hatPixels, true);
+		hatPixels = pushToBottom(hatPixels);
+		return new Layer(hatPixels, TAG.DEFAULT);
+	}
+
+	/**
+	 * Add transparent padding around the pixel array
+	 * @param {string[][]} pixels 
+	 * @param {number} top 
+	 * @param {number} bottom 
+	 * @param {number} left 
+	 * @param {number} right 
+	 * @returns {string[][]}
+	 */
+	function pad(pixels, top, bottom, left, right) {
+		const paddedPixels = [];
+		const rowLength = pixels[0].length + left + right;
+		// Top padding
+		for (let y = 0; y < top; y++) {
+			paddedPixels.push(Array(rowLength).fill(PALETTE.TRANSPARENT));
+		}
+		// Left and right padding
+		for (let y = 0; y < pixels.length; y++) {
+			const row = [];
+			for (let x = 0; x < left; x++) {
+				row.push(PALETTE.TRANSPARENT);
+			}
+			for (let x = 0; x < pixels[y].length; x++) {
+				row.push(pixels[y][x]);
+			}
+			for (let x = 0; x < right; x++) {
+				row.push(PALETTE.TRANSPARENT);
+			}
+			paddedPixels.push(row);
+		}
+		// Bottom padding
+		for (let y = 0; y < bottom; y++) {
+			paddedPixels.push(Array(rowLength).fill(PALETTE.TRANSPARENT));
+		}
+		return paddedPixels;
+	}
+
+	/**
+	 * Draw an outline around non-transparent pixels
+	 * @param {string[][]} pixels 
+	 * @param {boolean} [outlineBottom=false]
+	 * @return {string[][]}
+	 */
+	function drawOutline(pixels, outlineBottom = false) {
+		let neighborOffsets = [
+			[-1, 0],
+			[1, 0],
+			[0, -1],
+			[-1, -1],
+			[1, -1],
+		];
+		if (outlineBottom) {
+			neighborOffsets.push([0, 1], [-1, 1], [1, 1]);
+		}
+		for (let y = 0; y < pixels.length; y++) {
+			for (let x = 0; x < pixels[y].length; x++) {
+				const pixel = pixels[y][x];
+				if (pixel !== PALETTE.TRANSPARENT && pixel !== PALETTE.BORDER) {
+					for (let [dx, dy] of neighborOffsets) {
+						const newX = x + dx;
+						const newY = y + dy;
+						if (newY >= 0 && newY < pixels.length && newX >= 0 && newX < pixels[newY].length && pixels[newY][newX] === PALETTE.TRANSPARENT) {
+							pixels[newY][newX] = PALETTE.BORDER;
+						}
+					}
+				}
+			}
+		}
+		return pixels;
+	}
+
+	/**
+	 * Trim transparent rows from the bottom and push them to the top
+	 * @param {string[][]} pixels
+	 * @returns {string[][]}
+	 */
+	function pushToBottom(pixels) {
+		let trimmedPixels = pixels.slice();
+		let trimCount = 0;
+		while (trimmedPixels.length > 1) {
+			const firstRow = trimmedPixels[trimmedPixels.length - 1];
+			if (firstRow.every(pixel => pixel === PALETTE.TRANSPARENT)) {
+				trimmedPixels.pop();
+				trimCount++;
+			} else {
+				break;
+			}
+		}
+		trimmedPixels = pad(trimmedPixels, trimCount, 0, 0, 0);
+		return trimmedPixels;
 	}
 
 	/**
@@ -627,8 +862,9 @@
 		 * @param {string[][]} spriteSheet The loaded sprite sheet pixel data
 		 * @param {number} spriteWidth
 		 * @param {number} spriteHeight
+		 * @param {string[][]} hatSpriteSheet The loaded hat sprite sheet pixel data
 		 */
-		constructor(birbCssScale, canvasPixelSize, spriteSheet, spriteWidth, spriteHeight) {
+		constructor(birbCssScale, canvasPixelSize, spriteSheet, spriteWidth, spriteHeight, hatSpriteSheet) {
 			this.birbCssScale = birbCssScale;
 			this.canvasPixelSize = canvasPixelSize;
 			this.windowPixelSize = canvasPixelSize * birbCssScale;
@@ -649,16 +885,19 @@
 				happyEye: new Layer(getLayerPixels(spriteSheet, 9, this.spriteWidth)),
 			};
 
+			// Build hat layers
+			const hatLayers = createHatLayers(hatSpriteSheet);
+
 			// Build frames from layers
 			this.frames = {
-				base: new Frame([this.layers.base, this.layers.tuftBase]),
-				headDown: new Frame([this.layers.down, this.layers.tuftDown]),
-				wingsDown: new Frame([this.layers.base, this.layers.tuftBase, this.layers.wingsDown]),
-				wingsUp: new Frame([this.layers.down, this.layers.tuftDown, this.layers.wingsUp]),
-				heartOne: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartOne]),
-				heartTwo: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartTwo]),
-				heartThree: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartThree]),
-				heartFour: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, this.layers.heartTwo]),
+				base: new Frame([this.layers.base, this.layers.tuftBase, ...hatLayers.base]),
+				headDown: new Frame([this.layers.down, this.layers.tuftDown, ...hatLayers.down]),
+				wingsDown: new Frame([this.layers.base, this.layers.tuftBase, this.layers.wingsDown, ...hatLayers.base]),
+				wingsUp: new Frame([this.layers.down, this.layers.tuftDown, this.layers.wingsUp, ...hatLayers.down]),
+				heartOne: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, ...hatLayers.base, this.layers.heartOne]),
+				heartTwo: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, ...hatLayers.base,this.layers.heartTwo]),
+				heartThree: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, ...hatLayers.base, this.layers.heartThree]),
+				heartFour: new Frame([this.layers.base, this.layers.tuftBase, this.layers.happyEye, ...hatLayers.base, this.layers.heartTwo]),
 			};
 
 			// Build animations from frames
@@ -717,13 +956,15 @@
 
 		/**
 		 * Draw the current animation frame
-		 * @param {BirdType} species The species color data
+		 * @param {BirdType} species The species data
+		 * @param {string} [hat] The name of the current hat
 		 * @returns {boolean} Whether the animation has completed (for non-looping animations)
 		 */
-		draw(species) {
+		draw(species, hat) {
 			const anim = this.animations[this.currentAnimation];
-			return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species);
+			return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species.colors, [...species.tags, hat || '']);
 		}
+
 
 		/**
 		 * @returns {AnimationType} The current animation key
@@ -1348,6 +1589,8 @@
 	 * @typedef {Object} BirbSaveData
 	 * @property {string[]} unlockedSpecies
 	 * @property {string} currentSpecies
+	 * @property {string[]} unlockedHats
+	 * @property {string} currentHat
 	 * @property {Partial<Settings>} settings
 	 * @property {SavedStickyNote[]} [stickyNotes]
 	 */
@@ -1411,6 +1654,22 @@
 	transform: scale(var(--birb-scale)) !important;
 	transform-origin: bottom;
 	z-index: 2147483630 !important;
+}
+
+.birb-item {
+	image-rendering: pixelated;
+	position: absolute;
+	bottom: 0;
+	transform: scale(calc(var(--birb-scale) * 1.5)) !important;
+	transform-origin: bottom;
+	transition-duration: 0.15s;
+	z-index: 2147483630 !important;
+	cursor: pointer;
+}
+
+.birb-item:hover {
+	transform: scale(calc(var(--birb-scale) * 1.9)) !important;
+	transition-duration: 0.15s;
 }
 
 .birb-window {
@@ -1614,9 +1873,21 @@
 	width: 322px !important;
 }
 
+#birb-wardrobe {
+	width: calc(322px - 64px - 14px) !important;
+}
+
+#birb-field-guide .birb-grid-content {
+	grid-template-rows: repeat(3, auto);
+}
+
+#birb-wardrobe .birb-grid-content {
+	grid-template-columns: repeat(3, auto);
+	grid-auto-flow: row;
+}
+
 .birb-grid-content {
 	display: grid;
-	grid-template-rows: repeat(3, auto);
 	grid-auto-flow: column;
 	gap: 10px;
 	padding-top: 8px;
@@ -1741,14 +2012,18 @@
 	outline: none !important;
 	box-shadow: none !important;
 }`;
-	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABD5JREFUeJztnTFrFEEYht9JLAJidwju2YpdBAvzAyIWaXJXpRS0MBCwEBTJDwghhaAgGLTSyupMY2UqG9PYWQRb7yJyYJEIacxnkZ11bm5n9+7Y3Zm9ex8Imezd7Te7O9+zM7N7G4AQQgghhBBCCJkJlO8KkPAREXG9ppRiGyK1hY23BvgUkI7dbjYBAJ1ud6BcRR0IITOKxLSiSFpRNFTOkmNR8VtRJF8WF0U2NobKZccnpEzmfFeA5NNuNvG00UCn3R4qV8nB58942mgkZULqDgVYI3wJqNPtYrvfH1i23e8nQ2BCCCkFcwj8ZXEx+alqCJxWhypjE0ICQFKoOrZPAZl1oPwImTFE5Hzy3/hddXzfAvIhf0LK5ILvCtSNgxs3vMRVSikREZ+3nvB2F0JmFN3z0b0/9oKqx9cUBJleeEYfAzPp2BuqFr3v9W4XkcqPgS1dtoEZIe0CAM/AxAOy220JAG/zn3HsoNs/83R0cu8DNM+85g9yvqJVJBQwAYDdbksXvcx/KqWSOoTW+7Pzwkee1pHMiyDmzjQaH/QyETHfU0qDsIc+xnKIiITWEEl5PGh+8HqsfQp4FMxUWNvpJcvoPzdOAZriOVy7DzwCdm6/SV7f7bYH5mPKkFEIAiZE41vAGYhSKpHetHNlXsnRXynkWDhXIiIydzEaWHbveQ8f1+ew8uoMAHDy+wgA8P5JNHCWKUJGQwLGoIBvrbTxoPlBv7ewuITUDHGJ7/uPY3x9cd3LBaOyuDKvZOXVGT6uz6EICWYKELGA7r9O70JrASKWIAwZpQYb4yD4FjAJm7Wdnrx/Es36cc6VX6jD9VBwDoH1jbeu1035wZpzSGOSYfLZn96QgLX87Nj2cNy1TaPGJuFwurcsC6v7SpcBYGHVr/x8C3htp+d1Ys8VP+4I1SbPMisaCwune8vY+PUJAPDy8m0AwN3DdyMF+P7jGAAm6orr+Gk9UFvAGt0TTVkXQAnWlv/i26/8+KULuPp6mLgEZOZbySJy9j7rJMGRBWizsLqPmw8Pce3qpdTPWgdiIgH5FjAhmlDEpzndWxYzB+x8q0BA4sr/mRAgDAmmYYsPE/S+fAuYkJDpby3JxoUOMDjyqap9OwWIGkkwV4CI5/VsCZ18OwEANDYPXJ/9H2RC6fgWMCGh099aShr4nZ9vgfO2712C5oXJkPMut2JpEtLyS6OxeVDYhvsWMCEkF9GdEFuEWoIh599Ij8OKNwL9raXM9xUpP2RciTYFbNep6DoQQjJRX19cP084hwhDJleAWkJ5EixTPDo2UoRXVR0IIU4UzofeAyKcKsynYXSePU6eiqHLZT6gwPqid2r8sutACMnHfmJO6Pk41n+FU0qh8+xx8rdZRom9Lr3erPjs+RESBvGXEYAa5ONYj8Q3h6J2uQry4oe+swmZduqWg2Pfl+dcUQUb7js+IWS6+Ac8zd6eLzTjoQAAAABJRU5ErkJggg==";
+	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABD9JREFUeJztnT9rFEEYh3+TWATE7hDcsxW7CBbmA0Qs0uSuSiloYSBgIRhCPkCQFIKCYNBKK6szjZWpbEyTziLY5k6RAwsjpDGvRXbWubmd3btzd2c293vgyGRvb9/Z25ln39l/BxBCCCGEkOlC+a4ACR8REdd7Sim2IVJb2HhrgE8B6djtZhMA0Ol2B8pV1IEQMqVITCuKpBVFQ+UsORYVvxVF8nl+XmRtbahcdnxCymTGdwVIPu1mExuNBjrt9lC5SvY/fcJGo5GUCak7FGCN8CWgTreLJ/3+wLQn/X4yBCaEkFIwh8Cf5+eTV1VD4LQ6VBmbEBIAkkLVsX0KyKwD5UfIlCEiZwf/jb9Vx/ctIB/yJ6RMLviuQN3Yv3HDS1yllBIR8XnpCS93IWRK0ZmPzv6YBRFSf7hHHwNTesyGqsfe6XAbkP+FDYjUAi0/7TwRqVyAFPCUknYGlENA4gHZ6bYEgLcTQHHsoNs/++no5F4Ibe55zRdy7lEtEgqYAMBOt6WLXk4AKaWSOoSW/dn9wkc/rSOZZ4HNL9NofNDTRMScp5QGYQ99jOkQEQmtIZLyeNB873Vb+xTwKJhdYWW7l0yj/9w4BWiK53DlPvAI2L79Onl/p9seOB5ThoxCEDAhGt8CzkCUUon0zjtXZpV8+yOFbAvnQkREZi5GA9PuPevhw+oMll6eAgCOf34DALxbjwb2MkXIaEjAGBTwraU2HjTf63kLi0tIzRCX+L4e/cLB8+teThiVxZVZJUsvT/FhdQZFSDBTgIgFdP9VegqtBYhYgjBklBpsjI3gW8AkbFa2e/JuPZr27Zwrv1CH66HgHALrOw9c75vyg3XMIY1Jhsmnv3tDAtbys2Pbw3HXOo0am4TDye6izC3vKV0GgLllv/LzLeCV7Z7XA3uu+HEiVJt+llnRWFg42V3E2o+PAIAXl28DAO4evh0pwNejXwAwUSqu46dloLaANToTTVkWQAnWln/i26t8+6ULuPp6mLgEZPa3kkXkzD7rJMGRBWgzt7yHmw8Pce3qpdTPWhtiIgH5FjAhmlDEpznZXRSzD9j9rQIBiav/T4UAYUgwDVt8mCD78i1gQkKmv7Ugaxc6wODIp6r27RQgaiTBXAEiPq5nS+j4yzEAoLG57/rsvyATSse3gAkJnf7WQtLA73x/A5y1fe8SNE9MhtzvciuWJiEtvzQam/uFrbhvARNCchGdhNgi1BIMuf+N9DzAeCXQ31rInK9I+SHjTLQpYLtORdeBEJKJOnh+/azDOUQYMrkC1BLKk2CZ4tGxkSK8qupACHGicDb0HhDhucJ8Gkbn6ePkqRi6XOYDCqwbvVPjl10HQkg+9hNzQu+PY/0splIKnaePk//NMkrMuvRys+Iz8yMkDOKbEYAa9MexfhPEHIra5SrIix/6l03IeadufXDs6/KcC6pgxX3HJ4ScL/4CWsLSrzMo7i0AAAAASUVORK5CYII=";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
+	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAMCAYAAACdrrgZAAAAAXNSR0IArs4c6QAAAjVJREFUWIXtl01oE1EUhb8nim0tBikKJWiioFCUFiGuRLIRigsFUSRL6y4btSoVgnQVmhZEwY0LQdClqCshuChCq2iQQu3GiIsG2kgaYyU1xcGC10WacX4yP42xFcmBgTfzztx75p77Zt5ACy200MKGQW20gP8VIiK1sVLKsc6b1k3Rvw/xwfEXqFb8stLPjTByWwZU0bTi6ygryPXoJgAMToaryQwm2AwI79gvtcNDWCNzYjiwjJuJNcfdduI5TdUSEAi/5/6P07Ba/L5QlOtvDphoja4AmZyawaGQ1jkTxsdieozb5476SmZoCF/avvX2Im8Djhqs/Eg84zO0P+jv/IBwYedTUrOH6QtFOb/nAV2dQRPX0YDc149+80lyOEVyOIXfDhofixmNcEWt8IXKPG1b2r3ii0Sj/NQ07p5s923Cy1iC7R2bfemxrGLH2MYPb2LfNAOhhwAMHXph4tmyPg5urQ46dwMQmZurmyCby3PvSZqFd9MALC6VuHL5Kj3HjpPN5euJBuDzxO943fZ5225hDY1ggzpS9qJIJJ5h750KrL6GltP94rI7FG1gFIAvhSIAwfQtNz5KKZ5dOkU2+wGlFCJiMkcfGJe4w0Nbk8iNkZu0aSssLpX0ix27ukkmrln54tTxM1NVQwYfvXLUU6jM2+7TVr7Xe+h6Hem21ZZIPEO+WGH24ghdo0Msp/vd7pHXB8/qJ59KRc4sTHjlcMWf/Ad4LW2bYX9RS6Nw0rRu2n8BRDXduO3EyKAAAAAASUVORK5CYII=";
 
 	// Element IDs
 	const FIELD_GUIDE_ID = "birb-field-guide";
 	const FEATHER_ID = "birb-feather";
+	const WARDROBE_ID = "birb-wardrobe";
+	const HAT_ID = "birb-hat";
 
 	const DEFAULT_BIRD = "bluebird";
+	const DEFAULT_HAT = HAT.NONE;
 
 	// Birb movement
 	const HOP_SPEED = 0.07;
@@ -1757,8 +2032,8 @@
 
 	// Timing constants (in milliseconds)
 	const UPDATE_INTERVAL = 1000 / 60; // 60 FPS
-	const AFK_TIME = isDebug() ? 0 : 1000 * 5;
-	const PET_BOOST_DURATION = 1000 * 60 * 5;
+	const AFK_TIME = isDebug() ? 0 : 1000 * 5; // 5 seconds
+	const SUPER_AFK_TIME = 1000 * 60 * 60; // 1 hour
 	const PET_MENU_COOLDOWN = 1000;
 	const URL_CHECK_INTERVAL = 150;
 	const HOP_DELAY = 500;
@@ -1767,10 +2042,15 @@
 	const HOP_CHANCE = 1 / (60 * 2.5); // Every 2.5 seconds
 	const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // Every 20 seconds
 	const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // Every 2 hours
+	const HAT_CHANCE = 1 / (60 * 60 * 10); // Every 10 minutes
 
 	// Feathers
 	const FEATHER_FALL_SPEED = 1;
+
+	// Petting boosts
+	const PET_BOOST_DURATION = 1000 * 60 * 5; // 5 minutes
 	const PET_FEATHER_BOOST = 2;
+	const PET_HAT_BOOST = 1.5;
 
 	// Focus element constraints
 	const MIN_FOCUS_ELEMENT_WIDTH = 100;
@@ -1788,17 +2068,20 @@
 		log("Loading sprite sheets...");
 		const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET);
 		const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET);
-		startApplication(birbPixels, featherPixels);
+		const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET);
+		startApplication(birbPixels, featherPixels, hatsPixels);
 	}
 
 	/**
 	 * @param {string[][]} birbPixels
 	 * @param {string[][]} featherPixels
+	 * @param {string[][]} hatsPixels
 	 */
-	function startApplication(birbPixels, featherPixels) {
+	function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 		const SPRITE_SHEET = birbPixels;
 		const FEATHER_SPRITE_SHEET = featherPixels;
+		const HATS_SPRITE_SHEET = hatsPixels;
 
 		const featherLayers = {
 			feather: new Layer(getLayerPixels(FEATHER_SPRITE_SHEET, 0, FEATHER_SPRITE_WIDTH)),
@@ -1819,6 +2102,7 @@
 		const menuItems = [
 			new MenuItem(`Pet ${birdBirb()}`, pet),
 			new MenuItem("Field Guide", insertFieldGuide),
+			new MenuItem("Wardrobe", insertWardrobe),
 			new ConditionalMenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote), () => getContext().areStickyNotesEnabled()),
 			new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false)),
 			new DebugMenuItem("Freeze/Unfreeze", () => {
@@ -1828,6 +2112,9 @@
 			new DebugMenuItem("Unlock All", () => {
 				for (let type in SPECIES) {
 					unlockBird(type);
+				}
+				for (let hat in HAT) {
+					unlockHat(HAT[hat]);
 				}
 			}),
 			new DebugMenuItem("Add Feather", () => {
@@ -1860,7 +2147,8 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2026.1.18", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.18"); }, false),
+			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
+			new MenuItem("2026.1.22", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.22"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -1897,6 +2185,8 @@
 		let petStack = [];
 		let currentSpecies = DEFAULT_BIRD;
 		let unlockedSpecies = [DEFAULT_BIRD];
+		let unlockedHats = [DEFAULT_HAT];
+		let currentHat = DEFAULT_HAT;
 		// let visible = true;
 		let lastPetTimestamp = 0;
 		/** @type {StickyNote[]} */
@@ -1915,6 +2205,8 @@
 			userSettings = saveData.settings ?? {};
 			unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
 			currentSpecies = saveData.currentSpecies ?? DEFAULT_BIRD;
+			unlockedHats = saveData.unlockedHats ?? [DEFAULT_HAT];
+			currentHat = saveData.currentHat ?? DEFAULT_HAT;
 			stickyNotes = [];
 
 			if (saveData.stickyNotes) {
@@ -1927,13 +2219,16 @@
 
 			log(stickyNotes.length + " sticky notes loaded");
 			switchSpecies(currentSpecies);
+			switchHat(currentHat);
 		}
 
 		function save() {
 			/** @type {BirbSaveData} */
 			const saveData = {
-				unlockedSpecies,
-				currentSpecies,
+				unlockedSpecies: unlockedSpecies,
+				currentSpecies: currentSpecies,
+				unlockedHats: unlockedHats,
+				currentHat: currentHat,
 				settings: userSettings
 			};
 
@@ -1986,7 +2281,7 @@
 			styleElement.textContent = STYLESHEET;
 			document.head.appendChild(styleElement);
 
-			birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT);
+			birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT, HATS_SPRITE_SHEET);
 			birb.setAnimation(Animations.BOB);
 
 			window.addEventListener("scroll", () => {
@@ -2007,6 +2302,7 @@
 					// Currently being pet, don't open menu
 					return;
 				}
+
 				insertMenu(menuItems, `${birdBirb().toLowerCase()}OS`, updateMenuLocation);
 			});
 
@@ -2036,7 +2332,7 @@
 			setInterval(() => {
 				const currentPath = getContext().getPath().split("?")[0];
 				if (currentPath !== lastPath) {
-					log("Path changed, updating sticky notes: " + currentPath);
+					log("Path changed from '" + lastPath + "' to '" + currentPath + "'");
 					lastPath = currentPath;
 					drawStickyNotes(stickyNotes, save, deleteStickyNote);
 				}
@@ -2077,12 +2373,17 @@
 				}
 			}
 
-			// Double the chance of a feather if recently pet
-			const petMod = Date.now() - lastPetTimestamp < PET_BOOST_DURATION ? PET_FEATHER_BOOST : 1;
-			if (birb.isVisible() && Math.random() < FEATHER_CHANCE * petMod) {
-				lastPetTimestamp = 0;
-				activateFeather();
+			if (birb.isVisible() && Date.now() - lastActionTimestamp < SUPER_AFK_TIME) {
+				if (Math.random() < FEATHER_CHANCE * (isPetBoostActive() ? PET_FEATHER_BOOST : 1)) {
+					lastPetTimestamp = 0;
+					activateFeather();
+				}
+				if (Math.random() < (HAT_CHANCE * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
+					lastPetTimestamp = 0;
+					insertHat();
+				}
 			}
+
 			updateFeather();
 		}
 
@@ -2117,7 +2418,7 @@
 				flySomewhere();
 			}
 
-			if (birb.draw(SPECIES[currentSpecies])) {
+			if (birb.draw(SPECIES[currentSpecies], currentHat)) {
 				birb.setAnimation(Animations.STILL);
 			}
 
@@ -2206,7 +2507,7 @@
 			if (!featherCtx) {
 				return;
 			}
-			FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type);
+			FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type.colors, type.tags);
 			document.body.appendChild(featherCanvas);
 			onClick(featherCanvas, () => {
 				unlockBird(birdType);
@@ -2226,11 +2527,61 @@
 		}
 
 		/**
+		 * Insert the hat as an item element in the document if possible
+		 */
+		function insertHat() {
+			if (document.querySelector("#" + HAT_ID)) {
+				return;
+			}
+			// Select a random hat that hasn't been unlocked yet
+			const availableHats = Object.values(HAT)
+				.filter(hat => hat !== HAT.NONE && !unlockedHats.includes(hat));
+			if (availableHats.length === 0) {
+				return;
+			}
+			const hatId = availableHats[Math.floor(Math.random() * availableHats.length)];
+
+			// Find a random valid element to place the hat on
+			const element = getRandomValidElement();
+			if (!element) {
+				return;
+			}
+
+			// Create hat element
+			const hatCanvas = document.createElement("canvas");
+			hatCanvas.id = HAT_ID;
+			hatCanvas.classList.add("birb-item");
+			hatCanvas.width = 14 * CANVAS_PIXEL_SIZE;
+			hatCanvas.height = 14 * CANVAS_PIXEL_SIZE;
+			const hatCtx = hatCanvas.getContext("2d");
+			if (!hatCtx) {
+				return;
+			}
+			onClick(hatCanvas, () => {
+				unlockHat(hatId);
+				hatCanvas.remove();
+			});
+
+			// Create hat animation
+			const hatAnimation = createHatItemAnimation(hatId, HATS_SPRITE_SHEET);
+			hatAnimation.draw(hatCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, SPECIES[currentSpecies].colors, [TAG.DEFAULT]);
+
+			// Position hat above the element
+			const rect = element.getBoundingClientRect();
+			hatCanvas.style.left = (rect.left + rect.width / 2 - hatCanvas.width / 2) + "px";
+			hatCanvas.style.top = (rect.top - hatCanvas.height + window.scrollY) + "px";
+
+			// Append to document
+			document.body.appendChild(hatCanvas);
+		}
+
+		/**
 		 * @param {string} birdType
 		 */
 		function unlockBird(birdType) {
 			if (!unlockedSpecies.includes(birdType)) {
 				unlockedSpecies.push(birdType);
+				save();
 				const message = makeElement("birb-message-content");
 				message.appendChild(document.createTextNode("You've found a "));
 				const bold = document.createElement("b");
@@ -2239,7 +2590,24 @@
 				message.appendChild(document.createTextNode(" feather! Use the Field Guide to switch your bird's species."));
 				insertModal("New Bird Unlocked!", message);
 			}
-			save();
+		}
+
+		/**
+		 * @param {string} hatId 
+		 */
+		function unlockHat(hatId) {
+			if (!unlockedHats.includes(hatId)) {
+				unlockedHats.push(hatId);
+				save();
+				switchHat(hatId);
+				const message = makeElement("birb-message-content");
+				message.appendChild(document.createTextNode("You've unlocked the "));
+				const bold = document.createElement("b");
+				bold.textContent = HAT_METADATA[hatId].name;
+				message.appendChild(bold);
+				message.appendChild(document.createTextNode("! To see all of your unlocked accessories, click the Wardrobe from the menu."));
+				insertModal("New Hat Found!", message);
+			}
 		}
 
 		function updateFeather() {
@@ -2305,6 +2673,8 @@
 			if (document.querySelector("#" + FIELD_GUIDE_ID)) {
 				return;
 			}
+			// Remove wardrobe if open
+			removeWardrobe();
 
 			const contentContainer = document.createElement("div");
 			const content = makeElement("birb-grid-content");
@@ -2352,7 +2722,7 @@
 				if (!speciesCtx) {
 					return;
 				}
-				birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type);
+				birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.colors, type.tags);
 				speciesElement.appendChild(speciesCanvas);
 				content.appendChild(speciesElement);
 				if (unlocked) {
@@ -2385,6 +2755,99 @@
 			}
 		}
 
+		function insertWardrobe() {
+			console.log("Inserting wardrobe");
+			if (document.querySelector("#" + WARDROBE_ID)) {
+				return;
+			}
+			// Remove field guide if open
+			removeFieldGuide();
+
+			const contentContainer = document.createElement("div");
+			const content = makeElement("birb-grid-content");
+			const description = makeElement("birb-field-guide-description");
+			contentContainer.appendChild(content);
+			contentContainer.appendChild(description);
+
+			const wardrobe = createWindow(
+				WARDROBE_ID,
+				"Wardrobe",
+				contentContainer
+			);
+
+			const generateDescription = (/** @type {string} */ hat) => {
+				const metadata = HAT_METADATA[hat] ?? { name: "Unknown Hat", description: "todo" };
+				const unlocked = unlockedHats.includes(hat);
+
+				const boldName = document.createElement("b");
+				boldName.textContent = metadata.name;
+
+				const spacer = document.createElement("div");
+				spacer.style.height = "0.3em";
+
+				const descText = document.createTextNode(!unlocked ? "Not yet unlocked" : metadata.description);
+
+				const fragment = document.createDocumentFragment();
+				fragment.appendChild(boldName);
+				fragment.appendChild(spacer);
+				fragment.appendChild(descText);
+
+				return fragment;
+			};
+
+			description.appendChild(generateDescription(currentHat));
+			for (const hat of Object.values(HAT)) {
+				const unlocked = unlockedHats.includes(hat);
+				const hatElement = makeElement("birb-grid-item");
+				if (hat === currentHat) {
+					hatElement.classList.add("birb-grid-item-selected");
+				}
+				const hatCanvas = document.createElement("canvas");
+				hatCanvas.width = SPRITE_WIDTH * CANVAS_PIXEL_SIZE;
+				hatCanvas.height = SPRITE_HEIGHT * CANVAS_PIXEL_SIZE;
+				const hatCtx = hatCanvas.getContext("2d");
+				if (!hatCtx) {
+					return;
+				}
+				birb.getFrames().base.draw(
+					hatCtx,
+					Directions.RIGHT,
+					CANVAS_PIXEL_SIZE,
+					SPECIES[currentSpecies].colors,
+					[...SPECIES[currentSpecies].tags, hat]
+				);
+				hatElement.appendChild(hatCanvas);
+				content.appendChild(hatElement);
+				if (unlocked) {
+					onClick(hatElement, () => {
+						switchHat(hat);
+						document.querySelectorAll(".birb-grid-item").forEach((element) => {
+							element.classList.remove("birb-grid-item-selected");
+						});
+						hatElement.classList.add("birb-grid-item-selected");
+					});
+				} else {
+					hatElement.classList.add("birb-grid-item-locked");
+				}
+				hatElement.addEventListener("mouseover", () => {
+					description.textContent = "";
+					description.appendChild(generateDescription(hat));
+				});
+				hatElement.addEventListener("mouseout", () => {
+					description.textContent = "";
+					description.appendChild(generateDescription(currentHat));
+				});
+			}
+			centerElement(wardrobe);
+		}
+
+		function removeWardrobe() {
+			const wardrobe = document.querySelector("#" + WARDROBE_ID);
+			if (wardrobe) {
+				wardrobe.remove();
+			}
+		}
+
 		/**
 		 * @param {string} type
 		 */
@@ -2392,6 +2855,14 @@
 			currentSpecies = type;
 			// Update CSS variable --birb-highlight to be wing color
 			document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+			save();
+		}
+
+		/**
+		 * @param {string} hat
+		 */
+		function switchHat(hat) {
+			currentHat = hat;
 			save();
 		}
 
@@ -2456,14 +2927,9 @@
 		}
 
 		/**
-		 * Focus on an element within the viewport
-		 * @param {boolean} [teleport] Whether to teleport to the element instead of flying
-		 * @returns Whether an element to focus on was found
+		 * @returns {HTMLElement|null} The random element, or null if no valid element was found
 		 */
-		function focusOnElement(teleport = false) {
-			if (frozen) {
-				return false;
-			}
+		function getRandomValidElement() {
 			const MIN_FOCUS_ELEMENT_TOP = getContext().getFocusElementTopMargin();
 			const elements = document.querySelectorAll(getContext().getFocusableElements().join(", "));
 			const inWindow = Array.from(elements).filter((img) => {
@@ -2485,10 +2951,22 @@
 				}
 			});
 			if (nonFixedElements.length === 0) {
-				return false;
+				return null;
 			}
 			const randomElement = nonFixedElements[Math.floor(Math.random() * nonFixedElements.length)];
-			focusedElement = randomElement;
+			return randomElement;
+		}
+
+		/**
+		 * Focus on an element within the viewport
+		 * @param {boolean} [teleport] Whether to teleport to the element instead of flying
+		 * @returns Whether an element to focus on was found
+		 */
+		function focusOnElement(teleport = false) {
+			if (frozen) {
+				return false;
+			}
+			focusedElement = getRandomValidElement();
 			log("Focusing on element: ", focusedElement);
 			updateFocusedElementBounds();
 			if (teleport) {
@@ -2496,7 +2974,7 @@
 			} else {
 				flyTo(getFocusedElementRandomX(), getFocusedY());
 			}
-			return randomElement !== null;
+			return focusedElement !== null;
 		}
 
 		/**
@@ -2562,6 +3040,10 @@
 				birb.setAnimation(Animations.HEART);
 				lastPetTimestamp = Date.now();
 			}
+		}
+
+		function isPetBoostActive() {
+			return Date.now() - lastPetTimestamp < PET_BOOST_DURATION;
 		}
 
 		/**
@@ -2668,8 +3150,9 @@
 							continue;
 						}
 						if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
-							error(`Unknown color: ${hex}`);
-							row.push(PALETTE.TRANSPARENT);
+							// Return the color as-is if not found in the map
+							row.push(hex);
+							continue;
 						}
 						row.push(SPRITE_SHEET_COLOR_MAP[hex]);
 					}

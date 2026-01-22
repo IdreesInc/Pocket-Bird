@@ -1,3 +1,5 @@
+import { TAG } from "./layer.js";
+
 /**
  * Palette color names
  * @type {Record<string, string>}
@@ -29,6 +31,7 @@ export const PALETTE = {
  */
 export const SPRITE_SHEET_COLOR_MAP = {
 	"transparent": PALETTE.TRANSPARENT,
+	"#fff000": PALETTE.THEME_HIGHLIGHT,
 	"#ffffff": PALETTE.BORDER,
 	"#000000": PALETTE.OUTLINE,
 	"#010a19": PALETTE.BEAK,
@@ -105,7 +108,8 @@ export const SPECIES = {
 		[PALETTE.UNDERBELLY]: "#d7cfcb",
 		[PALETTE.WING]: "#b1b5c5",
 		[PALETTE.WING_EDGE]: "#9d9fa9",
-	}, ["tuft"]),
+		[PALETTE.THEME_HIGHLIGHT]: "#b9abcf",
+	}, [TAG.TUFT]),
 	europeanRobin: new BirdType("European Robin",
 		"Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.", {
 		[PALETTE.FOOT]: "#af8e75",
@@ -127,7 +131,7 @@ export const SPECIES = {
 		[PALETTE.UNDERBELLY]: "#dc3719",
 		[PALETTE.WING]: "#d23215",
 		[PALETTE.WING_EDGE]: "#b1321c",
-	}, ["tuft"]),
+	}, [TAG.TUFT]),
 	americanGoldfinch: new BirdType("American Goldfinch",
 		"Coloured a brilliant yellow, this bird feeds almost entirely on the seeds of plants such as thistle, sunflowers, and coneflowers.", {
 		[PALETTE.BEAK]: "#ffaf34",

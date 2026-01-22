@@ -41,6 +41,22 @@
 	z-index: 2147483630 !important;
 }
 
+.birb-item {
+	image-rendering: pixelated;
+	position: absolute;
+	bottom: 0;
+	transform: scale(calc(var(--birb-scale) * 1.5)) !important;
+	transform-origin: bottom;
+	transition-duration: 0.15s;
+	z-index: 2147483630 !important;
+	cursor: pointer;
+}
+
+.birb-item:hover {
+	transform: scale(calc(var(--birb-scale) * 1.9)) !important;
+	transition-duration: 0.15s;
+}
+
 .birb-window {
 	font-family: "Monocraft", monospace !important;
 	line-height: initial !important;
@@ -242,9 +258,21 @@
 	width: 322px !important;
 }
 
+#birb-wardrobe {
+	width: calc(322px - 64px - 14px) !important;
+}
+
+#birb-field-guide .birb-grid-content {
+	grid-template-rows: repeat(3, auto);
+}
+
+#birb-wardrobe .birb-grid-content {
+	grid-template-columns: repeat(3, auto);
+	grid-auto-flow: row;
+}
+
 .birb-grid-content {
 	display: grid;
-	grid-template-rows: repeat(3, auto);
 	grid-auto-flow: column;
 	gap: 10px;
 	padding-top: 8px;
