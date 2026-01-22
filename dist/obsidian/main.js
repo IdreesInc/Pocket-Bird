@@ -2091,7 +2091,6 @@ module.exports = class PocketBird extends Plugin {
 	// Timing constants (in milliseconds)
 	const UPDATE_INTERVAL = 1000 / 60; // 60 FPS
 	const AFK_TIME = isDebug() ? 0 : 1000 * 5;
-	const PET_BOOST_DURATION = 1000 * 60 * 5;
 	const PET_MENU_COOLDOWN = 1000;
 	const URL_CHECK_INTERVAL = 150;
 	const HOP_DELAY = 500;
@@ -2100,10 +2099,15 @@ module.exports = class PocketBird extends Plugin {
 	const HOP_CHANCE = 1 / (60 * 2.5); // Every 2.5 seconds
 	const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // Every 20 seconds
 	const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // Every 2 hours
+	const HAT_CHANCE = 1 / 50; // Every 50 webpages
 
 	// Feathers
 	const FEATHER_FALL_SPEED = 1;
+
+	// Petting boosts
+	const PET_BOOST_DURATION = 1000 * 60 * 5; // 5 minutes
 	const PET_FEATHER_BOOST = 2;
+	const PET_HAT_BOOST = 1.5;
 
 	// Focus element constraints
 	const MIN_FOCUS_ELEMENT_WIDTH = 100;
@@ -2354,7 +2358,8 @@ module.exports = class PocketBird extends Plugin {
 					// Currently being pet, don't open menu
 					return;
 				}
-				insertMenu(menuItems, `${birdBirb().toLowerCase()}OS`, updateMenuLocation);
+
+				insertMenu(menuItems, `${isPetBoostActive() ? " " : ""}${birdBirb().toLowerCase()}OS${isPetBoostActive() ? " ❤" : ""}`, updateMenuLocation);
 			});
 
 			birbElement.addEventListener("mouseover", () => {
@@ -2383,9 +2388,10 @@ module.exports = class PocketBird extends Plugin {
 			setInterval(() => {
 				const currentPath = getContext().getPath().split("?")[0];
 				if (currentPath !== lastPath) {
-					log("Path changed, updating sticky notes: " + currentPath);
+					log("Path changed from '" + lastPath + "' to '" + currentPath + "'");
 					lastPath = currentPath;
 					drawStickyNotes(stickyNotes, save, deleteStickyNote);
+					determineHatUnlock();
 				}
 			}, URL_CHECK_INTERVAL);
 
@@ -2393,8 +2399,16 @@ module.exports = class PocketBird extends Plugin {
 
 			focusOnElement(true);
 
-			// TODO: This is for testing
-			insertHat();
+			determineHatUnlock();
+		}
+
+		function determineHatUnlock() {
+			if (Math.random() < (HAT_CHANCE * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
+				insertHat();
+			} else if (location.hostname === "127.0.0.1") {
+				log("Inserting hat for debug purposes");
+				insertHat();
+			}
 		}
 
 		function update() {
@@ -2428,7 +2442,7 @@ module.exports = class PocketBird extends Plugin {
 			}
 
 			// Double the chance of a feather if recently pet
-			const petMod = Date.now() - lastPetTimestamp < PET_BOOST_DURATION ? PET_FEATHER_BOOST : 1;
+			const petMod = isPetBoostActive() ? PET_FEATHER_BOOST : 1;
 			if (birb.isVisible() && Math.random() < FEATHER_CHANCE * petMod) {
 				lastPetTimestamp = 0;
 				activateFeather();
@@ -3089,6 +3103,10 @@ module.exports = class PocketBird extends Plugin {
 				birb.setAnimation(Animations.HEART);
 				lastPetTimestamp = Date.now();
 			}
+		}
+
+		function isPetBoostActive() {
+			return Date.now() - lastPetTimestamp < PET_BOOST_DURATION;
 		}
 
 		/**
