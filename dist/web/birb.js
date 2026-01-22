@@ -2049,6 +2049,7 @@
 	// Petting boosts
 	const PET_BOOST_DURATION = 1000 * 60 * 5; // 5 minutes
 	const PET_FEATHER_BOOST = 2;
+	const PET_HAT_BOOST = 1.5;
 
 	// Focus element constraints
 	const MIN_FOCUS_ELEMENT_WIDTH = 100;
@@ -2344,7 +2345,7 @@
 		}
 
 		function determineHatUnlock() {
-			if (Math.random() < HAT_CHANCE) {
+			if (Math.random() < (HAT_CHANCE * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
 				insertHat();
 			} else if (location.hostname === "127.0.0.1") {
 				log("Inserting hat for debug purposes");
