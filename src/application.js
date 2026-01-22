@@ -1,5 +1,5 @@
 import Frame from './animation/frame.js';
-import Layer from './animation/layer.js';
+import Layer, { TAG } from './animation/layer.js';
 import Anim from './animation/anim.js';
 import { Birb, Animations } from './birb.js';
 import { Birdsong } from './sound.js';
@@ -43,7 +43,7 @@ import {
 	switchMenuItems,
 	MENU_EXIT_ID
 } from './menu.js';
-import { HAT, HAT_METADATA } from './hats.js';
+import { HAT, HAT_METADATA, createHatItemAnimation } from './hats.js';
 
 
 /**
@@ -86,6 +86,7 @@ const HATS_SPRITE_SHEET = "__HATS_SPRITE_SHEET__";
 const FIELD_GUIDE_ID = "birb-field-guide";
 const FEATHER_ID = "birb-feather";
 const WARDROBE_ID = "birb-wardrobe";
+const HAT_ID = "birb-hat";
 
 const DEFAULT_BIRD = "bluebird";
 const DEFAULT_HAT = HAT.NONE;
@@ -393,6 +394,9 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		setInterval(update, UPDATE_INTERVAL);
 
 		focusOnElement(true);
+
+		// TODO: This is for testing
+		generateHat();
 	}
 
 	function update() {
@@ -574,6 +578,47 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		if (feather) {
 			feather.remove();
 		}
+	}
+
+	/**
+	 * Insert the hat as an item element in the document if possible
+	 */
+	function generateHat() {
+		if (document.querySelector("#" + HAT_ID)) {
+			return;
+		}
+		// Select a random hat
+		const hatKeys = Object.keys(HAT);
+		const hatId = hatKeys[Math.floor(Math.random() * (hatKeys.length - 1)) + 1];
+
+		// Find a random valid element to place the hat on
+		const element = getRandomValidElement();
+		if (!element) {
+			return;
+		}
+
+		// Create hat element
+		const hatCanvas = document.createElement("canvas");
+		hatCanvas.id = HAT_ID;
+		hatCanvas.classList.add("birb-item");
+		hatCanvas.width = 14 * CANVAS_PIXEL_SIZE;
+		hatCanvas.height = 14 * CANVAS_PIXEL_SIZE;
+		const hatCtx = hatCanvas.getContext("2d");
+		if (!hatCtx) {
+			return;
+		}
+
+		// Create hat animation
+		const hatAnimation = createHatItemAnimation(hatId, HATS_SPRITE_SHEET);
+		hatAnimation.draw(hatCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, SPECIES[currentSpecies].colors, [TAG.DEFAULT]);
+
+		// Position hat above the element
+		const rect = element.getBoundingClientRect();
+		hatCanvas.style.left = (rect.left + rect.width / 2 - hatCanvas.width / 2) + "px";
+		hatCanvas.style.top = (rect.top - hatCanvas.height + window.scrollY) + "px";
+
+		// Append to document
+		document.body.appendChild(hatCanvas);
 	}
 
 	/**
@@ -912,14 +957,9 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	/**
-	 * Focus on an element within the viewport
-	 * @param {boolean} [teleport] Whether to teleport to the element instead of flying
-	 * @returns Whether an element to focus on was found
+	 * @returns {HTMLElement|null} The random element, or null if no valid element was found
 	 */
-	function focusOnElement(teleport = false) {
-		if (frozen) {
-			return false;
-		}
+	function getRandomValidElement() {
 		const MIN_FOCUS_ELEMENT_TOP = getContext().getFocusElementTopMargin();
 		const elements = document.querySelectorAll(getContext().getFocusableElements().join(", "));
 		const inWindow = Array.from(elements).filter((img) => {
@@ -947,10 +987,22 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			return style.position !== "fixed" && style.position !== "sticky";
 		});
 		if (nonFixedElements.length === 0) {
-			return false;
+			return null;
 		}
 		const randomElement = nonFixedElements[Math.floor(Math.random() * nonFixedElements.length)];
-		focusedElement = randomElement;
+		return randomElement;
+	}
+
+	/**
+	 * Focus on an element within the viewport
+	 * @param {boolean} [teleport] Whether to teleport to the element instead of flying
+	 * @returns Whether an element to focus on was found
+	 */
+	function focusOnElement(teleport = false) {
+		if (frozen) {
+			return false;
+		}
+		focusedElement = getRandomValidElement();
 		log("Focusing on element: ", focusedElement);
 		updateFocusedElementBounds();
 		if (teleport) {
@@ -958,7 +1010,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		} else {
 			flyTo(getFocusedElementRandomX(), getFocusedY());
 		}
-		return randomElement !== null;
+		return focusedElement !== null;
 	}
 
 	/**

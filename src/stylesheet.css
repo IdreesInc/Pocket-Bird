@@ -41,6 +41,16 @@
 	z-index: 2147483630 !important;
 }
 
+.birb-item {
+	image-rendering: pixelated;
+	position: absolute;
+	bottom: 0;
+	transform-origin: bottom;
+	transform: scale(calc(var(--birb-scale) * 1.5)) !important;
+	transform-origin: bottom;
+	z-index: 2147483630 !important;
+}
+
 .birb-window {
 	font-family: "Monocraft", monospace !important;
 	line-height: initial !important;
