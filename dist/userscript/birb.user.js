@@ -2166,7 +2166,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem("2026.1.21", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.21"); }, false),
+			new MenuItem(() => `2026.1.21 ${isPetBoostActive() ? "❤" : ""}`, () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.21"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2321,7 +2321,7 @@
 					return;
 				}
 
-				insertMenu(menuItems, `${isPetBoostActive() ? " " : ""}${birdBirb().toLowerCase()}OS${isPetBoostActive() ? " ❤" : ""}`, updateMenuLocation);
+				insertMenu(menuItems, `${birdBirb().toLowerCase()}OS`, updateMenuLocation);
 			});
 
 			birbElement.addEventListener("mouseover", () => {

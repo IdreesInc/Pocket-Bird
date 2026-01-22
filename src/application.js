@@ -213,7 +213,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			insertModal(`${birdBirb()} Mode`, message);
 		}),
 		new Separator(),
-		new MenuItem("__VERSION__", () => { alert("Thank you for using Pocket Bird! You are on version: __VERSION__") }, false),
+		new MenuItem(() => `__VERSION__ ${isPetBoostActive() ? "❤" : ""}`, () => { alert("Thank you for using Pocket Bird! You are on version: __VERSION__") }, false),
 	];
 
 	const styleElement = document.createElement("style");
@@ -368,7 +368,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 				return;
 			}
 
-			insertMenu(menuItems, `${isPetBoostActive() ? " " : ""}${birdBirb().toLowerCase()}OS${isPetBoostActive() ? " ❤" : ""}`, updateMenuLocation);
+			insertMenu(menuItems, `${birdBirb().toLowerCase()}OS`, updateMenuLocation);
 		});
 
 		birbElement.addEventListener("mouseover", () => {
