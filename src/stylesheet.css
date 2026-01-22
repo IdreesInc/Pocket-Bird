@@ -45,10 +45,16 @@
 	image-rendering: pixelated;
 	position: absolute;
 	bottom: 0;
-	transform-origin: bottom;
 	transform: scale(calc(var(--birb-scale) * 1.5)) !important;
 	transform-origin: bottom;
+	transition-duration: 0.2s;
 	z-index: 2147483630 !important;
+	cursor: pointer;
+}
+
+.birb-item:hover {
+	transform: scale(calc(var(--birb-scale) * 2)) !important;
+	transition-duration: 0.2s;
 }
 
 .birb-window {

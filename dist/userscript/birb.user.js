@@ -749,7 +749,7 @@
 		if (hatId === HAT.NONE) {
 			return new Layer([], TAG.DEFAULT);
 		}
-		const hatIndex = Object.keys(HAT).indexOf(hatId) - 1;
+		const hatIndex = Object.values(HAT).indexOf(hatId) - 1;
 		let hatPixels = getLayerPixels(spriteSheet, hatIndex, HAT_WIDTH);
 		hatPixels = pad(hatPixels, 1, 1, 1, 1);
 		hatPixels = drawOutline(hatPixels, true);
@@ -1679,10 +1679,16 @@
 	image-rendering: pixelated;
 	position: absolute;
 	bottom: 0;
-	transform-origin: bottom;
 	transform: scale(calc(var(--birb-scale) * 1.5)) !important;
 	transform-origin: bottom;
+	transition-duration: 0.2s;
 	z-index: 2147483630 !important;
+	cursor: pointer;
+}
+
+.birb-item:hover {
+	transform: scale(calc(var(--birb-scale) * 2)) !important;
+	transition-duration: 0.2s;
 }
 
 .birb-window {
@@ -2343,7 +2349,7 @@
 			focusOnElement(true);
 
 			// TODO: This is for testing
-			generateHat();
+			insertHat();
 		}
 
 		function update() {
@@ -2527,13 +2533,13 @@
 		/**
 		 * Insert the hat as an item element in the document if possible
 		 */
-		function generateHat() {
+		function insertHat() {
 			if (document.querySelector("#" + HAT_ID)) {
 				return;
 			}
 			// Select a random hat
-			const hatKeys = Object.keys(HAT);
-			const hatId = hatKeys[Math.floor(Math.random() * (hatKeys.length - 1)) + 1];
+			const hats = Object.values(HAT);
+			const hatId = hats[Math.floor(Math.random() * (hats.length - 1)) + 1];
 
 			// Find a random valid element to place the hat on
 			const element = getRandomValidElement();
@@ -2551,6 +2557,17 @@
 			if (!hatCtx) {
 				return;
 			}
+			onClick(hatCanvas, () => {
+				switchHat(hatId);
+				hatCanvas.remove();
+				const message = makeElement("birb-message-content");
+				message.appendChild(document.createTextNode("You've unlocked the "));
+				const bold = document.createElement("b");
+				bold.textContent = HAT_METADATA[hatId].name;
+				message.appendChild(bold);
+				message.appendChild(document.createTextNode("! To see all of your unlocked accessories, click the Wardrobe from the menu."));
+				insertModal("New Hat Found!", message);
+			});
 
 			// Create hat animation
 			const hatAnimation = createHatItemAnimation(hatId, HATS_SPRITE_SHEET);
@@ -2831,6 +2848,7 @@
 		 * @param {string} hat
 		 */
 		function switchHat(hat) {
+			log("Switching hat to: " + hat);
 			currentHat = hat;
 			save();
 		}

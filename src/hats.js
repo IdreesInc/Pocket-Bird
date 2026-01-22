@@ -124,7 +124,7 @@ function buildHatItemLayer(spriteSheet, hatId) {
 	if (hatId === HAT.NONE) {
 		return new Layer([], TAG.DEFAULT);
 	}
-	const hatIndex = Object.keys(HAT).indexOf(hatId) - 1;
+	const hatIndex = Object.values(HAT).indexOf(hatId) - 1;
 	let hatPixels = getLayerPixels(spriteSheet, hatIndex, HAT_WIDTH);
 	hatPixels = pad(hatPixels, 1, 1, 1, 1);
 	hatPixels = drawOutline(hatPixels, true);
