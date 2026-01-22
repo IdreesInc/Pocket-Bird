@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2026.1.21
+// @version      2026.1.22
 // @description  It's a pet bird in your browser, what more could you want?
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -2052,7 +2052,8 @@
 
 	// Timing constants (in milliseconds)
 	const UPDATE_INTERVAL = 1000 / 60; // 60 FPS
-	const AFK_TIME = isDebug() ? 0 : 1000 * 5;
+	const AFK_TIME = isDebug() ? 0 : 1000 * 5; // 5 seconds
+	const SUPER_AFK_TIME = 1000 * 60 * 60; // 1 hour
 	const PET_MENU_COOLDOWN = 1000;
 	const URL_CHECK_INTERVAL = 150;
 	const HOP_DELAY = 500;
@@ -2061,7 +2062,7 @@
 	const HOP_CHANCE = 1 / (60 * 2.5); // Every 2.5 seconds
 	const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // Every 20 seconds
 	const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // Every 2 hours
-	const HAT_CHANCE = 1 / 50; // Every 50 webpages
+	const HAT_CHANCE = 1 / (60 * 60 * 10); // Every 10 minutes
 
 	// Feathers
 	const FEATHER_FALL_SPEED = 1;
@@ -2166,7 +2167,7 @@
 				insertModal(`${birdBirb()} Mode`, message);
 			}),
 			new Separator(),
-			new MenuItem(() => `2026.1.21 ${isPetBoostActive() ? "❤" : ""}`, () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.21"); }, false),
+			new MenuItem(() => `2026.1.22 ${isPetBoostActive() ? "❤" : ""}`, () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.22"); }, false),
 		];
 
 		const styleElement = document.createElement("style");
@@ -2353,24 +2354,12 @@
 					log("Path changed from '" + lastPath + "' to '" + currentPath + "'");
 					lastPath = currentPath;
 					drawStickyNotes(stickyNotes, save, deleteStickyNote);
-					determineHatUnlock();
 				}
 			}, URL_CHECK_INTERVAL);
 
 			setInterval(update, UPDATE_INTERVAL);
 
 			focusOnElement(true);
-
-			determineHatUnlock();
-		}
-
-		function determineHatUnlock() {
-			if (Math.random() < (HAT_CHANCE * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
-				insertHat();
-			} else if (location.hostname === "127.0.0.1") {
-				log("Inserting hat for debug purposes");
-				insertHat();
-			}
 		}
 
 		function update() {
@@ -2403,12 +2392,17 @@
 				}
 			}
 
-			// Double the chance of a feather if recently pet
-			const petMod = isPetBoostActive() ? PET_FEATHER_BOOST : 1;
-			if (birb.isVisible() && Math.random() < FEATHER_CHANCE * petMod) {
-				lastPetTimestamp = 0;
-				activateFeather();
+			if (birb.isVisible() && Date.now() - lastActionTimestamp < SUPER_AFK_TIME) {
+				if (Math.random() < FEATHER_CHANCE * (isPetBoostActive() ? PET_FEATHER_BOOST : 1)) {
+					lastPetTimestamp = 0;
+					activateFeather();
+				}
+				if (Math.random() < (HAT_CHANCE * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
+					lastPetTimestamp = 0;
+					insertHat();
+				}
 			}
+
 			updateFeather();
 		}
 
