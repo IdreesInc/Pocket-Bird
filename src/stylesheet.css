@@ -47,14 +47,14 @@
 	bottom: 0;
 	transform: scale(calc(var(--birb-scale) * 1.5)) !important;
 	transform-origin: bottom;
-	transition-duration: 0.2s;
+	transition-duration: 0.15s;
 	z-index: 2147483630 !important;
 	cursor: pointer;
 }
 
 .birb-item:hover {
-	transform: scale(calc(var(--birb-scale) * 2)) !important;
-	transition-duration: 0.2s;
+	transform: scale(calc(var(--birb-scale) * 1.9)) !important;
+	transition-duration: 0.15s;
 }
 
 .birb-window {

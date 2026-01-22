@@ -1647,6 +1647,7 @@ module.exports = class PocketBird extends Plugin {
 	 * @typedef {Object} BirbSaveData
 	 * @property {string[]} unlockedSpecies
 	 * @property {string} currentSpecies
+	 * @property {string[]} unlockedHats
 	 * @property {string} currentHat
 	 * @property {Partial<Settings>} settings
 	 * @property {SavedStickyNote[]} [stickyNotes]
@@ -1719,14 +1720,14 @@ module.exports = class PocketBird extends Plugin {
 	bottom: 0;
 	transform: scale(calc(var(--birb-scale) * 1.5)) !important;
 	transform-origin: bottom;
-	transition-duration: 0.2s;
+	transition-duration: 0.15s;
 	z-index: 2147483630 !important;
 	cursor: pointer;
 }
 
 .birb-item:hover {
-	transform: scale(calc(var(--birb-scale) * 2)) !important;
-	transition-duration: 0.2s;
+	transform: scale(calc(var(--birb-scale) * 1.9)) !important;
+	transition-duration: 0.15s;
 }
 
 .birb-window {
@@ -2165,6 +2166,9 @@ module.exports = class PocketBird extends Plugin {
 				for (let type in SPECIES) {
 					unlockBird(type);
 				}
+				for (let hat in HAT) {
+					unlockHat(HAT[hat]);
+				}
 			}),
 			new DebugMenuItem("Add Feather", () => {
 				activateFeather();
@@ -2233,6 +2237,7 @@ module.exports = class PocketBird extends Plugin {
 		let petStack = [];
 		let currentSpecies = DEFAULT_BIRD;
 		let unlockedSpecies = [DEFAULT_BIRD];
+		let unlockedHats = [DEFAULT_HAT];
 		let currentHat = DEFAULT_HAT;
 		// let visible = true;
 		let lastPetTimestamp = 0;
@@ -2252,6 +2257,7 @@ module.exports = class PocketBird extends Plugin {
 			userSettings = saveData.settings ?? {};
 			unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
 			currentSpecies = saveData.currentSpecies ?? DEFAULT_BIRD;
+			unlockedHats = saveData.unlockedHats ?? [DEFAULT_HAT];
 			currentHat = saveData.currentHat ?? DEFAULT_HAT;
 			stickyNotes = [];
 
@@ -2273,6 +2279,7 @@ module.exports = class PocketBird extends Plugin {
 			const saveData = {
 				unlockedSpecies: unlockedSpecies,
 				currentSpecies: currentSpecies,
+				unlockedHats: unlockedHats,
 				currentHat: currentHat,
 				settings: userSettings
 			};
@@ -2575,9 +2582,13 @@ module.exports = class PocketBird extends Plugin {
 			if (document.querySelector("#" + HAT_ID)) {
 				return;
 			}
-			// Select a random hat
-			const hats = Object.values(HAT);
-			const hatId = hats[Math.floor(Math.random() * (hats.length - 1)) + 1];
+			// Select a random hat that hasn't been unlocked yet
+			const availableHats = Object.values(HAT)
+				.filter(hat => hat !== HAT.NONE && !unlockedHats.includes(hat));
+			if (availableHats.length === 0) {
+				return;
+			}
+			const hatId = availableHats[Math.floor(Math.random() * availableHats.length)];
 
 			// Find a random valid element to place the hat on
 			const element = getRandomValidElement();
@@ -2596,15 +2607,8 @@ module.exports = class PocketBird extends Plugin {
 				return;
 			}
 			onClick(hatCanvas, () => {
-				switchHat(hatId);
+				unlockHat(hatId);
 				hatCanvas.remove();
-				const message = makeElement("birb-message-content");
-				message.appendChild(document.createTextNode("You've unlocked the "));
-				const bold = document.createElement("b");
-				bold.textContent = HAT_METADATA[hatId].name;
-				message.appendChild(bold);
-				message.appendChild(document.createTextNode("! To see all of your unlocked accessories, click the Wardrobe from the menu."));
-				insertModal("New Hat Found!", message);
 			});
 
 			// Create hat animation
@@ -2626,6 +2630,7 @@ module.exports = class PocketBird extends Plugin {
 		function unlockBird(birdType) {
 			if (!unlockedSpecies.includes(birdType)) {
 				unlockedSpecies.push(birdType);
+				save();
 				const message = makeElement("birb-message-content");
 				message.appendChild(document.createTextNode("You've found a "));
 				const bold = document.createElement("b");
@@ -2634,7 +2639,24 @@ module.exports = class PocketBird extends Plugin {
 				message.appendChild(document.createTextNode(" feather! Use the Field Guide to switch your bird's species."));
 				insertModal("New Bird Unlocked!", message);
 			}
-			save();
+		}
+
+		/**
+		 * @param {string} hatId 
+		 */
+		function unlockHat(hatId) {
+			if (!unlockedHats.includes(hatId)) {
+				unlockedHats.push(hatId);
+				save();
+				switchHat(hatId);
+				const message = makeElement("birb-message-content");
+				message.appendChild(document.createTextNode("You've unlocked the "));
+				const bold = document.createElement("b");
+				bold.textContent = HAT_METADATA[hatId].name;
+				message.appendChild(bold);
+				message.appendChild(document.createTextNode("! To see all of your unlocked accessories, click the Wardrobe from the menu."));
+				insertModal("New Hat Found!", message);
+			}
 		}
 
 		function updateFeather() {
@@ -2804,6 +2826,7 @@ module.exports = class PocketBird extends Plugin {
 
 			const generateDescription = (/** @type {string} */ hat) => {
 				const metadata = HAT_METADATA[hat] ?? { name: "Unknown Hat", description: "todo" };
+				const unlocked = unlockedHats.includes(hat);
 
 				const boldName = document.createElement("b");
 				boldName.textContent = metadata.name;
@@ -2811,7 +2834,7 @@ module.exports = class PocketBird extends Plugin {
 				const spacer = document.createElement("div");
 				spacer.style.height = "0.3em";
 
-				const descText = document.createTextNode(metadata.description);
+				const descText = document.createTextNode(!unlocked ? "Not yet unlocked" : metadata.description);
 
 				const fragment = document.createDocumentFragment();
 				fragment.appendChild(boldName);
@@ -2823,6 +2846,7 @@ module.exports = class PocketBird extends Plugin {
 
 			description.appendChild(generateDescription(currentHat));
 			for (const hat of Object.values(HAT)) {
+				const unlocked = unlockedHats.includes(hat);
 				const hatElement = makeElement("birb-grid-item");
 				if (hat === currentHat) {
 					hatElement.classList.add("birb-grid-item-selected");
@@ -2834,7 +2858,6 @@ module.exports = class PocketBird extends Plugin {
 				if (!hatCtx) {
 					return;
 				}
-				console.log(hat);
 				birb.getFrames().base.draw(
 					hatCtx,
 					Directions.RIGHT,
@@ -2844,7 +2867,7 @@ module.exports = class PocketBird extends Plugin {
 				);
 				hatElement.appendChild(hatCanvas);
 				content.appendChild(hatElement);
-				{
+				if (unlocked) {
 					onClick(hatElement, () => {
 						switchHat(hat);
 						document.querySelectorAll(".birb-grid-item").forEach((element) => {
@@ -2852,6 +2875,8 @@ module.exports = class PocketBird extends Plugin {
 						});
 						hatElement.classList.add("birb-grid-item-selected");
 					});
+				} else {
+					hatElement.classList.add("birb-grid-item-locked");
 				}
 				hatElement.addEventListener("mouseover", () => {
 					description.textContent = "";
@@ -2886,7 +2911,6 @@ module.exports = class PocketBird extends Plugin {
 		 * @param {string} hat
 		 */
 		function switchHat(hat) {
-			log("Switching hat to: " + hat);
 			currentHat = hat;
 			save();
 		}

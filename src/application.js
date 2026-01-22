@@ -54,6 +54,7 @@ import { HAT, HAT_METADATA, createHatItemAnimation } from './hats.js';
  * @typedef {Object} BirbSaveData
  * @property {string[]} unlockedSpecies
  * @property {string} currentSpecies
+ * @property {string[]} unlockedHats
  * @property {string} currentHat
  * @property {Partial<Settings>} settings
  * @property {SavedStickyNote[]} [stickyNotes]
@@ -174,6 +175,9 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			for (let type in SPECIES) {
 				unlockBird(type);
 			}
+			for (let hat in HAT) {
+				unlockHat(HAT[hat]);
+			}
 		}),
 		new DebugMenuItem("Add Feather", () => {
 			activateFeather();
@@ -242,6 +246,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	let petStack = [];
 	let currentSpecies = DEFAULT_BIRD;
 	let unlockedSpecies = [DEFAULT_BIRD];
+	let unlockedHats = [DEFAULT_HAT];
 	let currentHat = DEFAULT_HAT;
 	// let visible = true;
 	let lastPetTimestamp = 0;
@@ -261,6 +266,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		userSettings = saveData.settings ?? {};
 		unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
 		currentSpecies = saveData.currentSpecies ?? DEFAULT_BIRD;
+		unlockedHats = saveData.unlockedHats ?? [DEFAULT_HAT];
 		currentHat = saveData.currentHat ?? DEFAULT_HAT;
 		stickyNotes = [];
 
@@ -282,6 +288,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		const saveData = {
 			unlockedSpecies: unlockedSpecies,
 			currentSpecies: currentSpecies,
+			unlockedHats: unlockedHats,
 			currentHat: currentHat,
 			settings: userSettings
 		};
@@ -587,9 +594,13 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		if (document.querySelector("#" + HAT_ID)) {
 			return;
 		}
-		// Select a random hat
-		const hats = Object.values(HAT);
-		const hatId = hats[Math.floor(Math.random() * (hats.length - 1)) + 1];
+		// Select a random hat that hasn't been unlocked yet
+		const availableHats = Object.values(HAT)
+			.filter(hat => hat !== HAT.NONE && !unlockedHats.includes(hat));
+		if (availableHats.length === 0) {
+			return;
+		}
+		const hatId = availableHats[Math.floor(Math.random() * availableHats.length)];
 
 		// Find a random valid element to place the hat on
 		const element = getRandomValidElement();
@@ -608,15 +619,8 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			return;
 		}
 		onClick(hatCanvas, () => {
-			switchHat(hatId);
+			unlockHat(hatId);
 			hatCanvas.remove();
-			const message = makeElement("birb-message-content");
-			message.appendChild(document.createTextNode("You've unlocked the "));
-			const bold = document.createElement("b");
-			bold.textContent = HAT_METADATA[hatId].name;
-			message.appendChild(bold);
-			message.appendChild(document.createTextNode("! To see all of your unlocked accessories, click the Wardrobe from the menu."));
-			insertModal("New Hat Found!", message);
 		});
 
 		// Create hat animation
@@ -638,6 +642,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	function unlockBird(birdType) {
 		if (!unlockedSpecies.includes(birdType)) {
 			unlockedSpecies.push(birdType);
+			save();
 			const message = makeElement("birb-message-content");
 			message.appendChild(document.createTextNode("You've found a "));
 			const bold = document.createElement("b");
@@ -646,7 +651,24 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			message.appendChild(document.createTextNode(" feather! Use the Field Guide to switch your bird's species."));
 			insertModal("New Bird Unlocked!", message);
 		}
-		save();
+	}
+
+	/**
+	 * @param {string} hatId 
+	 */
+	function unlockHat(hatId) {
+		if (!unlockedHats.includes(hatId)) {
+			unlockedHats.push(hatId);
+			save();
+			switchHat(hatId);
+			const message = makeElement("birb-message-content");
+			message.appendChild(document.createTextNode("You've unlocked the "));
+			const bold = document.createElement("b");
+			bold.textContent = HAT_METADATA[hatId].name;
+			message.appendChild(bold);
+			message.appendChild(document.createTextNode("! To see all of your unlocked accessories, click the Wardrobe from the menu."));
+			insertModal("New Hat Found!", message);
+		}
 	}
 
 	function updateFeather() {
@@ -817,7 +839,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 		const generateDescription = (/** @type {string} */ hat) => {
 			const metadata = HAT_METADATA[hat] ?? { name: "Unknown Hat", description: "todo" };
-			const unlocked = true;
+			const unlocked = unlockedHats.includes(hat);
 
 			const boldName = document.createElement("b");
 			boldName.textContent = metadata.name;
@@ -837,7 +859,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 		description.appendChild(generateDescription(currentHat));
 		for (const hat of Object.values(HAT)) {
-			const unlocked = true;
+			const unlocked = unlockedHats.includes(hat);
 			const hatElement = makeElement("birb-grid-item");
 			if (hat === currentHat) {
 				hatElement.classList.add("birb-grid-item-selected");
@@ -849,7 +871,6 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			if (!hatCtx) {
 				return;
 			}
-			console.log(hat);
 			birb.getFrames().base.draw(
 				hatCtx,
 				Directions.RIGHT,
@@ -903,7 +924,6 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	 * @param {string} hat
 	 */
 	function switchHat(hat) {
-		log("Switching hat to: " + hat);
 		currentHat = hat;
 		save();
 	}
