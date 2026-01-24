@@ -254,12 +254,8 @@
 	opacity: 0.4;
 }
 
-#birb-field-guide {
+#birb-field-guide, #birb-wardrobe {
 	width: 322px !important;
-}
-
-#birb-wardrobe {
-	width: calc(322px - 64px - 14px) !important;
 }
 
 #birb-field-guide .birb-grid-content {
@@ -267,7 +263,7 @@
 }
 
 #birb-wardrobe .birb-grid-content {
-	grid-template-columns: repeat(3, auto);
+	grid-template-columns: repeat(4, auto);
 	grid-auto-flow: row;
 }
 

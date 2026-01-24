@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2026.1.22
+// @version      2026.1.24
 // @description  It's a pet bird in your browser, what more could you want?
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -635,12 +635,15 @@
 		NONE: "none",
 		TOP_HAT: "top-hat",
 		VIKING_HELMET: "viking-helmet",
-		COWBOY_HAT: "cowboy-hat",
-		BOWLER_HAT: "bowler-hat",
 		FEZ: "fez",
 		WIZARD_HAT: "wizard-hat",
+		COWBOY_HAT: "cowboy-hat",
 		BASEBALL_CAP: "baseball-cap",
-		FLOWER_HAT: "flower-hat"
+		FLOWER_HAT: "flower-hat",
+		BEANIE: "beanie",
+		SUN_HAT: "sun-hat",
+		STRAW_HAT: "straw-hat",
+		CORDOVAN_HAT: "cordovan-hat"
 	};
 
 	/** @type {{ [hatId: string]: { name: string, description: string } }} */
@@ -661,10 +664,6 @@
 			name: "Cowboy Hat",
 			description: "You can't jam with the console cowboys without the appropriate attire."
 		},
-		[HAT.BOWLER_HAT]: {
-			name: "Bowler Hat",
-			description: "For that authentic, Victorian look!"
-		},
 		[HAT.FEZ]: {
 			name: "Fez",
 			description: "It's a fez. Fezzes are cool."
@@ -680,6 +679,18 @@
 		[HAT.FLOWER_HAT]: {
 			name: "Flower Hat",
 			description: "To be fair, this is less of a hat and more of a dirt clod that your pet happened to pick up."
+		},
+		[HAT.BEANIE]: {
+			name: "Beanie",
+			description: "Keeps feathers warm on those long migrations south!"
+		},
+		[HAT.SUN_HAT]: {
+			name: "Sun Hat",
+			description: "Perfect for frolicking through enchanted flower fields."
+		},
+		[HAT.STRAW_HAT]: {
+			name: "Straw Hat",
+			description: "A classic design, though keep away from water as this particular hat is seemingly unable to float."
 		}
 	};
 
@@ -1889,12 +1900,8 @@
 	opacity: 0.4;
 }
 
-#birb-field-guide {
+#birb-field-guide, #birb-wardrobe {
 	width: 322px !important;
-}
-
-#birb-wardrobe {
-	width: calc(322px - 64px - 14px) !important;
 }
 
 #birb-field-guide .birb-grid-content {
@@ -1902,7 +1909,7 @@
 }
 
 #birb-wardrobe .birb-grid-content {
-	grid-template-columns: repeat(3, auto);
+	grid-template-columns: repeat(4, auto);
 	grid-auto-flow: row;
 }
 
@@ -2032,9 +2039,9 @@
 	outline: none !important;
 	box-shadow: none !important;
 }`;
-	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABD9JREFUeJztnT9rFEEYh3+TWATE7hDcsxW7CBbmA0Qs0uSuSiloYSBgIRhCPkCQFIKCYNBKK6szjZWpbEyTziLY5k6RAwsjpDGvRXbWubmd3btzd2c293vgyGRvb9/Z25ln39l/BxBCCCGEkOlC+a4ACR8REdd7Sim2IVJb2HhrgE8B6djtZhMA0Ol2B8pV1IEQMqVITCuKpBVFQ+UsORYVvxVF8nl+XmRtbahcdnxCymTGdwVIPu1mExuNBjrt9lC5SvY/fcJGo5GUCak7FGCN8CWgTreLJ/3+wLQn/X4yBCaEkFIwh8Cf5+eTV1VD4LQ6VBmbEBIAkkLVsX0KyKwD5UfIlCEiZwf/jb9Vx/ctIB/yJ6RMLviuQN3Yv3HDS1yllBIR8XnpCS93IWRK0ZmPzv6YBRFSf7hHHwNTesyGqsfe6XAbkP+FDYjUAi0/7TwRqVyAFPCUknYGlENA4gHZ6bYEgLcTQHHsoNs/++no5F4Ibe55zRdy7lEtEgqYAMBOt6WLXk4AKaWSOoSW/dn9wkc/rSOZZ4HNL9NofNDTRMScp5QGYQ99jOkQEQmtIZLyeNB873Vb+xTwKJhdYWW7l0yj/9w4BWiK53DlPvAI2L79Onl/p9seOB5ThoxCEDAhGt8CzkCUUon0zjtXZpV8+yOFbAvnQkREZi5GA9PuPevhw+oMll6eAgCOf34DALxbjwb2MkXIaEjAGBTwraU2HjTf63kLi0tIzRCX+L4e/cLB8+teThiVxZVZJUsvT/FhdQZFSDBTgIgFdP9VegqtBYhYgjBklBpsjI3gW8AkbFa2e/JuPZr27Zwrv1CH66HgHALrOw9c75vyg3XMIY1Jhsmnv3tDAtbys2Pbw3HXOo0am4TDye6izC3vKV0GgLllv/LzLeCV7Z7XA3uu+HEiVJt+llnRWFg42V3E2o+PAIAXl28DAO4evh0pwNejXwAwUSqu46dloLaANToTTVkWQAnWln/i26t8+6ULuPp6mLgEZPa3kkXkzD7rJMGRBWgzt7yHmw8Pce3qpdTPWhtiIgH5FjAhmlDEpznZXRSzD9j9rQIBiav/T4UAYUgwDVt8mCD78i1gQkKmv7Ugaxc6wODIp6r27RQgaiTBXAEiPq5nS+j4yzEAoLG57/rsvyATSse3gAkJnf7WQtLA73x/A5y1fe8SNE9MhtzvciuWJiEtvzQam/uFrbhvARNCchGdhNgi1BIMuf+N9DzAeCXQ31rInK9I+SHjTLQpYLtORdeBEJKJOnh+/azDOUQYMrkC1BLKk2CZ4tGxkSK8qupACHGicDb0HhDhucJ8Gkbn6ePkqRi6XOYDCqwbvVPjl10HQkg+9hNzQu+PY/0splIKnaePk//NMkrMuvRys+Iz8yMkDOKbEYAa9MexfhPEHIra5SrIix/6l03IeadufXDs6/KcC6pgxX3HJ4ScL/4CWsLSrzMo7i0AAAAASUVORK5CYII=";
+	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABElJREFUeJztnT9rFEEYh3+TWATE7hDcsxW7CBb6ASIWaXJXpRS0UAhYCIrkAwRJISgIBq20sjrTWJnKxjTpLIKtd4ocWOSENOa1uJ11bm7n9u683ZnJ/R44Mtnb23f2dt5nZ/bfAYQQQgghZL5QvitAwkdExPWeUoptiEQLG28E+BSQjt2s1wEArXZ7oFxFHQghc4qkNJJEGkkyVB4lx1nFbySJfF5eFtnYGCqXHZ+QMlnwXQFSTLNex+NaDa1mc6hcJfufPuFxrZaVCYkdCjAifAmo1W7jSbc7MO1Jt5sNgQkhpBTMIfDn5eXsVdUQOK8OVcYmhASA5FB1bJ8CMutA+REyZ4hI/+C/8bfq+L4F5EP+hJTJGd8ViI39K1e8xFVKKRERn5ee8HIXQuYU3fPRvT/2ggiJH+7RJ8CUHntD1WPvdLgNyP/CBkSiQMtPO09EKhcgBTyn5J0B5RCQeEB22g0B4O0EUBo76PbPPB2fwguhzT2v+ULBPaqzhAImALDTbuiilxNASqmsDqH1/uy88JGnMTLyLLD5ZRqND3qaiJjzlNIg7KGPMR0iIqE1RFIed+vvvW5rnwIeBzMV1rc72TT6z41TgKZ4DtfvAA+A7Ruvs/d32s2B4zFlyCgEAROi8S3gEYhSKpPeaefCopLvf2Qm28K5EBGRhbPJwLTbzzr4cG8Bqy9PAAC9X98BAO8eJQN7mVnIaEjAGBTwtdUm7tbf63lnFpeQyBCX+L5+O8LB88teThiVxYVFJasvT/Dh3gJmIcGRAkQqoDuv8rvQWoBIJQhDRrnBJtgIvgVMwmZ9uyPvHiXzvp0L5RfqcD0UnENgfeeB631TfrCOOeQxzTD55HdnSMBafnZsezjuWqdxY5NwON5dkaW1PaXLALC05ld+vgW8vt3xemDPFT/tCEWTZyMrmgoLx7sr2Pj5EQDw4vwNAMCtw7djBfj67QgApuqK6/h5PVBbwBrdE81ZFkAJRss/8e1Vvv3yBVx9PUxcAjLzrWQROXufMUlwbAHaLK3t4er9Q1y6eC73s9aGmEpAvgVMiCYU8WmOd1fEzAE73yoQkLjyfy4ECEOCedjiwxS9L98CJiRUjndXpPelh40zLWBw5FNV+3YKEBFJsFCASI/r2RLqfekBAGqb+67P/gsypXR8C5iQkOluXc8a980fb7LpB88ve5egeWIy5LwrrFiehLT88qht7s9sxX0LmJDQMSWIfj5U3dZFd0JsEWoJhpx/YwkQqYS6W9dHzjtL+ZnxfQmYEDIWAgC2CGMQYOEDUfXlMOmKOCVYpnh0bPT3eM75KD9CvKDQH3r3k89xWCpqzKdhtJ4+zJ6KoctlPqDAutE7N37ZdSCEFGM/MSf0fJzoZzGVUmg9fZj9b5ZRYq9LL3dUfPb8CAmD9GYEIIJ8nOg3QcyhqF2ugqL4oX/ZhJx2YsvBia/Lcy6oghX3HZ8Qcrr4C5ZW3dG6vIHpAAAAAElFTkSuQmCC";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
-	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAMCAYAAACdrrgZAAAAAXNSR0IArs4c6QAAAjVJREFUWIXtl01oE1EUhb8nim0tBikKJWiioFCUFiGuRLIRigsFUSRL6y4btSoVgnQVmhZEwY0LQdClqCshuChCq2iQQu3GiIsG2kgaYyU1xcGC10WacX4yP42xFcmBgTfzztx75p77Zt5ACy200MKGQW20gP8VIiK1sVLKsc6b1k3Rvw/xwfEXqFb8stLPjTByWwZU0bTi6ygryPXoJgAMToaryQwm2AwI79gvtcNDWCNzYjiwjJuJNcfdduI5TdUSEAi/5/6P07Ba/L5QlOtvDphoja4AmZyawaGQ1jkTxsdieozb5476SmZoCF/avvX2Im8Djhqs/Eg84zO0P+jv/IBwYedTUrOH6QtFOb/nAV2dQRPX0YDc149+80lyOEVyOIXfDhofixmNcEWt8IXKPG1b2r3ii0Sj/NQ07p5s923Cy1iC7R2bfemxrGLH2MYPb2LfNAOhhwAMHXph4tmyPg5urQ46dwMQmZurmyCby3PvSZqFd9MALC6VuHL5Kj3HjpPN5euJBuDzxO943fZ5225hDY1ggzpS9qJIJJ5h750KrL6GltP94rI7FG1gFIAvhSIAwfQtNz5KKZ5dOkU2+wGlFCJiMkcfGJe4w0Nbk8iNkZu0aSssLpX0ix27ukkmrln54tTxM1NVQwYfvXLUU6jM2+7TVr7Xe+h6Hem21ZZIPEO+WGH24ghdo0Msp/vd7pHXB8/qJ59KRc4sTHjlcMWf/Ad4LW2bYX9RS6Nw0rRu2n8BRDXduO3EyKAAAAAASUVORK5CYII=";
+	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIQAAAAMCAYAAACjpxUSAAAAAXNSR0IArs4c6QAAA1VJREFUWIXtl01oVFcUx39XLDTRkohoMaU1FjOQII6FuKo2m4L4UYsIRXBAcSEE6meLH0FdiKiIVDALFwkFt4KuhNhF6SJW+xQlI0KiUTNlzBg1ZN68mZf5SMrpYua9TmbezHtjaoeU+a/uveece//n3HPPeQ9qqKGGGmqowRNUtQnMFYiIWGOl1P82bvOqTaACiAed93OwlQwxZc/zUS1e7wNzJSGqH/SYglCrnRQAh/qboaB6zHUUJURbk1/amvzSvKhFXC7iXWWWvKIgLtj4SyX7SsF89mgQaB7k58w2yCWDf3kHR//webEu5OVV/z+HY4WYTE662Un/g0eUCHyhrMg2vno1cr+hnM4M/fZOzYNaFg+7A7bdpe++9GxXDvY3Q4OwZ8kNzo18gX95B7s/u8rihZ+4mUs4HEbTNDRNw0tSZ4K9RG//BCCiV/QIZp1E8wsXrGQIRYe97iFnTp0D4MTp467kpaMD49UrrnxTh9wHtTYmbh+3t3d0seJyF6ZHQg+7AyQMnQfBqCf+BXNHLkopZbWGrs8HgAF2y1WOrPqt7N7hcJhIJMLwsKd4SibYixk3SOhjiA6EWhF9UFSjIy/JDF7AiJskzRjJpIlvU0/JeDYvapH6unrI3XPeHdv6RQnRt7IRgHR0JQBrnj1zZD4UGqXneh+vgwMATBjjHD74A63rv2YoNOrFedTamJuKtHdqrLicgFzbMPs2ODlsX+rTWyP24rJieZFd4NhdAF78OcZ02uDejV1lE1Qpxc0DWxkaeoJSChEp9dchWut2nq/by8tINh7RqRTd+NjH05I+3Nl6PU/fx/f6IKrROTYA/d9ew0gn0f+aJvEyni8r6UO5DmAbtTX5heLMcdS1Dj1x9iIfpqaYMMbtxfqlyzjT9aOTPiVKWrnqIO2dGqNvEozsP8vi80cw+zY4cslrFSQM3R5bVeLQtd8d7b7afgkzESU9/QEAj3896cbJK+zqYMGqEoFAoPAMyQR7ATDjxj9+6GP2+NMtF/JtJPO8FzIT2eqQmiIZf5uV5DR8m3qK/NjcslMSkyapdDYhUmQfWnD8jq03G8fd2sO/ElS3vUVEci+0Ej7V5D7jjEr5v4O/AvDxR03UzV9AfstITpu8jkdmGP0NmYifoc+N0ykAAAAASUVORK5CYII=";
 
 	// Element IDs
 	const FIELD_GUIDE_ID = "birb-field-guide";
@@ -2168,7 +2175,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.1.22", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.22"); }, false),
+			new MenuItem("2026.1.24", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.24"); }, false),
 		];
 
 		const styleElement = document.createElement("style");

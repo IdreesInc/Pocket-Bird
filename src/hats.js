@@ -10,12 +10,15 @@ export const HAT = {
 	NONE: "none",
 	TOP_HAT: "top-hat",
 	VIKING_HELMET: "viking-helmet",
-	COWBOY_HAT: "cowboy-hat",
-	BOWLER_HAT: "bowler-hat",
 	FEZ: "fez",
 	WIZARD_HAT: "wizard-hat",
+	COWBOY_HAT: "cowboy-hat",
 	BASEBALL_CAP: "baseball-cap",
-	FLOWER_HAT: "flower-hat"
+	FLOWER_HAT: "flower-hat",
+	BEANIE: "beanie",
+	SUN_HAT: "sun-hat",
+	STRAW_HAT: "straw-hat",
+	CORDOVAN_HAT: "cordovan-hat"
 };
 
 /** @type {{ [hatId: string]: { name: string, description: string } }} */
@@ -36,10 +39,6 @@ export const HAT_METADATA = {
 		name: "Cowboy Hat",
 		description: "You can't jam with the console cowboys without the appropriate attire."
 	},
-	[HAT.BOWLER_HAT]: {
-		name: "Bowler Hat",
-		description: "For that authentic, Victorian look!"
-	},
 	[HAT.FEZ]: {
 		name: "Fez",
 		description: "It's a fez. Fezzes are cool."
@@ -55,6 +54,18 @@ export const HAT_METADATA = {
 	[HAT.FLOWER_HAT]: {
 		name: "Flower Hat",
 		description: "To be fair, this is less of a hat and more of a dirt clod that your pet happened to pick up."
+	},
+	[HAT.BEANIE]: {
+		name: "Beanie",
+		description: "Keeps feathers warm on those long migrations south!"
+	},
+	[HAT.SUN_HAT]: {
+		name: "Sun Hat",
+		description: "Perfect for frolicking through enchanted flower fields."
+	},
+	[HAT.STRAW_HAT]: {
+		name: "Straw Hat",
+		description: "A classic design, though keep away from water as this particular hat is seemingly unable to float."
 	}
 };
 
