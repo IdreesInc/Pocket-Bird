@@ -682,6 +682,10 @@ module.exports = class PocketBird extends Plugin {
 		[HAT.STRAW_HAT]: {
 			name: "Straw Hat",
 			description: "A classic design, though keep away from water as this particular hat is seemingly unable to float."
+		},
+		[HAT.CORDOVAN_HAT]: {
+			name: "Cordovan Hat",
+			description: "A traditional Spanish hat that can stay on even during a sword fight."
 		}
 	};
 
