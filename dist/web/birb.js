@@ -2610,7 +2610,6 @@
 			if (!unlockedHats.includes(hatId)) {
 				unlockedHats.push(hatId);
 				save();
-				switchHat(hatId);
 				const message = makeElement("birb-message-content");
 				message.appendChild(document.createTextNode("You've unlocked the "));
 				const bold = document.createElement("b");
