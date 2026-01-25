@@ -9,14 +9,14 @@ const HAT_WIDTH = 12;
 export const HAT = {
 	NONE: "none",
 	TOP_HAT: "top-hat",
-	VIKING_HELMET: "viking-helmet",
 	FEZ: "fez",
 	WIZARD_HAT: "wizard-hat",
-	COWBOY_HAT: "cowboy-hat",
 	BASEBALL_CAP: "baseball-cap",
 	FLOWER_HAT: "flower-hat",
+	COWBOY_HAT: "cowboy-hat",
 	BEANIE: "beanie",
 	SUN_HAT: "sun-hat",
+	VIKING_HELMET: "viking-helmet",
 	STRAW_HAT: "straw-hat",
 	CORDOVAN_HAT: "cordovan-hat"
 };
@@ -69,7 +69,7 @@ export const HAT_METADATA = {
 	},
 	[HAT.CORDOVAN_HAT]: {
 		name: "Cordovan Hat",
-		description: "A traditional Spanish hat that can stay on even during a sword fight."
+		description: "A traditional Spanish hat that stays put even in the wildest of sword fights."
 	}
 };
 
