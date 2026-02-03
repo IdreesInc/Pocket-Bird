@@ -19,6 +19,8 @@ It's a pet bird that hops around your computer, what more could you want?
 
 #### Join the [Discord](https://discord.gg/6yxE9prcNc) to help me beta test new features and suggest ideas!
 
+![Screen Recording 2026-01-26 at 5 09 45 PM](https://github.com/user-attachments/assets/dbde4b75-7195-476f-9411-c1ee7ba7a96f)
+
 ## Features
 
 - A cute little pixel art bird hops around your apps and websites
