@@ -35,7 +35,7 @@ const MONOCRAFT_URL = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40
 
 const VERSION_KEY = "__VERSION__";
 const STYLESHEET_KEY = "___STYLESHEET___";
-const MONOCRAFT_SRC_KEY = "__MONOCRAFT_SRC__";
+const MONOCRAFT_URL_KEY = "__MONOCRAFT_URL__";
 const CODE_KEY = "__CODE__";
 
 const spriteSheets = [
@@ -85,7 +85,9 @@ writeFileSync(BUILD_CACHE_PATH, JSON.stringify(buildCache), 'utf8');
 
 /**
  * @param {string} entryPoint
- * @param {boolean} [embedFont]
+ * @param {boolean} [embedFont] When true, the Monocraft font is base64-encoded
+ *   and substituted into the __MONOCRAFT_FONT_FACE__ placeholder so the
+ *   build is fully self-contained (used for Obsidian).
  * @returns {Promise<string>}
  */
 async function generateCode(entryPoint, embedFont = false) {
@@ -109,6 +111,15 @@ async function generateCode(entryPoint, embedFont = false) {
 	// Replace version placeholder
 	birbJs = birbJs.replaceAll(VERSION_KEY, version);
 
+	// Replace CDN font URL placeholder
+	if (embedFont) {
+		// Embed as a base64 data URI so the build works fully offline.
+		const monocraftFontData = readFileSync(FONTS_DIR + '/Monocraft.otf', 'base64');
+		birbJs = birbJs.replaceAll(MONOCRAFT_URL_KEY, `data:font/otf;base64,${monocraftFontData}`);
+	} else {
+		birbJs = birbJs.replaceAll(MONOCRAFT_URL_KEY, MONOCRAFT_URL);
+	}
+
 	// Compile and insert sprite sheets
 	for (const spriteSheet of spriteSheets) {
 		const dataUri = readFileSync(spriteSheet.path, 'base64');
@@ -119,14 +130,6 @@ async function generateCode(entryPoint, embedFont = false) {
 	const stylesheetContent = readFileSync(STYLESHEET_PATH, 'utf8');
 	birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent);
 
-	if (embedFont) {
-		// Encode font to data URI
-		const monocraftFontData = readFileSync(FONTS_DIR + '/Monocraft.otf', 'base64');
-		const monocraftDataUri = `data:font/otf;base64,${monocraftFontData}`;
-		birbJs = birbJs.replaceAll(MONOCRAFT_SRC_KEY, monocraftDataUri);
-	} else {
-		birbJs = birbJs.replaceAll(MONOCRAFT_SRC_KEY, MONOCRAFT_URL);
-	}
 	return birbJs;
 }
 
@@ -187,6 +190,7 @@ async function buildExtension() {
 }
 
 async function buildObsidian() {
+	// embedFont=true: bakes the font as base64 so the plugin works fully offline.
 	const birbJs = await generateCode(OBSIDIAN_ENTRY, true);
 
 	mkdirSync(OBSIDIAN_DIR, { recursive: true });

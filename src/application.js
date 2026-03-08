@@ -218,8 +218,6 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		new MenuItem("__VERSION__", () => { alert("Thank you for using Pocket Bird! You are on version: __VERSION__") }, false),
 	];
 
-	const styleElement = document.createElement("style");
-
 	/** @type {Birb} */
 	let birb;
 
@@ -345,8 +343,8 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function onLoad() {
-		styleElement.textContent = STYLESHEET;
-		document.head.appendChild(styleElement);
+		injectStyleElement(getContext().getFontStyles());
+		injectStyleElement(STYLESHEET);
 
 		birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT, HATS_SPRITE_SHEET);
 		birb.setAnimation(Animations.BOB);
@@ -498,6 +496,18 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		// Update HTML element position
 		birb.setX(birdX);
 		birb.setY(birdY);
+	}
+
+	/**
+	 * @param {string|null} stylesheetContents
+	 */
+	function injectStyleElement(stylesheetContents) {
+		if (!stylesheetContents) {
+			return;
+		}
+		const element = document.createElement("style");
+		element.textContent = stylesheetContents;
+		document.head.appendChild(element);
 	}
 
 	/**
@@ -1013,8 +1023,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			}
 			return true;
 		});
-		/** @type {HTMLElement[]} */
-		const largeElements = Array.from(visible).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_FOCUS_ELEMENT_WIDTH);
+		const largeElements = /** @type {HTMLElement[]} */ (Array.from(visible).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_FOCUS_ELEMENT_WIDTH));
 		// Ensure the bird doesn't land on fixed or sticky elements
 		// const fixedAllowed = getContext() instanceof ObsidianContext;
 		// TODO: FIX

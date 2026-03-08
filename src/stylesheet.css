@@ -1,10 +1,3 @@
-@font-face {
-	font-family: 'Monocraft';
-	src: url("__MONOCRAFT_SRC__") format('opentype');
-	font-weight: normal;
-	font-style: normal;
-}
-
 :root {
 	--birb-border-size: 2px;
 	--birb-neg-border-size: calc(var(--birb-border-size) * -1);

@@ -3,6 +3,7 @@ import { debug, log, error } from "./shared.js";
 export const SAVE_KEY = "birbSaveData";
 const ROOT_PATH = "";
 const SET_CONTEXT = "__CONTEXT__"
+const MONOCRAFT_URL = "__MONOCRAFT_URL__";
 
 /**
  * @typedef {import('./application.js').BirbSaveData} BirbSaveData
@@ -91,6 +92,13 @@ export class Context {
 
 	areStickyNotesEnabled() {
 		return true;
+	}
+
+	/**
+	 * @returns {string}
+	 */
+	getFontStyles() {
+		return getFontFaceImport(MONOCRAFT_URL);
 	}
 }
 
@@ -194,6 +202,16 @@ export class BrowserExtensionContext extends Context {
 		// @ts-expect-error
 		chrome.storage.sync.clear();
 	}
+
+	/**
+	 * @override
+	 * @returns {string}
+	 */
+	getFontStyles() {
+		// Use extension bundled font file
+		// @ts-expect-error
+		return getFontFaceImport(chrome.runtime.getURL('fonts/Monocraft.otf'));
+	}
 }
 
 export class ObsidianContext extends Context {
@@ -274,6 +292,14 @@ export class ObsidianContext extends Context {
 		const leafElement = activeLeaf?.view?.containerEl;
 		return leafElement?.querySelector(".cm-scroller") ?? null;
 	}
+}
+
+/**
+ * @param {string} src
+ * @returns {string}
+ */
+function getFontFaceImport(src) {
+	return `@font-face { font-family: 'Monocraft'; src: url("${src}") format('opentype'); font-weight: normal; font-style: normal; }`;
 }
 
 /**

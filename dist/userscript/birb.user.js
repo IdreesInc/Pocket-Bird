@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2026.1.25
+// @version      2026.3.8
 // @description  It's a pet bird in your browser, what more could you want?
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -15,12 +15,169 @@
 (function () {
 	'use strict';
 
+	const SAVE_KEY = "birbSaveData";
+	const MONOCRAFT_URL = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
+
+	/**
+	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
+	 */
+
+	/**
+	 * @abstract
+	 */
+	class Context {
+
+		/**
+		 * @abstract
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
+			throw new Error("Method not implemented");
+		}
+
+		/**
+		 * @abstract
+		 * @param {BirbSaveData} saveData
+		 */
+		async putSaveData(saveData) {
+			throw new Error("Method not implemented");
+		}
+
+		/**
+		 * @abstract
+		 */
+		resetSaveData() {
+			throw new Error("Method not implemented");
+		}
+
+		/**
+		 * @returns {string[]} A list of CSS selectors for focusable elements
+		 */
+		getFocusableElements() {
+			return ["img", "video", ".birb-sticky-note"];
+		}
+
+		getFocusElementTopMargin() {
+			return 80;
+		}
+
+		/**
+		 * @returns {string} The current path of the active page in this context
+		 */
+		getPath() {
+			// Default to website URL
+			return window.location.href;
+		}
+
+		/**
+		 * @returns {HTMLElement} The current active page element where sticky notes can be applied
+		 */
+		getActivePage() {
+			// Default to root element
+			return document.documentElement;
+		}
+
+		/**
+		 * Checks if a path is applicable given the context
+		 * @param {string} path Can be a site URL or another context-specific path
+		 * @returns {boolean} Whether the path matches the current context state
+		 */
+		isPathApplicable(path) {
+			// Default to website URL matching
+			const currentUrl = window.location.href;
+			const stickyNoteWebsite = path.split("?")[0];
+			const currentWebsite = currentUrl.split("?")[0];
+
+			if (stickyNoteWebsite !== currentWebsite) {
+				return false;
+			}
+
+			const pathParams = parseUrlParams(path);
+			const currentParams = parseUrlParams(currentUrl);
+
+			if (window.location.hostname === "www.youtube.com") {
+				if (currentParams.v !== undefined && currentParams.v !== pathParams.v) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		areStickyNotesEnabled() {
+			return true;
+		}
+
+		/**
+		 * @returns {string}
+		 */
+		getFontStyles() {
+			return getFontFaceImport(MONOCRAFT_URL);
+		}
+	}
+
+	class UserScriptContext extends Context {
+
+		/**
+		 * @override
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
+			log("Loading save data from UserScript storage");
+			/** @type {BirbSaveData|{}} */
+			let saveData = {};
+			// @ts-expect-error
+			saveData = GM_getValue(SAVE_KEY, {}) ?? {};
+			return saveData;
+		}
+
+		/**
+		 * @override
+		 * @param {BirbSaveData} saveData
+		 */
+		async putSaveData(saveData) {
+			log("Saving data to UserScript storage");
+			// @ts-expect-error
+			GM_setValue(SAVE_KEY, saveData);
+		}
+
+		/** @override */
+		resetSaveData() {
+			log("Resetting save data in UserScript storage");
+			// @ts-expect-error
+			GM_deleteValue(SAVE_KEY);
+		}
+	}
+
+	/**
+	 * @param {string} src
+	 * @returns {string}
+	 */
+	function getFontFaceImport(src) {
+		return `@font-face { font-family: 'Monocraft'; src: url("${src}") format('opentype'); font-weight: normal; font-style: normal; }`;
+	}
+
+	/**
+	 * Parse URL parameters into a key-value map
+	 * @param {string} url
+	 * @returns {Record<string, string>}
+	 */
+	function parseUrlParams(url) {
+		const queryString = url.split("?")[1];
+		if (!queryString) return {};
+
+		return queryString.split("&").reduce((params, param) => {
+			const [key, value] = param.split("=");
+			return { ...params, [key]: value };
+		}, {});
+	}
+
 	const Directions = {
 		LEFT: -1,
 		RIGHT: 1,
 	};
 
 	let debugMode = location.hostname === "127.0.0.1";
+	/** @type {Context|null} */
 	let context = null;
 
 	/**
@@ -37,6 +194,9 @@
 		debugMode = value;
 	}
 
+	/**
+	 * @returns {Context} The specific context for this platform
+	 */
 	function getContext() {
 		if (!context) {
 			throw new Error("Context requested before being set");
@@ -44,6 +204,9 @@
 		return context;
 	}
 
+	/**
+	 * @param {Context} newContext
+	 */
 	function setContext(newContext) {
 		context = newContext;
 	}
@@ -1177,146 +1340,6 @@
 		}
 	}
 
-	const SAVE_KEY = "birbSaveData";
-
-	/**
-	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
-	 */
-
-	/**
-	 * @abstract
-	 */
-	class Context {
-
-		/**
-		 * @abstract
-		 * @returns {Promise<BirbSaveData|{}>}
-		 */
-		async getSaveData() {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @abstract
-		 * @param {BirbSaveData} saveData
-		 */
-		async putSaveData(saveData) {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @abstract
-		 */
-		resetSaveData() {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @returns {string[]} A list of CSS selectors for focusable elements
-		 */
-		getFocusableElements() {
-			return ["img", "video", ".birb-sticky-note"];
-		}
-
-		getFocusElementTopMargin() {
-			return 80;
-		}
-
-		/**
-		 * @returns {string} The current path of the active page in this context
-		 */
-		getPath() {
-			// Default to website URL
-			return window.location.href;
-		}
-
-		/**
-		 * @returns {HTMLElement} The current active page element where sticky notes can be applied
-		 */
-		getActivePage() {
-			// Default to root element
-			return document.documentElement;
-		}
-
-		/**
-		 * Checks if a path is applicable given the context
-		 * @param {string} path Can be a site URL or another context-specific path
-		 * @returns {boolean} Whether the path matches the current context state
-		 */
-		isPathApplicable(path) {
-			// Default to website URL matching
-			const currentUrl = window.location.href;
-			const stickyNoteWebsite = path.split("?")[0];
-			const currentWebsite = currentUrl.split("?")[0];
-
-			if (stickyNoteWebsite !== currentWebsite) {
-				return false;
-			}
-
-			const pathParams = parseUrlParams(path);
-			const currentParams = parseUrlParams(currentUrl);
-
-			if (window.location.hostname === "www.youtube.com") {
-				if (currentParams.v !== undefined && currentParams.v !== pathParams.v) {
-					return false;
-				}
-			}
-			return true;
-		}
-
-		areStickyNotesEnabled() {
-			return true;
-		}
-	}
-
-	class UserScriptContext extends Context {
-
-		/**
-		 * @override
-		 * @returns {Promise<BirbSaveData|{}>}
-		 */
-		async getSaveData() {
-			log("Loading save data from UserScript storage");
-			/** @type {BirbSaveData|{}} */
-			let saveData = {};
-			// @ts-expect-error
-			saveData = GM_getValue(SAVE_KEY, {}) ?? {};
-			return saveData;
-		}
-
-		/**
-		 * @override
-		 * @param {BirbSaveData} saveData
-		 */
-		async putSaveData(saveData) {
-			log("Saving data to UserScript storage");
-			// @ts-expect-error
-			GM_setValue(SAVE_KEY, saveData);
-		}
-
-		/** @override */
-		resetSaveData() {
-			log("Resetting save data in UserScript storage");
-			// @ts-expect-error
-			GM_deleteValue(SAVE_KEY);
-		}
-	}
-
-	/**
-	 * Parse URL parameters into a key-value map
-	 * @param {string} url
-	 * @returns {Record<string, string>}
-	 */
-	function parseUrlParams(url) {
-		const queryString = url.split("?")[1];
-		if (!queryString) return {};
-
-		return queryString.split("&").reduce((params, param) => {
-			const [key, value] = param.split("=");
-			return { ...params, [key]: value };
-		}, {});
-	}
-
 	/**
 	 * @typedef {Object} SavedStickyNote
 	 * @property {string} id
@@ -1648,14 +1671,7 @@
 	const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
 
 	// Build-time assets
-	const STYLESHEET = `@font-face {
-	font-family: 'Monocraft';
-	src: url("https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf") format('opentype');
-	font-weight: normal;
-	font-style: normal;
-}
-
-:root {
+	const STYLESHEET = `:root {
 	--birb-border-size: 2px;
 	--birb-neg-border-size: calc(var(--birb-border-size) * -1);
 	--birb-double-border-size: calc(var(--birb-border-size) * 2);
@@ -2179,10 +2195,8 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.1.25", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.1.25"); }, false),
+			new MenuItem("2026.3.8", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.8"); }, false),
 		];
-
-		const styleElement = document.createElement("style");
 
 		/** @type {Birb} */
 		let birb;
@@ -2309,8 +2323,8 @@
 		}
 
 		function onLoad() {
-			styleElement.textContent = STYLESHEET;
-			document.head.appendChild(styleElement);
+			injectStyleElement(getContext().getFontStyles());
+			injectStyleElement(STYLESHEET);
 
 			birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT, HATS_SPRITE_SHEET);
 			birb.setAnimation(Animations.BOB);
@@ -2462,6 +2476,18 @@
 			// Update HTML element position
 			birb.setX(birdX);
 			birb.setY(birdY);
+		}
+
+		/**
+		 * @param {string|null} stylesheetContents
+		 */
+		function injectStyleElement(stylesheetContents) {
+			if (!stylesheetContents) {
+				return;
+			}
+			const element = document.createElement("style");
+			element.textContent = stylesheetContents;
+			document.head.appendChild(element);
 		}
 
 		/**
@@ -2973,8 +2999,7 @@
 				}
 				return true;
 			});
-			/** @type {HTMLElement[]} */
-			const largeElements = Array.from(visible).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_FOCUS_ELEMENT_WIDTH);
+			const largeElements = /** @type {HTMLElement[]} */ (Array.from(visible).filter((img) => img instanceof HTMLElement && img !== focusedElement && img.offsetWidth >= MIN_FOCUS_ELEMENT_WIDTH));
 			const nonFixedElements = largeElements.filter((el) => {
 				{
 					return true;
