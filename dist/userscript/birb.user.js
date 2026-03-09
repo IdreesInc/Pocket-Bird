@@ -15,169 +15,12 @@
 (function () {
 	'use strict';
 
-	const SAVE_KEY = "birbSaveData";
-	const MONOCRAFT_URL = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
-
-	/**
-	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
-	 */
-
-	/**
-	 * @abstract
-	 */
-	class Context {
-
-		/**
-		 * @abstract
-		 * @returns {Promise<BirbSaveData|{}>}
-		 */
-		async getSaveData() {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @abstract
-		 * @param {BirbSaveData} saveData
-		 */
-		async putSaveData(saveData) {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @abstract
-		 */
-		resetSaveData() {
-			throw new Error("Method not implemented");
-		}
-
-		/**
-		 * @returns {string[]} A list of CSS selectors for focusable elements
-		 */
-		getFocusableElements() {
-			return ["img", "video", ".birb-sticky-note"];
-		}
-
-		getFocusElementTopMargin() {
-			return 80;
-		}
-
-		/**
-		 * @returns {string} The current path of the active page in this context
-		 */
-		getPath() {
-			// Default to website URL
-			return window.location.href;
-		}
-
-		/**
-		 * @returns {HTMLElement} The current active page element where sticky notes can be applied
-		 */
-		getActivePage() {
-			// Default to root element
-			return document.documentElement;
-		}
-
-		/**
-		 * Checks if a path is applicable given the context
-		 * @param {string} path Can be a site URL or another context-specific path
-		 * @returns {boolean} Whether the path matches the current context state
-		 */
-		isPathApplicable(path) {
-			// Default to website URL matching
-			const currentUrl = window.location.href;
-			const stickyNoteWebsite = path.split("?")[0];
-			const currentWebsite = currentUrl.split("?")[0];
-
-			if (stickyNoteWebsite !== currentWebsite) {
-				return false;
-			}
-
-			const pathParams = parseUrlParams(path);
-			const currentParams = parseUrlParams(currentUrl);
-
-			if (window.location.hostname === "www.youtube.com") {
-				if (currentParams.v !== undefined && currentParams.v !== pathParams.v) {
-					return false;
-				}
-			}
-			return true;
-		}
-
-		areStickyNotesEnabled() {
-			return true;
-		}
-
-		/**
-		 * @returns {string}
-		 */
-		getFontStyles() {
-			return getFontFaceImport(MONOCRAFT_URL);
-		}
-	}
-
-	class UserScriptContext extends Context {
-
-		/**
-		 * @override
-		 * @returns {Promise<BirbSaveData|{}>}
-		 */
-		async getSaveData() {
-			log("Loading save data from UserScript storage");
-			/** @type {BirbSaveData|{}} */
-			let saveData = {};
-			// @ts-expect-error
-			saveData = GM_getValue(SAVE_KEY, {}) ?? {};
-			return saveData;
-		}
-
-		/**
-		 * @override
-		 * @param {BirbSaveData} saveData
-		 */
-		async putSaveData(saveData) {
-			log("Saving data to UserScript storage");
-			// @ts-expect-error
-			GM_setValue(SAVE_KEY, saveData);
-		}
-
-		/** @override */
-		resetSaveData() {
-			log("Resetting save data in UserScript storage");
-			// @ts-expect-error
-			GM_deleteValue(SAVE_KEY);
-		}
-	}
-
-	/**
-	 * @param {string} src
-	 * @returns {string}
-	 */
-	function getFontFaceImport(src) {
-		return `@font-face { font-family: 'Monocraft'; src: url("${src}") format('opentype'); font-weight: normal; font-style: normal; }`;
-	}
-
-	/**
-	 * Parse URL parameters into a key-value map
-	 * @param {string} url
-	 * @returns {Record<string, string>}
-	 */
-	function parseUrlParams(url) {
-		const queryString = url.split("?")[1];
-		if (!queryString) return {};
-
-		return queryString.split("&").reduce((params, param) => {
-			const [key, value] = param.split("=");
-			return { ...params, [key]: value };
-		}, {});
-	}
-
 	const Directions = {
 		LEFT: -1,
 		RIGHT: 1,
 	};
 
 	let debugMode = location.hostname === "127.0.0.1";
-	/** @type {Context|null} */
 	let context = null;
 
 	/**
@@ -194,9 +37,6 @@
 		debugMode = value;
 	}
 
-	/**
-	 * @returns {Context} The specific context for this platform
-	 */
 	function getContext() {
 		if (!context) {
 			throw new Error("Context requested before being set");
@@ -204,9 +44,6 @@
 		return context;
 	}
 
-	/**
-	 * @param {Context} newContext
-	 */
 	function setContext(newContext) {
 		context = newContext;
 	}
@@ -403,21 +240,171 @@
 		return document.documentElement.clientHeight;
 	}
 
-	const TAG = {
-		DEFAULT: "default",
-		TUFT: "tuft",
+	var species = {
+	  "bluebird": {
+	    "name": "Eastern Bluebird",
+	    "description": "Native to North American and very social, though can be timid around people.",
+	    "colors": {
+	      "foot": "#af8e75",
+	      "face": "#639bff",
+	      "belly": "#f8b143",
+	      "underbelly": "#ec8637",
+	      "wing": "#578ae6",
+	      "wing-edge": "#326ed9"
+	    }
+	  },
+	  "shimaEnaga": {
+	    "name": "Shima Enaga",
+	    "description": "Small, fluffy birds found in the snowy regions of Japan, these birds are highly sought after by ornithologists and nature photographers.",
+	    "colors": {
+	      "foot": "#af8e75",
+	      "face": "#ffffff",
+	      "belly": "#ebe9e8",
+	      "underbelly": "#ebd9d0",
+	      "wing": "#f3d3c1",
+	      "wing-edge": "#2d2d2d",
+	      "theme-highlight": "#d7ac93"
+	    }
+	  },
+	  "tuftedTitmouse": {
+	    "name": "Tufted Titmouse",
+	    "description": "Native to the eastern United States, full of personality, and notably my wife's favorite bird.",
+	    "colors": {
+	      "foot": "#af8e75",
+	      "face": "#c7cad7",
+	      "belly": "#e4e5eb",
+	      "underbelly": "#d7cfcb",
+	      "wing": "#b1b5c5",
+	      "wing-edge": "#9d9fa9",
+	      "theme-highlight": "#b9abcf"
+	    },
+	    "tags": ["tuft"]
+	  },
+	  "europeanRobin": {
+	    "name": "European Robin",
+	    "description": "Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.",
+	    "colors": {
+	      "foot": "#af8e75",
+	      "face": "#ffaf34",
+	      "hood": "#aaa094",
+	      "belly": "#ffaf34",
+	      "underbelly": "#babec2",
+	      "wing": "#aaa094",
+	      "wing-edge": "#888580",
+	      "theme-highlight": "#ffaf34"
+	    }
+	  },
+	  "redCardinal": {
+	    "name": "Red Cardinal",
+	    "description": "Native to the eastern United States, this strikingly red bird is hard to miss.",
+	    "colors": {
+	      "beak": "#d93619",
+	      "foot": "#af8e75",
+	      "face": "#31353d",
+	      "hood": "#e83a1b",
+	      "belly": "#e83a1b",
+	      "underbelly": "#dc3719",
+	      "wing": "#d23215",
+	      "wing-edge": "#b1321c"
+	    },
+	    "tags": ["tuft"]
+	  },
+	  "americanGoldfinch": {
+	    "name": "American Goldfinch",
+	    "description": "Coloured a brilliant yellow, this bird feeds almost entirely on the seeds of plants such as thistle, sunflowers, and coneflowers.",
+	    "colors": {
+	      "beak": "#ffaf34",
+	      "foot": "#af8e75",
+	      "face": "#fff255",
+	      "nose": "#383838",
+	      "hood": "#383838",
+	      "belly": "#fff255",
+	      "underbelly": "#f5ea63",
+	      "wing": "#e8e079",
+	      "wing-edge": "#191919",
+	      "theme-highlight": "#ffcc00"
+	    }
+	  },
+	  "barnSwallow": {
+	    "name": "Barn Swallow",
+	    "description": "Agile birds that often roost in man-made structures, these birds are known to build nests near Ospreys for protection.",
+	    "colors": {
+	      "foot": "#af8e75",
+	      "face": "#db7c4d",
+	      "belly": "#f7e1c9",
+	      "underbelly": "#ebc9a3",
+	      "wing": "#2252a9",
+	      "wing-edge": "#1c448b",
+	      "hood": "#2252a9"
+	    }
+	  },
+	  "mistletoebird": {
+	    "name": "Mistletoebird",
+	    "description": "Native to Australia, these birds eat mainly mistletoe and in turn spread the seeds far and wide.",
+	    "colors": {
+	      "foot": "#6c6a7c",
+	      "face": "#352e6d",
+	      "belly": "#fd6833",
+	      "underbelly": "#e6e1d8",
+	      "wing": "#342b7c",
+	      "wing-edge": "#282065"
+	    }
+	  },
+	  "redAvadavat": {
+	    "name": "Red Avadavat",
+	    "description": "Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plumage.",
+	    "colors": {
+	      "beak": "#f71919",
+	      "foot": "#af7575",
+	      "face": "#cb092b",
+	      "belly": "#ae1724",
+	      "underbelly": "#831b24",
+	      "wing": "#7e3030",
+	      "wing-edge": "#490f0f"
+	    }
+	  },
+	  "scarletRobin": {
+	    "name": "Scarlet Robin",
+	    "description": "Native to Australia, this striking robin can be found in Eucalyptus forests.",
+	    "colors": {
+	      "foot": "#494949",
+	      "face": "#3d3d3d",
+	      "belly": "#fc5633",
+	      "underbelly": "#dcdcdc",
+	      "wing": "#2b2b2b",
+	      "wing-edge": "#ebebeb",
+	      "theme-highlight": "#fc5633"
+	    }
+	  },
+	  "americanRobin": {
+	    "name": "American Robin",
+	    "description": "While not a true robin, this social North American bird is so named due to its orange coloring. It seems unbothered by nearby humans.",
+	    "colors": {
+	      "beak": "#e89f30",
+	      "foot": "#9f8075",
+	      "face": "#2d2d2d",
+	      "belly": "#eb7a3a",
+	      "underbelly": "#eb7a3a",
+	      "wing": "#444444",
+	      "wing-edge": "#232323",
+	      "theme-highlight": "#eb7a3a"
+	    }
+	  },
+	  "carolinaWren": {
+	    "name": "Carolina Wren",
+	    "description": "Native to the eastern United States, these little birds are known for their curious and energetic nature.",
+	    "colors": {
+	      "foot": "#af8e75",
+	      "face": "#b97d63",
+	      "nose": "#f7eee5",
+	      "hood": "#b97d63",
+	      "belly": "#eabe8b",
+	      "underbelly": "#c79e7c",
+	      "wing": "#b97d63",
+	      "wing-edge": "#7c543e"
+	    }
+	  }
 	};
-
-	class Layer {
-		/**
-		 * @param {string[][]} pixels
-		 * @param {string} [tag]
-		 */
-		constructor(pixels, tag = TAG.DEFAULT) {
-			this.pixels = pixels;
-			this.tag = tag;
-		}
-	}
 
 	/**
 	 * Palette color names
@@ -499,133 +486,26 @@
 	}
 
 	/** @type {Record<string, BirdType>} */
-	const SPECIES = {
-		bluebird: new BirdType("Eastern Bluebird",
-			"Native to North American and very social, though can be timid around people.", {
-			[PALETTE.FOOT]: "#af8e75",
-			[PALETTE.FACE]: "#639bff",
-			[PALETTE.BELLY]: "#f8b143",
-			[PALETTE.UNDERBELLY]: "#ec8637",
-			[PALETTE.WING]: "#578ae6",
-			[PALETTE.WING_EDGE]: "#326ed9",
-		}),
-		shimaEnaga: new BirdType("Shima Enaga",
-			"Small, fluffy birds found in the snowy regions of Japan, these birds are highly sought after by ornithologists and nature photographers.", {
-			[PALETTE.FOOT]: "#af8e75",
-			[PALETTE.FACE]: "#ffffff",
-			[PALETTE.BELLY]: "#ebe9e8",
-			[PALETTE.UNDERBELLY]: "#ebd9d0",
-			[PALETTE.WING]: "#f3d3c1",
-			[PALETTE.WING_EDGE]: "#2d2d2d",
-			[PALETTE.THEME_HIGHLIGHT]: "#d7ac93",
-		}),
-		tuftedTitmouse: new BirdType("Tufted Titmouse",
-			"Native to the eastern United States, full of personality, and notably my wife's favorite bird.", {
-			[PALETTE.FOOT]: "#af8e75",
-			[PALETTE.FACE]: "#c7cad7",
-			[PALETTE.BELLY]: "#e4e5eb",
-			[PALETTE.UNDERBELLY]: "#d7cfcb",
-			[PALETTE.WING]: "#b1b5c5",
-			[PALETTE.WING_EDGE]: "#9d9fa9",
-			[PALETTE.THEME_HIGHLIGHT]: "#b9abcf",
-		}, [TAG.TUFT]),
-		europeanRobin: new BirdType("European Robin",
-			"Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.", {
-			[PALETTE.FOOT]: "#af8e75",
-			[PALETTE.FACE]: "#ffaf34",
-			[PALETTE.HOOD]: "#aaa094",
-			[PALETTE.BELLY]: "#ffaf34",
-			[PALETTE.UNDERBELLY]: "#babec2",
-			[PALETTE.WING]: "#aaa094",
-			[PALETTE.WING_EDGE]: "#888580",
-			[PALETTE.THEME_HIGHLIGHT]: "#ffaf34",
-		}),
-		redCardinal: new BirdType("Red Cardinal",
-			"Native to the eastern United States, this strikingly red bird is hard to miss.", {
-			[PALETTE.BEAK]: "#d93619",
-			[PALETTE.FOOT]: "#af8e75",
-			[PALETTE.FACE]: "#31353d",
-			[PALETTE.HOOD]: "#e83a1b",
-			[PALETTE.BELLY]: "#e83a1b",
-			[PALETTE.UNDERBELLY]: "#dc3719",
-			[PALETTE.WING]: "#d23215",
-			[PALETTE.WING_EDGE]: "#b1321c",
-		}, [TAG.TUFT]),
-		americanGoldfinch: new BirdType("American Goldfinch",
-			"Coloured a brilliant yellow, this bird feeds almost entirely on the seeds of plants such as thistle, sunflowers, and coneflowers.", {
-			[PALETTE.BEAK]: "#ffaf34",
-			[PALETTE.FOOT]: "#af8e75",
-			[PALETTE.FACE]: "#fff255",
-			[PALETTE.NOSE]: "#383838",
-			[PALETTE.HOOD]: "#383838",
-			[PALETTE.BELLY]: "#fff255",
-			[PALETTE.UNDERBELLY]: "#f5ea63",
-			[PALETTE.WING]: "#e8e079",
-			[PALETTE.WING_EDGE]: "#191919",
-			[PALETTE.THEME_HIGHLIGHT]: "#ffcc00"
-		}),
-		barnSwallow: new BirdType("Barn Swallow",
-			"Agile birds that often roost in man-made structures, these birds are known to build nests near Ospreys for protection.", {
-			[PALETTE.FOOT]: "#af8e75",
-			[PALETTE.FACE]: "#db7c4d",
-			[PALETTE.BELLY]: "#f7e1c9",
-			[PALETTE.UNDERBELLY]: "#ebc9a3",
-			[PALETTE.WING]: "#2252a9",
-			[PALETTE.WING_EDGE]: "#1c448b",
-			[PALETTE.HOOD]: "#2252a9",
-		}),
-		mistletoebird: new BirdType("Mistletoebird",
-			"Native to Australia, these birds eat mainly mistletoe and in turn spread the seeds far and wide.", {
-			[PALETTE.FOOT]: "#6c6a7c",
-			[PALETTE.FACE]: "#352e6d",
-			[PALETTE.BELLY]: "#fd6833",
-			[PALETTE.UNDERBELLY]: "#e6e1d8",
-			[PALETTE.WING]: "#342b7c",
-			[PALETTE.WING_EDGE]: "#282065",
-		}),
-		redAvadavat: new BirdType("Red Avadavat",
-			"Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plumage.", {
-			[PALETTE.BEAK]: "#f71919",
-			[PALETTE.FOOT]: "#af7575",
-			[PALETTE.FACE]: "#cb092b",
-			[PALETTE.BELLY]: "#ae1724",
-			[PALETTE.UNDERBELLY]: "#831b24",
-			[PALETTE.WING]: "#7e3030",
-			[PALETTE.WING_EDGE]: "#490f0f",
-		}),
-		scarletRobin: new BirdType("Scarlet Robin",
-			"Native to Australia, this striking robin can be found in Eucalyptus forests.", {
-			[PALETTE.FOOT]: "#494949",
-			[PALETTE.FACE]: "#3d3d3d",
-			[PALETTE.BELLY]: "#fc5633",
-			[PALETTE.UNDERBELLY]: "#dcdcdc",
-			[PALETTE.WING]: "#2b2b2b",
-			[PALETTE.WING_EDGE]: "#ebebeb",
-			[PALETTE.THEME_HIGHLIGHT]: "#fc5633",
-		}),
-		americanRobin: new BirdType("American Robin",
-			"While not a true robin, this social North American bird is so named due to its orange coloring. It seems unbothered by nearby humans.", {
-			[PALETTE.BEAK]: "#e89f30",
-			[PALETTE.FOOT]: "#9f8075",
-			[PALETTE.FACE]: "#2d2d2d",
-			[PALETTE.BELLY]: "#eb7a3a",
-			[PALETTE.UNDERBELLY]: "#eb7a3a",
-			[PALETTE.WING]: "#444444",
-			[PALETTE.WING_EDGE]: "#232323",
-			[PALETTE.THEME_HIGHLIGHT]: "#eb7a3a",
-		}),
-		carolinaWren: new BirdType("Carolina Wren",
-			"Native to the eastern United States, these little birds are known for their curious and energetic nature.", {
-			[PALETTE.FOOT]: "#af8e75",
-			[PALETTE.FACE]: "#edc7a9",
-			[PALETTE.NOSE]: "#f7eee5",
-			[PALETTE.HOOD]: "#c58a5b",
-			[PALETTE.BELLY]: "#e1b796",
-			[PALETTE.UNDERBELLY]: "#c79e7c",
-			[PALETTE.WING]: "#c58a5b",
-			[PALETTE.WING_EDGE]: "#866348",
-		}),
-	};
+	const SPECIES = Object.fromEntries(
+		Object.entries(species).map(([id, data]) => [
+			id,
+			new BirdType(data.name, data.description, data.colors, data.tags ?? []),
+		]),
+	);
+
+	const TAG = {
+		DEFAULT: "default"};
+
+	class Layer {
+		/**
+		 * @param {string[][]} pixels
+		 * @param {string} [tag]
+		 */
+		constructor(pixels, tag = TAG.DEFAULT) {
+			this.pixels = pixels;
+			this.tag = tag;
+		}
+	}
 
 	class Frame {
 
@@ -1338,6 +1218,162 @@
 			oscillator.start(now);
 			oscillator.stop(now + TIMES[TIMES.length - 1]);
 		}
+	}
+
+	const SAVE_KEY = "birbSaveData";
+	const MONOCRAFT_URL = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
+
+	/**
+	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
+	 */
+
+	/**
+	 * @abstract
+	 */
+	class Context {
+
+		/**
+		 * @abstract
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
+			throw new Error("Method not implemented");
+		}
+
+		/**
+		 * @abstract
+		 * @param {BirbSaveData} saveData
+		 */
+		async putSaveData(saveData) {
+			throw new Error("Method not implemented");
+		}
+
+		/**
+		 * @abstract
+		 */
+		resetSaveData() {
+			throw new Error("Method not implemented");
+		}
+
+		/**
+		 * @returns {string[]} A list of CSS selectors for focusable elements
+		 */
+		getFocusableElements() {
+			return ["img", "video", ".birb-sticky-note"];
+		}
+
+		getFocusElementTopMargin() {
+			return 80;
+		}
+
+		/**
+		 * @returns {string} The current path of the active page in this context
+		 */
+		getPath() {
+			// Default to website URL
+			return window.location.href;
+		}
+
+		/**
+		 * @returns {HTMLElement} The current active page element where sticky notes can be applied
+		 */
+		getActivePage() {
+			// Default to root element
+			return document.documentElement;
+		}
+
+		/**
+		 * Checks if a path is applicable given the context
+		 * @param {string} path Can be a site URL or another context-specific path
+		 * @returns {boolean} Whether the path matches the current context state
+		 */
+		isPathApplicable(path) {
+			// Default to website URL matching
+			const currentUrl = window.location.href;
+			const stickyNoteWebsite = path.split("?")[0];
+			const currentWebsite = currentUrl.split("?")[0];
+
+			if (stickyNoteWebsite !== currentWebsite) {
+				return false;
+			}
+
+			const pathParams = parseUrlParams(path);
+			const currentParams = parseUrlParams(currentUrl);
+
+			if (window.location.hostname === "www.youtube.com") {
+				if (currentParams.v !== undefined && currentParams.v !== pathParams.v) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		areStickyNotesEnabled() {
+			return true;
+		}
+
+		/**
+		 * @returns {string}
+		 */
+		getFontStyles() {
+			return getFontFaceImport(MONOCRAFT_URL);
+		}
+	}
+
+	class UserScriptContext extends Context {
+
+		/**
+		 * @override
+		 * @returns {Promise<BirbSaveData|{}>}
+		 */
+		async getSaveData() {
+			log("Loading save data from UserScript storage");
+			/** @type {BirbSaveData|{}} */
+			let saveData = {};
+			// @ts-expect-error
+			saveData = GM_getValue(SAVE_KEY, {}) ?? {};
+			return saveData;
+		}
+
+		/**
+		 * @override
+		 * @param {BirbSaveData} saveData
+		 */
+		async putSaveData(saveData) {
+			log("Saving data to UserScript storage");
+			// @ts-expect-error
+			GM_setValue(SAVE_KEY, saveData);
+		}
+
+		/** @override */
+		resetSaveData() {
+			log("Resetting save data in UserScript storage");
+			// @ts-expect-error
+			GM_deleteValue(SAVE_KEY);
+		}
+	}
+
+	/**
+	 * @param {string} src
+	 * @returns {string}
+	 */
+	function getFontFaceImport(src) {
+		return `@font-face { font-family: 'Monocraft'; src: url("${src}") format('opentype'); font-weight: normal; font-style: normal; }`;
+	}
+
+	/**
+	 * Parse URL parameters into a key-value map
+	 * @param {string} url
+	 * @returns {Record<string, string>}
+	 */
+	function parseUrlParams(url) {
+		const queryString = url.split("?")[1];
+		if (!queryString) return {};
+
+		return queryString.split("&").reduce((params, param) => {
+			const [key, value] = param.split("=");
+			return { ...params, [key]: value };
+		}, {});
 	}
 
 	/**
@@ -2089,7 +2125,7 @@
 	const HOP_CHANCE = 1 / (60 * 2.5); // Every 2.5 seconds
 	const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // Every 20 seconds
 	const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // Every 2 hours
-	const HAT_CHANCE = 1 / (60 * 60 * 10); // Every 10 minutes
+	const HAT_CHANCE = 1 / (60 * 60 * 25); // Every 25 minutes
 
 	// Feathers
 	const FEATHER_FALL_SPEED = 1;

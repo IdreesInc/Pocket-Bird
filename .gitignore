@@ -3,3 +3,4 @@
 /dist/birb.bundled.js
 obsidian-test.sh
 build-cache.json
+.vscode/settings.json

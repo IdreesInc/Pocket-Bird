@@ -1,12 +1,9 @@
-import { Context } from "./context";
-
 export const Directions = {
 	LEFT: -1,
 	RIGHT: 1,
 };
 
 let debugMode = location.hostname === "127.0.0.1";
-/** @type {Context|null} */
 let context = null;
 
 /**
@@ -23,9 +20,6 @@ export function setDebug(value) {
 	debugMode = value;
 }
 
-/**
- * @returns {Context} The specific context for this platform
- */
 export function getContext() {
 	if (!context) {
 		throw new Error("Context requested before being set");
@@ -33,9 +27,6 @@ export function getContext() {
 	return context;
 }
 
-/**
- * @param {Context} newContext
- */
 export function setContext(newContext) {
 	context = newContext;
 }
