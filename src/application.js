@@ -3,7 +3,7 @@ import Layer, { TAG } from './animation/layer.js';
 import Anim from './animation/anim.js';
 import { Birb, Animations } from './birb.js';
 import { Birdsong } from './sound.js';
-import { Context, ObsidianContext } from './context.js';
+import { Context } from './context.js';
 
 import {
 	getContext,
@@ -109,7 +109,7 @@ const HOP_DELAY = 500;
 const HOP_CHANCE = 1 / (60 * 2.5); // Every 2.5 seconds
 const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // Every 20 seconds
 const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // Every 2 hours
-const HAT_CHANCE = 1 / (60 * 60 * 10); // Every 10 minutes
+const HAT_CHANCE = 1 / (60 * 60 * 25); // Every 25 minutes
 
 // Feathers
 const FEATHER_FALL_SPEED = 1;
