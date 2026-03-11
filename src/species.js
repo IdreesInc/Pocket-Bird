@@ -1,3 +1,10 @@
+/** @typedef {Object} Species
+ * @property {string} name
+ * @property {string} description
+ * @property {Record<string, string>} colors
+ * @property {string[]} [tags]
+ */
+
 export default {
   "bluebird": {
     "name": "Eastern Bluebird",

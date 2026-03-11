@@ -5,13 +5,11 @@ import Frame from '../src/animation/frame.js';
 import { Directions, getLayerPixels } from '../src/shared.js';
 import species from '../src/species.js';
 
+/** @typedef {import('../src/species.js').Species} Species */
+
 const COLOR_MAP = SPRITE_SHEET_COLOR_MAP;
 const SPRITE_PATH = "../sprites/birb.png";
 const SPRITE_SIZE = 32;
-/** @type {Array<{tag: string, label: string}>} */
-const AVAILABLE_TAGS = [
-	{ tag: TAG.TUFT, label: "Tuft" },
-];
 
 /** @type {Record<string, string>} */
 const DEFAULT_OVERRIDES = {
@@ -46,14 +44,10 @@ let selectedColorElement = null;
 const colorElements = {};
 
 
-/** @type {Record<string, string>} */
-let currentSpecies = { ...species.bluebird.colors };
-let colorHistory = [{ ...currentSpecies }];
+/** @type {Species} */
+let currentSpecies = JSON.parse(JSON.stringify(species.bluebird));
+let speciesHistory = [JSON.parse(JSON.stringify(currentSpecies))];
 let historyIndex = 0;
-
-
-/** @type {Set<string>} */
-const currentTags = new Set();
 
 /** @type {Frame|null} */
 let baseFrame = null;
@@ -93,30 +87,50 @@ function draw() {
 		return;
 	}
 	drawBackground();
-	baseFrame.draw(spriteCtx, Directions.RIGHT, 1, buildColorScheme(), [...currentTags]);
+	baseFrame.draw(spriteCtx, Directions.RIGHT, 1, buildColorScheme(), currentSpecies.tags || []);
 	ctx.drawImage(spriteCanvas, 0, 0);
 }
 
-function updateColors() {
-	const lastColors = colorHistory[historyIndex];
+function updateSpecies() {
+	const previousSpecies = speciesHistory[historyIndex];
 	let changed = false;
-	for (const part of Object.keys(currentSpecies)) {
-		if (currentSpecies[part] !== lastColors[part]) {
+	// Check for changes in colors
+	for (const part of Object.keys(currentSpecies.colors)) {
+		if (currentSpecies.colors[part] !== previousSpecies.colors[part]) {
 			changed = true;
 			break;
 		}
 	}
 	if (!changed) {
-		for (const part of Object.keys(lastColors)) {
-			if (!(part in currentSpecies)) {
+		for (const part of Object.keys(previousSpecies.colors)) {
+			if (!(part in currentSpecies.colors)) {
+				changed = true;
+				break;
+			}
+		}
+	}
+	// Check for changes in tags
+	if (!changed) {
+		const prevTags = new Set(previousSpecies.tags || []);
+		const currTags = new Set(currentSpecies.tags || []);
+		for (const tag of prevTags) {
+			if (!currTags.has(tag)) {
+				changed = true;
+				break;
+			}
+		}
+	}
+	if (!changed) {
+		for (const tag of currentSpecies.tags || []) {
+			if (!previousSpecies.tags || !previousSpecies.tags.includes(tag)) {
 				changed = true;
 				break;
 			}
 		}
 	}
 	if (changed) {
-		colorHistory = colorHistory.slice(0, historyIndex + 1);
-		colorHistory.push({ ...currentSpecies });
+		speciesHistory = speciesHistory.slice(0, historyIndex + 1);
+		speciesHistory.push(JSON.parse(JSON.stringify(currentSpecies)));
 		historyIndex++;
 	}
 	updateJson();
@@ -131,8 +145,11 @@ function loadEditor() {
 		const item = createColorSwatch(part, getColor(part) || color);
 		editor.appendChild(item);
 	}
-	for (const { tag, label } of AVAILABLE_TAGS) {
-		editor.appendChild(createTagToggle(tag, label));
+	for (const value of Object.values(TAG)) {
+		if (value === TAG.DEFAULT) {
+			continue;
+		}
+		editor.appendChild(createTagToggle(value, getTag(value)));
 	}
 }
 
@@ -141,8 +158,8 @@ function loadEditor() {
  * @return {string}
  */
 function getColor(part) {
-	if (currentSpecies[part]) {
-		return currentSpecies[part];
+	if (currentSpecies.colors[part]) {
+		return currentSpecies.colors[part];
 	}
 	if (DEFAULT_OVERRIDES[part]) {
 		return getColor(DEFAULT_OVERRIDES[part]);
@@ -155,6 +172,31 @@ function getColor(part) {
 	return "transparent";
 }
 
+/**
+ * @param {string} tag 
+ * @returns {boolean}
+ */
+function getTag(tag) {
+	return currentSpecies.tags ? currentSpecies.tags.includes(tag) : false;
+}
+
+/**
+ * @param {string} tag
+ * @param {boolean} enabled
+ */
+function setTag(tag, enabled) {
+	if (!currentSpecies.tags) {
+		currentSpecies.tags = [];
+	}
+	if (enabled) {
+		if (!currentSpecies.tags.includes(tag)) {
+			currentSpecies.tags.push(tag);
+		}
+	} else {
+		currentSpecies.tags = currentSpecies.tags.filter(t => t !== tag);
+	}
+}
+
 function createColorPicker() {
 	colorPickerInput.type = "text";
 	colorPickerInput.id = "color-picker-interceptor";
@@ -165,14 +207,14 @@ function createColorPicker() {
 		if (selectedColorElement && selectedPart !== null) {
 			const newColor = colorPickerInput.value;
 			selectedColorElement.style.backgroundColor = newColor;
-			currentSpecies[selectedPart] = newColor;
+			currentSpecies.colors[selectedPart] = newColor;
 			draw();
 		}
 	});
 
 	document.addEventListener("mouseup", () => {
 		if (selectedPart !== null && !jsonElement.contains(document.activeElement)) {
-			updateColors();
+			updateSpecies();
 		}
 	});
 }
@@ -199,7 +241,7 @@ function createColorSwatch(label, color) {
 			colorPickerInput.style.left = rect.left + "px";
 			colorPickerInput.style.top = (rect.bottom + window.scrollY) + "px";
 
-			colorPickerInput.value = currentSpecies[label] || color;
+			colorPickerInput.value = currentSpecies.colors[label] || color;
 			colorPickerInput.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 		});
 	} else {
@@ -211,10 +253,10 @@ function createColorSwatch(label, color) {
 	labelElement.textContent = labelText;
 	labelElement.title = "Click to remove from species";
 	labelElement.addEventListener("click", () => {
-		delete currentSpecies[label];
+		delete currentSpecies.colors[label];
 		colorElement.style.backgroundColor = getColor(label);
-		updateColors();
-		refreshEditorColors();
+		updateSpecies();
+		refreshEditor();
 	});
 	item.appendChild(labelElement);
 
@@ -223,37 +265,34 @@ function createColorSwatch(label, color) {
 
 /**
  * @param {string} tag
- * @param {string} label
+ * @param {boolean} enabled
  * @returns {HTMLDivElement}
  */
-function createTagToggle(tag, label) {
+function createTagToggle(tag, enabled) {
 	const item = document.createElement("div");
 	item.classList.add("editor-item");
 
 	const toggle = document.createElement("button");
+	toggle.id = `tag-toggle-${tag}`;
 	toggle.classList.add("tag-toggle");
 	toggle.textContent = "✓";
 	toggle.addEventListener("click", () => {
-		if (currentTags.has(tag)) {
-			currentTags.delete(tag);
-			toggle.classList.remove("tag-toggle--active");
-		} else {
-			currentTags.add(tag);
-			toggle.classList.add("tag-toggle--active");
-		}
+		setTag(tag, !getTag(tag));
+		toggle.classList.toggle("tag-toggle--active", getTag(tag));
+		updateSpecies();
 		draw();
 	});
 	item.appendChild(toggle);
 
 	const labelElement = document.createElement("div");
 	labelElement.classList.add("label");
-	labelElement.textContent = label.toUpperCase();
+	labelElement.textContent = tag.toUpperCase();
 	item.appendChild(labelElement);
 
 	return item;
 }
 
-function refreshEditorColors() {
+function refreshEditor() {
 	for (const [, part] of Object.entries(COLOR_MAP)) {
 		const el = colorElements[part];
 		if (el && !el.classList.contains("color--transparent")) {
@@ -261,7 +300,13 @@ function refreshEditorColors() {
 		}
 	}
 	if (selectedColorElement && selectedPart !== null) {
-		colorPickerInput.value = currentSpecies[selectedPart] || "";
+		colorPickerInput.value = currentSpecies.colors[selectedPart] || "";
+	}
+	for (const value of Object.values(TAG)) {
+		const toggle = editor.querySelector(`#tag-toggle-${value}`);
+		if (toggle && toggle instanceof HTMLElement) {
+			toggle.classList.toggle("tag-toggle--active", getTag(value));
+		}
 	}
 }
 
@@ -276,17 +321,17 @@ document.addEventListener("keydown", (e) => {
 	if (e.key === "z" && !e.shiftKey) {
 		if (historyIndex > 0) {
 			historyIndex--;
-			currentSpecies = { ...colorHistory[historyIndex] };
-			refreshEditorColors();
+			currentSpecies = JSON.parse(JSON.stringify(speciesHistory[historyIndex]));
+			refreshEditor();
 			updateJson();
 			draw();
 			e.preventDefault();
 		}
 	} else if ((e.key === "z" && e.shiftKey) || e.key === "y") {
-		if (historyIndex < colorHistory.length - 1) {
+		if (historyIndex < speciesHistory.length - 1) {
 			historyIndex++;
-			currentSpecies = { ...colorHistory[historyIndex] };
-			refreshEditorColors();
+			currentSpecies = JSON.parse(JSON.stringify(speciesHistory[historyIndex]));
+			refreshEditor();
 			updateJson();
 			draw();
 			e.preventDefault();
@@ -299,7 +344,7 @@ jsonElement.addEventListener("input", () => {
 		const parsed = JSON.parse(jsonElement.textContent || "");
 		if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
 			currentSpecies = parsed;
-			refreshEditorColors();
+			refreshEditor();
 			draw();
 		}
 	} catch (e) {
@@ -307,7 +352,7 @@ jsonElement.addEventListener("input", () => {
 });
 
 jsonElement.addEventListener("blur", () => {
-	updateColors();
+	updateSpecies();
 });
 
 createColorPicker();
@@ -319,5 +364,5 @@ loadEditor();
 		new Layer(getLayerPixels(pixels, 0, SPRITE_SIZE)),
 		new Layer(getLayerPixels(pixels, 5, SPRITE_SIZE), TAG.TUFT),
 	]);
-	updateColors();
+	updateSpecies();
 })();

@@ -240,6 +240,13 @@
 		return document.documentElement.clientHeight;
 	}
 
+	/** @typedef {Object} Species
+	 * @property {string} name
+	 * @property {string} description
+	 * @property {Record<string, string>} colors
+	 * @property {string[]} [tags]
+	 */
+
 	var species = {
 	  "bluebird": {
 	    "name": "Eastern Bluebird",
