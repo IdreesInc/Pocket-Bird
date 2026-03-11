@@ -73,7 +73,8 @@ export default {
       "underbelly": "#dc3719",
       "wing": "#d23215",
       "wing-edge": "#b1321c",
-      "collar": "#e83a1b"
+      "collar": "#e83a1b",
+      "scruff": "#d23215",
     },
     "tags": [
       "tuft"

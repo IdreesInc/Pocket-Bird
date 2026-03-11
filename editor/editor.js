@@ -16,6 +16,7 @@ const DEFAULT_OVERRIDES = {
 	"eyebrow": "face",
 	"nose": "face",
 	"cheek": "face",
+	"scruff": "face",
 	"collar": "face",
 };
 const IGNORED_PARTS = new Set(
