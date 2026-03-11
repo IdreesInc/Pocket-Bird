@@ -421,6 +421,7 @@ module.exports = class PocketBird extends Plugin {
 		EYEBROW: "eyebrow",
 		NOSE: "nose",
 		CHEEK: "cheek",
+		COLLAR: "collar",
 		BELLY: "belly",
 		UNDERBELLY: "underbelly",
 		WING: "wing",
@@ -448,6 +449,7 @@ module.exports = class PocketBird extends Plugin {
 		"#ff5573": PALETTE.EYEBROW,
 		"#d95763": PALETTE.NOSE,
 		"#ff67a9": PALETTE.CHEEK,
+		"#ffe955": PALETTE.COLLAR,
 		"#f8b143": PALETTE.BELLY,
 		"#ec8637": PALETTE.UNDERBELLY,
 		"#578ae6": PALETTE.WING,
@@ -482,6 +484,7 @@ module.exports = class PocketBird extends Plugin {
 				[PALETTE.EYEBROW]: colors.face,	
 				[PALETTE.NOSE]: colors.face,
 				[PALETTE.CHEEK]: colors.face,
+				[PALETTE.COLLAR]: colors.face,
 			};
 			/** @type {Record<string, string>} */
 			this.colors = { ...defaultColors, ...colors, [PALETTE.THEME_HIGHLIGHT]: colors[PALETTE.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
