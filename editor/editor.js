@@ -368,6 +368,7 @@ function loadSpeciesHistory() {
 			console.warn("Failed to parse species history from localStorage:", e);
 		}
 	}
+	refreshEditor();
 	draw();
 }
 
