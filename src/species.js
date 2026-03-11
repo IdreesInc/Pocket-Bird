@@ -43,7 +43,9 @@ export default {
       "wing-edge": "#9d9fa9",
       "theme-highlight": "#b9abcf"
     },
-    "tags": ["tuft"]
+    "tags": [
+      "tuft"
+    ]
   },
   "europeanRobin": {
     "name": "European Robin",
@@ -70,9 +72,12 @@ export default {
       "belly": "#e83a1b",
       "underbelly": "#dc3719",
       "wing": "#d23215",
-      "wing-edge": "#b1321c"
+      "wing-edge": "#b1321c",
+      "collar": "#e83a1b"
     },
-    "tags": ["tuft"]
+    "tags": [
+      "tuft"
+    ]
   },
   "americanGoldfinch": {
     "name": "American Goldfinch",
