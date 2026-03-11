@@ -46,14 +46,15 @@ body {
 	background: #ffffff;
 	border-radius: 16px;
 	box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.1);
-	padding: 20px;
+	padding: 40px 50px;
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 	flex-wrap: wrap;
 	align-items: center;
-	justify-content: center;
+	justify-content: space-between;
 	gap: 30px 20px;
 	column-count: 2;
+	overflow-y: scroll;
 }
 
 #json {
@@ -107,7 +108,7 @@ body {
 	cursor: default;
 }
 
-#coloris-proxy {
+#color-picker-interceptor {
 	position: fixed;
 	width: 1px;
 	height: 1px;
@@ -117,27 +118,17 @@ body {
 	pointer-events: none;
 }
 
-.tag-item {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-	gap: 20px;
-	height: 38px;
-	margin-top: 10px;
-}
-
 .tag-toggle {
 	width: 32px;
 	height: 32px;
 	border-radius: 4px;
 	border: none;
-	background: #edf0f4;
-	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+	background: #f1f1f1;
 	cursor: pointer;
 	font-size: 16px;
 	color: transparent;
 	transition: background 0.15s, color 0.15s, transform 0.1s;
+	border: 3px solid #dadada;
 }
 
 .tag-toggle:hover {
@@ -146,6 +137,7 @@ body {
 }
 
 .tag-toggle--active {
-	background: #639bff;
+	background: #34c85a;
 	color: white;
+	border: 0;
 }

@@ -420,7 +420,9 @@
 		EYE: "eye",
 		FACE: "face",
 		HOOD: "hood",
+		EYEBROW: "eyebrow",
 		NOSE: "nose",
+		CHEEK: "cheek",
 		BELLY: "belly",
 		UNDERBELLY: "underbelly",
 		WING: "wing",
@@ -445,7 +447,9 @@
 		"#af8e75": PALETTE.FOOT,
 		"#639bff": PALETTE.FACE,
 		"#99e550": PALETTE.HOOD,
+		"#ff5573": PALETTE.EYEBROW,
 		"#d95763": PALETTE.NOSE,
+		"#ff67a9": PALETTE.CHEEK,
 		"#f8b143": PALETTE.BELLY,
 		"#ec8637": PALETTE.UNDERBELLY,
 		"#578ae6": PALETTE.WING,
@@ -477,7 +481,9 @@
 				[PALETTE.HEART_SHINE]: "#ff6b6b",
 				[PALETTE.FEATHER_SPINE]: "#373737",
 				[PALETTE.HOOD]: colors.face,
+				[PALETTE.EYEBROW]: colors.face,	
 				[PALETTE.NOSE]: colors.face,
+				[PALETTE.CHEEK]: colors.face,
 			};
 			/** @type {Record<string, string>} */
 			this.colors = { ...defaultColors, ...colors, [PALETTE.THEME_HIGHLIGHT]: colors[PALETTE.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
@@ -487,8 +493,8 @@
 
 	/**
 	 * Load a sprite sheet image and convert it to a 2D array of palette color names
-	 * @param {string} src - URL or data URI of the sprite sheet image
-	 * @param {boolean} [templateColors] - Whether to map pixel colors to palette names
+	 * @param {string} src URL or data URI of the sprite sheet image
+	 * @param {boolean} [templateColors] Whether to map pixel colors to palette names
 	 * @returns {Promise<string[][]>}
 	 */
 	function loadSpriteSheetPixels(src, templateColors = true) {

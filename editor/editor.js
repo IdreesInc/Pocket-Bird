@@ -16,7 +16,9 @@ const AVAILABLE_TAGS = [
 /** @type {Record<string, string>} */
 const DEFAULT_OVERRIDES = {
 	"hood": "face",
-	"nose": "face"
+	"eyebrow": "face",
+	"nose": "face",
+	"cheek": "face",
 };
 const IGNORED_PARTS = new Set(
 	["transparent", "border", "heart", "heart-border", "heart-shine", "feather-spine"]
@@ -126,12 +128,12 @@ function loadEditor() {
 		if (IGNORED_PARTS.has(part)) {
 			continue;
 		}
-		const item = createColorItem(part, getColor(part) || color);
+		const item = createColorSwatch(part, getColor(part) || color);
 		editor.appendChild(item);
 	}
-	// for (const { tag, label } of AVAILABLE_TAGS) {
-	// 	editor.appendChild(createTagItem(tag, label));
-	// }
+	for (const { tag, label } of AVAILABLE_TAGS) {
+		editor.appendChild(createTagToggle(tag, label));
+	}
 }
 
 /**
@@ -155,7 +157,7 @@ function getColor(part) {
 
 function createColorPicker() {
 	colorPickerInput.type = "text";
-	colorPickerInput.id = "coloris-proxy";
+	colorPickerInput.id = "color-picker-interceptor";
 	colorPickerInput.setAttribute("data-coloris", "");
 	document.body.appendChild(colorPickerInput);
 
@@ -180,7 +182,7 @@ function createColorPicker() {
  * @param {string} color
  * @returns {HTMLDivElement}
  */
-function createColorItem(label, color) {
+function createColorSwatch(label, color) {
 	const item = document.createElement("div");
 	item.classList.add("editor-item");
 
@@ -224,9 +226,9 @@ function createColorItem(label, color) {
  * @param {string} label
  * @returns {HTMLDivElement}
  */
-function createTagItem(tag, label) {
+function createTagToggle(tag, label) {
 	const item = document.createElement("div");
-	item.classList.add("tag-item");
+	item.classList.add("editor-item");
 
 	const toggle = document.createElement("button");
 	toggle.classList.add("tag-toggle");
