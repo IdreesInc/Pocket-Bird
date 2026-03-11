@@ -368,6 +368,7 @@ function loadSpeciesHistory() {
 			console.warn("Failed to parse species history from localStorage:", e);
 		}
 	}
+	draw();
 }
 
 createColorPicker();
@@ -380,5 +381,6 @@ loadSpeciesHistory();
 		new Layer(getLayerPixels(pixels, 0, SPRITE_SIZE)),
 		new Layer(getLayerPixels(pixels, 5, SPRITE_SIZE), TAG.TUFT),
 	]);
-	commitChange();
+	updateJson();
+	draw();
 })();
