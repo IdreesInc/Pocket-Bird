@@ -394,13 +394,13 @@
 	    "description": "Native to the eastern United States, these little birds are known for their curious and energetic nature.",
 	    "colors": {
 	      "foot": "#af8e75",
-	      "face": "#b97d63",
+	      "face": "#edc7a9",
 	      "nose": "#f7eee5",
-	      "hood": "#b97d63",
-	      "belly": "#eabe8b",
+	      "hood": "#c58a5b",
+	      "belly": "#e1b796",
 	      "underbelly": "#c79e7c",
-	      "wing": "#b97d63",
-	      "wing-edge": "#7c543e"
+	      "wing": "#c58a5b",
+	      "wing-edge": "#866348"
 	    }
 	  }
 	};
