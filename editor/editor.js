@@ -10,7 +10,6 @@ import species from '../src/species.js';
 const COLOR_MAP = SPRITE_SHEET_COLOR_MAP;
 const SPRITE_PATH = "../sprites/birb.png";
 const SPRITE_SIZE = 32;
-
 /** @type {Record<string, string>} */
 const DEFAULT_OVERRIDES = {
 	"hood": "face",
@@ -36,28 +35,26 @@ const colorPickerInput = document.createElement("input");
 /** @type {HTMLElement} */
 // @ts-ignore
 const jsonElement = document.getElementById("json");
-
+/** @type {Record<string, HTMLElement>} */
+const colorElements = {};
 /** @type {string|null} */
 let selectedPart = null;
 /** @type {HTMLElement|null} */
 let selectedColorElement = null;
-/** @type {Record<string, HTMLElement>} */
-const colorElements = {};
 
-
-/** @type {Species} */
-let currentSpecies = JSON.parse(JSON.stringify(species.bluebird));
-let speciesHistory = [JSON.parse(JSON.stringify(currentSpecies))];
-let historyIndex = 0;
-
-/** @type {Frame|null} */
-let baseFrame = null;
 const spriteCanvas = document.createElement('canvas');
 spriteCanvas.width = canvas.width;
 spriteCanvas.height = canvas.height;
 /** @type {CanvasRenderingContext2D} */
 // @ts-ignore
 const spriteCtx = spriteCanvas.getContext('2d');
+
+/** @type {Species} */
+let currentSpecies = JSON.parse(JSON.stringify(species.bluebird));
+let speciesHistory = [JSON.parse(JSON.stringify(currentSpecies))];
+let historyIndex = 0;
+/** @type {Frame|null} */
+let baseFrame = null;
 
 function drawBackground() {
 	const patternSize = 2;
@@ -88,11 +85,11 @@ function draw() {
 		return;
 	}
 	drawBackground();
-	baseFrame.draw(spriteCtx, Directions.RIGHT, 1, buildColorScheme(), currentSpecies.tags || []);
+	baseFrame.draw(spriteCtx, Directions.LEFT, 1, buildColorScheme(), currentSpecies.tags || []);
 	ctx.drawImage(spriteCanvas, 0, 0);
 }
 
-function updateSpecies() {
+function commitChange() {
 	const previousSpecies = speciesHistory[historyIndex];
 	let changed = false;
 	// Check for changes in colors
@@ -133,6 +130,7 @@ function updateSpecies() {
 		speciesHistory = speciesHistory.slice(0, historyIndex + 1);
 		speciesHistory.push(JSON.parse(JSON.stringify(currentSpecies)));
 		historyIndex++;
+		localStorage.setItem("speciesHistory", JSON.stringify(speciesHistory));
 	}
 	updateJson();
 	draw();
@@ -215,7 +213,7 @@ function createColorPicker() {
 
 	document.addEventListener("mouseup", () => {
 		if (selectedPart !== null && !jsonElement.contains(document.activeElement)) {
-			updateSpecies();
+			commitChange();
 		}
 	});
 }
@@ -256,7 +254,7 @@ function createColorSwatch(label, color) {
 	labelElement.addEventListener("click", () => {
 		delete currentSpecies.colors[label];
 		colorElement.style.backgroundColor = getColor(label);
-		updateSpecies();
+		commitChange();
 		refreshEditor();
 	});
 	item.appendChild(labelElement);
@@ -280,7 +278,7 @@ function createTagToggle(tag, enabled) {
 	toggle.addEventListener("click", () => {
 		setTag(tag, !getTag(tag));
 		toggle.classList.toggle("tag-toggle--active", getTag(tag));
-		updateSpecies();
+		commitChange();
 		draw();
 	});
 	item.appendChild(toggle);
@@ -353,11 +351,28 @@ jsonElement.addEventListener("input", () => {
 });
 
 jsonElement.addEventListener("blur", () => {
-	updateSpecies();
+	commitChange();
 });
+
+function loadSpeciesHistory() {
+	const storedHistory = localStorage.getItem("speciesHistory");
+	if (storedHistory) {
+		try {
+			const parsedHistory = JSON.parse(storedHistory);
+			if (Array.isArray(parsedHistory) && parsedHistory.length > 0) {
+				speciesHistory = parsedHistory;
+				currentSpecies = JSON.parse(JSON.stringify(speciesHistory[speciesHistory.length - 1]));
+				historyIndex = speciesHistory.length - 1;
+			}
+		} catch (e) {
+			console.warn("Failed to parse species history from localStorage:", e);
+		}
+	}
+}
 
 createColorPicker();
 loadEditor();
+loadSpeciesHistory();
 
 (async () => {
 	const pixels = await loadSpriteSheetPixels(SPRITE_PATH);
@@ -365,5 +380,5 @@ loadEditor();
 		new Layer(getLayerPixels(pixels, 0, SPRITE_SIZE)),
 		new Layer(getLayerPixels(pixels, 5, SPRITE_SIZE), TAG.TUFT),
 	]);
-	updateSpecies();
+	commitChange();
 })();
