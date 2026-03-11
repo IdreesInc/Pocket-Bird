@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Birb Editor</title>
+	<link rel="stylesheet" href="stylesheet.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css"/>
+	<script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
+</head>
+
+<body>
+	<div class="container">
+		<div class="horizontal-container">
+			<canvas id="preview" width="32px" height="32px"></canvas>
+			<div id="editor"></div>
+			<pre id="json" contenteditable="true"></pre>
+		</div>
+	</div>
+	<script type="module" src="editor.js"></script>
+</body>
+
+</html>

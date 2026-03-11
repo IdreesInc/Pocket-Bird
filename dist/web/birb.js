@@ -471,6 +471,62 @@
 		}
 	}
 
+	/**
+	 * Load a sprite sheet image and convert it to a 2D array of palette color names
+	 * @param {string} src - URL or data URI of the sprite sheet image
+	 * @param {boolean} [templateColors] - Whether to map pixel colors to palette names
+	 * @returns {Promise<string[][]>}
+	 */
+	function loadSpriteSheetPixels(src, templateColors = true) {
+		return new Promise((resolve, reject) => {
+			const img = new Image();
+			img.src = src;
+			img.onload = () => {
+				const canvas = document.createElement('canvas');
+				canvas.width = img.width;
+				canvas.height = img.height;
+				const ctx = canvas.getContext('2d');
+				if (!ctx) {
+					reject(new Error('Failed to get canvas context'));
+					return;
+				}
+				ctx.drawImage(img, 0, 0);
+				const imageData = ctx.getImageData(0, 0, img.width, img.height);
+				const pixels = imageData.data;
+				const hexArray = [];
+				for (let y = 0; y < img.height; y++) {
+					const row = [];
+					for (let x = 0; x < img.width; x++) {
+						const index = (y * img.width + x) * 4;
+						const r = pixels[index];
+						const g = pixels[index + 1];
+						const b = pixels[index + 2];
+						const a = pixels[index + 3];
+						if (a === 0) {
+							row.push(PALETTE.TRANSPARENT);
+							continue;
+						}
+						const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+						if (!templateColors) {
+							row.push(hex);
+							continue;
+						}
+						if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
+							row.push(hex);
+							continue;
+						}
+						row.push(SPRITE_SHEET_COLOR_MAP[hex]);
+					}
+					hexArray.push(row);
+				}
+				resolve(hexArray);
+			};
+			img.onerror = (err) => {
+				reject(err);
+			};
+		});
+	}
+
 	/** @type {Record<string, BirdType>} */
 	const SPECIES = Object.fromEntries(
 		Object.entries(species).map(([id, data]) => [
@@ -2075,7 +2131,7 @@
 	outline: none !important;
 	box-shadow: none !important;
 }`;
-	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABElJREFUeJztnT9rFEEYh3+TWATE7hDcsxW7CBb6ASIWaXJXpRS0UAhYCIrkAwRJISgIBq20sjrTWJnKxjTpLIKtd4ocWOSENOa1uJ11bm7n9u683ZnJ/R44Mtnb23f2dt5nZ/bfAYQQQgghZL5QvitAwkdExPWeUoptiEQLG28E+BSQjt2s1wEArXZ7oFxFHQghc4qkNJJEGkkyVB4lx1nFbySJfF5eFtnYGCqXHZ+QMlnwXQFSTLNex+NaDa1mc6hcJfufPuFxrZaVCYkdCjAifAmo1W7jSbc7MO1Jt5sNgQkhpBTMIfDn5eXsVdUQOK8OVcYmhASA5FB1bJ8CMutA+REyZ4hI/+C/8bfq+L4F5EP+hJTJGd8ViI39K1e8xFVKKRERn5ee8HIXQuYU3fPRvT/2ggiJH+7RJ8CUHntD1WPvdLgNyP/CBkSiQMtPO09EKhcgBTyn5J0B5RCQeEB22g0B4O0EUBo76PbPPB2fwguhzT2v+ULBPaqzhAImALDTbuiilxNASqmsDqH1/uy88JGnMTLyLLD5ZRqND3qaiJjzlNIg7KGPMR0iIqE1RFIed+vvvW5rnwIeBzMV1rc72TT6z41TgKZ4DtfvAA+A7Ruvs/d32s2B4zFlyCgEAROi8S3gEYhSKpPeaefCopLvf2Qm28K5EBGRhbPJwLTbzzr4cG8Bqy9PAAC9X98BAO8eJQN7mVnIaEjAGBTwtdUm7tbf63lnFpeQyBCX+L5+O8LB88teThiVxYVFJasvT/Dh3gJmIcGRAkQqoDuv8rvQWoBIJQhDRrnBJtgIvgVMwmZ9uyPvHiXzvp0L5RfqcD0UnENgfeeB631TfrCOOeQxzTD55HdnSMBafnZsezjuWqdxY5NwON5dkaW1PaXLALC05ld+vgW8vt3xemDPFT/tCEWTZyMrmgoLx7sr2Pj5EQDw4vwNAMCtw7djBfj67QgApuqK6/h5PVBbwBrdE81ZFkAJRss/8e1Vvv3yBVx9PUxcAjLzrWQROXufMUlwbAHaLK3t4er9Q1y6eC73s9aGmEpAvgVMiCYU8WmOd1fEzAE73yoQkLjyfy4ECEOCedjiwxS9L98CJiRUjndXpPelh40zLWBw5FNV+3YKEBFJsFCASI/r2RLqfekBAGqb+67P/gsypXR8C5iQkOluXc8a980fb7LpB88ve5egeWIy5LwrrFiehLT88qht7s9sxX0LmJDQMSWIfj5U3dZFd0JsEWoJhpx/YwkQqYS6W9dHzjtL+ZnxfQmYEDIWAgC2CGMQYOEDUfXlMOmKOCVYpnh0bPT3eM75KD9CvKDQH3r3k89xWCpqzKdhtJ4+zJ6KoctlPqDAutE7N37ZdSCEFGM/MSf0fJzoZzGVUmg9fZj9b5ZRYq9LL3dUfPb8CAmD9GYEIIJ8nOg3QcyhqF2ugqL4oX/ZhJx2YsvBia/Lcy6oghX3HZ8Qcrr4C5ZW3dG6vIHpAAAAAElFTkSuQmCC";
+	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABGxJREFUeJztnb9vE0kYht9xkA4RIZ1ObrKmPUyVSDRcH0RBAXbBmSZCOk46pEgUSFiIPwAhFwgiIRGRBq7yNSZ3UjoqmqRJRxGlxQ5IFlckRZCOfFfYs4w3+8Mm3p1Z+32kKJP12t/YO9+z3+yuNwAhhBBCCJkulO0OEPcREYl6TCnFMURyCwdvDrApIB27WioBAFrt9kA7iz4QQqYU6VPxPKl43rF2nBzHFb/iebI5Py+yvHysnXZ8QtKkYLsDJJlqqYQHxSJa1eqxdpZsvXuHB8Wi3yYk71CAOcKWgFrtNh53uwPLHne7/hSYEEJSwZwCb87P+z9ZTYHD+pBlbEKIA0gIWce2KSCzD5QfIVOGiPQO/hu/s45vW0A25E9Impyy3YG8sbWwYCWuUkqJiNi89ISXuxAypejKR1d/rIIIyT/co4+AKT1WQ9kT3OlwG5CTwgFEcoGWn3aeiGQuQAp4Sgk7A8opILGArLYrAsDaCaB+bKfHP/N0eBIvhDb3vOYPEr6jOk4oYAIAq+2Kblo5AaSU8vvgWvUXzAsbeZpHYs8Cmx+mMfigl4mIuU4qAyI49TGWQ0TEtYFI0uOP0hur29qmgIfBTIVao+Mvo/+iiRSgKZ6d2m3gHnD+6MdvK7QrA8dj0pCRCwImRGNbwDGIUsqX3qQzN6Nk76uMZVvEVoCFWQ/qzBwu/LMBADhaegpv7SauvjgCNoBaYw9ISUZhAm5cXvMfX21XUxcwITlAosS3+2E/886kzdyMkqsvjrBxpzAWCUa+gCmg2y/DS+iDf/f8drPu6edFBxtBUCIihVlvYNlvzzrYuFPoCdiI36x7A3Epwsmn1uhIs+5N+3aOld/2ShmuTtddIfbD6VdVkE838PvffwEA1q79CgC4+epZ6HO0CENeqxdwSDnZFjAhcdgWcK3RiT2wl7YAo+L38zA3eTaUAA/XF/HDLz8BAL5sfgYA3Nr5c6gAugzfXimPfO2WTQET4jJRAjLzLWURRVafeZLg0N8F1uLTNOseLt7dwc/nzoauH9gQJzoT9WXzsy++YD+CBDeK7gfPhpFJ4lV5aaAICeZbFgLa/bAfmf954btvhnC4vojT18vA3Z3Qx8PEd5Lqy6aACXGR5/9VsXyqBWQsviRqjQ6adU9c6EsSiVNg9Kunw/XFgccO3h8AAIoPt6Ke+y3Id4rPnIKHcfr6W1zMSMCEuEb30SV/cF/5+Npfvr1SzmqcS1QRYp6YdDnvEjsWJiEtvzCKD7fG9sZtC5gQ1zEliF4+ZD3WRRchQRFqCbqcf0MJEH0JdR9dil13nPIz49sSMCFkKAQAgiLMgwATjwHqG3H230ikBNMUj46N3h4vcj3KjxArKPSm3r3kizgslWvMu2G0ntz374qh22neoCDwRe/Q+Gn3gRCSTPCOOa7n40j/FlMphdaT+/7fZhspVl36dePis/IjxA36X00FcpCPI10GY05Fg+0sSIrv+odNyKSTtxwcqbNx5WwWb9x2fELIZPE/Any0lmed9+8AAAAASUVORK5CYII=";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
 	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIQAAAAMCAYAAACjpxUSAAAAAXNSR0IArs4c6QAAA29JREFUWIXtl11oW2UYx3+v3ZCuc1ktIpvowrCBjmkdtl6ouBthWMeGTkQxuA9QKCiym20OBfVG3YUVOobYIszLyXY16HYxvOicns3NRoR267ZG04aOdc3Jx8lJsujjRZOzeE5y+raETjR/CJyc9/98vv/zvOdAAw000EADDWhB3e0E6gURkfK1Uuo/U9dS4567GFs0OHqOymJIKud/JeoV5/8AjyBaV7bJhrWdEmxtl3pumgv195tUEO1wRAGwdzg4F6whCm14BHFvU/NCfYjrp4WWF05TV2EEBIKjfFN4CUpi6Fy3mf0/hfys3Hnr1rDQenW4futLJmiPIO5vaSNrZ3XtZebJ5/k51M13wY3IhQA6hXf1GgQCqxaTb1U47wwBYc8DJ/h0YhOd6zaz65GjtK18yNf2Un/Yyavv1Wd0wkksFsMwDAzDQKfeQmSQxNkvAETMqnwZvvgrNYTpXvPYLuaBrIVl7htlMUQT4wt2drinFbkAqjspfi+sZ187SPvXn+u6dRdZ1a9SSpWPhoPrR4ARdslR9m38ft4Al/rDZFImFyOJeXOJxWLE43HGx7X6I4XIIFY6RcacRkwg2oGYo6JW1+yPHO47gplI8sEn788vttFDpNIWtpXEti1CPQM1ex9sbZcVzSugtM8Ve+zwPYI4/9R6bs3Okk88CsATV6/qFO5AdSd9C+jqNdj0bROUjg1raIufeCR84EcArv8+TTGf4vyJnb5iU0px8r1tjI1dRimFiFT76nAafeXUhHNzjXe90k6Mjh1ce/ZtJuNTACRu5+gnxLtcqZaTAJzbdryCH+IdcxS12pv3WHSKgeND5P+YwEwkSc6m2f36Wzz9ysuMRaeq9gZgePsxUnkb888imcl05VrNHvmdAI5RWT1ZO0smlwJgxr5RletOys+vm9/Va2AVmvjlzf20fbYPa2iLL/+5HX1YmQT54nIAfjvzoR9fF1JxVJBJmc51eUrsPfaDO44zHcooT4lwOOzhFiKDAFjp1J045rRz/fDWQx6bj/q+Ij85STH/FzO3bpLNZVnz+GN8+fEBr/9rg1CYnZsOudvY6ZtzKyVWqGfAbcOL7W9IJmuRy88JIkcGgMjMOYe31N/rugKab1QuOm8RkdLEWGgMLf6/0L8APHjfWpqXtVB5ZNhFixvp+D+M/gZZI68eaJ1OpQAAAABJRU5ErkJggg==";
 
@@ -2211,7 +2267,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.3.8", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.8"); }, false),
+			new MenuItem("2026.3.11", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.11"); }, false),
 		];
 
 		/** @type {Birb} */
@@ -3178,63 +3234,6 @@
 		// Run the birb
 		init();
 		draw();
-	}
-
-	/**
-	 * Load the sprite sheet and return the pixel-map template
-	 * @param {string} dataUri
-	 * @param {boolean} [templateColors]
-	 * @returns {Promise<string[][]>}
-	 */
-	function loadSpriteSheetPixels(dataUri, templateColors = true) {
-		return new Promise((resolve, reject) => {
-			const img = new Image();
-			img.src = dataUri;
-			img.onload = () => {
-				const canvas = document.createElement('canvas');
-				canvas.width = img.width;
-				canvas.height = img.height;
-				const ctx = canvas.getContext('2d');
-				if (!ctx) {
-					reject(new Error('Failed to get canvas context'));
-					return;
-				}
-				ctx.drawImage(img, 0, 0);
-				const imageData = ctx.getImageData(0, 0, img.width, img.height);
-				const pixels = imageData.data;
-				const hexArray = [];
-				for (let y = 0; y < img.height; y++) {
-					const row = [];
-					for (let x = 0; x < img.width; x++) {
-						const index = (y * img.width + x) * 4;
-						const r = pixels[index];
-						const g = pixels[index + 1];
-						const b = pixels[index + 2];
-						const a = pixels[index + 3];
-						if (a === 0) {
-							row.push(PALETTE.TRANSPARENT);
-							continue;
-						}
-						const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-						if (!templateColors) {
-							row.push(hex);
-							continue;
-						}
-						if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
-							// Return the color as-is if not found in the map
-							row.push(hex);
-							continue;
-						}
-						row.push(SPRITE_SHEET_COLOR_MAP[hex]);
-					}
-					hexArray.push(row);
-				}
-				resolve(hexArray);
-			};
-			img.onerror = (err) => {
-				reject(err);
-			};
-		});
 	}
 
 	initializeApplication(new LocalContext());

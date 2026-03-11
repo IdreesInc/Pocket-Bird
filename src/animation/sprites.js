@@ -79,6 +79,62 @@ export class BirdType {
 	}
 }
 
+/**
+ * Load a sprite sheet image and convert it to a 2D array of palette color names
+ * @param {string} src - URL or data URI of the sprite sheet image
+ * @param {boolean} [templateColors] - Whether to map pixel colors to palette names
+ * @returns {Promise<string[][]>}
+ */
+export function loadSpriteSheetPixels(src, templateColors = true) {
+	return new Promise((resolve, reject) => {
+		const img = new Image();
+		img.src = src;
+		img.onload = () => {
+			const canvas = document.createElement('canvas');
+			canvas.width = img.width;
+			canvas.height = img.height;
+			const ctx = canvas.getContext('2d');
+			if (!ctx) {
+				reject(new Error('Failed to get canvas context'));
+				return;
+			}
+			ctx.drawImage(img, 0, 0);
+			const imageData = ctx.getImageData(0, 0, img.width, img.height);
+			const pixels = imageData.data;
+			const hexArray = [];
+			for (let y = 0; y < img.height; y++) {
+				const row = [];
+				for (let x = 0; x < img.width; x++) {
+					const index = (y * img.width + x) * 4;
+					const r = pixels[index];
+					const g = pixels[index + 1];
+					const b = pixels[index + 2];
+					const a = pixels[index + 3];
+					if (a === 0) {
+						row.push(PALETTE.TRANSPARENT);
+						continue;
+					}
+					const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+					if (!templateColors) {
+						row.push(hex);
+						continue;
+					}
+					if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
+						row.push(hex);
+						continue;
+					}
+					row.push(SPRITE_SHEET_COLOR_MAP[hex]);
+				}
+				hexArray.push(row);
+			}
+			resolve(hexArray);
+		};
+		img.onerror = (err) => {
+			reject(err);
+		};
+	});
+}
+
 /** @type {Record<string, BirdType>} */
 export const SPECIES = Object.fromEntries(
 	Object.entries(species).map(([id, data]) => [

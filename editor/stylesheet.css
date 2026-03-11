@@ -1,0 +1,151 @@
+@import url(https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/fira_code.css);
+
+body {
+  background: linear-gradient(to top, #D2DAE9, white);
+  height: 100%;
+  margin: 0;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.container {
+	width: 100vw;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.horizontal-container {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 40px;
+}
+
+#preview {
+	width: 480px;
+	height: 480px;
+	image-rendering: pixelated;
+	filter: drop-shadow(0px 0px 40px rgba(0, 0, 0, 0.1));
+	box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.1);
+	border-radius: 40px;
+}
+
+#editor {
+	width: 460px;
+	height: 480px;
+	background: #ffffff;
+	border-radius: 16px;
+	box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.1);
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 30px 20px;
+	column-count: 2;
+}
+
+#json {
+	width: 200px;
+	height: 480px;
+	background: #ffffff;
+	border-radius: 16px;
+	box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.1);
+	padding: 20px;
+	gap: 20px;
+	text-align: left;
+	overflow-x: hidden;
+	overflow-y: auto;
+	white-space: pre-wrap;
+	font-family: 'Fira Code', monospace;
+	font-size: 12px;
+}
+
+.editor-item {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+	height: 38px;
+}
+
+.label {
+	font-size: 18px;
+	font-family: 'Fira Code', monospace;
+	width: 100px;
+}
+
+.color {
+	width: 32px;
+	height: 32px;
+	border-radius: 4px;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+	background: red;
+	transition: transform 0.1s;
+	cursor: pointer;
+}
+
+.color:hover {
+	transform: scale(1.15);
+	transition: 0.1s ease-in;
+}
+
+.color--transparent {
+	pointer-events: none;
+	cursor: default;
+}
+
+#coloris-proxy {
+	position: fixed;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+	border: none;
+	padding: 0;
+	pointer-events: none;
+}
+
+.tag-item {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+	height: 38px;
+	margin-top: 10px;
+}
+
+.tag-toggle {
+	width: 32px;
+	height: 32px;
+	border-radius: 4px;
+	border: none;
+	background: #edf0f4;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+	font-size: 16px;
+	color: transparent;
+	transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+
+.tag-toggle:hover {
+	transform: scale(1.15);
+	transition: 0.1s ease-in;
+}
+
+.tag-toggle--active {
+	background: #639bff;
+	color: white;
+}
