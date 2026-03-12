@@ -252,7 +252,7 @@
 }
 
 #birb-field-guide .birb-grid-content {
-	grid-template-rows: repeat(3, auto);
+	grid-template-columns: repeat(4, auto);
 }
 
 #birb-wardrobe .birb-grid-content {
@@ -262,7 +262,7 @@
 
 .birb-grid-content {
 	display: grid;
-	grid-auto-flow: column;
+	grid-auto-flow: row;
 	gap: 10px;
 	padding-top: 8px;
 	padding-bottom: 8px;

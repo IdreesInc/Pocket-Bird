@@ -174,5 +174,24 @@ export default {
       "wing": "#c58a5b",
       "wing-edge": "#866348"
     }
+  },
+  "blackCappedChickadee": {
+    "name": "Black-capped Chickadee",
+    "description": "Native to North America, these small and curious birds are known for their distinctive call from which they get their name.",
+    "colors": {
+      "hood": "#363636",
+      "cheek": "#363636",
+      "eyebrow": "#363636",
+      "nose": "#363636",
+      "collar": "#363636",
+      "belly": "#d6d4cf",
+      "underbelly": "#cfc5b4",
+      "face": "#eaeaea",
+      "wing": "#8f8e9a",
+      "wing-edge": "#706f7d",
+      "scruff": "#8f8e9a",
+      "foot": "#535259"
+    },
+    "tags": []
   }
 }
