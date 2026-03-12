@@ -193,5 +193,24 @@ export default {
       "foot": "#535259"
     },
     "tags": []
+  },
+  "blueJay": {
+    "name": "Blue Jay",
+    "description": "This loud and rambunctious bird is native to North America and is known for challenging anything in its path.",
+    "colors": {
+      "foot": "#5a626b",
+      "face": "#ebf2ff",
+      "belly": "#e5ecfa",
+      "underbelly": "#c4cbd6",
+      "wing": "#5890ff",
+      "wing-edge": "#5890ff",
+      "hood": "#6391e8",
+      "nose": "#6391e8",
+      "collar": "#2e3136",
+      "scruff": "#6391e8"
+    },
+    "tags": [
+      "tuft"
+    ]
   }
 }
