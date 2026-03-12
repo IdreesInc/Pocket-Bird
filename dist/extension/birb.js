@@ -431,7 +431,7 @@
 	      "belly": "#e5ecfa",
 	      "underbelly": "#c4cbd6",
 	      "wing": "#5890ff",
-	      "wing-edge": "#5890ff",
+	      "wing-edge": "#3a77e8",
 	      "hood": "#6391e8",
 	      "nose": "#6391e8",
 	      "collar": "#2e3136",
