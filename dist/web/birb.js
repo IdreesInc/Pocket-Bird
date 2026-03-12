@@ -440,6 +440,20 @@
 	    "tags": [
 	      "tuft"
 	    ]
+	  },
+	  "darkEyedJunco": {
+	    "name": "Dark-eyed Junco",
+	    "description": "Native across North America, these social birds will often be seen hopping along the ground in winter.",
+	    "colors": {
+	      "face": "#55565e",
+	      "wing": "#5c5f69",
+	      "wing-edge": "#444547",
+	      "belly": "#6c7180",
+	      "underbelly": "#b8bbcc",
+	      "foot": "#87776d",
+	      "beak": "#ab8a98"
+	    },
+	    "tags": []
 	  }
 	};
 
