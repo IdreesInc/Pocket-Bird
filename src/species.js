@@ -226,5 +226,21 @@ export default {
       "beak": "#ab8a98"
     },
     "tags": []
+  },
+  "houseFinch": {
+    "name": "House Finch",
+    "description": "Native to North America, these highly social birds sing cheerful songs and are often seen at bird feeders.",
+    "colors": {
+      "face": "#cc3a3f",
+      "wing": "#ba987f",
+      "wing-edge": "#8f6c54",
+      "belly": "#d97c77",
+      "underbelly": "#d1b196",
+      "foot": "#705b4c",
+      "beak": "#cf8479",
+      "hood": "#b02f35",
+      "nose": "#ab2b31"
+    },
+    "tags": []
   }
 }
