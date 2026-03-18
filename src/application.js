@@ -24,8 +24,8 @@ import {
 } from './shared.js';
 import {
 	PALETTE,
-	SPRITE_SHEET_COLOR_MAP,
 	SPECIES,
+	RARITY,
 	loadSpriteSheetPixels,
 } from './animation/sprites.js';
 import {
@@ -407,6 +407,8 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		setInterval(update, UPDATE_INTERVAL);
 
 		focusOnElement(true);
+		// TODO: Remove
+		insertFieldGuide();
 	}
 
 	function update() {
@@ -758,9 +760,22 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		removeWardrobe();
 
 		const contentContainer = document.createElement("div");
-		const content = makeElement("birb-grid-content");
+		const familiarBirds = makeElement("birb-grid-content");
+		const uncommonBirds = makeElement("birb-grid-content");
+
+		const familiarLabel = document.createElement("div");
+		familiarLabel.className = "birb-field-guide-section-label";
+		familiarLabel.textContent = `----- Familiar ${birdBirb()}s -----`;
+
+		const uncommonLabel = document.createElement("div");
+		uncommonLabel.className = "birb-field-guide-section-label";
+		uncommonLabel.textContent = `----- Uncommon ${birdBirb()}s -----`;
+
 		const description = makeElement("birb-field-guide-description");
-		contentContainer.appendChild(content);
+		contentContainer.appendChild(familiarLabel);
+		contentContainer.appendChild(familiarBirds);
+		contentContainer.appendChild(uncommonLabel);
+		contentContainer.appendChild(uncommonBirds);
 		contentContainer.appendChild(description);
 
 		const fieldGuide = createWindow(
@@ -805,7 +820,11 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			}
 			birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.colors, type.tags);
 			speciesElement.appendChild(speciesCanvas);
-			content.appendChild(speciesElement);
+			let section = familiarBirds;
+			if (type.rarity === RARITY.UNCOMMON) {
+				section = uncommonBirds;
+			}
+			section.appendChild(speciesElement);
 			if (unlocked) {
 				onClick(speciesElement, () => {
 					switchSpecies(id);

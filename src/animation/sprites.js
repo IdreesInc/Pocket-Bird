@@ -58,14 +58,25 @@ export const SPRITE_SHEET_COLOR_MAP = {
 	"#373737": PALETTE.FEATHER_SPINE,
 };
 
+
+/**
+ * Bird species rarit
+ * @type {Record<string, string>} 
+ */
+export const RARITY = {
+	FAMILIAR: "familiar",
+	UNCOMMON: "uncommon"
+}
+
 export class BirdType {
 	/**
 	 * @param {string} name
 	 * @param {string} description
 	 * @param {Record<string, string>} colors
 	 * @param {string[]} [tags]
+	 * @param {string} [rarity]
 	 */
-	constructor(name, description, colors, tags = []) {
+	constructor(name, description, colors, tags = [], rarity = RARITY.FAMILIAR) {
 		this.name = name;
 		this.description = description;
 		const defaultColors = {
@@ -88,6 +99,7 @@ export class BirdType {
 		/** @type {Record<string, string>} */
 		this.colors = { ...defaultColors, ...colors, [PALETTE.THEME_HIGHLIGHT]: colors[PALETTE.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
 		this.tags = tags;
+		this.rarity = rarity;
 	}
 }
 
@@ -151,6 +163,6 @@ export function loadSpriteSheetPixels(src, templateColors = true) {
 export const SPECIES = Object.fromEntries(
 	Object.entries(species).map(([id, data]) => [
 		id,
-		new BirdType(data.name, data.description, data.colors, data.tags ?? []),
+		new BirdType(data.name, data.description, data.colors, data.tags, data.rarity)
 	]),
 );

@@ -294,7 +294,7 @@
 }
 
 .birb-grid-item, .birb-field-guide-description, .birb-message-content {
-	border: var(--birb-border-size) solid rgb(255, 207, 144);
+	border: var(--birb-border-size) solid #ffcf90;
 	box-shadow: 0 0 0 var(--birb-border-size) white;
 	background: rgba(255, 221, 177, 0.5);
 }
@@ -313,6 +313,15 @@
 	background: var(--birb-mix-color);
 }
 
+.birb-field-guide-section-label {
+	padding-top: 4px;
+	/* padding-left: calc(10px + var(--birb-border-size) / 2); */
+	color: #876c4e;
+	text-align: center;
+	/* Italics */
+	font-style: italic;
+}
+
 .birb-field-guide-description {
 	max-width: calc(100% - 20px);
 	margin-left: 10px;
@@ -324,7 +333,7 @@
 	margin-bottom: 10px;
 	font-size: 14px;
 	box-sizing: border-box;
-	color: rgb(124, 108, 75);
+	color: #7c6c4b;
 }
 
 #birb-feather {
@@ -337,7 +346,7 @@
 	width: 100%;
 	padding: 10px;
 	font-size: 14px;
-	color: rgb(124, 108, 75);
+	color: #7c6c4b;
 }
 
 .birb-sticky-note {

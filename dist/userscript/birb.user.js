@@ -545,14 +545,25 @@
 		"#373737": PALETTE.FEATHER_SPINE,
 	};
 
+
+	/**
+	 * Bird species rarit
+	 * @type {Record<string, string>} 
+	 */
+	const RARITY = {
+		FAMILIAR: "familiar",
+		UNCOMMON: "uncommon"
+	};
+
 	class BirdType {
 		/**
 		 * @param {string} name
 		 * @param {string} description
 		 * @param {Record<string, string>} colors
 		 * @param {string[]} [tags]
+		 * @param {string} [rarity]
 		 */
-		constructor(name, description, colors, tags = []) {
+		constructor(name, description, colors, tags = [], rarity = RARITY.FAMILIAR) {
 			this.name = name;
 			this.description = description;
 			const defaultColors = {
@@ -575,6 +586,7 @@
 			/** @type {Record<string, string>} */
 			this.colors = { ...defaultColors, ...colors, [PALETTE.THEME_HIGHLIGHT]: colors[PALETTE.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
 			this.tags = tags;
+			this.rarity = rarity;
 		}
 	}
 
@@ -638,7 +650,7 @@
 	const SPECIES = Object.fromEntries(
 		Object.entries(species).map(([id, data]) => [
 			id,
-			new BirdType(data.name, data.description, data.colors, data.tags ?? []),
+			new BirdType(data.name, data.description, data.colors, data.tags, data.rarity)
 		]),
 	);
 
@@ -2157,7 +2169,7 @@
 }
 
 .birb-grid-item, .birb-field-guide-description, .birb-message-content {
-	border: var(--birb-border-size) solid rgb(255, 207, 144);
+	border: var(--birb-border-size) solid #ffcf90;
 	box-shadow: 0 0 0 var(--birb-border-size) white;
 	background: rgba(255, 221, 177, 0.5);
 }
@@ -2176,6 +2188,15 @@
 	background: var(--birb-mix-color);
 }
 
+.birb-field-guide-section-label {
+	padding-top: 4px;
+	/* padding-left: calc(10px + var(--birb-border-size) / 2); */
+	color: #876c4e;
+	text-align: center;
+	/* Italics */
+	font-style: italic;
+}
+
 .birb-field-guide-description {
 	max-width: calc(100% - 20px);
 	margin-left: 10px;
@@ -2187,7 +2208,7 @@
 	margin-bottom: 10px;
 	font-size: 14px;
 	box-sizing: border-box;
-	color: rgb(124, 108, 75);
+	color: #7c6c4b;
 }
 
 #birb-feather {
@@ -2200,7 +2221,7 @@
 	width: 100%;
 	padding: 10px;
 	font-size: 14px;
-	color: rgb(124, 108, 75);
+	color: #7c6c4b;
 }
 
 .birb-sticky-note {
@@ -2576,6 +2597,8 @@
 			setInterval(update, UPDATE_INTERVAL);
 
 			focusOnElement(true);
+			// TODO: Remove
+			insertFieldGuide();
 		}
 
 		function update() {
@@ -2923,9 +2946,22 @@
 			removeWardrobe();
 
 			const contentContainer = document.createElement("div");
-			const content = makeElement("birb-grid-content");
+			const familiarBirds = makeElement("birb-grid-content");
+			const uncommonBirds = makeElement("birb-grid-content");
+
+			const familiarLabel = document.createElement("div");
+			familiarLabel.className = "birb-field-guide-section-label";
+			familiarLabel.textContent = `----- Familiar ${birdBirb()}s -----`;
+
+			const uncommonLabel = document.createElement("div");
+			uncommonLabel.className = "birb-field-guide-section-label";
+			uncommonLabel.textContent = `----- Uncommon ${birdBirb()}s -----`;
+
 			const description = makeElement("birb-field-guide-description");
-			contentContainer.appendChild(content);
+			contentContainer.appendChild(familiarLabel);
+			contentContainer.appendChild(familiarBirds);
+			contentContainer.appendChild(uncommonLabel);
+			contentContainer.appendChild(uncommonBirds);
 			contentContainer.appendChild(description);
 
 			const fieldGuide = createWindow(
@@ -2970,7 +3006,11 @@
 				}
 				birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.colors, type.tags);
 				speciesElement.appendChild(speciesCanvas);
-				content.appendChild(speciesElement);
+				let section = familiarBirds;
+				if (type.rarity === RARITY.UNCOMMON) {
+					section = uncommonBirds;
+				}
+				section.appendChild(speciesElement);
 				if (unlocked) {
 					onClick(speciesElement, () => {
 						switchSpecies(id);
