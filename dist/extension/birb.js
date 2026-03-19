@@ -475,8 +475,8 @@
 	    "name": "Pink Robin",
 	    "description": "Native to Australia, these bubblegum-pink puffballs are quieter than most, instead relying on their vibrant colours to attract mates.",
 	    "colors": {
-	      "face": "#342f38",
-	      "wing": "#2c2830",
+	      "face": "#39333e",
+	      "wing": "#312c35",
 	      "wing-edge": "#171617",
 	      "underbelly": "#ff82ba",
 	      "belly": "#ff6eaf",
