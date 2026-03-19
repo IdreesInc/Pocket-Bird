@@ -481,7 +481,8 @@
 	      "foot": "#705b4c",
 	      "beak": "#cf8479",
 	      "hood": "#b02f35",
-	      "nose": "#ab2b31"
+	      "nose": "#ab2b31",
+	      "theme-highlight": "#ef444d"
 	    }
 	  },
 	  "pinkRobin": {
@@ -493,7 +494,8 @@
 	      "wing-edge": "#171617",
 	      "underbelly": "#ff82ba",
 	      "belly": "#ff6eaf",
-	      "foot": "#2e2c2e"
+	      "foot": "#2e2c2e",
+	      "theme-highlight": "#ff82ba"
 	    },
 	    "rarity": "uncommon"
 	  }
