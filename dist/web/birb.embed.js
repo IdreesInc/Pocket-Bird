@@ -372,6 +372,7 @@
 	      "underbelly": "#dcdcdc",
 	      "wing": "#2b2b2b",
 	      "wing-edge": "#ebebeb",
+	      "nose": "#ebebeb",
 	      "theme-highlight": "#fc5633"
 	    }
 	  },
@@ -452,8 +453,7 @@
 	      "underbelly": "#b8bbcc",
 	      "foot": "#87776d",
 	      "beak": "#ab8a98"
-	    },
-	    "tags": []
+	    }
 	  },
 	  "houseFinch": {
 	    "name": "House Finch",
@@ -468,8 +468,20 @@
 	      "beak": "#cf8479",
 	      "hood": "#b02f35",
 	      "nose": "#ab2b31"
+	    }
+	  },
+	  "pinkRobin": {
+	    "name": "Pink Robin",
+	    "description": "Native to Australia, these bubblegum-pink puffballs are quieter than most, instead relying on their vibrant colours to attract mates.",
+	    "colors": {
+	      "face": "#342f38",
+	      "wing": "#2c2830",
+	      "wing-edge": "#171617",
+	      "underbelly": "#ff82ba",
+	      "belly": "#ff6eaf",
+	      "foot": "#2e2c2e"
 	    },
-	    "tags": []
+	    "rarity": "uncommon"
 	  }
 	};
 
