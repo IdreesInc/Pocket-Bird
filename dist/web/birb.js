@@ -473,7 +473,7 @@
 	  },
 	  "pinkRobin": {
 	    "name": "Pink Robin",
-	    "description": "Native to Australia, these bubblegum-pink puffballs are quieter than most, instead relying on their vibrant colours to attract mates.",
+	    "description": "Native to Australia, these bubblegum-pink puffballs are quieter than most, instead relying on their vibrant colours to attract partners.",
 	    "colors": {
 	      "face": "#39333e",
 	      "wing": "#312c35",
@@ -2400,7 +2400,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.3.18", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.18"); }, false),
+			new MenuItem("2026.3.19", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.19"); }, false),
 		];
 
 		/** @type {Birb} */

@@ -1,7 +1,7 @@
 const { Plugin, Notice } = require('obsidian');
 module.exports = class PocketBird extends Plugin {
 	onload() {
-		console.log("Loading Pocket Bird version 2026.3.18...");
+		console.log("Loading Pocket Bird version 2026.3.19...");
 		const OBSIDIAN_PLUGIN = this;
 		(function () {
 	'use strict';
@@ -478,7 +478,7 @@ module.exports = class PocketBird extends Plugin {
 	  },
 	  "pinkRobin": {
 	    "name": "Pink Robin",
-	    "description": "Native to Australia, these bubblegum-pink puffballs are quieter than most, instead relying on their vibrant colours to attract mates.",
+	    "description": "Native to Australia, these bubblegum-pink puffballs are quieter than most, instead relying on their vibrant colours to attract partners.",
 	    "colors": {
 	      "face": "#39333e",
 	      "wing": "#312c35",
@@ -2458,7 +2458,7 @@ module.exports = class PocketBird extends Plugin {
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.3.18", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.18"); }, false),
+			new MenuItem("2026.3.19", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.19"); }, false),
 		];
 
 		/** @type {Birb} */
