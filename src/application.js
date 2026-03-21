@@ -406,7 +406,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 		setInterval(update, UPDATE_INTERVAL);
 
-		focusOnElement(true);
+		flyToElement(true);
 		// TODO: Remove
 		insertFieldGuide();
 	}
@@ -427,11 +427,11 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 				// Idle for a while, do something
 				if (focusedElement === null) {
 					// Fly to an element
-					focusOnElement();
+					flyToElement();
 					lastActionTimestamp = Date.now();
 				} else if (Math.random() < FOCUS_SWITCH_CHANCE) {
 					// Fly to another element if idle for a longer while
-					focusOnElement();
+					flyToElement();
 					lastActionTimestamp = Date.now();
 				}
 			}
@@ -467,7 +467,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		// Update the bird's position
 		if (currentState === States.IDLE) {
 			if (focusedElement && !isWithinHorizontalBounds()) {
-				flySomewhere();
+				flyToElement();
 			}
 			birdY = getFocusedY();
 		} else if (currentState === States.FLYING) {
@@ -483,7 +483,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		startY += targetY - oldTargetY;
 		if (targetY < 0 || targetY > getWindowHeight()) {
 			// Fly to another element or the ground if the focused element moves out of bounds
-			flySomewhere();
+			flyToElement();
 		}
 
 		if (birb.draw(SPECIES[currentSpecies], currentHat)) {
@@ -1007,26 +1007,6 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	/**
-	 * Fly to either an element or the ground
-	 */
-	function flySomewhere() {
-		// On mobile, always prefer to focus on an element
-		// If not mobile, 50% chance to focus on ground
-		// if ((!isMobile() && coinFlip()) || !focusOnElement()) {
-		// 	focusOnGround();
-		// }
-		if (!focusOnElement()) {
-			focusOnGround();
-		}
-	}
-
-	function focusOnGround() {
-		focusedElement = null;
-		updateFocusedElementBounds();
-		flyTo(Math.random() * window.innerWidth, 0);
-	}
-
-	/**
 	 * @returns {HTMLElement|null} The random element, or null if no valid element was found
 	 */
 	function getRandomValidElement() {
@@ -1063,20 +1043,20 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	/**
-	 * Focus on an element within the viewport
+	 * Fly to an element within the viewport
 	 * @param {boolean} [teleport] Whether to teleport to the element instead of flying
-	 * @returns Whether an element to focus on was found
+	 * @returns Whether an element to fly to was found (null if flying to the ground)
 	 */
-	function focusOnElement(teleport = false) {
+	function flyToElement(teleport = false) {
 		if (frozen) {
 			return false;
 		}
+		const previousElement = focusedElement;
 		focusedElement = getRandomValidElement();
-		log("Focusing on element: ", focusedElement);
 		updateFocusedElementBounds();
 		if (teleport) {
 			teleportTo(getFocusedElementRandomX(), getFocusedY());
-		} else {
+		} else if (focusedElement !== previousElement) {
 			flyTo(getFocusedElementRandomX(), getFocusedY());
 		}
 		return focusedElement !== null;

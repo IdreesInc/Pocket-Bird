@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2026.3.19
+// @version      2026.3.20
 // @description  It's a pet bird in your browser, what more could you want?
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -492,7 +492,7 @@
 	      "face": "#39333e",
 	      "wing": "#312c35",
 	      "wing-edge": "#171617",
-	      "underbelly": "#ff82ba",
+	      "underbelly": "#ff7eb8",
 	      "belly": "#ff6eaf",
 	      "foot": "#2e2c2e",
 	      "theme-highlight": "#ff82ba"
@@ -1373,7 +1373,7 @@
 						3500 + Math.random() * 600 * count,
 						2100 + Math.random() * 200 * count,
 						1600 + Math.random() * 400 * count];
-					const VOLUMES = [0.0001, 0.2, 0.2, 0.0001];
+					const VOLUMES = [0.00005, 0.165, 0.165, 0.0001];
 
 					const oscillator = this.audioContext.createOscillator();
 					oscillator.type = "sine";
@@ -2420,7 +2420,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.3.19", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.19"); }, false),
+			new MenuItem("2026.3.20", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.20"); }, false),
 		];
 
 		/** @type {Birb} */
@@ -2610,7 +2610,7 @@
 
 			setInterval(update, UPDATE_INTERVAL);
 
-			focusOnElement(true);
+			flyToElement(true);
 			// TODO: Remove
 			insertFieldGuide();
 		}
@@ -2631,11 +2631,11 @@
 					// Idle for a while, do something
 					if (focusedElement === null) {
 						// Fly to an element
-						focusOnElement();
+						flyToElement();
 						lastActionTimestamp = Date.now();
 					} else if (Math.random() < FOCUS_SWITCH_CHANCE) {
 						// Fly to another element if idle for a longer while
-						focusOnElement();
+						flyToElement();
 						lastActionTimestamp = Date.now();
 					}
 				}
@@ -2671,7 +2671,7 @@
 			// Update the bird's position
 			if (currentState === States.IDLE) {
 				if (focusedElement && !isWithinHorizontalBounds()) {
-					flySomewhere();
+					flyToElement();
 				}
 				birdY = getFocusedY();
 			} else if (currentState === States.FLYING) {
@@ -2687,7 +2687,7 @@
 			startY += targetY - oldTargetY;
 			if (targetY < 0 || targetY > getWindowHeight()) {
 				// Fly to another element or the ground if the focused element moves out of bounds
-				flySomewhere();
+				flyToElement();
 			}
 
 			if (birb.draw(SPECIES[currentSpecies], currentHat)) {
@@ -3207,26 +3207,6 @@
 		}
 
 		/**
-		 * Fly to either an element or the ground
-		 */
-		function flySomewhere() {
-			// On mobile, always prefer to focus on an element
-			// If not mobile, 50% chance to focus on ground
-			// if ((!isMobile() && coinFlip()) || !focusOnElement()) {
-			// 	focusOnGround();
-			// }
-			if (!focusOnElement()) {
-				focusOnGround();
-			}
-		}
-
-		function focusOnGround() {
-			focusedElement = null;
-			updateFocusedElementBounds();
-			flyTo(Math.random() * window.innerWidth, 0);
-		}
-
-		/**
 		 * @returns {HTMLElement|null} The random element, or null if no valid element was found
 		 */
 		function getRandomValidElement() {
@@ -3257,20 +3237,20 @@
 		}
 
 		/**
-		 * Focus on an element within the viewport
+		 * Fly to an element within the viewport
 		 * @param {boolean} [teleport] Whether to teleport to the element instead of flying
-		 * @returns Whether an element to focus on was found
+		 * @returns Whether an element to fly to was found (null if flying to the ground)
 		 */
-		function focusOnElement(teleport = false) {
+		function flyToElement(teleport = false) {
 			if (frozen) {
 				return false;
 			}
+			const previousElement = focusedElement;
 			focusedElement = getRandomValidElement();
-			log("Focusing on element: ", focusedElement);
 			updateFocusedElementBounds();
 			if (teleport) {
 				teleportTo(getFocusedElementRandomX(), getFocusedY());
-			} else {
+			} else if (focusedElement !== previousElement) {
 				flyTo(getFocusedElementRandomX(), getFocusedY());
 			}
 			return focusedElement !== null;

@@ -20,7 +20,7 @@ export class Birdsong {
 					3500 + Math.random() * 600 * count,
 					2100 + Math.random() * 200 * count,
 					1600 + Math.random() * 400 * count];
-				const VOLUMES = [0.0001, 0.2, 0.2, 0.0001];
+				const VOLUMES = [0.00005, 0.165, 0.165, 0.0001];
 
 				const oscillator = this.audioContext.createOscillator();
 				oscillator.type = "sine";
