@@ -477,7 +477,7 @@
 	    "colors": {
 	      "face": "#39333e",
 	      "wing": "#312c35",
-	      "wing-edge": "#171617",
+	      "wing-edge": "#211f21",
 	      "underbelly": "#ff7eb8",
 	      "belly": "#ff6eaf",
 	      "foot": "#2e2c2e",
@@ -2400,7 +2400,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.3.20", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.20"); }, false),
+			new MenuItem("2026.3.21", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.21"); }, false),
 		];
 
 		/** @type {Birb} */

@@ -249,7 +249,7 @@ export default {
     "colors": {
       "face": "#39333e",
       "wing": "#312c35",
-      "wing-edge": "#171617",
+      "wing-edge": "#211f21",
       "underbelly": "#ff7eb8",
       "belly": "#ff6eaf",
       "foot": "#2e2c2e",
