@@ -15,6 +15,7 @@ const DEFAULT_OVERRIDES = {
 	"hood": "face",
 	"eyebrow": "face",
 	"nose": "face",
+	"nose-tip": "nose",
 	"cheek": "face",
 	"scruff": "face",
 	"collar": "face",
