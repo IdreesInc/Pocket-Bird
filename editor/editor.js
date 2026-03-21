@@ -14,6 +14,9 @@ const SPRITE_SIZE = 32;
 const DEFAULT_OVERRIDES = {
 	"hood": "face",
 	"eyebrow": "face",
+	"behind-eye": "face",
+	"corner-eye": "face",
+	"temple": "face",
 	"nose": "face",
 	"nose-tip": "nose",
 	"cheek": "face",
