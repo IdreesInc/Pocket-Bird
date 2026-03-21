@@ -256,5 +256,24 @@ export default {
       "theme-highlight": "#ff82ba"
     },
     "rarity": "uncommon"
+  },
+  "redWarbler": {
+    "name": "Red Warbler",
+    "description": "Endemic to the highlands of Mexico, this bird has the rare distinction of being one of the very few toxic birds in the world.",
+    "colors": {
+      "face": "#e80a28",
+      "belly": "#d90921",
+      "underbelly": "#c70c18",
+      "wing": "#ba121d",
+      "wing-edge": "#5b3535",
+      "foot": "#5e4645",
+      "behind-eye": "#deedff",
+      "temple": "#e8f0fa",
+      "corner-eye": "#d5e4f5",
+      "lower-eyelid": "#e34a61",
+      "beak": "#873535",
+      "cheek": "#db1734"
+    },
+    "rarity": "uncommon"
   }
 }

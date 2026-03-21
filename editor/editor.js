@@ -17,6 +17,7 @@ const DEFAULT_OVERRIDES = {
 	"behind-eye": "face",
 	"corner-eye": "face",
 	"temple": "face",
+	"lower-eyelid": "face",
 	"nose": "face",
 	"nose-tip": "nose",
 	"cheek": "face",
