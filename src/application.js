@@ -793,14 +793,26 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			const boldName = document.createElement("b");
 			boldName.textContent = type.name;
 
-			const spacer = document.createElement("div");
-			spacer.style.height = "0.3em";
+
+			const spacerOne = document.createElement("div");
+			spacerOne.style.height = "0.3em";
+
+			const latinName = document.createElement("a");
+			latinName.className = "birb-field-guide-latin-name";
+			latinName.textContent = type.latinName;
+			latinName.href = type.url;
+			latinName.target = "_blank";
+			
+			const spacerTwo = document.createElement("div");
+			spacerTwo.style.height = "0.3em";
 
 			const descText = document.createTextNode(!unlocked ? "Not yet unlocked" : type.description);
 
 			const fragment = document.createDocumentFragment();
 			fragment.appendChild(boldName);
-			fragment.appendChild(spacer);
+			fragment.appendChild(spacerOne);
+			fragment.appendChild(latinName);
+			fragment.appendChild(spacerTwo);
 			fragment.appendChild(descText);
 
 			return fragment;

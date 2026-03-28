@@ -9,6 +9,8 @@ export default {
   "bluebird": {
     "name": "Eastern Bluebird",
     "description": "Native to North American and very social, though can be timid around people.",
+    "latinName": "Sialia sialis",
+    "url": "https://en.wikipedia.org/wiki/Eastern_bluebird",
     "colors": {
       "foot": "#af8e75",
       "face": "#639bff",
@@ -21,6 +23,8 @@ export default {
   "shimaEnaga": {
     "name": "Shima Enaga",
     "description": "Small, fluffy birds found in the snowy regions of Japan, these birds are highly sought after by ornithologists and nature photographers.",
+    "latinName": "Aegithalos caudatus",
+    "url": "https://en.wikipedia.org/wiki/Long-tailed_tit",
     "colors": {
       "foot": "#af8e75",
       "face": "#ffffff",
@@ -34,6 +38,8 @@ export default {
   "tuftedTitmouse": {
     "name": "Tufted Titmouse",
     "description": "Native to the eastern United States, full of personality, and notably my wife's favorite bird.",
+    "latinName": "Baeolophus bicolor",
+    "url": "https://en.wikipedia.org/wiki/Tufted_titmouse",
     "colors": {
       "foot": "#af8e75",
       "face": "#c7cad7",
@@ -50,6 +56,8 @@ export default {
   "europeanRobin": {
     "name": "European Robin",
     "description": "Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.",
+    "latinName": "Erithacus rubecula",
+    "url": "https://en.wikipedia.org/wiki/European_robin",
     "colors": {
       "foot": "#af8e75",
       "face": "#ffaf34",
@@ -64,6 +72,8 @@ export default {
   "redCardinal": {
     "name": "Red Cardinal",
     "description": "Native to the eastern United States, this strikingly red bird is hard to miss.",
+    "latinName": "Cardinalis cardinalis",
+    "url": "https://en.wikipedia.org/wiki/Red_cardinal",
     "colors": {
       "beak": "#d93619",
       "foot": "#af8e75",
@@ -83,6 +93,8 @@ export default {
   "americanGoldfinch": {
     "name": "American Goldfinch",
     "description": "Coloured a brilliant yellow, this bird feeds almost entirely on the seeds of plants such as thistle, sunflowers, and coneflowers.",
+    "latinName": "Spinus tristis",
+    "url": "https://en.wikipedia.org/wiki/American_goldfinch",
     "colors": {
       "beak": "#ffaf34",
       "foot": "#af8e75",
@@ -99,6 +111,8 @@ export default {
   "barnSwallow": {
     "name": "Barn Swallow",
     "description": "Agile birds that often roost in man-made structures, these birds are known to build nests near Ospreys for protection.",
+    "latinName": "Hirundo rustica",
+    "url": "https://en.wikipedia.org/wiki/Barn_swallow",
     "colors": {
       "foot": "#af8e75",
       "face": "#db7c4d",
@@ -112,6 +126,8 @@ export default {
   "mistletoebird": {
     "name": "Mistletoebird",
     "description": "Native to Australia, these birds eat mainly mistletoe and in turn spread the seeds far and wide.",
+    "latinName": "Dicaeum hirundinaceum",
+    "url": "https://en.wikipedia.org/wiki/Mistletoebird",
     "colors": {
       "foot": "#6c6a7c",
       "face": "#352e6d",
@@ -124,6 +140,8 @@ export default {
   "scarletRobin": {
     "name": "Scarlet Robin",
     "description": "Native to Australia, this striking robin can be found in Eucalyptus forests.",
+    "latinName": "Petroica boodang",
+    "url": "https://en.wikipedia.org/wiki/Scarlet_robin",
     "colors": {
       "foot": "#494949",
       "face": "#3d3d3d",
@@ -138,6 +156,8 @@ export default {
   "americanRobin": {
     "name": "American Robin",
     "description": "While not a true robin, this social North American bird is so named due to its orange coloring. It seems unbothered by nearby humans.",
+    "latinName": "Turdus migratorius",
+    "url": "https://en.wikipedia.org/wiki/American_robin",
     "colors": {
       "beak": "#e89f30",
       "foot": "#9f8075",
@@ -152,6 +172,8 @@ export default {
   "carolinaWren": {
     "name": "Carolina Wren",
     "description": "Native to the eastern United States, these little birds are known for their curious and energetic nature.",
+    "latinName": "Thryothorus ludovicianus",
+    "url": "https://en.wikipedia.org/wiki/Carolina_wren",
     "colors": {
       "foot": "#af8e75",
       "face": "#edc7a9",
@@ -166,6 +188,8 @@ export default {
   "blackCappedChickadee": {
     "name": "Black-capped Chickadee",
     "description": "Native to North America, these small and curious birds are known for their distinctive call from which they get their name.",
+    "latinName": "Poecile atricapillus",
+    "url": "https://en.wikipedia.org/wiki/Black-capped_chickadee",
     "colors": {
       "hood": "#363636",
       "cheek": "#363636",
@@ -185,6 +209,8 @@ export default {
   "blueJay": {
     "name": "Blue Jay",
     "description": "This loud and rambunctious bird is native to North America and is known for challenging anything in its path.",
+    "latinName": "Cyanocitta cristata",
+    "url": "https://en.wikipedia.org/wiki/Blue_jay",
     "colors": {
       "foot": "#5a626b",
       "face": "#ebf2ff",
@@ -204,6 +230,8 @@ export default {
   "darkEyedJunco": {
     "name": "Dark-eyed Junco",
     "description": "Native across North America, these social birds will often be seen hopping along the ground in winter.",
+    "latinName": "Junco hyemalis",
+    "url": "https://en.wikipedia.org/wiki/Dark-eyed_junco",
     "colors": {
       "face": "#55565e",
       "wing": "#5c5f69",
@@ -217,6 +245,8 @@ export default {
   "houseFinch": {
     "name": "House Finch",
     "description": "Native to North America, these highly social birds sing cheerful songs and are often seen at bird feeders.",
+    "latinName": "Haemorhous mexicanus",
+    "url": "https://en.wikipedia.org/wiki/House_finch",
     "colors": {
       "face": "#cc3a3f",
       "wing": "#ae8e78",
@@ -233,6 +263,8 @@ export default {
   "pigeon": {
     "name": "Pigeon",
     "description": "Descended from the Rock Dove, these once domesticated birds are often found in cities worldwide. Quite friendly and intelligent, they were favored companions of Nikola Tesla.",
+    "latinName": "Columba livia",
+    "url": "https://en.wikipedia.org/wiki/Rock_dove",
     "colors": {
       "foot": "#ef6e5b",
       "face": "#5a6c91",
@@ -246,6 +278,8 @@ export default {
   "redAvadavat": {
     "name": "Red Avadavat",
     "description": "Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plumage.",
+    "latinName": "Amandava amandava",
+    "url": "https://en.wikipedia.org/wiki/Red_avadavat",
     "colors": {
       "beak": "#f71919",
       "foot": "#af7575",
@@ -261,6 +295,8 @@ export default {
   "pinkRobin": {
     "name": "Pink Robin",
     "description": "Native to Australia, these bubblegum-pink puffballs are quieter than most, instead relying on their vibrant colours to attract partners.",
+    "latinName": "Petroica rodinogaster",
+    "url": "https://en.wikipedia.org/wiki/Pink_robin",
     "colors": {
       "face": "#403a46",
       "wing": "#38333d",
@@ -275,6 +311,8 @@ export default {
   "redWarbler": {
     "name": "Red Warbler",
     "description": "Endemic to the highlands of Mexico, this bird has the rare distinction of being one of the very few toxic birds in the world.",
+    "latinName": "Cardellina rubra",
+    "url": "https://en.wikipedia.org/wiki/Red_warbler",
     "colors": {
       "face": "#e80a28",
       "belly": "#d90921",
@@ -294,6 +332,8 @@ export default {
   "elegantEuphonia": {
     "name": "Elegant Euphonia",
     "description": "This vividly coloured finch is found throughout Central America and is known for the distinctive blue hood that crowns its head.",
+    "latinName": "Chlorophonia elegantissima",
+    "url": "https://en.wikipedia.org/wiki/Elegant_euphonia",
     "colors": {
       "wing": "#101480",
       "wing-edge": "#070956",

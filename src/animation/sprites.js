@@ -107,13 +107,17 @@ export class BirdType {
 	/**
 	 * @param {string} name
 	 * @param {string} description
+	 * @param {string} latinName
+	 * @param {string} url
 	 * @param {Record<string, string>} colors
 	 * @param {string[]} [tags]
 	 * @param {Rarity} [rarity]
 	 */
-	constructor(name, description, colors, tags = [], rarity = RARITY.FAMILIAR) {
+	constructor(name, description, latinName, url, colors, tags = [], rarity = RARITY.FAMILIAR) {
 		this.name = name;
 		this.description = description;
+		this.latinName = latinName;
+		this.url = url;
 		const defaultColors = {
 			[PALETTE.TRANSPARENT]: "transparent",
 			[PALETTE.OUTLINE]: "#000000",
@@ -207,6 +211,6 @@ export function loadSpriteSheetPixels(src, templateColors = true) {
 export const SPECIES = Object.fromEntries(
 	Object.entries(species).map(([id, data]) => [
 		id,
-		new BirdType(data.name, data.description, data.colors, data.tags, data.rarity)
+		new BirdType(data.name, data.description, data.latinName, data.url, data.colors, data.tags, data.rarity)
 	]),
 );

@@ -336,6 +336,13 @@
 	color: #7c6c4b;
 }
 
+.birb-field-guide-latin-name {
+	text-decoration: underline;
+	font-style: italic;
+	font-weight: bold;
+	color: inherit;
+}
+
 #birb-feather {
 	cursor: pointer;
 }
