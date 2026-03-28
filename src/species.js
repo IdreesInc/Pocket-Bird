@@ -121,19 +121,6 @@ export default {
       "wing-edge": "#282065"
     }
   },
-  "redAvadavat": {
-    "name": "Red Avadavat",
-    "description": "Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plumage.",
-    "colors": {
-      "beak": "#f71919",
-      "foot": "#af7575",
-      "face": "#cb092b",
-      "belly": "#ae1724",
-      "underbelly": "#831b24",
-      "wing": "#7e3030",
-      "wing-edge": "#490f0f"
-    }
-  },
   "scarletRobin": {
     "name": "Scarlet Robin",
     "description": "Native to Australia, this striking robin can be found in Eucalyptus forests.",
@@ -243,6 +230,33 @@ export default {
       "theme-highlight": "#ef444d"
     }
   },
+  "pigeon": {
+    "name": "Pigeon",
+    "description": "Descended from the Rock Dove, these once domesticated birds are often found in cities worldwide. Quite friendly and intelligent, they were favored companions of Nikola Tesla.",
+    "colors": {
+      "foot": "#ef6e5b",
+      "face": "#5a6c91",
+      "wing-edge": "#65686e",
+      "nose": "#ebebeb",
+      "belly": "#977699",
+      "underbelly": "#b0b3ba",
+      "wing": "#c7cbd4"
+    }
+  },
+  "redAvadavat": {
+    "name": "Red Avadavat",
+    "description": "Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plumage.",
+    "colors": {
+      "beak": "#f71919",
+      "foot": "#af7575",
+      "face": "#cb092b",
+      "belly": "#ae1724",
+      "underbelly": "#831b24",
+      "wing": "#7e3030",
+      "wing-edge": "#490f0f"
+    },
+    "rarity": "uncommon"
+  },
   "pinkRobin": {
     "name": "Pink Robin",
     "description": "Native to Australia, these bubblegum-pink puffballs are quieter than most, instead relying on their vibrant colours to attract partners.",
@@ -276,25 +290,25 @@ export default {
     },
     "rarity": "uncommon"
   },
-    "elegantEuphonia": {
+  "elegantEuphonia": {
     "name": "Elegant Euphonia",
     "description": "This vividly coloured finch is found throughout Central America and is known for the distinctive blue hood that crowns its head.",
     "colors": {
-    "wing": "#101480",
-    "wing-edge": "#070956",
-    "face": "#0a0d66",
-    "hood": "#6bc6ed",
-    "nose-tip": "#fd7e1d",
-    "foot": "#636659",
-    "belly": "#ff952b",
-    "underbelly": "#fd7e1d",
-    "temple": "#57c8fa",
-    "upper-corner-eye": "#57c8fa",
-    "collar-scruff": "#57c8fa",
-    "scruff": "#57c8fa",
-    "beak": "#252c31",
-    "collar": "#06084d"
-  },
+      "wing": "#101480",
+      "wing-edge": "#070956",
+      "face": "#0a0d66",
+      "hood": "#6bc6ed",
+      "nose-tip": "#fd7e1d",
+      "foot": "#636659",
+      "belly": "#ff952b",
+      "underbelly": "#fd7e1d",
+      "temple": "#57c8fa",
+      "upper-corner-eye": "#57c8fa",
+      "collar-scruff": "#57c8fa",
+      "scruff": "#57c8fa",
+      "beak": "#252c31",
+      "collar": "#06084d"
+    },
     "rarity": "uncommon"
   }
 }
