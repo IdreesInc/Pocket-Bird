@@ -494,7 +494,7 @@ module.exports = class PocketBird extends Plugin {
 	    }
 	  },
 	  "pigeon": {
-	    "name": "Pigeon",
+	    "name": "Rock Pigeon",
 	    "description": "Descended from the Rock Dove, these once domesticated birds are often found in cities worldwide. Quite friendly and intelligent, they were favored companions of Nikola Tesla.",
 	    "latinName": "Columba livia",
 	    "url": "https://en.wikipedia.org/wiki/Rock_dove",
