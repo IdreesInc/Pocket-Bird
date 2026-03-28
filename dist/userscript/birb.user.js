@@ -517,6 +517,25 @@
 	      "cheek": "#db1734"
 	    },
 	    "rarity": "uncommon"
+	  },
+	    "elegantEuphonia": {
+	    "name": "Elegant Euphonia",
+	    "description": "",
+	    "colors": {
+	      "face": "#e80a28",
+	      "belly": "#d90921",
+	      "underbelly": "#c70c18",
+	      "wing": "#ba121d",
+	      "wing-edge": "#5b3535",
+	      "foot": "#5e4645",
+	      "behind-eye": "#deedff",
+	      "temple": "#e8f0fa",
+	      "corner-eye": "#d5e4f5",
+	      "lower-eyelid": "#e34a61",
+	      "beak": "#873535",
+	      "cheek": "#db1734"
+	    },
+	    "rarity": "uncommon"
 	  }
 	};
 
@@ -627,14 +646,14 @@
 				[PALETTE.FEATHER_SPINE]: "#373737",
 				[PALETTE.HOOD]: colors.face,
 				[PALETTE.EYEBROW]: colors.face,
-				[PALETTE.UPPER_EYELID]: colors.eyebrow,
-				[PALETTE.UPPER_CORNER_EYE]: colors.eyebrow,
+				[PALETTE.UPPER_EYELID]: colors.face || colors.eyebrow,
+				[PALETTE.UPPER_CORNER_EYE]: colors.face || colors.eyebrow,
 				[PALETTE.BEHIND_EYE]: colors.face,
 				[PALETTE.CORNER_EYE]: colors.face,
 				[PALETTE.TEMPLE]: colors.face,
 				[PALETTE.LOWER_EYELID]: colors.face,
 				[PALETTE.NOSE]: colors.face,
-				[PALETTE.NOSE_TIP]: colors.nose,
+				[PALETTE.NOSE_TIP]: colors.nose || colors.face,
 				[PALETTE.CHEEK]: colors.face,
 				[PALETTE.SCRUFF]: colors.face,
 				[PALETTE.COLLAR]: colors.face,
