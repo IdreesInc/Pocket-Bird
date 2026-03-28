@@ -599,9 +599,7 @@
 		"#373737": PALETTE.FEATHER_SPINE,
 	};
 
-
 	/**
-	 * Bird species rarit
 	 * @type {Record<string, string>} 
 	 */
 	const RARITY = {

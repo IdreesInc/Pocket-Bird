@@ -604,9 +604,7 @@ module.exports = class PocketBird extends Plugin {
 		"#373737": PALETTE.FEATHER_SPINE,
 	};
 
-
 	/**
-	 * Bird species rarit
 	 * @type {Record<string, string>} 
 	 */
 	const RARITY = {

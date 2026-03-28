@@ -1,5 +1,5 @@
 // @ts-check
-import { SPRITE_SHEET_COLOR_MAP, PALETTE, loadSpriteSheetPixels } from '../src/animation/sprites.js';
+import { SPRITE_SHEET_COLOR_MAP, PALETTE, DEFAULT_COLOR_OVERRIDES, loadSpriteSheetPixels } from '../src/animation/sprites.js';
 import Layer, { TAG } from '../src/animation/layer.js';
 import Frame from '../src/animation/frame.js';
 import { Directions, getLayerPixels } from '../src/shared.js';
@@ -10,23 +10,6 @@ import species from '../src/species.js';
 const COLOR_MAP = SPRITE_SHEET_COLOR_MAP;
 const SPRITE_PATH = "../sprites/birb.png";
 const SPRITE_SIZE = 32;
-/** @type {Record<string, string>} */
-const DEFAULT_OVERRIDES = {
-	"hood": "face",
-	"eyebrow": "face",
-	"upper-eyelid": "eyebrow",
-	"upper-corner-eye": "eyebrow",
-	"behind-eye": "face",
-	"corner-eye": "face",
-	"temple": "face",
-	"lower-eyelid": "face",
-	"nose": "face",
-	"nose-tip": "nose",
-	"cheek": "face",
-	"scruff": "face",
-	"collar": "face",
-	"collar-scruff": "collar"
-};
 const IGNORED_PARTS = new Set(
 	["transparent", "border", "heart", "heart-border", "heart-shine", "feather-spine"]
 );
@@ -169,8 +152,8 @@ function getColor(part) {
 	if (currentSpecies.colors[part]) {
 		return currentSpecies.colors[part];
 	}
-	if (DEFAULT_OVERRIDES[part]) {
-		return getColor(DEFAULT_OVERRIDES[part]);
+	if (DEFAULT_COLOR_OVERRIDES[part]) {
+		return getColor(DEFAULT_COLOR_OVERRIDES[part]);
 	}
 	for (const [color, partName] of Object.entries(COLOR_MAP)) {
 		if (partName === part) {
