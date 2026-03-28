@@ -275,5 +275,26 @@ export default {
       "cheek": "#db1734"
     },
     "rarity": "uncommon"
+  },
+    "elegantEuphonia": {
+    "name": "Elegant Euphonia",
+    "description": "This vividly coloured finch is found throughout Central America and is known for the distinctive blue hood that crowns its head.",
+    "colors": {
+    "wing": "#101480",
+    "wing-edge": "#070956",
+    "face": "#0a0d66",
+    "hood": "#6bc6ed",
+    "nose-tip": "#fd7e1d",
+    "foot": "#636659",
+    "belly": "#ff952b",
+    "underbelly": "#fd7e1d",
+    "temple": "#57c8fa",
+    "upper-corner-eye": "#57c8fa",
+    "collar-scruff": "#57c8fa",
+    "scruff": "#57c8fa",
+    "beak": "#252c31",
+    "collar": "#06084d"
+  },
+    "rarity": "uncommon"
   }
 }

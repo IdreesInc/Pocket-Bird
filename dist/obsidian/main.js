@@ -511,21 +511,23 @@ module.exports = class PocketBird extends Plugin {
 	  },
 	    "elegantEuphonia": {
 	    "name": "Elegant Euphonia",
-	    "description": "",
+	    "description": "This vividly coloured finch is found throughout Central America and is known for the distinctive blue hood that crowns its head.",
 	    "colors": {
-	      "face": "#e80a28",
-	      "belly": "#d90921",
-	      "underbelly": "#c70c18",
-	      "wing": "#ba121d",
-	      "wing-edge": "#5b3535",
-	      "foot": "#5e4645",
-	      "behind-eye": "#deedff",
-	      "temple": "#e8f0fa",
-	      "corner-eye": "#d5e4f5",
-	      "lower-eyelid": "#e34a61",
-	      "beak": "#873535",
-	      "cheek": "#db1734"
-	    },
+	    "wing": "#101480",
+	    "wing-edge": "#070956",
+	    "face": "#0a0d66",
+	    "hood": "#6bc6ed",
+	    "nose-tip": "#fd7e1d",
+	    "foot": "#636659",
+	    "belly": "#ff952b",
+	    "underbelly": "#fd7e1d",
+	    "temple": "#57c8fa",
+	    "upper-corner-eye": "#57c8fa",
+	    "collar-scruff": "#57c8fa",
+	    "scruff": "#57c8fa",
+	    "beak": "#252c31",
+	    "collar": "#06084d"
+	  },
 	    "rarity": "uncommon"
 	  }
 	};
