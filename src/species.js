@@ -253,7 +253,8 @@ export default {
       "belly": "#ae1724",
       "underbelly": "#831b24",
       "wing": "#7e3030",
-      "wing-edge": "#490f0f"
+      "wing-edge": "#490f0f",
+      "wing-spots": "#e8e4e4",
     },
     "rarity": "uncommon"
   },
