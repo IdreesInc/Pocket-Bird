@@ -14,6 +14,8 @@ const SPRITE_SIZE = 32;
 const DEFAULT_OVERRIDES = {
 	"hood": "face",
 	"eyebrow": "face",
+	"upper-eyelid": "eyebrow",
+	"upper-corner-eye": "eyebrow",
 	"behind-eye": "face",
 	"corner-eye": "face",
 	"temple": "face",
@@ -23,6 +25,7 @@ const DEFAULT_OVERRIDES = {
 	"cheek": "face",
 	"scruff": "face",
 	"collar": "face",
+	"collar-scruff": "collar"
 };
 const IGNORED_PARTS = new Set(
 	["transparent", "border", "heart", "heart-border", "heart-shine", "feather-spine"]
