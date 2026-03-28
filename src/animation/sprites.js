@@ -141,7 +141,7 @@ export class BirdType {
 			[PALETTE.CHEEK]: colors.face,
 			[PALETTE.SCRUFF]: colors.face,
 			[PALETTE.COLLAR]: colors.face,
-			[PALETTE.COLLAR_SCRUFF]: colors.collar,
+			[PALETTE.COLLAR_SCRUFF]: colors.collar || colors.face,
 		};
 		/** @type {Record<string, string>} */
 		this.colors = { ...defaultColors, ...colors, [PALETTE.THEME_HIGHLIGHT]: colors[PALETTE.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
