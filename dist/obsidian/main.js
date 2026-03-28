@@ -623,13 +623,12 @@ module.exports = class PocketBird extends Plugin {
 		"#373737": PALETTE.FEATHER_SPINE,
 	};
 
-	/**
-	 * @type {Record<string, string>} 
-	 */
-	const RARITY = {
+	const RARITY = Object.freeze(/** @type {const} */ ({
 		FAMILIAR: "familiar",
 		UNCOMMON: "uncommon"
-	};
+	}));
+
+	/** @typedef {typeof RARITY[keyof typeof RARITY]} Rarity */
 
 	class BirdType {
 		/**
@@ -637,7 +636,7 @@ module.exports = class PocketBird extends Plugin {
 		 * @param {string} description
 		 * @param {Record<string, string>} colors
 		 * @param {string[]} [tags]
-		 * @param {string} [rarity]
+		 * @param {Rarity} [rarity]
 		 */
 		constructor(name, description, colors, tags = [], rarity = RARITY.FAMILIAR) {
 			this.name = name;
@@ -670,6 +669,7 @@ module.exports = class PocketBird extends Plugin {
 			/** @type {Record<string, string>} */
 			this.colors = { ...defaultColors, ...colors, [PALETTE.THEME_HIGHLIGHT]: colors[PALETTE.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
 			this.tags = tags;
+			/** @type {Rarity} */
 			this.rarity = rarity;
 		}
 	}
@@ -2431,6 +2431,7 @@ module.exports = class PocketBird extends Plugin {
 	const HOP_CHANCE = 1 / (60 * 2.5); // Every 2.5 seconds
 	const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // Every 20 seconds
 	const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // Every 2 hours
+	const UNCOMMON_FEATHER_CHANCE = 0.1; // 10% of feathers are uncommon
 	const HAT_CHANCE = 1 / (60 * 60 * 25); // Every 25 minutes
 
 	// Feathers
@@ -2882,7 +2883,8 @@ module.exports = class PocketBird extends Plugin {
 			if (document.querySelector("#" + FEATHER_ID)) {
 				return;
 			}
-			const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species));
+			const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.FAMILIAR;
+			const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species) && SPECIES[species].rarity === rarity);
 			if (speciesToUnlock.length === 0) {
 				// No more species to unlock
 				return;

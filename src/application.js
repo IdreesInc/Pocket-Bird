@@ -110,6 +110,7 @@ const HOP_DELAY = 500;
 const HOP_CHANCE = 1 / (60 * 2.5); // Every 2.5 seconds
 const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // Every 20 seconds
 const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // Every 2 hours
+const UNCOMMON_FEATHER_CHANCE = 0.1; // 10% of feathers are uncommon
 const HAT_CHANCE = 1 / (60 * 60 * 25); // Every 25 minutes
 
 // Feathers
@@ -564,7 +565,8 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		if (document.querySelector("#" + FEATHER_ID)) {
 			return;
 		}
-		const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species));
+		const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.FAMILIAR;
+		const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species) && SPECIES[species].rarity === rarity);
 		if (speciesToUnlock.length === 0) {
 			// No more species to unlock
 			return;

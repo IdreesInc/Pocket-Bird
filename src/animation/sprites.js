@@ -98,13 +98,12 @@ export const DEFAULT_COLOR_OVERRIDES = {
 	[PALETTE.WING_SPOTS]: PALETTE.WING,
 };
 
-/**
- * @type {Record<string, string>} 
- */
-export const RARITY = {
+export const RARITY = Object.freeze(/** @type {const} */ ({
 	FAMILIAR: "familiar",
 	UNCOMMON: "uncommon"
-}
+}));
+
+/** @typedef {typeof RARITY[keyof typeof RARITY]} Rarity */
 
 export class BirdType {
 	/**
@@ -112,7 +111,7 @@ export class BirdType {
 	 * @param {string} description
 	 * @param {Record<string, string>} colors
 	 * @param {string[]} [tags]
-	 * @param {string} [rarity]
+	 * @param {Rarity} [rarity]
 	 */
 	constructor(name, description, colors, tags = [], rarity = RARITY.FAMILIAR) {
 		this.name = name;
@@ -145,6 +144,7 @@ export class BirdType {
 		/** @type {Record<string, string>} */
 		this.colors = { ...defaultColors, ...colors, [PALETTE.THEME_HIGHLIGHT]: colors[PALETTE.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
 		this.tags = tags;
+		/** @type {Rarity} */
 		this.rarity = rarity;
 	}
 }
