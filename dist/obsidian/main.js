@@ -547,11 +547,7 @@ module.exports = class PocketBird extends Plugin {
 	  }
 	};
 
-	/**
-	 * Palette color names
-	 * @type {Record<string, string>}
-	 */
-	const PALETTE = {
+	const PALETTE = Object.freeze(/** @type {const} */ ({
 		THEME_HIGHLIGHT: "theme-highlight",
 		TRANSPARENT: "transparent",
 		OUTLINE: "outline",
@@ -583,11 +579,13 @@ module.exports = class PocketBird extends Plugin {
 		HEART_BORDER: "heart-border",
 		HEART_SHINE: "heart-shine",
 		FEATHER_SPINE: "feather-spine",
-	};
+	}));
+
+	/** @typedef {typeof PALETTE[keyof typeof PALETTE]} PaletteColor */
 
 	/**
 	 * Mapping of sprite sheet colors to palette colors
-	 * @type {Record<string, string>} 
+	 * @type {Record<string, PaletteColor>} 
 	 */
 	const SPRITE_SHEET_COLOR_MAP = {
 		"transparent": PALETTE.TRANSPARENT,
@@ -622,6 +620,28 @@ module.exports = class PocketBird extends Plugin {
 		"#ff6b6b": PALETTE.HEART_SHINE,
 		"#373737": PALETTE.FEATHER_SPINE,
 	};
+
+
+	/**
+	 * @type {Partial<Record<PaletteColor, PaletteColor>>}
+	 */
+	({
+		[PALETTE.HOOD]: PALETTE.FACE,
+		[PALETTE.EYEBROW]: PALETTE.FACE,
+		[PALETTE.UPPER_EYELID]: PALETTE.EYEBROW,
+		[PALETTE.UPPER_CORNER_EYE]: PALETTE.EYEBROW,
+		[PALETTE.BEHIND_EYE]: PALETTE.FACE,
+		[PALETTE.CORNER_EYE]: PALETTE.FACE,
+		[PALETTE.TEMPLE]: PALETTE.FACE,
+		[PALETTE.LOWER_EYELID]: PALETTE.FACE,
+		[PALETTE.NOSE]: PALETTE.FACE,
+		[PALETTE.NOSE_TIP]: PALETTE.NOSE,
+		[PALETTE.CHEEK]: PALETTE.FACE,
+		[PALETTE.SCRUFF]: PALETTE.FACE,
+		[PALETTE.COLLAR]: PALETTE.FACE,
+		[PALETTE.COLLAR_SCRUFF]: PALETTE.COLLAR,
+		[PALETTE.WING_SPOTS]: PALETTE.WING,
+	});
 
 	const RARITY = Object.freeze(/** @type {const} */ ({
 		FAMILIAR: "familiar",

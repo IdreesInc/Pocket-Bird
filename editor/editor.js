@@ -152,8 +152,9 @@ function getColor(part) {
 	if (currentSpecies.colors[part]) {
 		return currentSpecies.colors[part];
 	}
-	if (DEFAULT_COLOR_OVERRIDES[part]) {
-		return getColor(DEFAULT_COLOR_OVERRIDES[part]);
+	const override = DEFAULT_COLOR_OVERRIDES[/** @type {keyof typeof DEFAULT_COLOR_OVERRIDES} */ (part)];
+	if (override) {
+		return getColor(override);
 	}
 	for (const [color, partName] of Object.entries(COLOR_MAP)) {
 		if (partName === part) {

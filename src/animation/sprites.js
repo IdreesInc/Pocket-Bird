@@ -1,10 +1,6 @@
 import species from "../species.js"
 
-/**
- * Palette color names
- * @type {Record<string, string>}
- */
-export const PALETTE = {
+export const PALETTE = Object.freeze(/** @type {const} */ ({
 	THEME_HIGHLIGHT: "theme-highlight",
 	TRANSPARENT: "transparent",
 	OUTLINE: "outline",
@@ -36,11 +32,13 @@ export const PALETTE = {
 	HEART_BORDER: "heart-border",
 	HEART_SHINE: "heart-shine",
 	FEATHER_SPINE: "feather-spine",
-};
+}));
+
+/** @typedef {typeof PALETTE[keyof typeof PALETTE]} PaletteColor */
 
 /**
  * Mapping of sprite sheet colors to palette colors
- * @type {Record<string, string>} 
+ * @type {Record<string, PaletteColor>} 
  */
 export const SPRITE_SHEET_COLOR_MAP = {
 	"transparent": PALETTE.TRANSPARENT,
@@ -78,7 +76,7 @@ export const SPRITE_SHEET_COLOR_MAP = {
 
 
 /**
- * @type {Record<string, string>}
+ * @type {Partial<Record<PaletteColor, PaletteColor>>}
  */
 export const DEFAULT_COLOR_OVERRIDES = {
 	[PALETTE.HOOD]: PALETTE.FACE,
