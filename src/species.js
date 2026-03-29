@@ -352,5 +352,21 @@ export default {
       "collar": "#191c6d"
     },
     "rarity": "uncommon"
+  },
+  "paintedBunting": {
+    "name": "Painted Bunting",
+    "description": "A remarkably colourful bird, this North American species is quite difficult to observe despite its vivid palette due to its shy nature and vulnerable habitat.",
+    "latinName": "Passerina ciris",
+    "url": "https://en.wikipedia.org/wiki/Painted_bunting",
+    "colors": {
+      "face": "#5567f0",
+      "underbelly": "#f16534",
+      "belly": "#ef3b3b",
+      "wing": "#a3e65a",
+      "wing-edge": "#91cc50",
+      "shoulder": "#f6fe40",
+      "foot": "#767980"
+    },
+    "rarity": "uncommon"
   }
 }
