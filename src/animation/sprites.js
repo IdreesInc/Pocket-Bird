@@ -1,10 +1,6 @@
 import species from "../species.js"
 
-/**
- * Palette color names
- * @type {Record<string, string>}
- */
-export const PALETTE = {
+export const PALETTE = Object.freeze(/** @type {const} */ ({
 	THEME_HIGHLIGHT: "theme-highlight",
 	TRANSPARENT: "transparent",
 	OUTLINE: "outline",
@@ -15,23 +11,36 @@ export const PALETTE = {
 	FACE: "face",
 	HOOD: "hood",
 	EYEBROW: "eyebrow",
+	UPPER_EYELID: "upper-eyelid",
+	UPPER_CORNER_EYE: "upper-corner-eye",
+	BEHIND_EYE: "behind-eye",
+	CORNER_EYE: "corner-eye",
+	TEMPLE: "temple",
+	LOWER_EYELID: "lower-eyelid",
 	NOSE: "nose",
+	NOSE_TIP: "nose-tip",
 	CHEEK: "cheek",
 	SCRUFF: "scruff",
+	CHIN: "chin",
 	COLLAR: "collar",
+	COLLAR_SCRUFF: "collar-scruff",
 	BELLY: "belly",
 	UNDERBELLY: "underbelly",
 	WING: "wing",
+	SHOULDER: "shoulder",
+	WING_SPOTS: "wing-spots",
 	WING_EDGE: "wing-edge",
 	HEART: "heart",
 	HEART_BORDER: "heart-border",
 	HEART_SHINE: "heart-shine",
 	FEATHER_SPINE: "feather-spine",
-};
+}));
+
+/** @typedef {typeof PALETTE[keyof typeof PALETTE]} PaletteColor */
 
 /**
  * Mapping of sprite sheet colors to palette colors
- * @type {Record<string, string>} 
+ * @type {Record<string, PaletteColor>} 
  */
 export const SPRITE_SHEET_COLOR_MAP = {
 	"transparent": PALETTE.TRANSPARENT,
@@ -44,13 +53,24 @@ export const SPRITE_SHEET_COLOR_MAP = {
 	"#639bff": PALETTE.FACE,
 	"#99e550": PALETTE.HOOD,
 	"#ff5573": PALETTE.EYEBROW,
+	"#ff768e": PALETTE.UPPER_EYELID,
+	"#ff90a4": PALETTE.UPPER_CORNER_EYE,
+	"#ff2c88": PALETTE.BEHIND_EYE,
+	"#e34f9c": PALETTE.CORNER_EYE,
+	"#b53477": PALETTE.TEMPLE,
+	"#ae65f1": PALETTE.LOWER_EYELID,
 	"#d95763": PALETTE.NOSE,
+	"#b93844": PALETTE.NOSE_TIP,
 	"#ff67a9": PALETTE.CHEEK,
 	"#c5e550": PALETTE.SCRUFF,
+	"#b87af1": PALETTE.CHIN,
 	"#ffe955": PALETTE.COLLAR,
+	"#f8ff55": PALETTE.COLLAR_SCRUFF,
 	"#f8b143": PALETTE.BELLY,
 	"#ec8637": PALETTE.UNDERBELLY,
 	"#578ae6": PALETTE.WING,
+	"#55d1f3": PALETTE.SHOULDER,
+	"#90b0e8": PALETTE.WING_SPOTS,
 	"#326ed9": PALETTE.WING_EDGE,
 	"#c82e2e": PALETTE.HEART,
 	"#501a1a": PALETTE.HEART_BORDER,
@@ -58,16 +78,52 @@ export const SPRITE_SHEET_COLOR_MAP = {
 	"#373737": PALETTE.FEATHER_SPINE,
 };
 
+
+/**
+ * @type {Partial<Record<PaletteColor, PaletteColor>>}
+ */
+export const DEFAULT_COLOR_OVERRIDES = {
+	[PALETTE.HOOD]: PALETTE.FACE,
+	[PALETTE.EYEBROW]: PALETTE.FACE,
+	[PALETTE.UPPER_EYELID]: PALETTE.EYEBROW,
+	[PALETTE.UPPER_CORNER_EYE]: PALETTE.EYEBROW,
+	[PALETTE.BEHIND_EYE]: PALETTE.FACE,
+	[PALETTE.CORNER_EYE]: PALETTE.FACE,
+	[PALETTE.TEMPLE]: PALETTE.FACE,
+	[PALETTE.LOWER_EYELID]: PALETTE.FACE,
+	[PALETTE.NOSE]: PALETTE.FACE,
+	[PALETTE.NOSE_TIP]: PALETTE.NOSE,
+	[PALETTE.CHEEK]: PALETTE.FACE,
+	[PALETTE.SCRUFF]: PALETTE.FACE,
+	[PALETTE.CHIN]: PALETTE.FACE,
+	[PALETTE.COLLAR]: PALETTE.FACE,
+	[PALETTE.COLLAR_SCRUFF]: PALETTE.COLLAR,
+	[PALETTE.WING_SPOTS]: PALETTE.WING,
+	[PALETTE.SHOULDER]: PALETTE.WING,
+};
+
+export const RARITY = Object.freeze(/** @type {const} */ ({
+	COMMON: "common",
+	UNCOMMON: "uncommon"
+}));
+
+/** @typedef {typeof RARITY[keyof typeof RARITY]} Rarity */
+
 export class BirdType {
 	/**
 	 * @param {string} name
 	 * @param {string} description
+	 * @param {string} latinName
+	 * @param {string} url
 	 * @param {Record<string, string>} colors
 	 * @param {string[]} [tags]
+	 * @param {Rarity} [rarity]
 	 */
-	constructor(name, description, colors, tags = []) {
+	constructor(name, description, latinName, url, colors, tags = [], rarity = RARITY.COMMON) {
 		this.name = name;
 		this.description = description;
+		this.latinName = latinName;
+		this.url = url;
 		const defaultColors = {
 			[PALETTE.TRANSPARENT]: "transparent",
 			[PALETTE.OUTLINE]: "#000000",
@@ -79,15 +135,27 @@ export class BirdType {
 			[PALETTE.HEART_SHINE]: "#ff6b6b",
 			[PALETTE.FEATHER_SPINE]: "#373737",
 			[PALETTE.HOOD]: colors.face,
-			[PALETTE.EYEBROW]: colors.face,	
+			[PALETTE.EYEBROW]: colors.face,
+			[PALETTE.UPPER_EYELID]: colors.eyebrow || colors.face,
+			[PALETTE.UPPER_CORNER_EYE]: colors.eyebrow || colors.face,
+			[PALETTE.BEHIND_EYE]: colors.face,
+			[PALETTE.CORNER_EYE]: colors.face,
+			[PALETTE.TEMPLE]: colors.face,
+			[PALETTE.LOWER_EYELID]: colors.face,
 			[PALETTE.NOSE]: colors.face,
+			[PALETTE.NOSE_TIP]: colors.nose || colors.face,
 			[PALETTE.CHEEK]: colors.face,
 			[PALETTE.SCRUFF]: colors.face,
+			[PALETTE.CHIN]: colors.face,
 			[PALETTE.COLLAR]: colors.face,
+			[PALETTE.COLLAR_SCRUFF]: colors.collar || colors.face,
+			[PALETTE.SHOULDER]: colors.wing,
 		};
 		/** @type {Record<string, string>} */
 		this.colors = { ...defaultColors, ...colors, [PALETTE.THEME_HIGHLIGHT]: colors[PALETTE.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
 		this.tags = tags;
+		/** @type {Rarity} */
+		this.rarity = rarity;
 	}
 }
 
@@ -151,6 +219,6 @@ export function loadSpriteSheetPixels(src, templateColors = true) {
 export const SPECIES = Object.fromEntries(
 	Object.entries(species).map(([id, data]) => [
 		id,
-		new BirdType(data.name, data.description, data.colors, data.tags ?? []),
+		new BirdType(data.name, data.description, data.latinName, data.url, data.colors, data.tags, data.rarity)
 	]),
 );

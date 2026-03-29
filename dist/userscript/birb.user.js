@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2026.3.11
+// @version      2026.3.29
 // @description  It's a pet bird in your browser, what more could you want?
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -251,6 +251,8 @@
 	  "bluebird": {
 	    "name": "Eastern Bluebird",
 	    "description": "Native to North American and very social, though can be timid around people.",
+	    "latinName": "Sialia sialis",
+	    "url": "https://en.wikipedia.org/wiki/Eastern_bluebird",
 	    "colors": {
 	      "foot": "#af8e75",
 	      "face": "#639bff",
@@ -263,6 +265,8 @@
 	  "shimaEnaga": {
 	    "name": "Shima Enaga",
 	    "description": "Small, fluffy birds found in the snowy regions of Japan, these birds are highly sought after by ornithologists and nature photographers.",
+	    "latinName": "Aegithalos caudatus",
+	    "url": "https://en.wikipedia.org/wiki/Long-tailed_tit",
 	    "colors": {
 	      "foot": "#af8e75",
 	      "face": "#ffffff",
@@ -276,6 +280,8 @@
 	  "tuftedTitmouse": {
 	    "name": "Tufted Titmouse",
 	    "description": "Native to the eastern United States, full of personality, and notably my wife's favorite bird.",
+	    "latinName": "Baeolophus bicolor",
+	    "url": "https://en.wikipedia.org/wiki/Tufted_titmouse",
 	    "colors": {
 	      "foot": "#af8e75",
 	      "face": "#c7cad7",
@@ -292,6 +298,8 @@
 	  "europeanRobin": {
 	    "name": "European Robin",
 	    "description": "Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.",
+	    "latinName": "Erithacus rubecula",
+	    "url": "https://en.wikipedia.org/wiki/European_robin",
 	    "colors": {
 	      "foot": "#af8e75",
 	      "face": "#ffaf34",
@@ -306,6 +314,8 @@
 	  "redCardinal": {
 	    "name": "Red Cardinal",
 	    "description": "Native to the eastern United States, this strikingly red bird is hard to miss.",
+	    "latinName": "Cardinalis cardinalis",
+	    "url": "https://en.wikipedia.org/wiki/Red_cardinal",
 	    "colors": {
 	      "beak": "#d93619",
 	      "foot": "#af8e75",
@@ -325,6 +335,8 @@
 	  "americanGoldfinch": {
 	    "name": "American Goldfinch",
 	    "description": "Coloured a brilliant yellow, this bird feeds almost entirely on the seeds of plants such as thistle, sunflowers, and coneflowers.",
+	    "latinName": "Spinus tristis",
+	    "url": "https://en.wikipedia.org/wiki/American_goldfinch",
 	    "colors": {
 	      "beak": "#ffaf34",
 	      "foot": "#af8e75",
@@ -341,6 +353,8 @@
 	  "barnSwallow": {
 	    "name": "Barn Swallow",
 	    "description": "Agile birds that often roost in man-made structures, these birds are known to build nests near Ospreys for protection.",
+	    "latinName": "Hirundo rustica",
+	    "url": "https://en.wikipedia.org/wiki/Barn_swallow",
 	    "colors": {
 	      "foot": "#af8e75",
 	      "face": "#db7c4d",
@@ -354,6 +368,8 @@
 	  "mistletoebird": {
 	    "name": "Mistletoebird",
 	    "description": "Native to Australia, these birds eat mainly mistletoe and in turn spread the seeds far and wide.",
+	    "latinName": "Dicaeum hirundinaceum",
+	    "url": "https://en.wikipedia.org/wiki/Mistletoebird",
 	    "colors": {
 	      "foot": "#6c6a7c",
 	      "face": "#352e6d",
@@ -363,22 +379,11 @@
 	      "wing-edge": "#282065"
 	    }
 	  },
-	  "redAvadavat": {
-	    "name": "Red Avadavat",
-	    "description": "Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plumage.",
-	    "colors": {
-	      "beak": "#f71919",
-	      "foot": "#af7575",
-	      "face": "#cb092b",
-	      "belly": "#ae1724",
-	      "underbelly": "#831b24",
-	      "wing": "#7e3030",
-	      "wing-edge": "#490f0f"
-	    }
-	  },
 	  "scarletRobin": {
 	    "name": "Scarlet Robin",
 	    "description": "Native to Australia, this striking robin can be found in Eucalyptus forests.",
+	    "latinName": "Petroica boodang",
+	    "url": "https://en.wikipedia.org/wiki/Scarlet_robin",
 	    "colors": {
 	      "foot": "#494949",
 	      "face": "#3d3d3d",
@@ -386,12 +391,15 @@
 	      "underbelly": "#dcdcdc",
 	      "wing": "#2b2b2b",
 	      "wing-edge": "#ebebeb",
+	      "nose": "#ebebeb",
 	      "theme-highlight": "#fc5633"
 	    }
 	  },
 	  "americanRobin": {
 	    "name": "American Robin",
 	    "description": "While not a true robin, this social North American bird is so named due to its orange coloring. It seems unbothered by nearby humans.",
+	    "latinName": "Turdus migratorius",
+	    "url": "https://en.wikipedia.org/wiki/American_robin",
 	    "colors": {
 	      "beak": "#e89f30",
 	      "foot": "#9f8075",
@@ -406,6 +414,8 @@
 	  "carolinaWren": {
 	    "name": "Carolina Wren",
 	    "description": "Native to the eastern United States, these little birds are known for their curious and energetic nature.",
+	    "latinName": "Thryothorus ludovicianus",
+	    "url": "https://en.wikipedia.org/wiki/Carolina_wren",
 	    "colors": {
 	      "foot": "#af8e75",
 	      "face": "#edc7a9",
@@ -416,14 +426,249 @@
 	      "wing": "#c58a5b",
 	      "wing-edge": "#866348"
 	    }
+	  },
+	  "blackCappedChickadee": {
+	    "name": "Black-capped Chickadee",
+	    "description": "Native to North America, these small and curious birds are known for their distinctive call from which they get their name.",
+	    "latinName": "Poecile atricapillus",
+	    "url": "https://en.wikipedia.org/wiki/Black-capped_chickadee",
+	    "colors": {
+	      "hood": "#363636",
+	      "cheek": "#363636",
+	      "eyebrow": "#363636",
+	      "nose": "#363636",
+	      "collar": "#363636",
+	      "belly": "#d6d4cf",
+	      "underbelly": "#cfc5b4",
+	      "face": "#eaeaea",
+	      "wing": "#8f8e9a",
+	      "wing-edge": "#706f7d",
+	      "scruff": "#8f8e9a",
+	      "foot": "#535259"
+	    },
+	    "tags": []
+	  },
+	  "blueJay": {
+	    "name": "Blue Jay",
+	    "description": "This loud and rambunctious bird is native to North America and is known for challenging anything in its path.",
+	    "latinName": "Cyanocitta cristata",
+	    "url": "https://en.wikipedia.org/wiki/Blue_jay",
+	    "colors": {
+	      "foot": "#5a626b",
+	      "face": "#ebf2ff",
+	      "belly": "#e5ecfa",
+	      "underbelly": "#c4cbd6",
+	      "wing": "#5890ff",
+	      "wing-edge": "#3a77e8",
+	      "hood": "#6391e8",
+	      "nose": "#6391e8",
+	      "collar": "#2e3136",
+	      "scruff": "#6391e8"
+	    },
+	    "tags": [
+	      "tuft"
+	    ]
+	  },
+	  "darkEyedJunco": {
+	    "name": "Dark-eyed Junco",
+	    "description": "Native across North America, these social birds will often be seen hopping along the ground in winter.",
+	    "latinName": "Junco hyemalis",
+	    "url": "https://en.wikipedia.org/wiki/Dark-eyed_junco",
+	    "colors": {
+	      "face": "#55565e",
+	      "wing": "#5c5f69",
+	      "wing-edge": "#444547",
+	      "belly": "#6c7180",
+	      "underbelly": "#b8bbcc",
+	      "foot": "#87776d",
+	      "beak": "#ab8a98"
+	    }
+	  },
+	  "houseFinch": {
+	    "name": "House Finch",
+	    "description": "Native to North America, these highly social birds sing cheerful songs and are often seen at bird feeders.",
+	    "latinName": "Haemorhous mexicanus",
+	    "url": "https://en.wikipedia.org/wiki/House_finch",
+	    "colors": {
+	      "face": "#cc3a3f",
+	      "wing": "#ae8e78",
+	      "wing-edge": "#8f6c54",
+	      "belly": "#d97c77",
+	      "underbelly": "#c5a489",
+	      "foot": "#705b4c",
+	      "beak": "#cf8479",
+	      "hood": "#b02f35",
+	      "nose": "#ab2b31",
+	      "theme-highlight": "#ef444d"
+	    }
+	  },
+	  "pigeon": {
+	    "name": "Rock Pigeon",
+	    "description": "Descended from the Rock Dove, these once domesticated birds are often found in cities worldwide. Quite friendly and intelligent, they were favored companions of Nikola Tesla.",
+	    "latinName": "Columba livia",
+	    "url": "https://en.wikipedia.org/wiki/Rock_dove",
+	    "colors": {
+	      "foot": "#ef6e5b",
+	      "face": "#5a6c91",
+	      "wing-edge": "#65686e",
+	      "nose": "#ebebeb",
+	      "belly": "#977699",
+	      "underbelly": "#b0b3ba",
+	      "wing": "#c7cbd4"
+	    }
+	  },
+	  "redAvadavat": {
+	    "name": "Red Avadavat",
+	    "description": "Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plumage.",
+	    "latinName": "Amandava amandava",
+	    "url": "https://en.wikipedia.org/wiki/Red_avadavat",
+	    "colors": {
+	      "beak": "#f71919",
+	      "foot": "#af7575",
+	      "face": "#cb092b",
+	      "belly": "#ae1724",
+	      "underbelly": "#831b24",
+	      "wing": "#7e3030",
+	      "wing-edge": "#490f0f",
+	      "wing-spots": "#e8e4e4",
+	    },
+	    "rarity": "uncommon"
+	  },
+	  "pinkRobin": {
+	    "name": "Pink Robin",
+	    "description": "Native to Australia, these bubblegum-pink puffballs are quieter than most, instead relying on their vibrant colours to attract partners.",
+	    "latinName": "Petroica rodinogaster",
+	    "url": "https://en.wikipedia.org/wiki/Pink_robin",
+	    "colors": {
+	      "face": "#403a46",
+	      "wing": "#38333d",
+	      "wing-edge": "#252325",
+	      "underbelly": "#ff7eb8",
+	      "belly": "#ff6eaf",
+	      "foot": "#3c393c",
+	      "theme-highlight": "#ff82ba"
+	    },
+	    "rarity": "uncommon"
+	  },
+	  "spangledCotinga": {
+	    "name": "Spangled Cotinga",
+	    "description": "This South American bird can be found in the Amazon rainforest, flashing its iridescent turquoise feathers high above in the canopy.",
+	    "latinName": "Cotinga cayana",
+	    "url": "https://en.wikipedia.org/wiki/Spangled_cotinga",
+	    "colors": {
+	      "face": "#62eafe",
+	      "chin": "#a12457",
+	      "collar": "#a12457",
+	      "belly": "#62eafe",
+	      "underbelly": "#5cd8ea",
+	      "wing": "#227c89",
+	      "wing-edge": "#13353a",
+	      "foot": "#68696b",
+	      "collar-scruff": "#62eafe"
+	    },
+	    "rarity": "uncommon"
+	  },
+	  "elegantEuphonia": {
+	    "name": "Elegant Euphonia",
+	    "description": "This vividly coloured finch is found throughout Central America and is known for the distinctive blue hood that crowns its head.",
+	    "latinName": "Chlorophonia elegantissima",
+	    "url": "https://en.wikipedia.org/wiki/Elegant_euphonia",
+	    "colors": {
+	      "wing": "#2d31a1",
+	      "wing-edge": "#191c6d",
+	      "face": "#1f2392",
+	      "hood": "#6bc6ed",
+	      "nose-tip": "#fd7e1d",
+	      "foot": "#555650",
+	      "belly": "#ff952b",
+	      "underbelly": "#fd7e1d",
+	      "temple": "#57c8fa",
+	      "upper-corner-eye": "#57c8fa",
+	      "upper-eyelid": "#57c8fa",
+	      "collar-scruff": "#57c8fa",
+	      "scruff": "#57c8fa",
+	      "beak": "#252c31",
+	      "collar": "#191c6d"
+	    },
+	    "rarity": "uncommon"
+	  },
+	  "paintedBunting": {
+	    "name": "Painted Bunting",
+	    "description": "A remarkably colourful bird, this North American species is quite difficult to observe despite its vivid palette due to its shy nature and vulnerable habitat.",
+	    "latinName": "Passerina ciris",
+	    "url": "https://en.wikipedia.org/wiki/Painted_bunting",
+	    "colors": {
+	      "face": "#5567f0",
+	      "underbelly": "#f16534",
+	      "belly": "#ef3b3b",
+	      "wing": "#a3e65a",
+	      "wing-edge": "#91cc50",
+	      "shoulder": "#f6fe40",
+	      "foot": "#767980"
+	    },
+	    "rarity": "uncommon"
+	  },
+	  "redWarbler": {
+	    "name": "Red Warbler",
+	    "description": "Endemic to the highlands of Mexico, this bird has the rare distinction of being one of the very few toxic birds in the world.",
+	    "latinName": "Cardellina rubra",
+	    "url": "https://en.wikipedia.org/wiki/Red_warbler",
+	    "colors": {
+	      "face": "#e80a28",
+	      "belly": "#d90921",
+	      "underbelly": "#c70c18",
+	      "wing": "#ba121d",
+	      "wing-edge": "#5b3535",
+	      "foot": "#5e4645",
+	      "behind-eye": "#deedff",
+	      "temple": "#e8f0fa",
+	      "corner-eye": "#d5e4f5",
+	      "lower-eyelid": "#e34a61",
+	      "beak": "#873535",
+	      "cheek": "#db1734"
+	    },
+	    "rarity": "uncommon"
+	  },
+	  "cubanTody": {
+	    "name": "Cuban Tody",
+	    "description": "As the name suggests, this little green bird is only found on the island of Cuba and is known for being particularly round.",
+	    "latinName": "Todus multicolor",
+	    "url": "https://en.wikipedia.org/wiki/Cuban_tody",
+	    "colors": {
+	      "beak": "#f16f54",
+	      "face": "#5fdf44",
+	      "chin": "#f12d3e",
+	      "collar": "#f12d3e",
+	      "belly": "#f6f5e4",
+	      "collar-scruff": "#a3ebff",
+	      "underbelly": "#eae9d2",
+	      "wing": "#11c751",
+	      "wing-edge": "#156631",
+	      "foot": "#ac7055",
+	      "scruff": "#11c751",
+	      "theme-highlight": "#4adc67"
+	    },
+	    "rarity": "uncommon"
+	  },
+	  "violetBackedStarling": {
+	    "name": "Violet-backed Starling",
+	    "description": "Native to Sub-Saharan Africa, these small starlings are known for being the most vividly purple birds in the world.",
+	    "latinName": "Cinnyricinclus leucogaster",
+	    "url": "https://en.wikipedia.org/wiki/Violet-backed_starling",
+	    "colors": {
+	      "face": "#9c3af2",
+	      "wing": "#8f37ed",
+	      "wing-edge": "#7029b8",
+	      "belly": "#ffffff",
+	      "underbelly": "#f2f2f2",
+	      "foot": "#736a66",
+	      "collar": "#aa60e6"
+	    },
+	    "rarity": "uncommon"
 	  }
 	};
 
-	/**
-	 * Palette color names
-	 * @type {Record<string, string>}
-	 */
-	const PALETTE = {
+	const PALETTE = Object.freeze(/** @type {const} */ ({
 		THEME_HIGHLIGHT: "theme-highlight",
 		TRANSPARENT: "transparent",
 		OUTLINE: "outline",
@@ -434,23 +679,36 @@
 		FACE: "face",
 		HOOD: "hood",
 		EYEBROW: "eyebrow",
+		UPPER_EYELID: "upper-eyelid",
+		UPPER_CORNER_EYE: "upper-corner-eye",
+		BEHIND_EYE: "behind-eye",
+		CORNER_EYE: "corner-eye",
+		TEMPLE: "temple",
+		LOWER_EYELID: "lower-eyelid",
 		NOSE: "nose",
+		NOSE_TIP: "nose-tip",
 		CHEEK: "cheek",
 		SCRUFF: "scruff",
+		CHIN: "chin",
 		COLLAR: "collar",
+		COLLAR_SCRUFF: "collar-scruff",
 		BELLY: "belly",
 		UNDERBELLY: "underbelly",
 		WING: "wing",
+		SHOULDER: "shoulder",
+		WING_SPOTS: "wing-spots",
 		WING_EDGE: "wing-edge",
 		HEART: "heart",
 		HEART_BORDER: "heart-border",
 		HEART_SHINE: "heart-shine",
 		FEATHER_SPINE: "feather-spine",
-	};
+	}));
+
+	/** @typedef {typeof PALETTE[keyof typeof PALETTE]} PaletteColor */
 
 	/**
 	 * Mapping of sprite sheet colors to palette colors
-	 * @type {Record<string, string>} 
+	 * @type {Record<string, PaletteColor>} 
 	 */
 	const SPRITE_SHEET_COLOR_MAP = {
 		"transparent": PALETTE.TRANSPARENT,
@@ -463,13 +721,24 @@
 		"#639bff": PALETTE.FACE,
 		"#99e550": PALETTE.HOOD,
 		"#ff5573": PALETTE.EYEBROW,
+		"#ff768e": PALETTE.UPPER_EYELID,
+		"#ff90a4": PALETTE.UPPER_CORNER_EYE,
+		"#ff2c88": PALETTE.BEHIND_EYE,
+		"#e34f9c": PALETTE.CORNER_EYE,
+		"#b53477": PALETTE.TEMPLE,
+		"#ae65f1": PALETTE.LOWER_EYELID,
 		"#d95763": PALETTE.NOSE,
+		"#b93844": PALETTE.NOSE_TIP,
 		"#ff67a9": PALETTE.CHEEK,
 		"#c5e550": PALETTE.SCRUFF,
+		"#b87af1": PALETTE.CHIN,
 		"#ffe955": PALETTE.COLLAR,
+		"#f8ff55": PALETTE.COLLAR_SCRUFF,
 		"#f8b143": PALETTE.BELLY,
 		"#ec8637": PALETTE.UNDERBELLY,
 		"#578ae6": PALETTE.WING,
+		"#55d1f3": PALETTE.SHOULDER,
+		"#90b0e8": PALETTE.WING_SPOTS,
 		"#326ed9": PALETTE.WING_EDGE,
 		"#c82e2e": PALETTE.HEART,
 		"#501a1a": PALETTE.HEART_BORDER,
@@ -477,16 +746,52 @@
 		"#373737": PALETTE.FEATHER_SPINE,
 	};
 
+
+	/**
+	 * @type {Partial<Record<PaletteColor, PaletteColor>>}
+	 */
+	({
+		[PALETTE.HOOD]: PALETTE.FACE,
+		[PALETTE.EYEBROW]: PALETTE.FACE,
+		[PALETTE.UPPER_EYELID]: PALETTE.EYEBROW,
+		[PALETTE.UPPER_CORNER_EYE]: PALETTE.EYEBROW,
+		[PALETTE.BEHIND_EYE]: PALETTE.FACE,
+		[PALETTE.CORNER_EYE]: PALETTE.FACE,
+		[PALETTE.TEMPLE]: PALETTE.FACE,
+		[PALETTE.LOWER_EYELID]: PALETTE.FACE,
+		[PALETTE.NOSE]: PALETTE.FACE,
+		[PALETTE.NOSE_TIP]: PALETTE.NOSE,
+		[PALETTE.CHEEK]: PALETTE.FACE,
+		[PALETTE.SCRUFF]: PALETTE.FACE,
+		[PALETTE.CHIN]: PALETTE.FACE,
+		[PALETTE.COLLAR]: PALETTE.FACE,
+		[PALETTE.COLLAR_SCRUFF]: PALETTE.COLLAR,
+		[PALETTE.WING_SPOTS]: PALETTE.WING,
+		[PALETTE.SHOULDER]: PALETTE.WING,
+	});
+
+	const RARITY = Object.freeze(/** @type {const} */ ({
+		COMMON: "common",
+		UNCOMMON: "uncommon"
+	}));
+
+	/** @typedef {typeof RARITY[keyof typeof RARITY]} Rarity */
+
 	class BirdType {
 		/**
 		 * @param {string} name
 		 * @param {string} description
+		 * @param {string} latinName
+		 * @param {string} url
 		 * @param {Record<string, string>} colors
 		 * @param {string[]} [tags]
+		 * @param {Rarity} [rarity]
 		 */
-		constructor(name, description, colors, tags = []) {
+		constructor(name, description, latinName, url, colors, tags = [], rarity = RARITY.COMMON) {
 			this.name = name;
 			this.description = description;
+			this.latinName = latinName;
+			this.url = url;
 			const defaultColors = {
 				[PALETTE.TRANSPARENT]: "transparent",
 				[PALETTE.OUTLINE]: "#000000",
@@ -498,15 +803,27 @@
 				[PALETTE.HEART_SHINE]: "#ff6b6b",
 				[PALETTE.FEATHER_SPINE]: "#373737",
 				[PALETTE.HOOD]: colors.face,
-				[PALETTE.EYEBROW]: colors.face,	
+				[PALETTE.EYEBROW]: colors.face,
+				[PALETTE.UPPER_EYELID]: colors.eyebrow || colors.face,
+				[PALETTE.UPPER_CORNER_EYE]: colors.eyebrow || colors.face,
+				[PALETTE.BEHIND_EYE]: colors.face,
+				[PALETTE.CORNER_EYE]: colors.face,
+				[PALETTE.TEMPLE]: colors.face,
+				[PALETTE.LOWER_EYELID]: colors.face,
 				[PALETTE.NOSE]: colors.face,
+				[PALETTE.NOSE_TIP]: colors.nose || colors.face,
 				[PALETTE.CHEEK]: colors.face,
 				[PALETTE.SCRUFF]: colors.face,
+				[PALETTE.CHIN]: colors.face,
 				[PALETTE.COLLAR]: colors.face,
+				[PALETTE.COLLAR_SCRUFF]: colors.collar || colors.face,
+				[PALETTE.SHOULDER]: colors.wing,
 			};
 			/** @type {Record<string, string>} */
 			this.colors = { ...defaultColors, ...colors, [PALETTE.THEME_HIGHLIGHT]: colors[PALETTE.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
 			this.tags = tags;
+			/** @type {Rarity} */
+			this.rarity = rarity;
 		}
 	}
 
@@ -570,7 +887,7 @@
 	const SPECIES = Object.fromEntries(
 		Object.entries(species).map(([id, data]) => [
 			id,
-			new BirdType(data.name, data.description, data.colors, data.tags ?? []),
+			new BirdType(data.name, data.description, data.latinName, data.url, data.colors, data.tags, data.rarity)
 		]),
 	);
 
@@ -1267,37 +1584,42 @@
 		audioContext;
 
 		chirp() {
-			if (!this.audioContext) {
-				this.audioContext = new AudioContext();
+			const count = Math.floor(1 + Math.random() * 1.5);
+			for (let i = 0; i < count; i++) {
+				setTimeout(() => {
+					if (!this.audioContext) {
+						this.audioContext = new AudioContext();
+					}
+
+					const TIMES = [0, 0.06, 0.10, 0.15];
+					const FREQUENCIES = [2200,
+						3500 + Math.random() * 600 * count,
+						2100 + Math.random() * 200 * count,
+						1600 + Math.random() * 400 * count];
+					const VOLUMES = [0.00005, 0.165, 0.165, 0.0001];
+
+					const oscillator = this.audioContext.createOscillator();
+					oscillator.type = "sine";
+					const gain = this.audioContext.createGain();
+					oscillator.connect(gain);
+					gain.connect(this.audioContext.destination);
+
+					const now = this.audioContext.currentTime;
+					for (let i = 0; i < TIMES.length; i++) {
+						const time = TIMES[i] + now;
+						if (i === 0) {
+							oscillator.frequency.setValueAtTime(FREQUENCIES[i], time);
+							gain.gain.setValueAtTime(VOLUMES[i], time);
+						} else {
+							oscillator.frequency.exponentialRampToValueAtTime(FREQUENCIES[i], time);
+							gain.gain.exponentialRampToValueAtTime(VOLUMES[i], time);
+						}
+					}
+
+					oscillator.start(now);
+					oscillator.stop(now + TIMES[TIMES.length - 1]);
+				}, i * 120);
 			}
-
-			const TIMES = [0, 0.06, 0.10, 0.15];
-			const FREQUENCIES = [2200,
-				3500 + Math.random() * 600,
-				2100 + Math.random() * 200,
-				1600 + Math.random() * 400];
-			const VOLUMES = [0.0001, 0.2, 0.2, 0.0001];
-
-			const oscillator = this.audioContext.createOscillator();
-			oscillator.type = "sine";
-			const gain = this.audioContext.createGain();
-			oscillator.connect(gain);
-			gain.connect(this.audioContext.destination);
-
-			const now = this.audioContext.currentTime;
-			for (let i = 0; i < TIMES.length; i++) {
-				const time = TIMES[i] + now;
-				if (i === 0) {
-					oscillator.frequency.setValueAtTime(FREQUENCIES[i], time);
-					gain.gain.setValueAtTime(VOLUMES[i], time);
-				} else {
-					oscillator.frequency.exponentialRampToValueAtTime(FREQUENCIES[i], time);
-					gain.gain.exponentialRampToValueAtTime(VOLUMES[i], time);
-				}
-			}
-
-			oscillator.start(now);
-			oscillator.stop(now + TIMES[TIMES.length - 1]);
 		}
 	}
 
@@ -2042,7 +2364,7 @@
 }
 
 #birb-field-guide .birb-grid-content {
-	grid-template-rows: repeat(3, auto);
+	grid-template-columns: repeat(4, auto);
 }
 
 #birb-wardrobe .birb-grid-content {
@@ -2052,7 +2374,7 @@
 
 .birb-grid-content {
 	display: grid;
-	grid-auto-flow: column;
+	grid-auto-flow: row;
 	gap: 10px;
 	padding-top: 8px;
 	padding-bottom: 8px;
@@ -2084,7 +2406,7 @@
 }
 
 .birb-grid-item, .birb-field-guide-description, .birb-message-content {
-	border: var(--birb-border-size) solid rgb(255, 207, 144);
+	border: var(--birb-border-size) solid #ffcf90;
 	box-shadow: 0 0 0 var(--birb-border-size) white;
 	background: rgba(255, 221, 177, 0.5);
 }
@@ -2103,6 +2425,15 @@
 	background: var(--birb-mix-color);
 }
 
+.birb-field-guide-section-label {
+	padding-top: 4px;
+	/* padding-left: calc(10px + var(--birb-border-size) / 2); */
+	color: #876c4e;
+	text-align: center;
+	/* Italics */
+	font-style: italic;
+}
+
 .birb-field-guide-description {
 	max-width: calc(100% - 20px);
 	margin-left: 10px;
@@ -2114,7 +2445,14 @@
 	margin-bottom: 10px;
 	font-size: 14px;
 	box-sizing: border-box;
-	color: rgb(124, 108, 75);
+	color: #7c6c4b;
+}
+
+.birb-field-guide-latin-name {
+	text-decoration: underline;
+	font-style: italic;
+	font-weight: bold;
+	color: inherit;
 }
 
 #birb-feather {
@@ -2127,7 +2465,7 @@
 	width: 100%;
 	padding: 10px;
 	font-size: 14px;
-	color: rgb(124, 108, 75);
+	color: #7c6c4b;
 }
 
 .birb-sticky-note {
@@ -2176,7 +2514,7 @@
 	outline: none !important;
 	box-shadow: none !important;
 }`;
-	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABFFJREFUeJztnb9rE2EYx79vK1gUQSRLL64apxZcdC84dNBk0LiIoIJCwUGwlP4BUjqIFpSKLioOdYlV6ObUpV26ORRX0yoEHezQgvZxSN7rm+v9SGzu3vea7wdC31wued7k3ueT5727XAFCCCGEENJfKNsdIO4jIhL1mFKKY4jkFg7eHGBTQDp2pVgEANTq9bZ2Fn0ghPQp0qLseVL2vH3tODn2Kn7Z82RlZERkYmJfO+34hKTJgO0OkGQqxSKmCgXUKpV97SxZXV7GVKHgtwnJOxRgjrAloFq9jplGo23ZTKPhT4EJISQVzCnwysiIf8tqChzWhyxjE0IcQELIOrZNAZl9oPwI6TNEpLnz3/ibdXzbArIhf0LS5IjtDuSN1dFRK3GVUkpExOapJzzdhZA+RVc+uvpjFURI/uE3eheY0mM1lD3BLx1uA3JQOIBILtDy084TkcwFSAH3KWFHQDkFJBaQF/WyALB2AKgV2+nxzzztnMQToc1vXvOGhN+o9hIKmADAi3pZN60cAFJK+X1wrfoL5oWNPM0jsUeBzQ/TGHzQy0TEXCeVARGc+hjLISLi2kAk6XG3+MHqtrYp4E4wU6E6u+Evo/+iiRSgKZ716m3gAXB29+TeCvVy2/6YNGTkgoAJ0dgWcAyilPKld9gZHlSy+Vd6si1iK8CB4x7UsWGc+7QEANi98QTeq+sYn98FloDq7CaQkoxcEDAhOUCixPf12+/MO5M2w4NKxud3sXRvoCcSjHwBU0C3X+4voW+NVzD37rl/f2HS08+LDtaFoEREBo57bcvaBAxg69emH9uMSxGSPiFWfmtzJbg6XXeF2A+nVVVBflzFnY/vAQCvLl8DAFx//TT0OVqEIa/VDNihnGwLmBCXqc5uxO7YS1uAUfFbeZibPOtIgNuLYzh68RQAYGflJwDg5vrbjgLoMnxtrtT1uVs2BUyIy0QJyMy3lEUUWX3mSYId/xZYi0+zMOnh/P11nDl9InT9wIY40JGonZWfvviC/QgS3Ci6HzwaRg4Tr0s32oqQYL5lIaCv335H5n9e+O+LIWwvjmHoSgm4vx76eJj4DlJ92RQwIS7y7E8FE0dqQMbiS6I6u4GFSU9c6EsSiVNgtKqn7cWxtse2vmwBAArTq1HP3Qvyn+Izp+BhDF35jPMZCZgQ12g8uuAP7kvf3/jL1+ZKWY1ziSpCzAOTLuddYsfCJKTlF0ZherVnb9y2gAlxHVOCaOZD1mNddBESFKGWoMv515EA0ZJQ49GF2HV7KT8zvi0BE0I6QgAgKMI8CDBxH6C+EGfrjURKME3x6NhofuNFrkf5EWIFhebUu5l8Ebulco15NYza44f+VTF0O80LFAR+6B0aP+0+EEKSCV4xx/V87OrfYiqlUHv80L9vtpFi1aVfNy4+Kz9C3KD101QgB/nY1Wkw5lQ02M6CpPiuf9iEHHbyloNddTaunM3ijduOTwg5XPwDDgmrxnQErq8AAAAASUVORK5CYII=";
+	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABORJREFUeJztnU9IHFccx79vE6g0BEK7BJzNwR6apReFQElKjpZaeol7EHuRQhFaECIEIkF6LGkQGqyQ0EBa+u8iHjZCCfXQUw7qRVDwYKQEirtt0yVtMRaFdn857L7x7Tizf3Rn3oz7/cDi8+3s/t44733m9+afACGEEEII6SyU7QaQ+CMiEvSeUop9iCQWdt4EYFNAOnYukwEA5AuFmnIUbSCEdChSZdBxZNBxDpTrybFd8QcdR5Z6e0XGxg6Uw45PSJikbDeANCaXyeBGOo18LnegHCXLjx7hRjrtlglJOhRggrAloHyhgFulUk3drVLJnQITQkgomFPgpd5e9xXVFNivDVHGJoTEAPEh6tg2BWS2gfIjpMMQkcrBf+Nn1PFtC8iG/AkJk5O2G5A0lvv6rMRVSikREZuXnvByF0I6FJ356OyPWRAhyYd79BYwpcdsKHq8Ox1uA3JU2IFIItDy084TkcgFSAF3KH5nQDkFJBaQe4VBAWDtBFA1dqz7P8dp8zS8ENrc85ovNLhHtZ1QwAQA7hUGddHKCSCllNuGuGV/3nFhY5wmkbpngc0/ptH5oOtEBCIiYXYG79THqA89NokXH2UeWN3WNgXcDOZQGJ4qunX0XzCBAjTFs3DpbfRcexXny2eA1zKAcxYo1EoQIewV4yBgQjS2BVwHUUq50jvudJ9Q8tv/0pZtUTcDTJ1yoF7uxrtr68DaOsoj03A+fx/FNz7DuR+yGFrdrjko3U4RxkHAhCQACRLf5tZ25I0Jm+4TSt77soyHH6faIsHALzAF9NPkP279v38Cbz6dw693f8R06Xu3fq7vtP5ccLAWBCUikjrl1NSVR6bh3K8I+GHXX/jmq09841KEpEOoK7+VmSziOl2PC4EZoL7zAAAGxkex8MV9AEDu01HsnQWure3L7/KTHaSMYw5+HGa6Wt4p1gh4AcCdD//G1tM5nLm7BJSAodXtmrhmRui3Ts3GJiTODE8VrR7YG1rdduOnFvYzzdkJB0mSbt2GVoWF3fl+vHTpFQDA3tIzAMBIzwNcfrKDxcflA59763zKrddp+MpMtuVrt3R8+WPIFfDAeEXAI2tfu8uZ7ahuAL/vqqwwJUiOAUECNMdbyCIKzD6TJMGm7wXW4tPM9Z3GL1c38Pq5yhTUlN7i47J3QxzpTNTe0jMMjI/WtqNnX3yLxrLDU0VfAfNsGDlOfJsdwQcb+7Mw73iLQkCbW9vu+E8qh34Ywu58P7quZIGrGwCAza3a9/3Ed5Tsy6aACYkjd/7LYexkHohYfI0YnipidsKROLSlEQ2nwKhmT7vz/TXvPV9/DgBITy4HfXY/yCHFZ07B/ei68jMuVAXspd0CJiRulG5edDv3O79/59avzGSj6udywUhCTGYnnEQcdmrYMD8Jafn5kZ5cbtuK2xYwIXHHlCAq4yHqvi46CfGKUEswzuOvKQGiKqHSzYt1l22n/Mz4tgRMCGkKAQCvCJMgwIbHAPXlMNUVCZRgmOLRsVHZ4wUuR/kRYgWFytS7MvgCDkslGvNpGPnb192nYuhymA8o8Nzo7Rs/7DYQQhrjfWJO3MdjS/8WUymF/O3r7u9mGSFmXfp768Vn5kdIPKjejAAkYDy2dBmMORX1lqOgUfy4/7EJOe4kbQy21Nh66WwUK247PiHkePECZQPi+PbreqwAAAAASUVORK5CYII=";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
 	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIQAAAAMCAYAAACjpxUSAAAAAXNSR0IArs4c6QAAA29JREFUWIXtl11oW2UYx3+v3ZCuc1ktIpvowrCBjmkdtl6ouBthWMeGTkQxuA9QKCiym20OBfVG3YUVOobYIszLyXY16HYxvOicns3NRoR267ZG04aOdc3Jx8lJsujjRZOzeE5y+raETjR/CJyc9/98vv/zvOdAAw000EADDWhB3e0E6gURkfK1Uuo/U9dS4567GFs0OHqOymJIKud/JeoV5/8AjyBaV7bJhrWdEmxtl3pumgv195tUEO1wRAGwdzg4F6whCm14BHFvU/NCfYjrp4WWF05TV2EEBIKjfFN4CUpi6Fy3mf0/hfys3Hnr1rDQenW4futLJmiPIO5vaSNrZ3XtZebJ5/k51M13wY3IhQA6hXf1GgQCqxaTb1U47wwBYc8DJ/h0YhOd6zaz65GjtK18yNf2Un/Yyavv1Wd0wkksFsMwDAzDQKfeQmSQxNkvAETMqnwZvvgrNYTpXvPYLuaBrIVl7htlMUQT4wt2drinFbkAqjspfi+sZ187SPvXn+u6dRdZ1a9SSpWPhoPrR4ARdslR9m38ft4Al/rDZFImFyOJeXOJxWLE43HGx7X6I4XIIFY6RcacRkwg2oGYo6JW1+yPHO47gplI8sEn788vttFDpNIWtpXEti1CPQM1ex9sbZcVzSugtM8Ve+zwPYI4/9R6bs3Okk88CsATV6/qFO5AdSd9C+jqNdj0bROUjg1raIufeCR84EcArv8+TTGf4vyJnb5iU0px8r1tjI1dRimFiFT76nAafeXUhHNzjXe90k6Mjh1ce/ZtJuNTACRu5+gnxLtcqZaTAJzbdryCH+IdcxS12pv3WHSKgeND5P+YwEwkSc6m2f36Wzz9ysuMRaeq9gZgePsxUnkb888imcl05VrNHvmdAI5RWT1ZO0smlwJgxr5RletOys+vm9/Va2AVmvjlzf20fbYPa2iLL/+5HX1YmQT54nIAfjvzoR9fF1JxVJBJmc51eUrsPfaDO44zHcooT4lwOOzhFiKDAFjp1J045rRz/fDWQx6bj/q+Ij85STH/FzO3bpLNZVnz+GN8+fEBr/9rg1CYnZsOudvY6ZtzKyVWqGfAbcOL7W9IJmuRy88JIkcGgMjMOYe31N/rugKab1QuOm8RkdLEWGgMLf6/0L8APHjfWpqXtVB5ZNhFixvp+D+M/gZZI68eaJ1OpQAAAABJRU5ErkJggg==";
 
@@ -2206,6 +2544,7 @@
 	const HOP_CHANCE = 1 / (60 * 2.5); // Every 2.5 seconds
 	const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // Every 20 seconds
 	const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // Every 2 hours
+	const UNCOMMON_FEATHER_CHANCE = 0.15; // 15% of feathers are uncommon
 	const HAT_CHANCE = 1 / (60 * 60 * 25); // Every 25 minutes
 
 	// Feathers
@@ -2312,7 +2651,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.3.11", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.11"); }, false),
+			new MenuItem("2026.3.29", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.29"); }, false),
 		];
 
 		/** @type {Birb} */
@@ -2502,7 +2841,9 @@
 
 			setInterval(update, UPDATE_INTERVAL);
 
-			focusOnElement(true);
+			flyToElement(true);
+			// TODO: Remove
+			insertFieldGuide();
 		}
 
 		function update() {
@@ -2521,11 +2862,11 @@
 					// Idle for a while, do something
 					if (focusedElement === null) {
 						// Fly to an element
-						focusOnElement();
+						flyToElement();
 						lastActionTimestamp = Date.now();
 					} else if (Math.random() < FOCUS_SWITCH_CHANCE) {
 						// Fly to another element if idle for a longer while
-						focusOnElement();
+						flyToElement();
 						lastActionTimestamp = Date.now();
 					}
 				}
@@ -2561,7 +2902,7 @@
 			// Update the bird's position
 			if (currentState === States.IDLE) {
 				if (focusedElement && !isWithinHorizontalBounds()) {
-					flySomewhere();
+					flyToElement();
 				}
 				birdY = getFocusedY();
 			} else if (currentState === States.FLYING) {
@@ -2577,7 +2918,7 @@
 			startY += targetY - oldTargetY;
 			if (targetY < 0 || targetY > getWindowHeight()) {
 				// Fly to another element or the ground if the focused element moves out of bounds
-				flySomewhere();
+				flyToElement();
 			}
 
 			if (birb.draw(SPECIES[currentSpecies], currentHat)) {
@@ -2655,7 +2996,8 @@
 			if (document.querySelector("#" + FEATHER_ID)) {
 				return;
 			}
-			const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species));
+			const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.COMMON;
+			const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species) && SPECIES[species].rarity === rarity);
 			if (speciesToUnlock.length === 0) {
 				// No more species to unlock
 				return;
@@ -2850,9 +3192,23 @@
 			removeWardrobe();
 
 			const contentContainer = document.createElement("div");
-			const content = makeElement("birb-grid-content");
+			const familiarBirds = makeElement("birb-grid-content");
+			const uncommonBirds = makeElement("birb-grid-content");
+
+			const familiarLabel = document.createElement("div");
+			familiarLabel.className = "birb-field-guide-section-label";
+			familiarLabel.textContent = `----- Familiar ${birdBirb()}s -----`;
+
+			const uncommonLabel = document.createElement("div");
+			uncommonLabel.className = "birb-field-guide-section-label";
+			uncommonLabel.textContent = `----- Uncommon ${birdBirb()}s -----`;
+			uncommonLabel.title = "Arbitrarily classified birds that are a little harder to find, but worth the wait!";
+
 			const description = makeElement("birb-field-guide-description");
-			contentContainer.appendChild(content);
+			contentContainer.appendChild(familiarLabel);
+			contentContainer.appendChild(familiarBirds);
+			contentContainer.appendChild(uncommonLabel);
+			contentContainer.appendChild(uncommonBirds);
 			contentContainer.appendChild(description);
 
 			const fieldGuide = createWindow(
@@ -2868,14 +3224,26 @@
 				const boldName = document.createElement("b");
 				boldName.textContent = type.name;
 
-				const spacer = document.createElement("div");
-				spacer.style.height = "0.3em";
+
+				const spacerOne = document.createElement("div");
+				spacerOne.style.height = "0.3em";
+
+				const latinName = document.createElement("a");
+				latinName.className = "birb-field-guide-latin-name";
+				latinName.textContent = type.latinName;
+				latinName.href = type.url;
+				latinName.target = "_blank";
+				
+				const spacerTwo = document.createElement("div");
+				spacerTwo.style.height = "0.4em";
 
 				const descText = document.createTextNode(!unlocked ? "Not yet unlocked" : type.description);
 
 				const fragment = document.createDocumentFragment();
 				fragment.appendChild(boldName);
-				fragment.appendChild(spacer);
+				fragment.appendChild(spacerOne);
+				fragment.appendChild(latinName);
+				fragment.appendChild(spacerTwo);
 				fragment.appendChild(descText);
 
 				return fragment;
@@ -2897,7 +3265,11 @@
 				}
 				birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.colors, type.tags);
 				speciesElement.appendChild(speciesCanvas);
-				content.appendChild(speciesElement);
+				let section = familiarBirds;
+				if (type.rarity === RARITY.UNCOMMON) {
+					section = uncommonBirds;
+				}
+				section.appendChild(speciesElement);
 				if (unlocked) {
 					onClick(speciesElement, () => {
 						switchSpecies(id);
@@ -3080,26 +3452,6 @@
 		}
 
 		/**
-		 * Fly to either an element or the ground
-		 */
-		function flySomewhere() {
-			// On mobile, always prefer to focus on an element
-			// If not mobile, 50% chance to focus on ground
-			// if ((!isMobile() && coinFlip()) || !focusOnElement()) {
-			// 	focusOnGround();
-			// }
-			if (!focusOnElement()) {
-				focusOnGround();
-			}
-		}
-
-		function focusOnGround() {
-			focusedElement = null;
-			updateFocusedElementBounds();
-			flyTo(Math.random() * window.innerWidth, 0);
-		}
-
-		/**
 		 * @returns {HTMLElement|null} The random element, or null if no valid element was found
 		 */
 		function getRandomValidElement() {
@@ -3130,20 +3482,20 @@
 		}
 
 		/**
-		 * Focus on an element within the viewport
+		 * Fly to an element within the viewport
 		 * @param {boolean} [teleport] Whether to teleport to the element instead of flying
-		 * @returns Whether an element to focus on was found
+		 * @returns Whether an element to fly to was found (null if flying to the ground)
 		 */
-		function focusOnElement(teleport = false) {
+		function flyToElement(teleport = false) {
 			if (frozen) {
 				return false;
 			}
+			const previousElement = focusedElement;
 			focusedElement = getRandomValidElement();
-			log("Focusing on element: ", focusedElement);
 			updateFocusedElementBounds();
 			if (teleport) {
 				teleportTo(getFocusedElementRandomX(), getFocusedY());
-			} else {
+			} else if (focusedElement !== previousElement) {
 				flyTo(getFocusedElementRandomX(), getFocusedY());
 			}
 			return focusedElement !== null;

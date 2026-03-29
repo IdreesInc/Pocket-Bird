@@ -24,8 +24,8 @@ import {
 } from './shared.js';
 import {
 	PALETTE,
-	SPRITE_SHEET_COLOR_MAP,
 	SPECIES,
+	RARITY,
 	loadSpriteSheetPixels,
 } from './animation/sprites.js';
 import {
@@ -110,6 +110,7 @@ const HOP_DELAY = 500;
 const HOP_CHANCE = 1 / (60 * 2.5); // Every 2.5 seconds
 const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // Every 20 seconds
 const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // Every 2 hours
+const UNCOMMON_FEATHER_CHANCE = 0.15; // 15% of feathers are uncommon
 const HAT_CHANCE = 1 / (60 * 60 * 25); // Every 25 minutes
 
 // Feathers
@@ -406,7 +407,9 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 		setInterval(update, UPDATE_INTERVAL);
 
-		focusOnElement(true);
+		flyToElement(true);
+		// TODO: Remove
+		insertFieldGuide();
 	}
 
 	function update() {
@@ -425,11 +428,11 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 				// Idle for a while, do something
 				if (focusedElement === null) {
 					// Fly to an element
-					focusOnElement();
+					flyToElement();
 					lastActionTimestamp = Date.now();
 				} else if (Math.random() < FOCUS_SWITCH_CHANCE) {
 					// Fly to another element if idle for a longer while
-					focusOnElement();
+					flyToElement();
 					lastActionTimestamp = Date.now();
 				}
 			}
@@ -465,7 +468,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		// Update the bird's position
 		if (currentState === States.IDLE) {
 			if (focusedElement && !isWithinHorizontalBounds()) {
-				flySomewhere();
+				flyToElement();
 			}
 			birdY = getFocusedY();
 		} else if (currentState === States.FLYING) {
@@ -481,7 +484,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		startY += targetY - oldTargetY;
 		if (targetY < 0 || targetY > getWindowHeight()) {
 			// Fly to another element or the ground if the focused element moves out of bounds
-			flySomewhere();
+			flyToElement();
 		}
 
 		if (birb.draw(SPECIES[currentSpecies], currentHat)) {
@@ -562,7 +565,8 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		if (document.querySelector("#" + FEATHER_ID)) {
 			return;
 		}
-		const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species));
+		const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.COMMON;
+		const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species) && SPECIES[species].rarity === rarity);
 		if (speciesToUnlock.length === 0) {
 			// No more species to unlock
 			return;
@@ -758,9 +762,23 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		removeWardrobe();
 
 		const contentContainer = document.createElement("div");
-		const content = makeElement("birb-grid-content");
+		const familiarBirds = makeElement("birb-grid-content");
+		const uncommonBirds = makeElement("birb-grid-content");
+
+		const familiarLabel = document.createElement("div");
+		familiarLabel.className = "birb-field-guide-section-label";
+		familiarLabel.textContent = `----- Familiar ${birdBirb()}s -----`;
+
+		const uncommonLabel = document.createElement("div");
+		uncommonLabel.className = "birb-field-guide-section-label";
+		uncommonLabel.textContent = `----- Uncommon ${birdBirb()}s -----`;
+		uncommonLabel.title = "Arbitrarily classified birds that are a little harder to find, but worth the wait!";
+
 		const description = makeElement("birb-field-guide-description");
-		contentContainer.appendChild(content);
+		contentContainer.appendChild(familiarLabel);
+		contentContainer.appendChild(familiarBirds);
+		contentContainer.appendChild(uncommonLabel);
+		contentContainer.appendChild(uncommonBirds);
 		contentContainer.appendChild(description);
 
 		const fieldGuide = createWindow(
@@ -776,14 +794,26 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			const boldName = document.createElement("b");
 			boldName.textContent = type.name;
 
-			const spacer = document.createElement("div");
-			spacer.style.height = "0.3em";
+
+			const spacerOne = document.createElement("div");
+			spacerOne.style.height = "0.3em";
+
+			const latinName = document.createElement("a");
+			latinName.className = "birb-field-guide-latin-name";
+			latinName.textContent = type.latinName;
+			latinName.href = type.url;
+			latinName.target = "_blank";
+			
+			const spacerTwo = document.createElement("div");
+			spacerTwo.style.height = "0.4em";
 
 			const descText = document.createTextNode(!unlocked ? "Not yet unlocked" : type.description);
 
 			const fragment = document.createDocumentFragment();
 			fragment.appendChild(boldName);
-			fragment.appendChild(spacer);
+			fragment.appendChild(spacerOne);
+			fragment.appendChild(latinName);
+			fragment.appendChild(spacerTwo);
 			fragment.appendChild(descText);
 
 			return fragment;
@@ -805,7 +835,11 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			}
 			birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.colors, type.tags);
 			speciesElement.appendChild(speciesCanvas);
-			content.appendChild(speciesElement);
+			let section = familiarBirds;
+			if (type.rarity === RARITY.UNCOMMON) {
+				section = uncommonBirds;
+			}
+			section.appendChild(speciesElement);
 			if (unlocked) {
 				onClick(speciesElement, () => {
 					switchSpecies(id);
@@ -988,26 +1022,6 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	/**
-	 * Fly to either an element or the ground
-	 */
-	function flySomewhere() {
-		// On mobile, always prefer to focus on an element
-		// If not mobile, 50% chance to focus on ground
-		// if ((!isMobile() && coinFlip()) || !focusOnElement()) {
-		// 	focusOnGround();
-		// }
-		if (!focusOnElement()) {
-			focusOnGround();
-		}
-	}
-
-	function focusOnGround() {
-		focusedElement = null;
-		updateFocusedElementBounds();
-		flyTo(Math.random() * window.innerWidth, 0);
-	}
-
-	/**
 	 * @returns {HTMLElement|null} The random element, or null if no valid element was found
 	 */
 	function getRandomValidElement() {
@@ -1044,20 +1058,20 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	/**
-	 * Focus on an element within the viewport
+	 * Fly to an element within the viewport
 	 * @param {boolean} [teleport] Whether to teleport to the element instead of flying
-	 * @returns Whether an element to focus on was found
+	 * @returns Whether an element to fly to was found (null if flying to the ground)
 	 */
-	function focusOnElement(teleport = false) {
+	function flyToElement(teleport = false) {
 		if (frozen) {
 			return false;
 		}
+		const previousElement = focusedElement;
 		focusedElement = getRandomValidElement();
-		log("Focusing on element: ", focusedElement);
 		updateFocusedElementBounds();
 		if (teleport) {
 			teleportTo(getFocusedElementRandomX(), getFocusedY());
-		} else {
+		} else if (focusedElement !== previousElement) {
 			flyTo(getFocusedElementRandomX(), getFocusedY());
 		}
 		return focusedElement !== null;
