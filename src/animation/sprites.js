@@ -26,6 +26,7 @@ export const PALETTE = Object.freeze(/** @type {const} */ ({
 	BELLY: "belly",
 	UNDERBELLY: "underbelly",
 	WING: "wing",
+	SHOULDER: "shoulder",
 	WING_SPOTS: "wing-spots",
 	WING_EDGE: "wing-edge",
 	HEART: "heart",
@@ -66,6 +67,7 @@ export const SPRITE_SHEET_COLOR_MAP = {
 	"#f8b143": PALETTE.BELLY,
 	"#ec8637": PALETTE.UNDERBELLY,
 	"#578ae6": PALETTE.WING,
+	"#55d1f3": PALETTE.SHOULDER,
 	"#90b0e8": PALETTE.WING_SPOTS,
 	"#326ed9": PALETTE.WING_EDGE,
 	"#c82e2e": PALETTE.HEART,
@@ -94,6 +96,7 @@ export const DEFAULT_COLOR_OVERRIDES = {
 	[PALETTE.COLLAR]: PALETTE.FACE,
 	[PALETTE.COLLAR_SCRUFF]: PALETTE.COLLAR,
 	[PALETTE.WING_SPOTS]: PALETTE.WING,
+	[PALETTE.SHOULDER]: PALETTE.WING,
 };
 
 export const RARITY = Object.freeze(/** @type {const} */ ({
@@ -142,6 +145,7 @@ export class BirdType {
 			[PALETTE.SCRUFF]: colors.face,
 			[PALETTE.COLLAR]: colors.face,
 			[PALETTE.COLLAR_SCRUFF]: colors.collar || colors.face,
+			[PALETTE.SHOULDER]: colors.wing,
 		};
 		/** @type {Record<string, string>} */
 		this.colors = { ...defaultColors, ...colors, [PALETTE.THEME_HIGHLIGHT]: colors[PALETTE.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };

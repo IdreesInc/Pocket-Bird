@@ -1,7 +1,7 @@
 const { Plugin, Notice } = require('obsidian');
 module.exports = class PocketBird extends Plugin {
 	onload() {
-		console.log("Loading Pocket Bird version 2026.3.28...");
+		console.log("Loading Pocket Bird version 2026.3.29...");
 		const OBSIDIAN_PLUGIN = this;
 		(function () {
 	'use strict';
@@ -582,7 +582,7 @@ module.exports = class PocketBird extends Plugin {
 	      "collar-scruff": "#57c8fa",
 	      "scruff": "#57c8fa",
 	      "beak": "#252c31",
-	      "collar": "#06084d"
+	      "collar": "#191c6d"
 	    },
 	    "rarity": "uncommon"
 	  }
@@ -614,6 +614,7 @@ module.exports = class PocketBird extends Plugin {
 		BELLY: "belly",
 		UNDERBELLY: "underbelly",
 		WING: "wing",
+		SHOULDER: "shoulder",
 		WING_SPOTS: "wing-spots",
 		WING_EDGE: "wing-edge",
 		HEART: "heart",
@@ -654,6 +655,7 @@ module.exports = class PocketBird extends Plugin {
 		"#f8b143": PALETTE.BELLY,
 		"#ec8637": PALETTE.UNDERBELLY,
 		"#578ae6": PALETTE.WING,
+		"#55d1f3": PALETTE.SHOULDER,
 		"#90b0e8": PALETTE.WING_SPOTS,
 		"#326ed9": PALETTE.WING_EDGE,
 		"#c82e2e": PALETTE.HEART,
@@ -682,6 +684,7 @@ module.exports = class PocketBird extends Plugin {
 		[PALETTE.COLLAR]: PALETTE.FACE,
 		[PALETTE.COLLAR_SCRUFF]: PALETTE.COLLAR,
 		[PALETTE.WING_SPOTS]: PALETTE.WING,
+		[PALETTE.SHOULDER]: PALETTE.WING,
 	});
 
 	const RARITY = Object.freeze(/** @type {const} */ ({
@@ -730,6 +733,7 @@ module.exports = class PocketBird extends Plugin {
 				[PALETTE.SCRUFF]: colors.face,
 				[PALETTE.COLLAR]: colors.face,
 				[PALETTE.COLLAR_SCRUFF]: colors.collar || colors.face,
+				[PALETTE.SHOULDER]: colors.wing,
 			};
 			/** @type {Record<string, string>} */
 			this.colors = { ...defaultColors, ...colors, [PALETTE.THEME_HIGHLIGHT]: colors[PALETTE.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
@@ -2473,7 +2477,7 @@ module.exports = class PocketBird extends Plugin {
 	outline: none !important;
 	box-shadow: none !important;
 }`;
-	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABNFJREFUeJztnU9oHFUcx79vWzBYhKJLILM96MEsXlIoSNtzRIpCunsw6yXkYEAhUEFsKD1LW7ZYaqDBYi629hB7WCNS8OCphyYecijkkOYm2VXLUsFWSED352H3Td7OzuyfZGfezO73A0vezv75vdl57zO/9+ZPAEIIIYQQMlwo2xUg8UdEJOg1pRTbEEksbLwJwKaAdOx8JgMAKJXLTeUo6kAIGVKkQc5xJOc4LeV2cuxX/JzjyNrEhMj8fEs57PiEhEnKdgVIZ/KZDC6l0yjl8y3lKFl/+BCX0mm3TEjSoQAThC0BlcplXKtWm5Zdq1bdITAhhISCOQRem5hwH1ENgf3qEGVsQkgMEB+ijm1TQGYdKD9ChgwRqU/+G3+jjm9bQDbkT0iYHLVdgaSxfvKklbhKKSUiYvPUE57uQsiQojMfnf0xCyIk+XCP3gOm9JgNRY93p8NtQA4LGxBJBFp+2nkiErkAKeAhxe8IKIeAxAJyu5wTANYOADVix7r9s592T8cToc09r/lAh2tU+wkFTADgdjmni1YOACml3DrELfvz9gsb/TSJtD0KbP6YRuODXiYiEBEJszF4hz7G8tBjk3jxceYHq9vapoC7wewKhWLFXUb/BRMoQFM8P595B69/9hrGa8eBNzKAMwqUmyWIEPaKcRAwIRrbAm6DKKVc6Q06Y0eU/P6f9GVbtM0AU8ccqJfHcO7xJvB4E7WZm3C+/BCVt67ixHdZFIqVpknpfoowDgImJAFIkPi2d55HXpmwGTui5L2va3jwSaovEgz8AlNAH32zn0K//+vfePvpffy29BMW7y25y1cWHP254GA9CEpEJHXMaVpWm7kJZ7ku4Acjf+HO9Ke+cSlCMiS0ld/GYhZxHa7HhcAMUF95AADLU9OY+/F7AED+iznsjQKfX9+X39nxFGDMOfhxkOFq7Z9Kk4DnANyqncPO0/s4vrQG3Gue64AnE/Vbp25jExJnCsWK1Ym9oPiNhCQx/axtRRvCwu7qJF468yoAYG/tGQBgdusuzo6n8OhJreVz5nKdhm8sZns+d0vHlz8/cAW8PDWNvVFg9vpXvvF0RujzXfUVpgTJABAkILO/hSyiwOwzSRLs+lpgLT7NyoKD7QtbePPEK4BHQo+e1Lwb4lBHovbWnmF5arqlHjqmKeFCseIrYB4NI4PEt9kZzG7ddZ97+1sUAtreee72/6Ry4Jsh7K5OYuR8FriwBQDY3ml+3U98h8m+bAqYkDhy69885o+WgIjF14lCsYKVBUfiUJdOdBwCo5E97a5ONr32YvMFACB9eT3os/tBDig+cwjux8j5X3CqIWAv/RYwIXGjeuW027jf/eOOu3xjMRtVO5dTRhJisrLgJGLaqWPF/CSk5edH+vJ631bctoAJiTumBFHvD1G3ddFJiFeEWoJx7n9dCRANCVWvnG773n7Kz4xvS8CEkK4QAPCKMAkC7DgHqE+HaaxIoATDFI+OjfoeL/B9lB8hVlCoD73rnS9gWirRmHfDKN246N4VQ5fDvEGB50Jv3/hh14EQ0hnvHXPi3h97+reYSimUblx0n5tlhJh16e9tF5+ZHyHxoHExApCA/tjTaTDmUNRbjoJO8eP+YxMy6CStD/ZU2XbpbBQrbjs+IWSw+B/VfdtU+thg0QAAAABJRU5ErkJggg==";
+	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABOhJREFUeJztnU1oG0cYht9VAjUNgdAKg1c5uIdG9GJDoCQlR5cSWnCkg+1eRA81tGDIIRATQo8lDYYGY0hoqFv6d3F9UFxKIIeecrDcg8EGHxxTAsVS2yBSqGOwodXXgzSr0XpXP7Z2Z9d6HxAej1b6Zr0zz36zfwYIIYQQQkhvYZluAIk+IiJ+71mWxT5EYgs7bwwwKSAVO5tKAQDyxWJDOYw2EEJ6FKmRsW3J2PaBcjM5dit+xralMDQkMjV1oBx0fEKCJGG6AaQ12VQKN5JJ5LPZA+UwWXn8GDeSSadMSNyhAGOEKQHli0XcLpcb6m6Xy84UmBBCAkGfAheGhpxXWFNgrzaEGZsQEgHEg7BjmxSQ3gbKj5AeQ0SqB/+1n2HHNy0gE/InJEhOmm5A3FgZHjYS17IsS0TE5KUnvNyFkB5FZT4q+2MWREj84R69A3TpMRsKH/dOh9uAHBV2IBILlPyU80QkdAFSwD2K1xlQTgGJAeR+MSMAjJ0AqsWOdP/nOG2flhdC63te/YUW96h2EwqYAMD9YkYVjZwAsizLaUPUsj/3uDAxTuNI07PA+h9T63xQdSICEZEgO4N76qPVBx6bRIuPUg+MbmuTAm4HfShMzJScOvrPH18B6uJ5dPFtDF57FecqZ4DXUoDdDxQbJYgA9opREDAhCtMCboJYluVI77gzcMKSP/6TrmyLphlg4pQN6+UBXF7fANY3UMnNwv78fZTe+Axnf0hjbG2n4aB0N0UYBQETEgPET3xb2zuhNyZoBk5Y8u4XFTz8ONEVCfp+gS6gD7+sp9Dv/foP3ny2iN/v/YzZ8vdO/eLwafU5/2AdCEpEJHHKbqir5GZhz1cF/LDvb3zz1SeecSlC0iM0ld/qXBpRna5HBd8MUN15AADzo+OY/OlHAED200ns9wPX1uvyu/R0FwntmIMXh5muVnZLDQKeBHC3chnbzxZx5l4BKANjazsNcfWM0Gud2o1NSJSZmCkZPbA3trbjxE88qmeaC9M24iTdpg2tCQt7SyN46eIrAID9wnMAQG7wAS493cXyk8qBz711LuHUqzR8dS7d8bVbKr78NeYIeH50HPv9QG79a2c5vR21DeD1XdUVpgTJMcBPgPp4C1hEvtlnnCTY9r3ASnyKxeHT+O3qJl4/W52C6tJbflJxb4gjnYnaLzzH/Oh4YzsG6+Jb1padmCl5Cphnw8hx4tt0Dh9s1mdh7vEWhoC2tnec8R9XDv0whL2lEfRdSQNXNwEAW9uN73uJ7yjZl0kBExJF7v6bxdTJPBCy+FoxMVPCwrQtUWhLK1pOgVHLnvaWRhree7HxAgCQvLni99l6kEOKT5+Ce9F35RecrwnYTbcFTEjUKN+64HTud/78zqlfnUuH1c/lvJaE6CxM27E47NSyYV4SUvLzInlzpWsrblrAhEQdXYKojoew+7qoJMQtQiXBKI+/tgSImoTKty40Xbab8tPjmxIwIaQtBADcIoyDAFseA1SXw9RWxFeCQYpHxUZ1j+e7HOVHiBEsVKfe1cHnc1gq1uhPw8jfue48FUOVg3xAgetGb8/4QbeBENIa9xNzoj4eO/q3mJZlIX/nuvO7XkaAWZf63mbxmfkREg1qNyMAMRiPHV0Go09F3eUwaBU/6n9sQo47cRuDHTW2WTobxoqbjk8IOV78D2Q84penLS1nAAAAAElFTkSuQmCC";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
 	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIQAAAAMCAYAAACjpxUSAAAAAXNSR0IArs4c6QAAA29JREFUWIXtl11oW2UYx3+v3ZCuc1ktIpvowrCBjmkdtl6ouBthWMeGTkQxuA9QKCiym20OBfVG3YUVOobYIszLyXY16HYxvOicns3NRoR267ZG04aOdc3Jx8lJsujjRZOzeE5y+raETjR/CJyc9/98vv/zvOdAAw000EADDWhB3e0E6gURkfK1Uuo/U9dS4567GFs0OHqOymJIKud/JeoV5/8AjyBaV7bJhrWdEmxtl3pumgv195tUEO1wRAGwdzg4F6whCm14BHFvU/NCfYjrp4WWF05TV2EEBIKjfFN4CUpi6Fy3mf0/hfys3Hnr1rDQenW4futLJmiPIO5vaSNrZ3XtZebJ5/k51M13wY3IhQA6hXf1GgQCqxaTb1U47wwBYc8DJ/h0YhOd6zaz65GjtK18yNf2Un/Yyavv1Wd0wkksFsMwDAzDQKfeQmSQxNkvAETMqnwZvvgrNYTpXvPYLuaBrIVl7htlMUQT4wt2drinFbkAqjspfi+sZ187SPvXn+u6dRdZ1a9SSpWPhoPrR4ARdslR9m38ft4Al/rDZFImFyOJeXOJxWLE43HGx7X6I4XIIFY6RcacRkwg2oGYo6JW1+yPHO47gplI8sEn788vttFDpNIWtpXEti1CPQM1ex9sbZcVzSugtM8Ve+zwPYI4/9R6bs3Okk88CsATV6/qFO5AdSd9C+jqNdj0bROUjg1raIufeCR84EcArv8+TTGf4vyJnb5iU0px8r1tjI1dRimFiFT76nAafeXUhHNzjXe90k6Mjh1ce/ZtJuNTACRu5+gnxLtcqZaTAJzbdryCH+IdcxS12pv3WHSKgeND5P+YwEwkSc6m2f36Wzz9ysuMRaeq9gZgePsxUnkb888imcl05VrNHvmdAI5RWT1ZO0smlwJgxr5RletOys+vm9/Va2AVmvjlzf20fbYPa2iLL/+5HX1YmQT54nIAfjvzoR9fF1JxVJBJmc51eUrsPfaDO44zHcooT4lwOOzhFiKDAFjp1J045rRz/fDWQx6bj/q+Ij85STH/FzO3bpLNZVnz+GN8+fEBr/9rg1CYnZsOudvY6ZtzKyVWqGfAbcOL7W9IJmuRy88JIkcGgMjMOYe31N/rugKab1QuOm8RkdLEWGgMLf6/0L8APHjfWpqXtVB5ZNhFixvp+D+M/gZZI68eaJ1OpQAAAABJRU5ErkJggg==";
 
@@ -2610,7 +2614,7 @@ module.exports = class PocketBird extends Plugin {
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.3.28", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.28"); }, false),
+			new MenuItem("2026.3.29", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.29"); }, false),
 		];
 
 		/** @type {Birb} */

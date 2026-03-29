@@ -349,7 +349,7 @@ export default {
       "collar-scruff": "#57c8fa",
       "scruff": "#57c8fa",
       "beak": "#252c31",
-      "collar": "#06084d"
+      "collar": "#191c6d"
     },
     "rarity": "uncommon"
   }
