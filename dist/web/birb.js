@@ -631,7 +631,8 @@
 	      "wing": "#11c751",
 	      "wing-edge": "#156631",
 	      "foot": "#ac7055",
-	      "scruff": "#11c751"
+	      "scruff": "#11c751",
+	      "theme-highlight": "#4adc67"
 	    },
 	    "rarity": "uncommon"
 	  },
