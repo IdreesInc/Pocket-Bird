@@ -541,7 +541,7 @@ module.exports = class PocketBird extends Plugin {
 	    },
 	    "rarity": "uncommon"
 	  },
-	    "spangledCotinga": {
+	  "spangledCotinga": {
 	    "name": "Spangled Cotinga",
 	    "description": "This South American bird can be found in the Amazon rainforest, flashing its iridescent turquoise feathers high above in the canopy.",
 	    "latinName": "Cotinga cayana",
@@ -599,7 +599,7 @@ module.exports = class PocketBird extends Plugin {
 	    },
 	    "rarity": "uncommon"
 	  },
-	    "redWarbler": {
+	  "redWarbler": {
 	    "name": "Red Warbler",
 	    "description": "Endemic to the highlands of Mexico, this bird has the rare distinction of being one of the very few toxic birds in the world.",
 	    "latinName": "Cardellina rubra",
@@ -618,6 +618,26 @@ module.exports = class PocketBird extends Plugin {
 	      "beak": "#873535",
 	      "cheek": "#db1734"
 	    },
+	    "rarity": "uncommon"
+	  },
+	  "cubanTody": {
+	    "name": "Cuban Tody",
+	    "description": "As the name suggests, this green bird is only found on the island of Cuba and is known for being particularly round.",
+	    "latinName": "Todus multicolor",
+	    "url": "https://en.wikipedia.org/wiki/Cuban_tody",
+	    "colors": {
+	    "beak": "#f16f54",
+	    "face": "#5fdf44",
+	    "chin": "#f12d3e",
+	    "collar": "#f12d3e",
+	    "belly": "#f6f5e4",
+	    "collar-scruff": "#a3ebff",
+	    "underbelly": "#eae9d2",
+	    "wing": "#11c751",
+	    "wing-edge": "#156631",
+	    "foot": "#ac7055",
+	    "scruff": "#11c751"
+	  },
 	    "rarity": "uncommon"
 	  }
 	};
