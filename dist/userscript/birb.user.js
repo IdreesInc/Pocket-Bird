@@ -610,6 +610,24 @@
 	      "foot": "#767980"
 	    },
 	    "rarity": "uncommon"
+	  },
+	  "spangledCotinga": {
+	    "name": "Spangled Cotinga",
+	    "description": "This South American bird can be found in the Amazon rainforest, flashing its iridescent turquoise feathers high above in the canopy.",
+	    "latinName": "Cotinga cayana",
+	    "url": "https://en.wikipedia.org/wiki/Spangled_cotinga",
+	    "colors": {
+	      "face": "#62eafe",
+	      "chin": "#a12457",
+	      "collar": "#a12457",
+	      "belly": "#62eafe",
+	      "underbelly": "#5cd8ea",
+	      "wing": "#227c89",
+	      "wing-edge": "#13353a",
+	      "foot": "#68696b",
+	      "collar-scruff": "#62eafe"
+	    },
+	    "rarity": "uncommon"
 	  }
 	};
 
