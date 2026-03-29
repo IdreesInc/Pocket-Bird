@@ -110,7 +110,7 @@ const HOP_DELAY = 500;
 const HOP_CHANCE = 1 / (60 * 2.5); // Every 2.5 seconds
 const FOCUS_SWITCH_CHANCE = 1 / (60 * 20); // Every 20 seconds
 const FEATHER_CHANCE = 1 / (60 * 60 * 60 * 2); // Every 2 hours
-const UNCOMMON_FEATHER_CHANCE = 0.1; // 10% of feathers are uncommon
+const UNCOMMON_FEATHER_CHANCE = 0.15; // 15% of feathers are uncommon
 const HAT_CHANCE = 1 / (60 * 60 * 25); // Every 25 minutes
 
 // Feathers

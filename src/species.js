@@ -308,24 +308,21 @@ export default {
     },
     "rarity": "uncommon"
   },
-  "redWarbler": {
-    "name": "Red Warbler",
-    "description": "Endemic to the highlands of Mexico, this bird has the rare distinction of being one of the very few toxic birds in the world.",
-    "latinName": "Cardellina rubra",
-    "url": "https://en.wikipedia.org/wiki/Red_warbler",
+    "spangledCotinga": {
+    "name": "Spangled Cotinga",
+    "description": "This South American bird can be found in the Amazon rainforest, flashing its iridescent turquoise feathers high above in the canopy.",
+    "latinName": "Cotinga cayana",
+    "url": "https://en.wikipedia.org/wiki/Spangled_cotinga",
     "colors": {
-      "face": "#e80a28",
-      "belly": "#d90921",
-      "underbelly": "#c70c18",
-      "wing": "#ba121d",
-      "wing-edge": "#5b3535",
-      "foot": "#5e4645",
-      "behind-eye": "#deedff",
-      "temple": "#e8f0fa",
-      "corner-eye": "#d5e4f5",
-      "lower-eyelid": "#e34a61",
-      "beak": "#873535",
-      "cheek": "#db1734"
+      "face": "#62eafe",
+      "chin": "#a12457",
+      "collar": "#a12457",
+      "belly": "#62eafe",
+      "underbelly": "#5cd8ea",
+      "wing": "#227c89",
+      "wing-edge": "#13353a",
+      "foot": "#68696b",
+      "collar-scruff": "#62eafe"
     },
     "rarity": "uncommon"
   },
@@ -369,21 +366,24 @@ export default {
     },
     "rarity": "uncommon"
   },
-  "spangledCotinga": {
-    "name": "Spangled Cotinga",
-    "description": "This South American bird can be found in the Amazon rainforest, flashing its iridescent turquoise feathers high above in the canopy.",
-    "latinName": "Cotinga cayana",
-    "url": "https://en.wikipedia.org/wiki/Spangled_cotinga",
+    "redWarbler": {
+    "name": "Red Warbler",
+    "description": "Endemic to the highlands of Mexico, this bird has the rare distinction of being one of the very few toxic birds in the world.",
+    "latinName": "Cardellina rubra",
+    "url": "https://en.wikipedia.org/wiki/Red_warbler",
     "colors": {
-      "face": "#62eafe",
-      "chin": "#a12457",
-      "collar": "#a12457",
-      "belly": "#62eafe",
-      "underbelly": "#5cd8ea",
-      "wing": "#227c89",
-      "wing-edge": "#13353a",
-      "foot": "#68696b",
-      "collar-scruff": "#62eafe"
+      "face": "#e80a28",
+      "belly": "#d90921",
+      "underbelly": "#c70c18",
+      "wing": "#ba121d",
+      "wing-edge": "#5b3535",
+      "foot": "#5e4645",
+      "behind-eye": "#deedff",
+      "temple": "#e8f0fa",
+      "corner-eye": "#d5e4f5",
+      "lower-eyelid": "#e34a61",
+      "beak": "#873535",
+      "cheek": "#db1734"
     },
     "rarity": "uncommon"
   }
