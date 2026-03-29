@@ -103,7 +103,7 @@ export const DEFAULT_COLOR_OVERRIDES = {
 };
 
 export const RARITY = Object.freeze(/** @type {const} */ ({
-	FAMILIAR: "familiar",
+	COMMON: "common",
 	UNCOMMON: "uncommon"
 }));
 
@@ -119,7 +119,7 @@ export class BirdType {
 	 * @param {string[]} [tags]
 	 * @param {Rarity} [rarity]
 	 */
-	constructor(name, description, latinName, url, colors, tags = [], rarity = RARITY.FAMILIAR) {
+	constructor(name, description, latinName, url, colors, tags = [], rarity = RARITY.COMMON) {
 		this.name = name;
 		this.description = description;
 		this.latinName = latinName;

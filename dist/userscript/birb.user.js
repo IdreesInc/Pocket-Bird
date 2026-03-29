@@ -631,22 +631,38 @@
 	  },
 	  "cubanTody": {
 	    "name": "Cuban Tody",
-	    "description": "As the name suggests, this green bird is only found on the island of Cuba and is known for being particularly round.",
+	    "description": "As the name suggests, this little green bird is only found on the island of Cuba and is known for being particularly round.",
 	    "latinName": "Todus multicolor",
 	    "url": "https://en.wikipedia.org/wiki/Cuban_tody",
 	    "colors": {
-	    "beak": "#f16f54",
-	    "face": "#5fdf44",
-	    "chin": "#f12d3e",
-	    "collar": "#f12d3e",
-	    "belly": "#f6f5e4",
-	    "collar-scruff": "#a3ebff",
-	    "underbelly": "#eae9d2",
-	    "wing": "#11c751",
-	    "wing-edge": "#156631",
-	    "foot": "#ac7055",
-	    "scruff": "#11c751"
+	      "beak": "#f16f54",
+	      "face": "#5fdf44",
+	      "chin": "#f12d3e",
+	      "collar": "#f12d3e",
+	      "belly": "#f6f5e4",
+	      "collar-scruff": "#a3ebff",
+	      "underbelly": "#eae9d2",
+	      "wing": "#11c751",
+	      "wing-edge": "#156631",
+	      "foot": "#ac7055",
+	      "scruff": "#11c751"
+	    },
+	    "rarity": "uncommon"
 	  },
+	  "violetBackedStarling": {
+	    "name": "Violet-backed Starling",
+	    "description": "Native to Sub-Saharan Africa, these small starlings are known for being the most vividly purple birds in the world.",
+	    "latinName": "Cinnyricinclus leucogaster",
+	    "url": "https://en.wikipedia.org/wiki/Violet-backed_starling",
+	    "colors": {
+	      "face": "#9c3af2",
+	      "wing": "#8f37ed",
+	      "wing-edge": "#7029b8",
+	      "belly": "#ffffff",
+	      "underbelly": "#f2f2f2",
+	      "foot": "#736a66",
+	      "collar": "#aa60e6"
+	    },
 	    "rarity": "uncommon"
 	  }
 	};
@@ -754,7 +770,7 @@
 	});
 
 	const RARITY = Object.freeze(/** @type {const} */ ({
-		FAMILIAR: "familiar",
+		COMMON: "common",
 		UNCOMMON: "uncommon"
 	}));
 
@@ -770,7 +786,7 @@
 		 * @param {string[]} [tags]
 		 * @param {Rarity} [rarity]
 		 */
-		constructor(name, description, latinName, url, colors, tags = [], rarity = RARITY.FAMILIAR) {
+		constructor(name, description, latinName, url, colors, tags = [], rarity = RARITY.COMMON) {
 			this.name = name;
 			this.description = description;
 			this.latinName = latinName;
@@ -2979,7 +2995,7 @@
 			if (document.querySelector("#" + FEATHER_ID)) {
 				return;
 			}
-			const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.FAMILIAR;
+			const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.COMMON;
 			const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species) && SPECIES[species].rarity === rarity);
 			if (speciesToUnlock.length === 0) {
 				// No more species to unlock
@@ -3185,6 +3201,7 @@
 			const uncommonLabel = document.createElement("div");
 			uncommonLabel.className = "birb-field-guide-section-label";
 			uncommonLabel.textContent = `----- Uncommon ${birdBirb()}s -----`;
+			uncommonLabel.title = "Arbitrarily classified birds that are a little harder to find, but worth the wait!";
 
 			const description = makeElement("birb-field-guide-description");
 			contentContainer.appendChild(familiarLabel);
@@ -3217,7 +3234,7 @@
 				latinName.target = "_blank";
 				
 				const spacerTwo = document.createElement("div");
-				spacerTwo.style.height = "0.3em";
+				spacerTwo.style.height = "0.4em";
 
 				const descText = document.createTextNode(!unlocked ? "Not yet unlocked" : type.description);
 

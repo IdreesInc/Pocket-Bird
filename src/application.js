@@ -565,7 +565,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		if (document.querySelector("#" + FEATHER_ID)) {
 			return;
 		}
-		const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.FAMILIAR;
+		const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.COMMON;
 		const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species) && SPECIES[species].rarity === rarity);
 		if (speciesToUnlock.length === 0) {
 			// No more species to unlock
@@ -772,6 +772,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		const uncommonLabel = document.createElement("div");
 		uncommonLabel.className = "birb-field-guide-section-label";
 		uncommonLabel.textContent = `----- Uncommon ${birdBirb()}s -----`;
+		uncommonLabel.title = "Arbitrarily classified birds that are a little harder to find, but worth the wait!";
 
 		const description = makeElement("birb-field-guide-description");
 		contentContainer.appendChild(familiarLabel);
@@ -804,7 +805,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			latinName.target = "_blank";
 			
 			const spacerTwo = document.createElement("div");
-			spacerTwo.style.height = "0.3em";
+			spacerTwo.style.height = "0.4em";
 
 			const descText = document.createTextNode(!unlocked ? "Not yet unlocked" : type.description);
 
