@@ -1,7 +1,7 @@
 const { Plugin, Notice } = require('obsidian');
 module.exports = class PocketBird extends Plugin {
 	onload() {
-		console.log("Loading Pocket Bird version 2026.3.29...");
+		console.log("Loading Pocket Bird version 2026.3.30...");
 		const OBSIDIAN_PLUGIN = this;
 		(function () {
 	'use strict';
@@ -2689,7 +2689,7 @@ module.exports = class PocketBird extends Plugin {
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.3.29", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.29"); }, false),
+			new MenuItem("2026.3.30", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.30"); }, false),
 		];
 
 		/** @type {Birb} */
@@ -2880,8 +2880,6 @@ module.exports = class PocketBird extends Plugin {
 			setInterval(update, UPDATE_INTERVAL);
 
 			flyToElement(true);
-			// TODO: Remove
-			insertFieldGuide();
 		}
 
 		function update() {

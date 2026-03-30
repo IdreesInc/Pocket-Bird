@@ -2631,7 +2631,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.3.29", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.29"); }, false),
+			new MenuItem("2026.3.30", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.30"); }, false),
 		];
 
 		/** @type {Birb} */
@@ -2822,8 +2822,6 @@
 			setInterval(update, UPDATE_INTERVAL);
 
 			flyToElement(true);
-			// TODO: Remove
-			insertFieldGuide();
 		}
 
 		function update() {

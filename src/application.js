@@ -408,8 +408,6 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		setInterval(update, UPDATE_INTERVAL);
 
 		flyToElement(true);
-		// TODO: Remove
-		insertFieldGuide();
 	}
 
 	function update() {

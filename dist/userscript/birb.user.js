@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2026.3.29
+// @version      2026.3.30
 // @description  It's a pet bird in your browser, what more could you want?
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -2651,7 +2651,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.3.29", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.29"); }, false),
+			new MenuItem("2026.3.30", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.30"); }, false),
 		];
 
 		/** @type {Birb} */
@@ -2842,8 +2842,6 @@
 			setInterval(update, UPDATE_INTERVAL);
 
 			flyToElement(true);
-			// TODO: Remove
-			insertFieldGuide();
 		}
 
 		function update() {
