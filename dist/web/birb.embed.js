@@ -622,8 +622,8 @@
 	    "url": "https://en.wikipedia.org/wiki/Cuban_tody",
 	    "colors": {
 	      "beak": "#f16f54",
-	      "face": "#5fdf44",
-	      "chin": "#f12d3e",
+	      "face": "#5ad63e",
+	      "chin": "#e8273b",
 	      "collar": "#f12d3e",
 	      "belly": "#f6f5e4",
 	      "collar-scruff": "#a3ebff",
@@ -644,11 +644,14 @@
 	    "colors": {
 	      "face": "#9c3af2",
 	      "wing": "#8f37ed",
-	      "wing-edge": "#7029b8",
+	      "wing-edge": "#5b20c2",
 	      "belly": "#ffffff",
 	      "underbelly": "#f2f2f2",
 	      "foot": "#736a66",
-	      "collar": "#aa60e6"
+	      "collar": "#b760e6",
+	      "nose": "#7a2ec7",
+	      "cheek": "#7a2ec7",
+	      "nose-tip": "#7a2ec7"
 	    },
 	    "rarity": "uncommon"
 	  }
@@ -1920,11 +1923,13 @@
 		/**
 		 * @param {string|(() => string)} text
 		 * @param {() => void} action
+		 * @param {number[][]} [icon]
 		 * @param {boolean} [removeMenu]
 		 */
-		constructor(text, action, removeMenu = true) {
+		constructor(text, action, icon, removeMenu = true) {
 			this.text = text;
 			this.action = action;
+			this.icon = icon;
 			this.removeMenu = removeMenu;
 		}
 	}
@@ -1934,10 +1939,11 @@
 		 * @param {string} text
 		 * @param {() => void} action
 		 * @param {() => boolean} condition
+		 * @param {number[][]} [icon]
 		 * @param {boolean} [removeMenu]
 		 */
-		constructor(text, action, condition, removeMenu = true) {
-			super(text, action, removeMenu);
+		constructor(text, action, condition, icon, removeMenu = true) {
+			super(text, action, icon, removeMenu);
 			this.condition = condition;
 		}
 	}
@@ -1948,7 +1954,7 @@
 		 * @param {() => void} action
 		 */
 		constructor(text, action, removeMenu = true) {
-			super(text, action, () => isDebug(), removeMenu);
+			super(text, action, () => isDebug(), undefined, removeMenu);
 		}
 	}
 
@@ -1963,11 +1969,29 @@
 	 * @param {() => void} removeMenuCallback
 	 * @returns {HTMLElement}
 	 */
-	function makeMenuItem(item, removeMenuCallback) {
+	function createMenuItem(item, removeMenuCallback) {
 		if (item instanceof Separator) {
 			return makeElement("birb-window-separator");
 		}
 		let menuItem = makeElement("birb-menu-item", typeof item.text === "function" ? item.text() : item.text);
+		if (item.icon) {
+			const iconCanvas = document.createElement("canvas");
+			iconCanvas.width = 7;
+			iconCanvas.height = 6;
+			iconCanvas.classList.add("birb-menu-item-icon");
+			const ctx = iconCanvas.getContext("2d");
+			if (ctx) {
+				for (let row = 0; row < item.icon.length; row++) {
+					for (let col = 0; col < item.icon[row].length; col++) {
+						if (item.icon[row][col]) {
+							ctx.fillStyle = "black";
+							ctx.fillRect(col, row, 1, 1);
+						}
+					}
+				}
+			}
+			menuItem.prepend(iconCanvas);
+		}
 		onClick(menuItem, () => {
 			if (item.removeMenu) {
 				removeMenuCallback();
@@ -1995,7 +2019,7 @@
 		const removeCallback = () => removeMenu();
 		for (const item of menuItems) {
 			if (!(item instanceof ConditionalMenuItem) || item.condition()) {
-				content.appendChild(makeMenuItem(item, removeCallback));
+				content.appendChild(createMenuItem(item, removeCallback));
 			}
 		}
 		menu.appendChild(header);
@@ -2052,7 +2076,7 @@
 		const removeCallback = () => removeMenu();
 		for (const item of menuItems) {
 			if (!(item instanceof ConditionalMenuItem) || item.condition()) {
-				content.appendChild(makeMenuItem(item, removeCallback));
+				content.appendChild(createMenuItem(item, removeCallback));
 			}
 		}
 		updateLocationCallback(menu);
@@ -2303,15 +2327,17 @@
 	font-size: 14px;
 	padding-top: 4px;
 	padding-bottom: 4px;
-	padding-left: 10px;
+	padding-left: 2px;
 	padding-right: 10px;
 	box-sizing: border-box;
 	opacity: 0.7 !important;
 	user-select: none;
 	display: flex;
-	justify-content: space-between;
+	justify-content: left;
+	align-items: center;
 	cursor: pointer;
 	color: black !important;
+	transition: background 0.1s, color 0.1s;
 }
 
 .birb-menu-item:hover {
@@ -2323,6 +2349,21 @@
 		var(--birb-neg-border-size) 0 var(--birb-highlight),
 		0 var(--birb-neg-border-size) var(--birb-highlight),
 		0 var(--birb-border-size) var(--birb-highlight);
+	transition: none;
+}
+
+.birb-menu-item-icon {
+	width: calc(7 * var(--birb-border-size));
+	height: calc(6 * var(--birb-border-size));
+	padding-right: calc(5 * var(--birb-border-size));
+	flex-shrink: 0;
+	image-rendering: pixelated;
+	color: var(--birb-highlight);
+	opacity: 0.9;
+}
+
+.birb-menu-item:hover > .birb-menu-item-icon {
+	filter: invert(1);
 }
 
 .birb-menu-item-arrow {
@@ -2373,10 +2414,12 @@
 	justify-content: center;
 	align-items: center;
 	cursor: pointer;
+	transition: border-color 0.1s;
 }
 
 .birb-grid-item:hover {
 	border-color: var(--birb-highlight);
+	transition: none;
 }
 
 .birb-grid-item canvas {
@@ -2583,12 +2626,47 @@
 		};
 
 		const menuItems = [
-			new MenuItem(`Pet ${birdBirb()}`, pet),
-			new MenuItem("Field Guide", insertFieldGuide),
-			new MenuItem("Wardrobe", insertWardrobe),
-			new ConditionalMenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote), () => getContext().areStickyNotesEnabled()),
-			new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false)),
-			new DebugMenuItem("Freeze/Unfreeze", () => {
+			new MenuItem(`Pet ${birdBirb()}`, pet, [
+				[0, 1, 1, 0, 1, 1, 0],
+				[1, 0, 0, 1, 0, 0, 1],
+				[1, 0, 0, 0, 0, 0, 1],
+				[0, 1, 0, 0, 0, 1, 0],
+				[0, 0, 1, 0, 1, 0, 0],
+				[0, 0, 0, 1, 0, 0, 0],
+			]),
+			new MenuItem("Field Guide", insertFieldGuide, [
+				[0, 1, 1, 0, 1, 1, 0],
+				[1, 0, 0, 1, 0, 0, 1],
+				[1, 0, 0, 1, 0, 0, 1],
+				[1, 0, 0, 1, 0, 0, 1],
+				[1, 0, 0, 1, 0, 0, 1],
+				[1, 1, 1, 0, 1, 1, 1],
+			]),
+			new MenuItem("Wardrobe", insertWardrobe, [
+				[0, 1, 1, 0, 1, 1, 0],
+				[1, 0, 0, 1, 0, 0, 1],
+				[1, 1, 0, 0, 0, 1, 1],
+				[0, 1, 0, 0, 0, 1, 0],
+				[0, 1, 0, 0, 0, 1, 0],
+				[0, 1, 1, 1, 1, 1, 0],
+			]),
+			new ConditionalMenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote), () => getContext().areStickyNotesEnabled(), [
+				[0, 0, 1, 1, 1, 1, 0],
+				[0, 1, 0, 0, 0, 1, 0],
+				[1, 0, 0, 1, 0, 1, 0],
+				[1, 0, 1, 0, 0, 1, 0],
+				[1, 0, 0, 0, 0, 1, 0],
+				[1, 1, 1, 1, 1, 1, 0],
+			]),
+			new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false), [
+				[0, 1, 0, 1, 0, 1, 0],
+				[1, 0, 0, 1, 0, 0, 1],
+				[1, 0, 0, 1, 0, 0, 1],
+				[1, 0, 0, 0, 0, 0, 1],
+				[0, 1, 0, 0, 0, 1, 0],
+				[0, 0, 1, 1, 1, 0, 0],
+			]),
+			new DebugMenuItem("Freeze", () => {
 				frozen = !frozen;
 			}),
 			new DebugMenuItem("Reset Data", resetSaveData),
@@ -2607,11 +2685,18 @@
 				setDebug(false);
 			}),
 			new Separator(),
-			new MenuItem("Settings", () => switchMenuItems(settingsItems, updateMenuLocation), false),
+			new MenuItem("Settings", () => switchMenuItems(settingsItems, updateMenuLocation), [
+				[0, 0, 0, 0, 1, 1, 1],
+				[1, 1, 1, 1, 1, 0, 1],
+				[0, 0, 0, 0, 1, 1, 1],
+				[1, 1, 1, 0, 0, 0, 0],
+				[1, 0, 1, 1, 1, 1, 1],
+				[1, 1, 1, 0, 0, 0, 0],
+			], false),
 		];
 
 		const settingsItems = [
-			new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), false),
+			new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), undefined, false),
 			new Separator(),
 			new MenuItem(() => `${settings().soundEnabled ? "Disable" : "Enable"} Sound`, () => {
 				userSettings.soundEnabled = !settings().soundEnabled;
@@ -2631,7 +2716,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("2026.3.30", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.3.30"); }, false),
+			new MenuItem("Build 2026.4.3", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.4.3"); }, undefined, false),
 		];
 
 		/** @type {Birb} */
@@ -3211,7 +3296,7 @@
 				latinName.textContent = type.latinName;
 				latinName.href = type.url;
 				latinName.target = "_blank";
-				
+
 				const spacerTwo = document.createElement("div");
 				spacerTwo.style.height = "0.4em";
 

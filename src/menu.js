@@ -14,11 +14,13 @@ export class MenuItem {
 	/**
 	 * @param {string|(() => string)} text
 	 * @param {() => void} action
+	 * @param {number[][]} [icon]
 	 * @param {boolean} [removeMenu]
 	 */
-	constructor(text, action, removeMenu = true) {
+	constructor(text, action, icon, removeMenu = true) {
 		this.text = text;
 		this.action = action;
+		this.icon = icon;
 		this.removeMenu = removeMenu;
 	}
 }
@@ -28,10 +30,11 @@ export class ConditionalMenuItem extends MenuItem {
 	 * @param {string} text
 	 * @param {() => void} action
 	 * @param {() => boolean} condition
+	 * @param {number[][]} [icon]
 	 * @param {boolean} [removeMenu]
 	 */
-	constructor(text, action, condition, removeMenu = true) {
-		super(text, action, removeMenu);
+	constructor(text, action, condition, icon, removeMenu = true) {
+		super(text, action, icon, removeMenu);
 		this.condition = condition;
 	}
 }
@@ -42,7 +45,7 @@ export class DebugMenuItem extends ConditionalMenuItem {
 	 * @param {() => void} action
 	 */
 	constructor(text, action, removeMenu = true) {
-		super(text, action, () => isDebug(), removeMenu);
+		super(text, action, () => isDebug(), undefined, removeMenu);
 	}
 }
 
@@ -57,11 +60,29 @@ export class Separator extends MenuItem {
  * @param {() => void} removeMenuCallback
  * @returns {HTMLElement}
  */
-function makeMenuItem(item, removeMenuCallback) {
+function createMenuItem(item, removeMenuCallback) {
 	if (item instanceof Separator) {
 		return makeElement("birb-window-separator");
 	}
 	let menuItem = makeElement("birb-menu-item", typeof item.text === "function" ? item.text() : item.text);
+	if (item.icon) {
+		const iconCanvas = document.createElement("canvas");
+		iconCanvas.width = 7;
+		iconCanvas.height = 6;
+		iconCanvas.classList.add("birb-menu-item-icon");
+		const ctx = iconCanvas.getContext("2d");
+		if (ctx) {
+			for (let row = 0; row < item.icon.length; row++) {
+				for (let col = 0; col < item.icon[row].length; col++) {
+					if (item.icon[row][col]) {
+						ctx.fillStyle = "black";
+						ctx.fillRect(col, row, 1, 1);
+					}
+				}
+			}
+		}
+		menuItem.prepend(iconCanvas);
+	}
 	onClick(menuItem, () => {
 		if (item.removeMenu) {
 			removeMenuCallback();
@@ -89,7 +110,7 @@ export function insertMenu(menuItems, title, updateLocationCallback) {
 	const removeCallback = () => removeMenu();
 	for (const item of menuItems) {
 		if (!(item instanceof ConditionalMenuItem) || item.condition()) {
-			content.appendChild(makeMenuItem(item, removeCallback));
+			content.appendChild(createMenuItem(item, removeCallback));
 		}
 	}
 	menu.appendChild(header);
@@ -146,7 +167,7 @@ export function switchMenuItems(menuItems, updateLocationCallback) {
 	const removeCallback = () => removeMenu();
 	for (const item of menuItems) {
 		if (!(item instanceof ConditionalMenuItem) || item.condition()) {
-			content.appendChild(makeMenuItem(item, removeCallback));
+			content.appendChild(createMenuItem(item, removeCallback));
 		}
 	}
 	updateLocationCallback(menu);

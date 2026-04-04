@@ -169,12 +169,47 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	};
 
 	const menuItems = [
-		new MenuItem(`Pet ${birdBirb()}`, pet),
-		new MenuItem("Field Guide", insertFieldGuide),
-		new MenuItem("Wardrobe", insertWardrobe),
-		new ConditionalMenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote), () => getContext().areStickyNotesEnabled()),
-		new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false)),
-		new DebugMenuItem("Freeze/Unfreeze", () => {
+		new MenuItem(`Pet ${birdBirb()}`, pet, [
+			[0, 1, 1, 0, 1, 1, 0],
+			[1, 0, 0, 1, 0, 0, 1],
+			[1, 0, 0, 0, 0, 0, 1],
+			[0, 1, 0, 0, 0, 1, 0],
+			[0, 0, 1, 0, 1, 0, 0],
+			[0, 0, 0, 1, 0, 0, 0],
+		]),
+		new MenuItem("Field Guide", insertFieldGuide, [
+			[0, 1, 1, 0, 1, 1, 0],
+			[1, 0, 0, 1, 0, 0, 1],
+			[1, 0, 0, 1, 0, 0, 1],
+			[1, 0, 0, 1, 0, 0, 1],
+			[1, 0, 0, 1, 0, 0, 1],
+			[1, 1, 1, 0, 1, 1, 1],
+		]),
+		new MenuItem("Wardrobe", insertWardrobe, [
+			[0, 1, 1, 0, 1, 1, 0],
+			[1, 0, 0, 1, 0, 0, 1],
+			[1, 1, 0, 0, 0, 1, 1],
+			[0, 1, 0, 0, 0, 1, 0],
+			[0, 1, 0, 0, 0, 1, 0],
+			[0, 1, 1, 1, 1, 1, 0],
+		]),
+		new ConditionalMenuItem("Sticky Note", () => createNewStickyNote(stickyNotes, save, deleteStickyNote), () => getContext().areStickyNotesEnabled(), [
+			[0, 0, 1, 1, 1, 1, 0],
+			[0, 1, 0, 0, 0, 1, 0],
+			[1, 0, 0, 1, 0, 1, 0],
+			[1, 0, 1, 0, 0, 1, 0],
+			[1, 0, 0, 0, 0, 1, 0],
+			[1, 1, 1, 1, 1, 1, 0],
+		]),
+		new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false), [
+			[0, 1, 0, 1, 0, 1, 0],
+			[1, 0, 0, 1, 0, 0, 1],
+			[1, 0, 0, 1, 0, 0, 1],
+			[1, 0, 0, 0, 0, 0, 1],
+			[0, 1, 0, 0, 0, 1, 0],
+			[0, 0, 1, 1, 1, 0, 0],
+		]),
+		new DebugMenuItem("Freeze", () => {
 			frozen = !frozen;
 		}),
 		new DebugMenuItem("Reset Data", resetSaveData),
@@ -193,11 +228,18 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			setDebug(false);
 		}),
 		new Separator(),
-		new MenuItem("Settings", () => switchMenuItems(settingsItems, updateMenuLocation), false),
+		new MenuItem("Settings", () => switchMenuItems(settingsItems, updateMenuLocation), [
+			[0, 0, 0, 0, 1, 1, 1],
+			[1, 1, 1, 1, 1, 0, 1],
+			[0, 0, 0, 0, 1, 1, 1],
+			[1, 1, 1, 0, 0, 0, 0],
+			[1, 0, 1, 1, 1, 1, 1],
+			[1, 1, 1, 0, 0, 0, 0],
+		], false),
 	];
 
 	const settingsItems = [
-		new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), false),
+		new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), undefined, false),
 		new Separator(),
 		new MenuItem(() => `${settings().soundEnabled ? "Disable" : "Enable"} Sound`, () => {
 			userSettings.soundEnabled = !settings().soundEnabled;
@@ -217,7 +259,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		}),
 		new Separator(),
 		new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-		new MenuItem("__VERSION__", () => { alert("Thank you for using Pocket Bird! You are on version: __VERSION__") }, false),
+		new MenuItem("Build __VERSION__", () => { alert("Thank you for using Pocket Bird! You are on version: __VERSION__") }, undefined, false),
 	];
 
 	/** @type {Birb} */
@@ -801,7 +843,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			latinName.textContent = type.latinName;
 			latinName.href = type.url;
 			latinName.target = "_blank";
-			
+
 			const spacerTwo = document.createElement("div");
 			spacerTwo.style.height = "0.4em";
 

@@ -394,8 +394,8 @@ export default {
     "url": "https://en.wikipedia.org/wiki/Cuban_tody",
     "colors": {
       "beak": "#f16f54",
-      "face": "#5fdf44",
-      "chin": "#f12d3e",
+      "face": "#5ad63e",
+      "chin": "#e8273b",
       "collar": "#f12d3e",
       "belly": "#f6f5e4",
       "collar-scruff": "#a3ebff",
@@ -416,11 +416,14 @@ export default {
     "colors": {
       "face": "#9c3af2",
       "wing": "#8f37ed",
-      "wing-edge": "#7029b8",
+      "wing-edge": "#5b20c2",
       "belly": "#ffffff",
       "underbelly": "#f2f2f2",
       "foot": "#736a66",
-      "collar": "#aa60e6"
+      "collar": "#b760e6",
+      "nose": "#7a2ec7",
+      "cheek": "#7a2ec7",
+      "nose-tip": "#7a2ec7"
     },
     "rarity": "uncommon"
   }

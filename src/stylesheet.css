@@ -211,15 +211,17 @@
 	font-size: 14px;
 	padding-top: 4px;
 	padding-bottom: 4px;
-	padding-left: 10px;
+	padding-left: 2px;
 	padding-right: 10px;
 	box-sizing: border-box;
 	opacity: 0.7 !important;
 	user-select: none;
 	display: flex;
-	justify-content: space-between;
+	justify-content: left;
+	align-items: center;
 	cursor: pointer;
 	color: black !important;
+	transition: background 0.1s, color 0.1s;
 }
 
 .birb-menu-item:hover {
@@ -231,6 +233,21 @@
 		var(--birb-neg-border-size) 0 var(--birb-highlight),
 		0 var(--birb-neg-border-size) var(--birb-highlight),
 		0 var(--birb-border-size) var(--birb-highlight);
+	transition: none;
+}
+
+.birb-menu-item-icon {
+	width: calc(7 * var(--birb-border-size));
+	height: calc(6 * var(--birb-border-size));
+	padding-right: calc(5 * var(--birb-border-size));
+	flex-shrink: 0;
+	image-rendering: pixelated;
+	color: var(--birb-highlight);
+	opacity: 0.9;
+}
+
+.birb-menu-item:hover > .birb-menu-item-icon {
+	filter: invert(1);
 }
 
 .birb-menu-item-arrow {
@@ -281,10 +298,12 @@
 	justify-content: center;
 	align-items: center;
 	cursor: pointer;
+	transition: border-color 0.1s;
 }
 
 .birb-grid-item:hover {
 	border-color: var(--birb-highlight);
+	transition: none;
 }
 
 .birb-grid-item canvas {
