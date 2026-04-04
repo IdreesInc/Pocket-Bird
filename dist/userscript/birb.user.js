@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2026.4.3
+// @version      2026.4.4
 // @description  It's a pet bird in your browser, what more could you want?
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -2646,7 +2646,7 @@
 		};
 
 		const menuItems = [
-			new MenuItem(`Pet ${birdBirb()}`, pet, [
+			new MenuItem(() => `Pet ${birdBirb()}`, pet, [
 				[0, 1, 1, 0, 1, 1, 0],
 				[1, 0, 0, 1, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 1],
@@ -2678,7 +2678,7 @@
 				[1, 0, 0, 0, 0, 1, 0],
 				[1, 1, 1, 1, 1, 1, 0],
 			]),
-			new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false), [
+			new MenuItem(() => `Hide ${birdBirb()}`, () => birb.setVisible(false), [
 				[0, 1, 0, 1, 0, 1, 0],
 				[1, 0, 0, 1, 0, 0, 1],
 				[1, 0, 0, 1, 0, 0, 1],
@@ -2736,7 +2736,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("Build 2026.4.3", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.4.3"); }, undefined, false),
+			new MenuItem("Build 2026.4.4", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.4.4"); }, undefined, false),
 		];
 
 		/** @type {Birb} */

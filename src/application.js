@@ -169,7 +169,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	};
 
 	const menuItems = [
-		new MenuItem(`Pet ${birdBirb()}`, pet, [
+		new MenuItem(() => `Pet ${birdBirb()}`, pet, [
 			[0, 1, 1, 0, 1, 1, 0],
 			[1, 0, 0, 1, 0, 0, 1],
 			[1, 0, 0, 0, 0, 0, 1],
@@ -201,7 +201,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			[1, 0, 0, 0, 0, 1, 0],
 			[1, 1, 1, 1, 1, 1, 0],
 		]),
-		new MenuItem(`Hide ${birdBirb()}`, () => birb.setVisible(false), [
+		new MenuItem(() => `Hide ${birdBirb()}`, () => birb.setVisible(false), [
 			[0, 1, 0, 1, 0, 1, 0],
 			[1, 0, 0, 1, 0, 0, 1],
 			[1, 0, 0, 1, 0, 0, 1],
