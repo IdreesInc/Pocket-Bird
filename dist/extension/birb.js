@@ -2112,6 +2112,13 @@
 	 */
 
 	/**
+	 * @typedef {Object} SavedBirdPosition
+	 * @property {number} x
+	 * @property {number} y
+	 * @property {number} updatedAt
+	 */
+
+	/**
 	 * @typedef {Object} BirbSaveData
 	 * @property {string[]} unlockedSpecies
 	 * @property {string} currentSpecies
@@ -2119,6 +2126,7 @@
 	 * @property {string} currentHat
 	 * @property {Partial<Settings>} settings
 	 * @property {SavedStickyNote[]} [stickyNotes]
+	 * @property {Record<string, SavedBirdPosition>} [birdPositions]
 	 */
 
 	/**
@@ -2600,11 +2608,16 @@
 
 	// Petting boosts
 	const PET_BOOST_DURATION = 1000 * 60 * 5; // 5 minutes
-	const PET_FEATHER_BOOST = 2;
-	const PET_HAT_BOOST = 1.5;
+	const PET_FEATHER_BOOST = 2; // Multiplier for feather effect
+	const PET_HAT_BOOST = 1.5; // Multiplier for hat effect
 
 	// Focus element constraints
-	const MIN_FOCUS_ELEMENT_WIDTH = 100;
+	const MIN_FOCUS_ELEMENT_WIDTH = 100; // Minimum width (in px) for an element to be considered a valid perch target
+	const BIRD_POSITION_SAVE_INTERVAL = 2000; // How often (ms) we attempt to persist position in normal flow
+	const BIRD_POSITION_SAVE_MIN_DELTA = 6; // Minimum movement (px) compared to last saved position required before writing again
+	const BIRD_POSITION_TRACKING_DELTA = 0.5; // Minimum movement (px) in runtime tracking to mark position as "dirty"
+	const MAX_SAVED_BIRD_POSITIONS = 200; // Maximum number of saved bird positions to keep
+	const TAB_SESSION_MARKER = "__pocket_bird_tab_session__="; // Marker used in localStorage to identify which tab session saved bird positions belong to, to prevent restoring positions from a different tab
 
 	/** @type {Partial<Settings>} */
 	let userSettings = {};
@@ -2741,7 +2754,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("Build 2026.4.4", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.4.4"); }, undefined, false),
+			new MenuItem("Build 2026.4.6", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.4.6"); }, undefined, false),
 		];
 
 		/** @type {Birb} */
@@ -2780,6 +2793,13 @@
 		let currentHat = DEFAULT_HAT;
 		// let visible = true;
 		let lastPetTimestamp = 0;
+		/** @type {Record<string, SavedBirdPosition>} */
+		let savedBirdPositions = {};
+		let holdRestoredYPosition = false;
+		let birdPositionDirty = false;
+		let lastTrackedBirdX = birdX;
+		let lastTrackedBirdY = birdY;
+		let birdSessionKey = "";
 		/** @type {StickyNote[]} */
 		let stickyNotes = [];
 
@@ -2798,6 +2818,7 @@
 			currentSpecies = saveData.currentSpecies ?? DEFAULT_BIRD;
 			unlockedHats = saveData.unlockedHats ?? [DEFAULT_HAT];
 			currentHat = saveData.currentHat ?? DEFAULT_HAT;
+			savedBirdPositions = sanitizeSavedBirdPositions(saveData.birdPositions);
 			stickyNotes = [];
 
 			if (saveData.stickyNotes) {
@@ -2831,6 +2852,9 @@
 					top: note.top,
 					left: note.left
 				}));
+			}
+			if (Object.keys(savedBirdPositions).length > 0) {
+				saveData.birdPositions = savedBirdPositions;
 			}
 
 			getContext().putSaveData(saveData);
@@ -2919,19 +2943,26 @@
 
 			drawStickyNotes(stickyNotes, save, deleteStickyNote);
 
-			let lastPath = getContext().getPath().split("?")[0];
+			let lastPath = normalizePath(getContext().getPath());
 			setInterval(() => {
-				const currentPath = getContext().getPath().split("?")[0];
+				const currentPath = normalizePath(getContext().getPath());
 				if (currentPath !== lastPath) {
 					log("Path changed from '" + lastPath + "' to '" + currentPath + "'");
+					saveBirdPosition(true);
 					lastPath = currentPath;
 					drawStickyNotes(stickyNotes, save, deleteStickyNote);
+					restoreBirdPosition();
 				}
 			}, URL_CHECK_INTERVAL);
 
 			setInterval(update, UPDATE_INTERVAL);
+			setInterval(() => saveBirdPosition(), BIRD_POSITION_SAVE_INTERVAL);
+			window.addEventListener("pagehide", () => saveBirdPosition(true));
+			window.addEventListener("beforeunload", () => saveBirdPosition(true));
 
-			flyToElement(true);
+			if (!restoreBirdPosition()) {
+				flyToElement(true);
+			}
 		}
 
 		function update() {
@@ -2992,7 +3023,9 @@
 				if (focusedElement && !isWithinHorizontalBounds()) {
 					flyToElement();
 				}
-				birdY = getFocusedY();
+				if (focusedElement || !holdRestoredYPosition) {
+					birdY = getFocusedY();
+				}
 			} else if (currentState === States.FLYING) {
 				// Fly to target location (even if in the air)
 				if (updateParabolicPath(FLY_SPEED, 2)) {
@@ -3022,6 +3055,13 @@
 			// Update HTML element position
 			birb.setX(birdX);
 			birb.setY(birdY);
+			const movedX = Math.abs(birdX - lastTrackedBirdX);
+			const movedY = Math.abs(birdY - lastTrackedBirdY);
+			if (movedX >= BIRD_POSITION_TRACKING_DELTA || movedY >= BIRD_POSITION_TRACKING_DELTA) {
+				birdPositionDirty = true;
+				lastTrackedBirdX = birdX;
+				lastTrackedBirdY = birdY;
+			}
 		}
 
 		/**
@@ -3578,6 +3618,7 @@
 			if (frozen) {
 				return false;
 			}
+			holdRestoredYPosition = false;
 			const previousElement = focusedElement;
 			focusedElement = getRandomValidElement();
 			updateFocusedElementBounds();
@@ -3594,6 +3635,7 @@
 		 * @param {number} y
 		 */
 		function teleportTo(x, y) {
+			holdRestoredYPosition = false;
 			birdX = x;
 			birdY = y;
 			setState(States.IDLE);
@@ -3628,11 +3670,16 @@
 			focusedBounds = { left, right, top };
 		}
 
+		function getCanvasWidth() {
+			return birb.getElementWidth();
+		}
+
 		function hop() {
 			if (frozen) {
 				return;
 			}
 			if (currentState === States.IDLE) {
+				holdRestoredYPosition = false;
 				setState(States.HOP);
 				birb.setAnimation(Animations.FLYING);
 				if ((Math.random() < 0.5 && birdX - HOP_DISTANCE > focusedBounds.left) || birdX + HOP_DISTANCE > focusedBounds.right) {
@@ -3663,6 +3710,7 @@
 		 * @param {number} y
 		 */
 		function flyTo(x, y) {
+			holdRestoredYPosition = false;
 			targetX = x;
 			targetY = y;
 			setState(States.FLYING);
@@ -3690,6 +3738,183 @@
 			}
 			birb.setAbsolutePositioned(isAbsolute());
 			birb.setY(birdY);
+		}
+
+		/**
+		 * @param {unknown} value
+		 * @returns {Record<string, SavedBirdPosition>}
+		 */
+		function sanitizeSavedBirdPositions(value) {
+			if (!value || typeof value !== "object" || Array.isArray(value)) {
+				return {};
+			}
+			/** @type {Record<string, SavedBirdPosition>} */
+			const result = {};
+			for (const [key, position] of Object.entries(value)) {
+				if (!position || typeof position !== "object" || Array.isArray(position)) {
+					continue;
+				}
+				// @ts-expect-error
+				const x = Number(position.x);
+				// @ts-expect-error
+				const y = Number(position.y);
+				// @ts-expect-error
+				const updatedAt = Number(position.updatedAt ?? 0);
+				if (!Number.isFinite(x) || !Number.isFinite(y)) {
+					continue;
+				}
+				result[key] = { x, y, updatedAt: Number.isFinite(updatedAt) ? updatedAt : 0 };
+			}
+			return result;
+		}
+
+		/**
+		 * @param {string} path
+		 * @returns {string}
+		 */
+		function normalizePath(path) {
+			return path.split("?")[0].split("#")[0];
+		}
+
+		function trimSavedBirdPositions() {
+			const entries = Object.entries(savedBirdPositions);
+			if (entries.length <= MAX_SAVED_BIRD_POSITIONS) {
+				return;
+			}
+			entries.sort((a, b) => a[1].updatedAt - b[1].updatedAt);
+			for (let i = 0; i < entries.length - MAX_SAVED_BIRD_POSITIONS; i++) {
+				delete savedBirdPositions[entries[i][0]];
+			}
+		}
+
+		function getBirdPositionScopeKey() {
+			if (birdSessionKey) {
+				return birdSessionKey;
+			}
+
+			const existingWindowName = typeof window.name === "string" ? window.name : "";
+			const markerIndex = existingWindowName.indexOf(TAB_SESSION_MARKER);
+			if (markerIndex >= 0) {
+				const end = existingWindowName.indexOf("|", markerIndex);
+				birdSessionKey = end >= 0
+					? existingWindowName.slice(markerIndex, end)
+					: existingWindowName.slice(markerIndex);
+				return birdSessionKey;
+			}
+
+			const sessionToken = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+				? crypto.randomUUID()
+				: `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+			birdSessionKey = `${TAB_SESSION_MARKER}${sessionToken}`;
+
+			try {
+				window.name = existingWindowName
+					? `${existingWindowName}|${birdSessionKey}`
+					: birdSessionKey;
+			} catch {
+				// Ignore if the page blocks changing window.name.
+			}
+
+			return birdSessionKey;
+		}
+
+		/**
+		 * @param {boolean} [force]
+		 */
+		function saveBirdPosition(force = false) {
+			if (!Number.isFinite(birdX) || !Number.isFinite(birdY)) {
+				return;
+			}
+			if (!force && !birdPositionDirty) {
+				return;
+			}
+
+			const now = Date.now();
+			const scopeKey = getBirdPositionScopeKey();
+			const previous = savedBirdPositions[scopeKey];
+			if (!force && previous) {
+				const movedX = Math.abs(previous.x - birdX);
+				const movedY = Math.abs(previous.y - birdY);
+				if (movedX < BIRD_POSITION_SAVE_MIN_DELTA && movedY < BIRD_POSITION_SAVE_MIN_DELTA) {
+					birdPositionDirty = false;
+					return;
+				}
+			}
+
+			savedBirdPositions[scopeKey] = {
+				x: birdX,
+				y: birdY,
+				updatedAt: now
+			};
+			trimSavedBirdPositions();
+			birdPositionDirty = false;
+			save();
+		}
+
+		/**
+		 * @returns {boolean}
+		 */
+		function restoreBirdPosition() {
+			const scopeKey = getBirdPositionScopeKey();
+			const saved = savedBirdPositions[scopeKey];
+			if (!saved) {
+				holdRestoredYPosition = false;
+				return false;
+			}
+
+			const maxX = Math.max(0, window.innerWidth - getCanvasWidth());
+			const maxY = getWindowHeight() * 1.5;
+			birdX = Math.min(Math.max(saved.x, 0), maxX);
+			birdY = Math.min(Math.max(saved.y, 0), maxY);
+
+			// Attempt to keep the bird perched if an element still exists near the saved position.
+			focusedElement = getElementAtPosition(birdX, birdY);
+			updateFocusedElementBounds();
+
+			holdRestoredYPosition = focusedElement === null;
+			birdPositionDirty = false;
+			lastTrackedBirdX = birdX;
+			lastTrackedBirdY = birdY;
+
+			setState(States.IDLE);
+			birb.setX(birdX);
+			birb.setY(birdY);
+			return true;
+		}
+
+		/**
+		 * @param {number} x
+		 * @param {number} y
+		 * @returns {HTMLElement|null}
+		 */
+		function getElementAtPosition(x, y) {
+			const desiredTop = getWindowHeight() - y;
+			let bestElement = null;
+			let bestScore = Number.POSITIVE_INFINITY;
+			const elements = document.querySelectorAll(getContext().getFocusableElements().join(", "));
+			for (const element of elements) {
+				if (!(element instanceof HTMLElement)) {
+					continue;
+				}
+				if (element.offsetWidth < MIN_FOCUS_ELEMENT_WIDTH) {
+					continue;
+				}
+				const rect = element.getBoundingClientRect();
+				if (rect.width <= 0 || rect.height <= 0) {
+					continue;
+				}
+				const xDistance = Math.abs((rect.left + rect.right) / 2 - x);
+				const yDistance = Math.abs(rect.top - desiredTop);
+				const score = xDistance + yDistance * 1.5;
+				if (score < bestScore) {
+					bestScore = score;
+					bestElement = element;
+				}
+			}
+			if (bestScore > Math.max(window.innerWidth, getWindowHeight()) * 0.75) {
+				return null;
+			}
+			return bestElement;
 		}
 
 		// Helper functions
