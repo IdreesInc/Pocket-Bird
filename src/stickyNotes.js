@@ -84,6 +84,7 @@ export function renderStickyNote(stickyNote, page, onSave, onDelete) {
 	}
 
 	if (textarea && textarea instanceof HTMLTextAreaElement) {
+		/** @type {ReturnType<typeof setTimeout>|undefined} */
 		let saveTimeout;
 		// Save after debounce
 		textarea.addEventListener("input", () => {
