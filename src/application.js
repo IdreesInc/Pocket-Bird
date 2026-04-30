@@ -218,6 +218,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 				unlockBird(type);
 			}
 			for (let hat in HAT) {
+				// @ts-ignore
 				unlockHat(HAT[hat]);
 			}
 		}),
@@ -302,7 +303,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	let stickyNotes = [];
 
 	async function load() {
-		/** @type {BirbSaveData|Object} */
+		/** @type {BirbSaveData} */
 		let saveData = await getContext().getSaveData();
 
 		debug("Loaded data: " + JSON.stringify(saveData));
