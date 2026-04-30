@@ -959,7 +959,7 @@
 		draw(ctx, direction, canvasPixelSize, colorScheme, tags) {
 			// Clear the canvas before drawing the new frame
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-			
+			let pixelsMatched = 0;
 			const pixels = this.getPixels(tags);
 			for (let y = 0; y < pixels.length; y++) {
 				const row = pixels[y];
@@ -967,7 +967,11 @@
 					const cell = direction === Directions.LEFT ? row[x] : row[pixels[y].length - x - 1];
 					ctx.fillStyle = colorScheme[cell] ?? cell;
 					ctx.fillRect(x * canvasPixelSize, y * canvasPixelSize, canvasPixelSize, canvasPixelSize);
-				}		}	}
+					if (colorScheme[cell]) {
+						pixelsMatched++;
+					}
+				}		}		console.log(`${pixelsMatched} pixels matched color scheme, ${pixels.length * pixels[0].length - pixelsMatched} did not.`);
+		}
 	}
 
 	class Anim {
@@ -2675,6 +2679,7 @@
 					unlockBird(type);
 				}
 				for (let hat in HAT) {
+					// @ts-ignore
 					unlockHat(HAT[hat]);
 				}
 			}),
@@ -2716,7 +2721,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("Build 2026.4.4", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.4.4"); }, undefined, false),
+			new MenuItem("Build 2026.4.30", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.4.30"); }, undefined, false),
 		];
 
 		/** @type {Birb} */
@@ -2759,7 +2764,7 @@
 		let stickyNotes = [];
 
 		async function load() {
-			/** @type {BirbSaveData|Object} */
+			/** @type {BirbSaveData} */
 			let saveData = await getContext().getSaveData();
 
 			debug("Loaded data: " + JSON.stringify(saveData));

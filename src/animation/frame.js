@@ -67,7 +67,7 @@ class Frame {
 	draw(ctx, direction, canvasPixelSize, colorScheme, tags) {
 		// Clear the canvas before drawing the new frame
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-		
+		let pixelsMatched = 0;
 		const pixels = this.getPixels(tags);
 		for (let y = 0; y < pixels.length; y++) {
 			const row = pixels[y];
@@ -75,8 +75,12 @@ class Frame {
 				const cell = direction === Directions.LEFT ? row[x] : row[pixels[y].length - x - 1];
 				ctx.fillStyle = colorScheme[cell] ?? cell;
 				ctx.fillRect(x * canvasPixelSize, y * canvasPixelSize, canvasPixelSize, canvasPixelSize);
+				if (colorScheme[cell]) {
+					pixelsMatched++;
+				}
 			};
 		};
+		console.log(`${pixelsMatched} pixels matched color scheme, ${pixels.length * pixels[0].length - pixelsMatched} did not.`);
 	}
 }
 
