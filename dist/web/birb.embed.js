@@ -2819,18 +2819,29 @@
 		let currentHat = DEFAULT_HAT;
 		// let visible = true;
 		let lastPetTimestamp = 0;
+		/** Locking value to avoid race conditions during save/load */
+		let loadNonce = 0;
 		/** @type {StickyNote[]} */
 		let stickyNotes = [];
 
 		async function load() {
+			const nonce = ++loadNonce;
 			/** @type {BirbSaveData} */
 			let saveData = await getContext().getSaveData();
-
-			debug("Loaded data: " + JSON.stringify(saveData));
+			if (nonce !== loadNonce) {
+				console.warn("Aborting load due to newer load call");
+				return;
+			}
 
 			if (!('settings' in saveData)) {
 				log("No user settings found in save data, starting fresh");
 			}
+
+			saveData = mergeSaves(saveData, {
+				unlockedSpecies,
+				unlockedHats});
+
+			debug("Loaded data: " + JSON.stringify(saveData));
 
 			userSettings = saveData.settings ?? {};
 			unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
@@ -2848,8 +2859,8 @@
 			}
 
 			log(stickyNotes.length + " sticky notes loaded");
-			switchSpecies(currentSpecies);
-			switchHat(currentHat);
+			switchSpecies(currentSpecies, false);
+			switchHat(currentHat, false);
 		}
 
 		function save() {
@@ -2873,6 +2884,22 @@
 			}
 
 			getContext().putSaveData(saveData);
+		}
+
+		/**
+		 * Merge new save data with the currently stored save data, ensuring that unlocks are not lost
+		 * @param {BirbSaveData} storedSave
+		 * @param {BirbSaveData} currentSave 
+		 * @returns {BirbSaveData}
+		 */
+		function mergeSaves(storedSave, currentSave) {
+			const mergedUnlockedSpecies = Array.from(new Set([...(storedSave.unlockedSpecies ?? []), ...(currentSave.unlockedSpecies ?? [])]));
+			const mergedUnlockedHats = Array.from(new Set([...(storedSave.unlockedHats ?? []), ...(currentSave.unlockedHats ?? [])]));
+			return {
+				...storedSave,
+				unlockedSpecies: mergedUnlockedSpecies,
+				unlockedHats: mergedUnlockedHats
+			};
 		}
 
 		function resetSaveData() {
@@ -2916,6 +2943,9 @@
 
 			window.addEventListener("scroll", () => {
 				lastActionTimestamp = Date.now();
+			});
+			window.addEventListener("focus", () => {
+				load();
 			});
 
 			onClick(document, (e) => {
@@ -3522,20 +3552,26 @@
 
 		/**
 		 * @param {string} type
+		 * @param {boolean} [updateSave]
 		 */
-		function switchSpecies(type) {
+		function switchSpecies(type, updateSave = true) {
 			currentSpecies = type;
 			// Update CSS variable --birb-highlight to be wing color
 			document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
-			save();
+			if (updateSave) {
+				save();
+			}
 		}
 
 		/**
 		 * @param {string} hat
+		 * @param {boolean} [updateSave]
 		 */
-		function switchHat(hat) {
+		function switchHat(hat, updateSave = true) {
 			currentHat = hat;
-			save();
+			if (updateSave) {
+				save();
+			}
 		}
 
 		/**
