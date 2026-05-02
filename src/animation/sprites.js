@@ -267,7 +267,7 @@ function getTemplateColorMatch(red, green, blue) {
 	if (!closestMatch) {
 		return rgbToHex(red, green, blue);
 	}
-	console.log("Fuzzy match of color", hex, "to palette color", closestMatch, "with distance", minDistance);
+	// console.log("Fuzzy match of color", hex, "to palette color", closestMatch, "with distance", minDistance);
 	return closestMatch;
 }
 
