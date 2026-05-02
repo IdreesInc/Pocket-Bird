@@ -247,7 +247,13 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	const settingsItems = [
 		new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), undefined, false),
 		new Separator(),
-		new SpinnerMenuItem(`${birdBirb()} Scale`, () => {
+		new SpinnerMenuItem(`${birdBirb()} Scale`,
+			() => {
+				userSettings.birbScaleMultiplier = 1;
+				save();
+				updateBirbScale();
+			},
+			() => {
 			const currentMultiplier = settings().birbScaleMultiplier;
 			let newMultiplier;
 			if (currentMultiplier <= 2) {
@@ -272,7 +278,13 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			save();
 			updateBirbScale();
 		}),
-		new SpinnerMenuItem("UI Scale", () => {
+		new SpinnerMenuItem("UI Scale",
+			() => {
+				userSettings.uiScaleMultiplier = 1;
+				save();
+				updateUIScale();
+			},
+			() => {
 			const currentMultiplier = settings().uiScaleMultiplier;
 			userSettings.uiScaleMultiplier = Math.max(0.1, Math.round((currentMultiplier - 0.1) * 10) / 10);
 			save();

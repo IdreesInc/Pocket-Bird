@@ -29,11 +29,12 @@ export class MenuItem {
 export class SpinnerMenuItem extends MenuItem {
 	/**
 	 * @param {string} text
+	 * @param {() => void} labelAction
 	 * @param {() => void} leftAction
 	 * @param {() => void} rightAction
 	 */
-	constructor(text, leftAction, rightAction) {
-		super(text, () => { }, undefined, false);
+	constructor(text, labelAction, leftAction, rightAction) {
+		super(text, labelAction, undefined, false);
 		this.leftAction = leftAction;
 		this.rightAction = rightAction;
 	}
@@ -100,25 +101,28 @@ function createMenuItem(item, removeMenuCallback) {
 	if (item instanceof SpinnerMenuItem) {
 		menuItem.classList.add("birb-menu-item-spinner");
 		const container = makeElement("birb-menu-item-spinner-container");
+		// Prevent accidental resets
+		onClick(container, (e) => e.stopPropagation());
 		menuItem.appendChild(container);
 		const leftButton = makeElement("birb-spinner-button", "-");
 		const rightButton = makeElement("birb-spinner-button", "+");
-		onClick(leftButton, () => {
+		onClick(leftButton, (e) => {
 			item.leftAction();
+			e.stopPropagation();
 		});
-		onClick(rightButton, () => {
+		onClick(rightButton, (e) => {
 			item.rightAction();
+			e.stopPropagation();
 		});
 		container.appendChild(leftButton);
 		container.appendChild(rightButton);
-	} else {
-		onClick(menuItem, () => {
-			if (item.removeMenu) {
-				removeMenuCallback();
-			}
-			item.action();
-		});
 	}
+	onClick(menuItem, () => {
+		if (item.removeMenu) {
+			removeMenuCallback();
+		}
+		item.action();
+	});
 	return menuItem;
 }
 

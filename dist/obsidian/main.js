@@ -2081,11 +2081,12 @@ module.exports = class PocketBird extends Plugin {
 	class SpinnerMenuItem extends MenuItem {
 		/**
 		 * @param {string} text
+		 * @param {() => void} labelAction
 		 * @param {() => void} leftAction
 		 * @param {() => void} rightAction
 		 */
-		constructor(text, leftAction, rightAction) {
-			super(text, () => { }, undefined, false);
+		constructor(text, labelAction, leftAction, rightAction) {
+			super(text, labelAction, undefined, false);
 			this.leftAction = leftAction;
 			this.rightAction = rightAction;
 		}
@@ -2152,25 +2153,28 @@ module.exports = class PocketBird extends Plugin {
 		if (item instanceof SpinnerMenuItem) {
 			menuItem.classList.add("birb-menu-item-spinner");
 			const container = makeElement("birb-menu-item-spinner-container");
+			// Prevent accidental resets
+			onClick(container, (e) => e.stopPropagation());
 			menuItem.appendChild(container);
 			const leftButton = makeElement("birb-spinner-button", "-");
 			const rightButton = makeElement("birb-spinner-button", "+");
-			onClick(leftButton, () => {
+			onClick(leftButton, (e) => {
 				item.leftAction();
+				e.stopPropagation();
 			});
-			onClick(rightButton, () => {
+			onClick(rightButton, (e) => {
 				item.rightAction();
+				e.stopPropagation();
 			});
 			container.appendChild(leftButton);
 			container.appendChild(rightButton);
-		} else {
-			onClick(menuItem, () => {
-				if (item.removeMenu) {
-					removeMenuCallback();
-				}
-				item.action();
-			});
 		}
+		onClick(menuItem, () => {
+			if (item.removeMenu) {
+				removeMenuCallback();
+			}
+			item.action();
+		});
 		return menuItem;
 	}
 
@@ -2928,7 +2932,13 @@ module.exports = class PocketBird extends Plugin {
 		const settingsItems = [
 			new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), undefined, false),
 			new Separator(),
-			new SpinnerMenuItem(`${birdBirb()} Scale`, () => {
+			new SpinnerMenuItem(`${birdBirb()} Scale`,
+				() => {
+					userSettings.birbScaleMultiplier = 1;
+					save();
+					updateBirbScale();
+				},
+				() => {
 				const currentMultiplier = settings().birbScaleMultiplier;
 				let newMultiplier;
 				if (currentMultiplier <= 2) {
@@ -2953,7 +2963,13 @@ module.exports = class PocketBird extends Plugin {
 				save();
 				updateBirbScale();
 			}),
-			new SpinnerMenuItem("UI Scale", () => {
+			new SpinnerMenuItem("UI Scale",
+				() => {
+					userSettings.uiScaleMultiplier = 1;
+					save();
+					updateUIScale();
+				},
+				() => {
 				const currentMultiplier = settings().uiScaleMultiplier;
 				userSettings.uiScaleMultiplier = Math.max(0.1, Math.round((currentMultiplier - 0.1) * 10) / 10);
 				save();
