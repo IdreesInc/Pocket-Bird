@@ -1,7 +1,7 @@
 const { Plugin, Notice } = require('obsidian');
 module.exports = class PocketBird extends Plugin {
 	onload() {
-		console.log("Loading Pocket Bird version 2026.4.30...");
+		console.log("Loading Pocket Bird version 2026.5.2...");
 		const OBSIDIAN_PLUGIN = this;
 		(function () {
 	'use strict';
@@ -740,7 +740,6 @@ module.exports = class PocketBird extends Plugin {
 		"#373737": PALETTE.FEATHER_SPINE,
 	};
 
-
 	/**
 	 * @type {Partial<Record<PaletteColor, PaletteColor>>}
 	 */
@@ -854,18 +853,11 @@ module.exports = class PocketBird extends Plugin {
 						const a = pixels[index + 3];
 						if (a === 0) {
 							row.push(PALETTE.TRANSPARENT);
-							continue;
+						} else if (!templateColors) {
+							row.push(rgbToHex(r, g, b));
+						} else {
+							row.push(getTemplateColorMatch(r, g, b));
 						}
-						const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-						if (!templateColors) {
-							row.push(hex);
-							continue;
-						}
-						if (SPRITE_SHEET_COLOR_MAP[hex] === undefined) {
-							row.push(hex);
-							continue;
-						}
-						row.push(SPRITE_SHEET_COLOR_MAP[hex]);
 					}
 					hexArray.push(row);
 				}
@@ -876,6 +868,71 @@ module.exports = class PocketBird extends Plugin {
 			};
 		});
 	}
+
+	/**
+	 * @param {string} hex The hex color to convert
+	 * @returns {[number, number, number]} The RGB values as an array of [red, green, blue]
+	 */
+	function hexToRgb(hex) {
+		const n = parseInt(hex.slice(1), 16);
+		return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+	}
+
+	/**
+	 * @param {number} r Red channel value (0-255)
+	 * @param {number} g Green channel value (0-255)
+	 * @param {number} b Blue channel value (0-255)
+	 * @returns {string} The rgb color as a hex string
+	 */
+	function rgbToHex(r, g, b) {
+		return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+	}
+
+	/**
+	 * Get the euclidean distance between two colors in RGB space
+	 * @param {[number, number, number]} colorA The first color as [r, g, b]
+	 * @param {[number, number, number]} colorB The second color as [r, g, b]
+	 * @returns {number} The distance between the two colors, where 0 is an exact match
+	 */
+	function colorDistance(colorA, colorB) {
+		return Math.abs(colorA[0] - colorB[0]) + Math.abs(colorA[1] - colorB[1]) + Math.abs(colorA[2] - colorB[2]);
+	}
+
+	const SPRITE_SHEET_RGB = Object.entries(SPRITE_SHEET_COLOR_MAP)
+	    .filter(([hex]) => hex !== "transparent")
+	    .map(([hex, palette]) => ({ rgb: hexToRgb(hex), palette }));
+
+	/**
+	 * Get the closest sprite sheet color that matches the given color within a tolerance, or return the original color if no match is found
+	 * @param {number} red The red channel value (0-255)
+	 * @param {number} green The green channel value (0-255)
+	 * @param {number} blue The blue channel value (0-255)
+	 * @returns {PaletteColor | string} The name of the matching palette color, or the original color as a hex string if no match is found
+	 */
+	function getTemplateColorMatch(red, green, blue) {
+		const hex = rgbToHex(red, green, blue);
+		if (SPRITE_SHEET_COLOR_MAP[hex]) {
+			// Exact match
+			return SPRITE_SHEET_COLOR_MAP[hex];
+		}
+		// Rarely, certain platforms like Linux Mint do not properly convert colors requiring this fuzzy matching fallback
+		const TOLERANCE = 20;
+		let closestMatch = null;
+		let minDistance = 256;
+		for (const { rgb, palette } of SPRITE_SHEET_RGB) {
+			const distance = colorDistance([red, green, blue], rgb);
+			if (distance <= TOLERANCE && distance < minDistance) {
+				minDistance = distance;
+				closestMatch = palette;
+			}
+		}
+		if (!closestMatch) {
+			return rgbToHex(red, green, blue);
+		}
+		console.log("Fuzzy match of color", hex, "to palette color", closestMatch, "with distance", minDistance);
+		return closestMatch;
+	}
+
 
 	/** @type {Record<string, BirdType>} */
 	const SPECIES = Object.fromEntries(
@@ -964,7 +1021,6 @@ module.exports = class PocketBird extends Plugin {
 		draw(ctx, direction, canvasPixelSize, colorScheme, tags) {
 			// Clear the canvas before drawing the new frame
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-			let pixelsMatched = 0;
 			const pixels = this.getPixels(tags);
 			for (let y = 0; y < pixels.length; y++) {
 				const row = pixels[y];
@@ -972,11 +1028,8 @@ module.exports = class PocketBird extends Plugin {
 					const cell = direction === Directions.LEFT ? row[x] : row[pixels[y].length - x - 1];
 					ctx.fillStyle = colorScheme[cell] ?? cell;
 					ctx.fillRect(x * canvasPixelSize, y * canvasPixelSize, canvasPixelSize, canvasPixelSize);
-					if (colorScheme[cell]) {
-						pixelsMatched++;
-					}
-				}		}		console.log(`${pixelsMatched} pixels matched color scheme, ${pixels.length * pixels[0].length - pixelsMatched} did not.`);
-		}
+					if (colorScheme[cell]) ;
+				}		}	}
 	}
 
 	class Anim {
@@ -2779,7 +2832,7 @@ module.exports = class PocketBird extends Plugin {
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("Build 2026.4.30", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.4.30"); }, undefined, false),
+			new MenuItem("Build 2026.5.2", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.5.2"); }, undefined, false),
 		];
 
 		/** @type {Birb} */

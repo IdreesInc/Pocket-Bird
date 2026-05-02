@@ -80,7 +80,6 @@ class Frame {
 				}
 			};
 		};
-		console.log(`${pixelsMatched} pixels matched color scheme, ${pixels.length * pixels[0].length - pixelsMatched} did not.`);
 	}
 }
 
