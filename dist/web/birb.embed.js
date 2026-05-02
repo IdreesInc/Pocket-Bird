@@ -2193,6 +2193,10 @@
 	transform-origin: bottom;
 	z-index: 2147483638 !important;
 	cursor: pointer;
+	/* Reset values to avoid website interference */
+	width: auto !important;
+	height: auto !important;
+	top: auto !important;
 }
 
 .birb-absolute {
