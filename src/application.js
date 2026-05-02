@@ -308,7 +308,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 	async function load() {
 		const nonce = ++loadNonce;
-		/** @type {BirbSaveData} */
+		/** @type {Partial<BirbSaveData>} */
 		let saveData = await getContext().getSaveData();
 		if (nonce !== loadNonce) {
 			console.warn("Aborting load due to newer load call");
@@ -374,9 +374,9 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 	/**
 	 * Merge new save data with the currently stored save data, ensuring that unlocks are not lost
-	 * @param {BirbSaveData} storedSave
-	 * @param {BirbSaveData} currentSave 
-	 * @returns {BirbSaveData}
+	 * @param {Partial<BirbSaveData>} storedSave
+	 * @param {Partial<BirbSaveData>} currentSave 
+	 * @returns {Partial<BirbSaveData>}
 	 */
 	function mergeSaves(storedSave, currentSave) {
 		const mergedUnlockedSpecies = Array.from(new Set([...(storedSave.unlockedSpecies ?? []), ...(currentSave.unlockedSpecies ?? [])]));

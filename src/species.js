@@ -1,11 +1,15 @@
 /** @typedef {Object} Species
  * @property {string} name
  * @property {string} description
+ * @property {string} latinName
+ * @property {string} url
  * @property {Record<string, string>} colors
  * @property {string[]} [tags]
+ * @property {string} [rarity]
  */
 
-export default {
+/** @type {Record<string, Species>} */
+const species = {
   "bluebird": {
     "name": "Eastern Bluebird",
     "description": "Native to North American and very social, though can be timid around people.",
@@ -428,3 +432,5 @@ export default {
     "rarity": "uncommon"
   }
 }
+
+export default species;

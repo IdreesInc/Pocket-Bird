@@ -3,7 +3,7 @@
 export class Birdsong {
 
 	/**
-	 * @type {AudioContext}
+	 * @type {AudioContext|undefined}
 	 */
 	audioContext;
 

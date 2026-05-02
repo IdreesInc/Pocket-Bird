@@ -7,6 +7,7 @@
 	};
 
 	let debugMode = location.hostname === "127.0.0.1";
+	/** @type {import('./context.js').Context|null} */
 	let context = null;
 	/** @type {ShadowRoot|undefined} */
 	let shadowRoot;
@@ -32,6 +33,9 @@
 		return context;
 	}
 
+	/**
+	 * @param {import('./context.js').Context} newContext
+	 */
 	function setContext(newContext) {
 		context = newContext;
 	}
@@ -248,11 +252,15 @@
 	/** @typedef {Object} Species
 	 * @property {string} name
 	 * @property {string} description
+	 * @property {string} latinName
+	 * @property {string} url
 	 * @property {Record<string, string>} colors
 	 * @property {string[]} [tags]
+	 * @property {string} [rarity]
 	 */
 
-	var species = {
+	/** @type {Record<string, Species>} */
+	const species = {
 	  "bluebird": {
 	    "name": "Eastern Bluebird",
 	    "description": "Native to North American and very social, though can be timid around people.",
@@ -952,7 +960,7 @@
 	const SPECIES = Object.fromEntries(
 		Object.entries(species).map(([id, data]) => [
 			id,
-			new BirdType(data.name, data.description, data.latinName, data.url, data.colors, data.tags, data.rarity)
+			new BirdType(data.name, data.description, data.latinName, data.url, data.colors, data.tags, /** @type {Rarity|undefined} */ (data.rarity))
 		]),
 	);
 
@@ -1058,6 +1066,7 @@
 			this.loop = loop;
 			this.lastFrameIndex = -1;
 			this.lastDirection = null;
+			/** @type {number|null} */
 			this.lastTimeStart = null;
 		}
 
@@ -1209,21 +1218,21 @@
 	 * @returns {{ base: Layer[], down: Layer[] }}
 	 */
 	function createHatLayers(spriteSheet) {
+		/** @type {{ base: Layer[], down: Layer[] }} */
 		const hatLayers = {
 			base: [],
 			down: []
 		};
-		for (let i = 0; i < Object.keys(HAT).length; i++) {
-			const hatName = Object.keys(HAT)[i];
+		let index = 0;
+		for (const [hatName, hatKey] of Object.entries(HAT)) {
 			if (hatName === 'NONE') {
 				continue;
 			}
-			const index = i - 1;
-			const hatKey = HAT[hatName];
 			const hatLayer = buildHatLayer(spriteSheet, hatKey, index);
 			const downHatLayer = buildHatLayer(spriteSheet, hatKey, index, 1);
 			hatLayers.base.push(hatLayer);
 			hatLayers.down.push(downHatLayer);
+			index++;
 		}
 		return hatLayers;
 	}
@@ -1483,7 +1492,7 @@
 			this.canvas.width = this.frames.base.getPixels()[0].length * canvasPixelSize;
 			this.canvas.height = spriteHeight * canvasPixelSize;
 
-			this.ctx = this.canvas.getContext("2d");
+			this.ctx = /** @type {CanvasRenderingContext2D} */ (this.canvas.getContext("2d"));
 
 			// Append to shadow dom
 			getShadowRoot().appendChild(this.canvas);
@@ -1644,7 +1653,7 @@
 	class Birdsong {
 
 		/**
-		 * @type {AudioContext}
+		 * @type {AudioContext|undefined}
 		 */
 		audioContext;
 
@@ -1702,7 +1711,7 @@
 
 		/**
 		 * @abstract
-		 * @returns {Promise<BirbSaveData|{}>}
+		 * @returns {Promise<Partial<BirbSaveData>>}
 		 */
 		async getSaveData() {
 			throw new Error("Method not implemented");
@@ -1792,7 +1801,7 @@
 
 		/**
 		 * @override
-		 * @returns {Promise<BirbSaveData|{}>}
+		 * @returns {Promise<Partial<BirbSaveData>>}
 		 */
 		async getSaveData() {
 			log("Loading save data from localStorage");
@@ -2845,7 +2854,7 @@
 
 		async function load() {
 			const nonce = ++loadNonce;
-			/** @type {BirbSaveData} */
+			/** @type {Partial<BirbSaveData>} */
 			let saveData = await getContext().getSaveData();
 			if (nonce !== loadNonce) {
 				console.warn("Aborting load due to newer load call");
@@ -2907,9 +2916,9 @@
 
 		/**
 		 * Merge new save data with the currently stored save data, ensuring that unlocks are not lost
-		 * @param {BirbSaveData} storedSave
-		 * @param {BirbSaveData} currentSave 
-		 * @returns {BirbSaveData}
+		 * @param {Partial<BirbSaveData>} storedSave
+		 * @param {Partial<BirbSaveData>} currentSave 
+		 * @returns {Partial<BirbSaveData>}
 		 */
 		function mergeSaves(storedSave, currentSave) {
 			const mergedUnlockedSpecies = Array.from(new Set([...(storedSave.unlockedSpecies ?? []), ...(currentSave.unlockedSpecies ?? [])]));

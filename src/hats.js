@@ -78,21 +78,21 @@ export const HAT_METADATA = {
  * @returns {{ base: Layer[], down: Layer[] }}
  */
 export function createHatLayers(spriteSheet) {
+	/** @type {{ base: Layer[], down: Layer[] }} */
 	const hatLayers = {
 		base: [],
 		down: []
 	};
-	for (let i = 0; i < Object.keys(HAT).length; i++) {
-		const hatName = Object.keys(HAT)[i];
+	let index = 0;
+	for (const [hatName, hatKey] of Object.entries(HAT)) {
 		if (hatName === 'NONE') {
 			continue;
 		}
-		const index = i - 1;
-		const hatKey = HAT[hatName];
 		const hatLayer = buildHatLayer(spriteSheet, hatKey, index);
 		const downHatLayer = buildHatLayer(spriteSheet, hatKey, index, 1);
 		hatLayers.base.push(hatLayer);
 		hatLayers.down.push(downHatLayer);
+		index++;
 	}
 	return hatLayers;
 }

@@ -4,6 +4,7 @@ export const Directions = {
 };
 
 let debugMode = location.hostname === "127.0.0.1";
+/** @type {import('./context.js').Context|null} */
 let context = null;
 /** @type {ShadowRoot|undefined} */
 let shadowRoot;
@@ -29,6 +30,9 @@ export function getContext() {
 	return context;
 }
 
+/**
+ * @param {import('./context.js').Context} newContext
+ */
 export function setContext(newContext) {
 	context = newContext;
 }

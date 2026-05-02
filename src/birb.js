@@ -118,7 +118,7 @@ export class Birb {
 		this.canvas.width = this.frames.base.getPixels()[0].length * canvasPixelSize;
 		this.canvas.height = spriteHeight * canvasPixelSize;
 
-		this.ctx = this.canvas.getContext("2d");
+		this.ctx = /** @type {CanvasRenderingContext2D} */ (this.canvas.getContext("2d"));
 
 		// Append to shadow dom
 		getShadowRoot().appendChild(this.canvas);

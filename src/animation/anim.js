@@ -13,6 +13,7 @@ class Anim {
 		this.loop = loop;
 		this.lastFrameIndex = -1;
 		this.lastDirection = null;
+		/** @type {number|null} */
 		this.lastTimeStart = null;
 	}
 
