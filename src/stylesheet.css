@@ -420,3 +420,9 @@
 	outline: none !important;
 	box-shadow: none !important;
 }
+
+@media print {
+	#birb {
+		display: none !important;
+	}
+}
