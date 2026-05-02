@@ -2224,7 +2224,7 @@
 }
 
 .birb-absolute {
-	position: absolute;
+	position: absolute !important;
 }
 
 .birb-decoration {

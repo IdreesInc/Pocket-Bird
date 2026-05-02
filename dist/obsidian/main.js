@@ -2285,7 +2285,7 @@ module.exports = class PocketBird extends Plugin {
 }
 
 .birb-absolute {
-	position: absolute;
+	position: absolute !important;
 }
 
 .birb-decoration {
