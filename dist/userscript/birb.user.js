@@ -2234,7 +2234,8 @@
 	const DEFAULT_SETTINGS = {
 		birbMode: false,
 		soundEnabled: true,
-		birbScaleMultiplier: 1
+		birbScaleMultiplier: 1,
+		uiScaleMultiplier: 1,
 	};
 
 	// Rendering constants
@@ -2257,7 +2258,7 @@
 	--birb-background-color: #ffecda;
 	--birb-mix-color: color-mix(in srgb, var(--birb-highlight) 50%, var(--birb-background-color));
 	--birb-scale: 1;
-	--birb-ui-scale: ${UI_CSS_SCALE};
+	--birb-ui-scale: 1;
 }
 
 #birb {
@@ -2513,8 +2514,8 @@
 	flex-wrap: nowrap;
 	gap: 8px;
 	margin-left: 10px;
-	justify-content: space-between;
-	align-items: right;
+	justify-content:end;
+	width: 40px;
 }
 
 .birb-spinner-button {
@@ -2528,6 +2529,7 @@
 	background-color: var(--birb-background-color);
 	/* color: var(--birb-highlight); */
 	font-size: 14px;
+	padding-top: 0.5px;
 	padding-left: 0.75px;
 	margin-top: -0.5px;
 	text-align: center;
@@ -2812,31 +2814,6 @@
 		};
 
 		const menuItems = [
-			new SpinnerMenuItem(`${birdBirb()} Scale`, () => {
-				const currentMultiplier = settings().birbScaleMultiplier;
-				let newMultiplier;
-				if (currentMultiplier <= 2) {
-					newMultiplier = currentMultiplier - 0.25;
-				} else {
-					newMultiplier = currentMultiplier - 1;
-				}
-				newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
-				userSettings.birbScaleMultiplier = newMultiplier;
-				save();
-				updateBirbScale();
-			}, () => {
-				const currentMultiplier = settings().birbScaleMultiplier;
-				let newMultiplier;
-				if (currentMultiplier < 2) {
-					newMultiplier = currentMultiplier + 0.25;
-				} else {
-					newMultiplier = currentMultiplier + 1;
-				}
-				newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
-				userSettings.birbScaleMultiplier = newMultiplier;
-				save();
-				updateBirbScale();
-			}),
 			new MenuItem(() => `Pet ${birdBirb()}`, pet, [
 				[0, 1, 1, 0, 1, 1, 0],
 				[1, 0, 0, 1, 0, 0, 1],
@@ -2910,6 +2887,42 @@
 		const settingsItems = [
 			new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), undefined, false),
 			new Separator(),
+			new SpinnerMenuItem(`${birdBirb()} Scale`, () => {
+				const currentMultiplier = settings().birbScaleMultiplier;
+				let newMultiplier;
+				if (currentMultiplier <= 2) {
+					newMultiplier = currentMultiplier - 0.25;
+				} else {
+					newMultiplier = currentMultiplier - 1;
+				}
+				newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
+				userSettings.birbScaleMultiplier = newMultiplier;
+				save();
+				updateBirbScale();
+			}, () => {
+				const currentMultiplier = settings().birbScaleMultiplier;
+				let newMultiplier;
+				if (currentMultiplier < 2) {
+					newMultiplier = currentMultiplier + 0.25;
+				} else {
+					newMultiplier = currentMultiplier + 1;
+				}
+				newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
+				userSettings.birbScaleMultiplier = newMultiplier;
+				save();
+				updateBirbScale();
+			}),
+			new SpinnerMenuItem("UI Scale", () => {
+				const currentMultiplier = settings().uiScaleMultiplier;
+				userSettings.uiScaleMultiplier = Math.max(0.1, Math.round((currentMultiplier - 0.1) * 10) / 10);
+				save();
+				updateUIScale();
+			}, () => {
+				const currentMultiplier = settings().uiScaleMultiplier;
+				userSettings.uiScaleMultiplier = Math.round((currentMultiplier + 0.1) * 10) / 10;
+				save();
+				updateUIScale();
+			}),
 			new MenuItem(() => `${settings().soundEnabled ? "Disable" : "Enable"} Sound`, () => {
 				userSettings.soundEnabled = !settings().soundEnabled;
 				save();
@@ -3093,6 +3106,10 @@
 			setProperty("--birb-scale", settings().birbScaleMultiplier * BIRB_CSS_SCALE);
 		}
 
+		function updateUIScale() {
+			setProperty("--birb-ui-scale", settings().uiScaleMultiplier * UI_CSS_SCALE);
+		}
+
 		/**
 		 * Set the given CSS variable to the given value in the shadow dom and regular dom
 		 * @param {string} name The name of the CSS variable (including --)
@@ -3107,7 +3124,7 @@
 			injectStyleElement(getContext().getFontStyles());
 			injectStyleElement(STYLESHEET);
 			updateBirbScale();
-
+			updateUIScale();
 			birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT, HATS_SPRITE_SHEET);
 			birb.setAnimation(Animations.BOB);
 

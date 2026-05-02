@@ -70,7 +70,8 @@ import { HAT, HAT_METADATA, createHatItemAnimation } from './hats.js';
 const DEFAULT_SETTINGS = {
 	birbMode: false,
 	soundEnabled: true,
-	birbScaleMultiplier: 1
+	birbScaleMultiplier: 1,
+	uiScaleMultiplier: 1,
 };
 
 // Rendering constants
@@ -173,31 +174,6 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	};
 
 	const menuItems = [
-		new SpinnerMenuItem(`${birdBirb()} Scale`, () => {
-			const currentMultiplier = settings().birbScaleMultiplier;
-			let newMultiplier;
-			if (currentMultiplier <= 2) {
-				newMultiplier = currentMultiplier - 0.25;
-			} else {
-				newMultiplier = currentMultiplier - 1;
-			}
-			newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
-			userSettings.birbScaleMultiplier = newMultiplier;
-			save();
-			updateBirbScale();
-		}, () => {
-			const currentMultiplier = settings().birbScaleMultiplier;
-			let newMultiplier;
-			if (currentMultiplier < 2) {
-				newMultiplier = currentMultiplier + 0.25;
-			} else {
-				newMultiplier = currentMultiplier + 1;
-			}
-			newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
-			userSettings.birbScaleMultiplier = newMultiplier;
-			save();
-			updateBirbScale();
-		}),
 		new MenuItem(() => `Pet ${birdBirb()}`, pet, [
 			[0, 1, 1, 0, 1, 1, 0],
 			[1, 0, 0, 1, 0, 0, 1],
@@ -271,6 +247,42 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	const settingsItems = [
 		new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), undefined, false),
 		new Separator(),
+		new SpinnerMenuItem(`${birdBirb()} Scale`, () => {
+			const currentMultiplier = settings().birbScaleMultiplier;
+			let newMultiplier;
+			if (currentMultiplier <= 2) {
+				newMultiplier = currentMultiplier - 0.25;
+			} else {
+				newMultiplier = currentMultiplier - 1;
+			}
+			newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
+			userSettings.birbScaleMultiplier = newMultiplier;
+			save();
+			updateBirbScale();
+		}, () => {
+			const currentMultiplier = settings().birbScaleMultiplier;
+			let newMultiplier;
+			if (currentMultiplier < 2) {
+				newMultiplier = currentMultiplier + 0.25;
+			} else {
+				newMultiplier = currentMultiplier + 1;
+			}
+			newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
+			userSettings.birbScaleMultiplier = newMultiplier;
+			save();
+			updateBirbScale();
+		}),
+		new SpinnerMenuItem("UI Scale", () => {
+			const currentMultiplier = settings().uiScaleMultiplier;
+			userSettings.uiScaleMultiplier = Math.max(0.1, Math.round((currentMultiplier - 0.1) * 10) / 10);
+			save();
+			updateUIScale();
+		}, () => {
+			const currentMultiplier = settings().uiScaleMultiplier;
+			userSettings.uiScaleMultiplier = Math.round((currentMultiplier + 0.1) * 10) / 10;
+			save();
+			updateUIScale();
+		}),
 		new MenuItem(() => `${settings().soundEnabled ? "Disable" : "Enable"} Sound`, () => {
 			userSettings.soundEnabled = !settings().soundEnabled;
 			save();
@@ -458,6 +470,10 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		setProperty("--birb-scale", settings().birbScaleMultiplier * BIRB_CSS_SCALE);
 	}
 
+	function updateUIScale() {
+		setProperty("--birb-ui-scale", settings().uiScaleMultiplier * UI_CSS_SCALE);
+	}
+
 	/**
 	 * Set the given CSS variable to the given value in the shadow dom and regular dom
 	 * @param {string} name The name of the CSS variable (including --)
@@ -472,7 +488,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		injectStyleElement(getContext().getFontStyles());
 		injectStyleElement(STYLESHEET);
 		updateBirbScale();
-
+		updateUIScale();
 		birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT, HATS_SPRITE_SHEET);
 		birb.setAnimation(Animations.BOB);
 

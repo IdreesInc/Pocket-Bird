@@ -8,7 +8,7 @@
 	--birb-background-color: #ffecda;
 	--birb-mix-color: color-mix(in srgb, var(--birb-highlight) 50%, var(--birb-background-color));
 	--birb-scale: 1;
-	--birb-ui-scale: ${UI_CSS_SCALE};
+	--birb-ui-scale: 1;
 }
 
 #birb {
@@ -264,8 +264,8 @@
 	flex-wrap: nowrap;
 	gap: 8px;
 	margin-left: 10px;
-	justify-content: space-between;
-	align-items: right;
+	justify-content:end;
+	width: 40px;
 }
 
 .birb-spinner-button {
@@ -279,6 +279,7 @@
 	background-color: var(--birb-background-color);
 	/* color: var(--birb-highlight); */
 	font-size: 14px;
+	padding-top: 0.5px;
 	padding-left: 0.75px;
 	margin-top: -0.5px;
 	text-align: center;
