@@ -1923,6 +1923,7 @@
 		}
 
 		if (textarea && textarea instanceof HTMLTextAreaElement) {
+			/** @type {ReturnType<typeof setTimeout>|undefined} */
 			let saveTimeout;
 			// Save after debounce
 			textarea.addEventListener("input", () => {
@@ -2435,9 +2436,8 @@
 }
 
 .birb-menu-item-icon {
-	width: calc(7 * var(--birb-border-size));
-	height: calc(6 * var(--birb-border-size));
-	padding-right: calc(5 * var(--birb-border-size));
+	height: calc(6 * var(--birb-border-size)) !important;
+	padding-right: calc(5 * var(--birb-border-size)) !important;
 	flex-shrink: 0;
 	image-rendering: pixelated;
 	color: var(--birb-highlight);
