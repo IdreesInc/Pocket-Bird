@@ -911,7 +911,7 @@
 			return SPRITE_SHEET_COLOR_MAP[hex];
 		}
 		// Rarely, certain platforms like Linux Mint do not properly convert colors requiring this fuzzy matching fallback
-		const TOLERANCE = 20;
+		const TOLERANCE = 50;
 		let closestMatch = null;
 		let minDistance = 256;
 		for (const { rgb, palette } of SPRITE_SHEET_RGB) {
