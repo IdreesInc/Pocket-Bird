@@ -1414,9 +1414,7 @@ module.exports = class PocketBird extends Plugin {
 		 * @param {string[][]} hatSpriteSheet The loaded hat sprite sheet pixel data
 		 */
 		constructor(birbCssScale, canvasPixelSize, spriteSheet, spriteWidth, spriteHeight, hatSpriteSheet) {
-			this.birbCssScale = birbCssScale;
 			this.canvasPixelSize = canvasPixelSize;
-			this.windowPixelSize = canvasPixelSize * birbCssScale;
 			this.spriteWidth = spriteWidth;
 			this.spriteHeight = spriteHeight;
 
@@ -1552,7 +1550,7 @@ module.exports = class PocketBird extends Plugin {
 		 * @returns {number}
 		 */
 		getElementWidth() {
-			return this.canvas.width * this.birbCssScale;
+			return this.canvas.getBoundingClientRect().width;
 		}
 
 		/**
@@ -1560,7 +1558,7 @@ module.exports = class PocketBird extends Plugin {
 		 * @returns {number}
 		 */
 		getElementHeight() {
-			return this.canvas.height * this.birbCssScale;
+			return this.canvas.getBoundingClientRect().height;
 		}
 
 		getElementTop() {
@@ -1574,8 +1572,7 @@ module.exports = class PocketBird extends Plugin {
 		 */
 		setX(x) {
 			this.x = x;
-			let mod = this.getElementWidth() / -2 - (this.windowPixelSize * (this.direction === Directions.RIGHT ? 2 : -2));
-			this.canvas.style.left = `${x + mod}px`;
+			this.canvas.style.left = `${x - this.canvas.width / 2 - (this.direction === Directions.RIGHT ? 2 : -2)}px`;
 		}
 
 		/**
@@ -2081,6 +2078,19 @@ module.exports = class PocketBird extends Plugin {
 		}
 	}
 
+	class SpinnerMenuItem extends MenuItem {
+		/**
+		 * @param {string} text
+		 * @param {() => void} leftAction
+		 * @param {() => void} rightAction
+		 */
+		constructor(text, leftAction, rightAction) {
+			super(text, () => { }, undefined, false);
+			this.leftAction = leftAction;
+			this.rightAction = rightAction;
+		}
+	}
+
 	class ConditionalMenuItem extends MenuItem {
 		/**
 		 * @param {string} text
@@ -2139,12 +2149,28 @@ module.exports = class PocketBird extends Plugin {
 			}
 			menuItem.prepend(iconCanvas);
 		}
-		onClick(menuItem, () => {
-			if (item.removeMenu) {
-				removeMenuCallback();
-			}
-			item.action();
-		});
+		if (item instanceof SpinnerMenuItem) {
+			menuItem.classList.add("birb-menu-item-spinner");
+			const container = makeElement("birb-menu-item-spinner-container");
+			menuItem.appendChild(container);
+			const leftButton = makeElement("birb-spinner-button", "-");
+			const rightButton = makeElement("birb-spinner-button", "+");
+			onClick(leftButton, () => {
+				item.leftAction();
+			});
+			onClick(rightButton, () => {
+				item.rightAction();
+			});
+			container.appendChild(leftButton);
+			container.appendChild(rightButton);
+		} else {
+			onClick(menuItem, () => {
+				if (item.removeMenu) {
+					removeMenuCallback();
+				}
+				item.action();
+			});
+		}
 		return menuItem;
 	}
 
@@ -2248,7 +2274,8 @@ module.exports = class PocketBird extends Plugin {
 	 */
 	const DEFAULT_SETTINGS = {
 		birbMode: false,
-		soundEnabled: true
+		soundEnabled: true,
+		birbScaleMultiplier: 1
 	};
 
 	// Rendering constants
@@ -2270,7 +2297,7 @@ module.exports = class PocketBird extends Plugin {
 	--birb-border-color: var(--birb-highlight);
 	--birb-background-color: #ffecda;
 	--birb-mix-color: color-mix(in srgb, var(--birb-highlight) 50%, var(--birb-background-color));
-	--birb-scale: ${BIRB_CSS_SCALE};
+	--birb-scale: 1;
 	--birb-ui-scale: ${UI_CSS_SCALE};
 }
 
@@ -2487,7 +2514,7 @@ module.exports = class PocketBird extends Plugin {
 	transition: background 0.1s, color 0.1s;
 }
 
-.birb-menu-item:hover {
+.birb-menu-item:hover:not(.birb-menu-item-spinner) {
 	opacity: 1;
 	background: var(--birb-highlight);
 	color: white;
@@ -2514,6 +2541,54 @@ module.exports = class PocketBird extends Plugin {
 
 .birb-menu-item-arrow {
 	display: inline-block;
+}
+
+.birb-menu-item-spinner {
+	display: flex;
+	justify-content: space-between;
+}
+
+.birb-menu-item-spinner-container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	gap: 8px;
+	margin-left: 10px;
+	justify-content: space-between;
+	align-items: right;
+}
+
+.birb-spinner-button {
+	box-sizing: border-box;
+	width: 1em;
+	height: calc(7 * var(--birb-border-size));
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	--spinner-border-color: var(--birb-highlight);
+	background-color: var(--birb-background-color);
+	/* color: var(--birb-highlight); */
+	font-size: 14px;
+	padding-left: 0.75px;
+	margin-top: -0.5px;
+	text-align: center;
+	box-shadow:
+		var(--birb-border-size) 0 var(--spinner-border-color),
+		var(--birb-neg-border-size) 0 var(--spinner-border-color),
+		0 var(--birb-neg-border-size) var(--spinner-border-color),
+		0 var(--birb-border-size) var(--spinner-border-color);
+	/* border-radius: 3px; */
+	cursor: pointer;
+}
+
+.birb-spinner-button:hover {
+	background-color: var(--birb-highlight);
+	box-shadow:
+		var(--birb-border-size) 0 var(--birb-highlight),
+		var(--birb-neg-border-size) 0 var(--birb-highlight),
+		0 var(--birb-neg-border-size) var(--birb-highlight),
+		0 var(--birb-border-size) var(--birb-highlight);
+	color: white;
 }
 
 .birb-window-separator {
@@ -2778,6 +2853,31 @@ module.exports = class PocketBird extends Plugin {
 		};
 
 		const menuItems = [
+			new SpinnerMenuItem(`${birdBirb()} Scale`, () => {
+				const currentMultiplier = settings().birbScaleMultiplier;
+				let newMultiplier;
+				if (currentMultiplier <= 2) {
+					newMultiplier = currentMultiplier - 0.25;
+				} else {
+					newMultiplier = currentMultiplier - 1;
+				}
+				newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
+				userSettings.birbScaleMultiplier = newMultiplier;
+				save();
+				updateBirbScale();
+			}, () => {
+				const currentMultiplier = settings().birbScaleMultiplier;
+				let newMultiplier;
+				if (currentMultiplier < 2) {
+					newMultiplier = currentMultiplier + 0.25;
+				} else {
+					newMultiplier = currentMultiplier + 1;
+				}
+				newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
+				userSettings.birbScaleMultiplier = newMultiplier;
+				save();
+				updateBirbScale();
+			}),
 			new MenuItem(() => `Pet ${birdBirb()}`, pet, [
 				[0, 1, 1, 0, 1, 1, 0],
 				[1, 0, 0, 1, 0, 0, 1],
@@ -3030,9 +3130,24 @@ module.exports = class PocketBird extends Plugin {
 			load().then(onLoad);
 		}
 
+		function updateBirbScale() {
+			setProperty("--birb-scale", settings().birbScaleMultiplier * BIRB_CSS_SCALE);
+		}
+
+		/**
+		 * Set the given CSS variable to the given value in the shadow dom and regular dom
+		 * @param {string} name The name of the CSS variable (including --)
+		 * @param {any} value The value to set the CSS variable to
+		 */
+		function setProperty(name, value) {
+			/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty(name, value);
+			document.documentElement.style.setProperty(name, value);
+		}
+
 		function onLoad() {
 			injectStyleElement(getContext().getFontStyles());
 			injectStyleElement(STYLESHEET);
+			updateBirbScale();
 
 			birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT, HATS_SPRITE_SHEET);
 			birb.setAnimation(Animations.BOB);
@@ -3658,8 +3773,8 @@ module.exports = class PocketBird extends Plugin {
 		 */
 		function switchSpecies(type, updateSave = true) {
 			currentSpecies = type;
-			// Update CSS variable --birb-highlight to be wing color
-			document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+			// document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+			setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
 			/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
 			if (updateSave) {
 				save();

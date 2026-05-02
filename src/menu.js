@@ -26,6 +26,19 @@ export class MenuItem {
 	}
 }
 
+export class SpinnerMenuItem extends MenuItem {
+	/**
+	 * @param {string} text
+	 * @param {() => void} leftAction
+	 * @param {() => void} rightAction
+	 */
+	constructor(text, leftAction, rightAction) {
+		super(text, () => { }, undefined, false);
+		this.leftAction = leftAction;
+		this.rightAction = rightAction;
+	}
+}
+
 export class ConditionalMenuItem extends MenuItem {
 	/**
 	 * @param {string} text
@@ -84,12 +97,28 @@ function createMenuItem(item, removeMenuCallback) {
 		}
 		menuItem.prepend(iconCanvas);
 	}
-	onClick(menuItem, () => {
-		if (item.removeMenu) {
-			removeMenuCallback();
-		}
-		item.action();
-	});
+	if (item instanceof SpinnerMenuItem) {
+		menuItem.classList.add("birb-menu-item-spinner");
+		const container = makeElement("birb-menu-item-spinner-container");
+		menuItem.appendChild(container);
+		const leftButton = makeElement("birb-spinner-button", "-");
+		const rightButton = makeElement("birb-spinner-button", "+");
+		onClick(leftButton, () => {
+			item.leftAction();
+		});
+		onClick(rightButton, () => {
+			item.rightAction();
+		});
+		container.appendChild(leftButton);
+		container.appendChild(rightButton);
+	} else {
+		onClick(menuItem, () => {
+			if (item.removeMenu) {
+				removeMenuCallback();
+			}
+			item.action();
+		});
+	}
 	return menuItem;
 }
 
