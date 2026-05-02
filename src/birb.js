@@ -1,4 +1,4 @@
-import { Directions, getLayerPixels, getWindowHeight, getFixedWindowHeight } from './shared.js';
+import { Directions, getLayerPixels, getWindowHeight, getFixedWindowHeight, getShadowRoot } from './shared.js';
 import Layer from './animation/layer.js';
 import Frame from './animation/frame.js';
 import Anim from './animation/anim.js';
@@ -120,8 +120,8 @@ export class Birb {
 
 		this.ctx = this.canvas.getContext("2d");
 
-		// Append to document
-		document.body.appendChild(this.canvas);
+		// Append to shadow dom
+		getShadowRoot().appendChild(this.canvas);
 	}
 
 	/**

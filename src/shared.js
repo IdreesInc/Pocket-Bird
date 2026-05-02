@@ -5,6 +5,8 @@ export const Directions = {
 
 let debugMode = location.hostname === "127.0.0.1";
 let context = null;
+/** @type {ShadowRoot|undefined} */
+let shadowRoot;
 
 /**
  * @returns {boolean} Whether debug mode is enabled
@@ -156,7 +158,7 @@ export function makeClosable(func, closeButton, allowEscape = true) {
 		onClick(closeButton, func);
 	}
 	document.addEventListener("keydown", (e) => {
-		if (closeButton && !document.body.contains(closeButton)) {
+		if (closeButton && !closeButton.isConnected) {
 			return;
 		}
 		if (allowEscape && e.key === "Escape") {
@@ -221,4 +223,21 @@ export function getWindowHeight() {
  */
 export function getFixedWindowHeight() {
 	return document.documentElement.clientHeight;
+}
+
+/**
+ * @param {ShadowRoot} root 
+ */
+export function setShadowRoot(root) {
+	shadowRoot = root;
+}
+
+/**
+ * @returns {ShadowRoot}
+ */
+export function getShadowRoot() {
+	if (!shadowRoot) {
+		throw new Error("Shadow root requested before being set");
+	}
+	return shadowRoot;
 }

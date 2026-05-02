@@ -20,7 +20,9 @@ import {
 	debug,
 	error,
 	getLayerPixels,
-	getWindowHeight
+	getWindowHeight,
+	setShadowRoot,
+	getShadowRoot
 } from './shared.js';
 import {
 	PALETTE,
@@ -415,6 +417,13 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			return;
 		}
 
+		// Create shadow dom
+		const shadowHost = document.createElement("div");
+		shadowHost.id = "birb-shadow-host";
+		document.body.appendChild(shadowHost);
+		const shadowRoot = shadowHost.attachShadow({ mode: "open" });
+		setShadowRoot(shadowRoot);
+
 		load().then(onLoad);
 	}
 
@@ -434,7 +443,8 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 		onClick(document, (e) => {
 			lastActionTimestamp = Date.now();
-			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
+			const path = e.composedPath();
+			if (path.some(el => el instanceof Element && el.id === MENU_EXIT_ID)) {
 				removeMenu();
 			}
 		});
@@ -584,9 +594,14 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		if (!stylesheetContents) {
 			return;
 		}
+		// Insert into shadow dom
 		const element = document.createElement("style");
 		element.textContent = stylesheetContents;
-		document.head.appendChild(element);
+		getShadowRoot().appendChild(element);
+		// Insert into actual dom
+		const documentElement = document.createElement("style");
+		documentElement.textContent = stylesheetContents;
+		document.head.appendChild(documentElement);
 	}
 
 	/**
@@ -623,7 +638,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		window.appendChild(header);
 		window.appendChild(contentWrapper);
 
-		document.body.appendChild(window);
+		getShadowRoot().appendChild(window);
 		makeDraggable(header);
 
 		makeClosable(() => {
@@ -637,7 +652,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function activateFeather() {
-		if (document.querySelector("#" + FEATHER_ID)) {
+		if (getShadowRoot().querySelector("#" + FEATHER_ID)) {
 			return;
 		}
 		const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.COMMON;
@@ -668,11 +683,11 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			return;
 		}
 		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type.colors, type.tags);
-		document.body.appendChild(featherCanvas);
+		getShadowRoot().appendChild(featherCanvas);
 		onClick(featherCanvas, () => {
 			unlockBird(birdType);
 			removeFeather();
-			if (document.querySelector("#" + FIELD_GUIDE_ID)) {
+			if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 				removeFieldGuide();
 				insertFieldGuide();
 			}
@@ -680,7 +695,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function removeFeather() {
-		const feather = document.querySelector("#" + FEATHER_ID);
+		const feather = getShadowRoot().querySelector("#" + FEATHER_ID);
 		if (feather) {
 			feather.remove();
 		}
@@ -690,7 +705,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	 * Insert the hat as an item element in the document if possible
 	 */
 	function insertHat() {
-		if (document.querySelector("#" + HAT_ID)) {
+		if (getShadowRoot().querySelector("#" + HAT_ID)) {
 			return;
 		}
 		// Select a random hat that hasn't been unlocked yet
@@ -731,8 +746,8 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		hatCanvas.style.left = (rect.left + rect.width / 2 - hatCanvas.width / 2) + "px";
 		hatCanvas.style.top = (rect.top - hatCanvas.height + window.scrollY) + "px";
 
-		// Append to document
-		document.body.appendChild(hatCanvas);
+		// Append to shadow dom
+		getShadowRoot().appendChild(hatCanvas);
 	}
 
 	/**
@@ -770,7 +785,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function updateFeather() {
-		const feather = document.querySelector("#birb-feather");
+		const feather = getShadowRoot().querySelector("#birb-feather");
 		if (!feather || !(feather instanceof HTMLElement)) {
 			return;
 		}
@@ -794,7 +809,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	 * @param {HTMLElement} content
 	 */
 	function insertModal(title, content) {
-		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
+		if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 			return;
 		}
 
@@ -830,7 +845,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	};
 
 	function insertFieldGuide() {
-		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
+		if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 			return;
 		}
 		// Remove wardrobe if open
@@ -918,7 +933,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			if (unlocked) {
 				onClick(speciesElement, () => {
 					switchSpecies(id);
-					document.querySelectorAll(".birb-grid-item").forEach((element) => {
+					getShadowRoot().querySelectorAll(".birb-grid-item").forEach((element) => {
 						element.classList.remove("birb-grid-item-selected");
 					});
 					speciesElement.classList.add("birb-grid-item-selected");
@@ -939,7 +954,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function removeFieldGuide() {
-		const fieldGuide = document.querySelector("#" + FIELD_GUIDE_ID);
+		const fieldGuide = getShadowRoot().querySelector("#" + FIELD_GUIDE_ID);
 		if (fieldGuide) {
 			fieldGuide.remove();
 		}
@@ -947,7 +962,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 	function insertWardrobe() {
 		console.log("Inserting wardrobe");
-		if (document.querySelector("#" + WARDROBE_ID)) {
+		if (getShadowRoot().querySelector("#" + WARDROBE_ID)) {
 			return;
 		}
 		// Remove field guide if open
@@ -1011,7 +1026,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			if (unlocked) {
 				onClick(hatElement, () => {
 					switchHat(hat);
-					document.querySelectorAll(".birb-grid-item").forEach((element) => {
+					getShadowRoot().querySelectorAll(".birb-grid-item").forEach((element) => {
 						element.classList.remove("birb-grid-item-selected");
 					});
 					hatElement.classList.add("birb-grid-item-selected");
@@ -1032,7 +1047,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function removeWardrobe() {
-		const wardrobe = document.querySelector("#" + WARDROBE_ID);
+		const wardrobe = getShadowRoot().querySelector("#" + WARDROBE_ID);
 		if (wardrobe) {
 			wardrobe.remove();
 		}
@@ -1046,6 +1061,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		currentSpecies = type;
 		// Update CSS variable --birb-highlight to be wing color
 		document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+		/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
 		if (updateSave) {
 			save();
 		}

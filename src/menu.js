@@ -4,7 +4,8 @@ import {
 	onClick,
 	makeDraggable,
 	makeClosable,
-	error
+	error,
+	getShadowRoot
 } from './shared.js';
 
 export const MENU_ID = "birb-menu";
@@ -99,7 +100,7 @@ function createMenuItem(item, removeMenuCallback) {
  * @param {(menu: HTMLElement) => void} updateLocationCallback
  */
 export function insertMenu(menuItems, title, updateLocationCallback) {
-	if (document.querySelector("#" + MENU_ID)) {
+	if (getShadowRoot().querySelector("#" + MENU_ID)) {
 		return;
 	}
 	let menu = makeElement("birb-window", undefined, MENU_ID);
@@ -115,12 +116,12 @@ export function insertMenu(menuItems, title, updateLocationCallback) {
 	}
 	menu.appendChild(header);
 	menu.appendChild(content);
-	document.body.appendChild(menu);
-	makeDraggable(document.querySelector(".birb-window-header"));
+	getShadowRoot().appendChild(menu);
+	makeDraggable(getShadowRoot().querySelector(".birb-window-header"));
 
 	let menuExit = makeElement("birb-window-exit", undefined, MENU_EXIT_ID);
 	onClick(menuExit, removeCallback);
-	document.body.appendChild(menuExit);
+	getShadowRoot().appendChild(menuExit);
 	makeClosable(removeCallback);
 
 	updateLocationCallback(menu);
@@ -130,11 +131,11 @@ export function insertMenu(menuItems, title, updateLocationCallback) {
  * Remove the menu from the page
  */
 export function removeMenu() {
-	const menu = document.querySelector("#" + MENU_ID);
+	const menu = getShadowRoot().querySelector("#" + MENU_ID);
 	if (menu) {
 		menu.remove();
 	}
-	const exitMenu = document.querySelector("#" + MENU_EXIT_ID);
+	const exitMenu = getShadowRoot().querySelector("#" + MENU_EXIT_ID);
 	if (exitMenu) {
 		exitMenu.remove();
 	}
@@ -144,7 +145,7 @@ export function removeMenu() {
  * @returns {boolean} Whether the menu element is on the page
  */
 export function isMenuOpen() {
-	return document.querySelector("#" + MENU_ID) !== null;
+	return getShadowRoot().querySelector("#" + MENU_ID) !== null;
 }
 
 /**
@@ -152,7 +153,7 @@ export function isMenuOpen() {
  * @param {(menu: HTMLElement) => void} updateLocationCallback
  */
 export function switchMenuItems(menuItems, updateLocationCallback) {
-	const menu = document.querySelector("#" + MENU_ID);
+	const menu = getShadowRoot().querySelector("#" + MENU_ID);
 	if (!menu || !(menu instanceof HTMLElement)) {
 		return;
 	}
