@@ -3117,24 +3117,6 @@
 			load().then(onLoad);
 		}
 
-		function updateBirbScale() {
-			setProperty("--birb-scale", settings().birbScaleMultiplier * BIRB_CSS_SCALE);
-		}
-
-		function updateUIScale() {
-			setProperty("--birb-ui-scale", settings().uiScaleMultiplier * UI_CSS_SCALE);
-		}
-
-		/**
-		 * Set the given CSS variable to the given value in the shadow dom and regular dom
-		 * @param {string} name The name of the CSS variable (including --)
-		 * @param {any} value The value to set the CSS variable to
-		 */
-		function setProperty(name, value) {
-			/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty(name, value);
-			document.documentElement.style.setProperty(name, value);
-		}
-
 		function onLoad() {
 			injectStyleElement(getContext().getFontStyles());
 			injectStyleElement(STYLESHEET);
@@ -3294,6 +3276,24 @@
 			// Update HTML element position
 			birb.setX(birdX);
 			birb.setY(birdY);
+		}
+
+		/**
+		 * Set the given CSS variable to the given value in the shadow dom and regular dom
+		 * @param {string} name The name of the CSS variable (including --)
+		 * @param {any} value The value to set the CSS variable to
+		 */
+		function setProperty(name, value) {
+			/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty(name, value);
+			document.documentElement.style.setProperty(name, value);
+		}
+
+		function updateBirbScale() {
+			setProperty("--birb-scale", settings().birbScaleMultiplier * BIRB_CSS_SCALE);
+		}
+
+		function updateUIScale() {
+			setProperty("--birb-ui-scale", settings().uiScaleMultiplier * UI_CSS_SCALE);
 		}
 
 		/**
