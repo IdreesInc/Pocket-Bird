@@ -2690,6 +2690,7 @@
 	position: absolute;
 	box-sizing: border-box;
 	animation: fade-in 0.15s ease-in;
+	z-index: 2147483637;
 }
 
 @keyframes fade-in {
