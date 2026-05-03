@@ -98,7 +98,7 @@ Here are some websites where you can find Pocket Bird hopping around:
 
 - [https://grepjason.sh](https://grepjason.sh)
 - [https://binarydigit.net](https://binarydigit.net)
-- [melvinsalas.com](melvinsalas.com)
+- [melvinsalas.com](https://melvinsalas.com)
 
 *If you've added Pocket Bird to your website, let me know and I'll add it to this list!*
 
