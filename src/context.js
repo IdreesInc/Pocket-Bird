@@ -16,7 +16,7 @@ export class Context {
 
 	/**
 	 * @abstract
-	 * @returns {Promise<BirbSaveData|{}>}
+	 * @returns {Promise<Partial<BirbSaveData>>}
 	 */
 	async getSaveData() {
 		throw new Error("Method not implemented");
@@ -94,6 +94,10 @@ export class Context {
 		return true;
 	}
 
+	isLinkBackEnabled() {
+		return false;
+	}
+
 	/**
 	 * @returns {string}
 	 */
@@ -106,7 +110,7 @@ export class LocalContext extends Context {
 
 	/**
 	 * @override
-	 * @returns {Promise<BirbSaveData|{}>}
+	 * @returns {Promise<Partial<BirbSaveData>>}
 	 */
 	async getSaveData() {
 		log("Loading save data from localStorage");
@@ -122,6 +126,10 @@ export class LocalContext extends Context {
 		localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
 	}
 
+	isLinkBackEnabled() {
+		return true;
+	}
+
 	/** @override */
 	resetSaveData() {
 		log("Resetting save data in localStorage");
@@ -133,7 +141,7 @@ export class UserScriptContext extends Context {
 
 	/**
 	 * @override
-	 * @returns {Promise<BirbSaveData|{}>}
+	 * @returns {Promise<Partial<BirbSaveData>>}
 	 */
 	async getSaveData() {
 		log("Loading save data from UserScript storage");
@@ -166,7 +174,7 @@ export class BrowserExtensionContext extends Context {
 
 	/**
 	 * @override
-	 * @returns {Promise<BirbSaveData|{}>}
+	 * @returns {Promise<Partial<BirbSaveData>>}
 	 */
 	async getSaveData() {
 		log("Loading save data from browser extension storage");
@@ -218,7 +226,7 @@ export class ObsidianContext extends Context {
 
 	/**
 	 * @override
-	 * @returns {Promise<BirbSaveData|{}>}
+	 * @returns {Promise<Partial<BirbSaveData>>}
 	 */
 	async getSaveData() {
 		return new Promise((resolve) => {
@@ -275,7 +283,10 @@ export class ObsidianContext extends Context {
 		return this.getActiveEditorElement() ?? document.documentElement;
 	}
 
-	/** @override */
+	/**
+	 * @override
+	 * @param {string} path
+	 */
 	isPathApplicable(path) {
 		return path === this.getPath();
 	}

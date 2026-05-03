@@ -20,7 +20,9 @@ import {
 	debug,
 	error,
 	getLayerPixels,
-	getWindowHeight
+	getWindowHeight,
+	setShadowRoot,
+	getShadowRoot
 } from './shared.js';
 import {
 	PALETTE,
@@ -35,6 +37,7 @@ import {
 } from './stickyNotes.js';
 import {
 	MenuItem,
+	SpinnerMenuItem,
 	ConditionalMenuItem,
 	DebugMenuItem,
 	Separator,
@@ -66,7 +69,9 @@ import { HAT, HAT_METADATA, createHatItemAnimation } from './hats.js';
  */
 const DEFAULT_SETTINGS = {
 	birbMode: false,
-	soundEnabled: true
+	soundEnabled: true,
+	birbScaleMultiplier: 1,
+	uiScaleMultiplier: 1,
 };
 
 // Rendering constants
@@ -229,6 +234,17 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			setDebug(false);
 		}),
 		new Separator(),
+		new ConditionalMenuItem(`Adopt A ${birdBirb()}`, () => {
+			const URL = "https://idreesinc.itch.io/pocket-bird";
+			window.open(URL, "_blank");
+		}, () => getContext().isLinkBackEnabled(), [
+			[0, 0, 1, 1, 0, 0, 0],
+			[0, 1, 0, 0, 1, 0, 0],
+			[1, 0, 1, 0, 0, 1, 0],
+			[1, 0, 0, 1, 0, 1, 0],
+			[1, 0, 0, 0, 0, 1, 0],
+			[0, 1, 1, 1, 1, 0, 0],
+		]),
 		new MenuItem("Settings", () => switchMenuItems(settingsItems, updateMenuLocation), [
 			[0, 0, 0, 0, 1, 1, 1],
 			[1, 1, 1, 1, 1, 0, 1],
@@ -242,6 +258,54 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	const settingsItems = [
 		new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), undefined, false),
 		new Separator(),
+		new SpinnerMenuItem(`${birdBirb()} Scale`,
+			() => {
+				userSettings.birbScaleMultiplier = 1;
+				save();
+				updateBirbScale();
+			},
+			() => {
+			const currentMultiplier = settings().birbScaleMultiplier;
+			let newMultiplier;
+			if (currentMultiplier <= 2) {
+				newMultiplier = currentMultiplier - 0.25;
+			} else {
+				newMultiplier = currentMultiplier - 1;
+			}
+			newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
+			userSettings.birbScaleMultiplier = newMultiplier;
+			save();
+			updateBirbScale();
+		}, () => {
+			const currentMultiplier = settings().birbScaleMultiplier;
+			let newMultiplier;
+			if (currentMultiplier < 2) {
+				newMultiplier = currentMultiplier + 0.25;
+			} else {
+				newMultiplier = currentMultiplier + 1;
+			}
+			newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
+			userSettings.birbScaleMultiplier = newMultiplier;
+			save();
+			updateBirbScale();
+		}),
+		new SpinnerMenuItem("UI Scale",
+			() => {
+				userSettings.uiScaleMultiplier = 1;
+				save();
+				updateUIScale();
+			},
+			() => {
+			const currentMultiplier = settings().uiScaleMultiplier;
+			userSettings.uiScaleMultiplier = Math.max(0.1, Math.round((currentMultiplier - 0.1) * 10) / 10);
+			save();
+			updateUIScale();
+		}, () => {
+			const currentMultiplier = settings().uiScaleMultiplier;
+			userSettings.uiScaleMultiplier = Math.round((currentMultiplier + 0.1) * 10) / 10;
+			save();
+			updateUIScale();
+		}),
 		new MenuItem(() => `${settings().soundEnabled ? "Disable" : "Enable"} Sound`, () => {
 			userSettings.soundEnabled = !settings().soundEnabled;
 			save();
@@ -299,18 +363,33 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	let currentHat = DEFAULT_HAT;
 	// let visible = true;
 	let lastPetTimestamp = 0;
+	/** Locking value to avoid race conditions during save/load */
+	let loadNonce = 0;
 	/** @type {StickyNote[]} */
 	let stickyNotes = [];
 
 	async function load() {
-		/** @type {BirbSaveData} */
+		const nonce = ++loadNonce;
+		/** @type {Partial<BirbSaveData>} */
 		let saveData = await getContext().getSaveData();
-
-		debug("Loaded data: " + JSON.stringify(saveData));
+		if (nonce !== loadNonce) {
+			console.warn("Aborting load due to newer load call");
+			return;
+		}
 
 		if (!('settings' in saveData)) {
 			log("No user settings found in save data, starting fresh");
 		}
+
+		saveData = mergeSaves(saveData, {
+			unlockedSpecies,
+			currentSpecies,
+			unlockedHats,
+			currentHat,
+			settings: userSettings
+		});
+
+		debug("Loaded data: " + JSON.stringify(saveData));
 
 		userSettings = saveData.settings ?? {};
 		unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
@@ -328,8 +407,8 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		}
 
 		log(stickyNotes.length + " sticky notes loaded");
-		switchSpecies(currentSpecies);
-		switchHat(currentHat);
+		switchSpecies(currentSpecies, false);
+		switchHat(currentHat, false);
 	}
 
 	function save() {
@@ -353,6 +432,22 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		}
 
 		getContext().putSaveData(saveData);
+	}
+
+	/**
+	 * Merge new save data with the currently stored save data, ensuring that unlocks are not lost
+	 * @param {Partial<BirbSaveData>} storedSave
+	 * @param {Partial<BirbSaveData>} currentSave 
+	 * @returns {Partial<BirbSaveData>}
+	 */
+	function mergeSaves(storedSave, currentSave) {
+		const mergedUnlockedSpecies = Array.from(new Set([...(storedSave.unlockedSpecies ?? []), ...(currentSave.unlockedSpecies ?? [])]));
+		const mergedUnlockedHats = Array.from(new Set([...(storedSave.unlockedHats ?? []), ...(currentSave.unlockedHats ?? [])]));
+		return {
+			...storedSave,
+			unlockedSpecies: mergedUnlockedSpecies,
+			unlockedHats: mergedUnlockedHats
+		};
 	}
 
 	function resetSaveData() {
@@ -384,23 +479,35 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			return;
 		}
 
+		// Create shadow dom
+		const shadowHost = document.createElement("div");
+		shadowHost.id = "birb-shadow-host";
+		document.body.appendChild(shadowHost);
+		const shadowRoot = shadowHost.attachShadow({ mode: "open" });
+		setShadowRoot(shadowRoot);
+
 		load().then(onLoad);
 	}
 
 	function onLoad() {
 		injectStyleElement(getContext().getFontStyles());
 		injectStyleElement(STYLESHEET);
-
+		updateBirbScale();
+		updateUIScale();
 		birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT, HATS_SPRITE_SHEET);
 		birb.setAnimation(Animations.BOB);
 
 		window.addEventListener("scroll", () => {
 			lastActionTimestamp = Date.now();
 		});
+		window.addEventListener("focus", () => {
+			load();
+		});
 
 		onClick(document, (e) => {
 			lastActionTimestamp = Date.now();
-			if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
+			const path = e.composedPath();
+			if (path.some(el => el instanceof Element && el.id === MENU_EXIT_ID)) {
 				removeMenu();
 			}
 		});
@@ -544,15 +651,38 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	/**
+	 * Set the given CSS variable to the given value in the shadow dom and regular dom
+	 * @param {string} name The name of the CSS variable (including --)
+	 * @param {any} value The value to set the CSS variable to
+	 */
+	function setProperty(name, value) {
+		/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty(name, value);
+		document.documentElement.style.setProperty(name, value);
+	}
+
+	function updateBirbScale() {
+		setProperty("--birb-scale", settings().birbScaleMultiplier * BIRB_CSS_SCALE);
+	}
+
+	function updateUIScale() {
+		setProperty("--birb-ui-scale", settings().uiScaleMultiplier * UI_CSS_SCALE);
+	}
+
+	/**
 	 * @param {string|null} stylesheetContents
 	 */
 	function injectStyleElement(stylesheetContents) {
 		if (!stylesheetContents) {
 			return;
 		}
+		// Insert into shadow dom
 		const element = document.createElement("style");
 		element.textContent = stylesheetContents;
-		document.head.appendChild(element);
+		getShadowRoot().appendChild(element);
+		// Insert into actual dom
+		const documentElement = document.createElement("style");
+		documentElement.textContent = stylesheetContents;
+		document.head.appendChild(documentElement);
 	}
 
 	/**
@@ -589,7 +719,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		window.appendChild(header);
 		window.appendChild(contentWrapper);
 
-		document.body.appendChild(window);
+		getShadowRoot().appendChild(window);
 		makeDraggable(header);
 
 		makeClosable(() => {
@@ -603,7 +733,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function activateFeather() {
-		if (document.querySelector("#" + FEATHER_ID)) {
+		if (getShadowRoot().querySelector("#" + FEATHER_ID)) {
 			return;
 		}
 		const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.COMMON;
@@ -634,11 +764,11 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			return;
 		}
 		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type.colors, type.tags);
-		document.body.appendChild(featherCanvas);
+		getShadowRoot().appendChild(featherCanvas);
 		onClick(featherCanvas, () => {
 			unlockBird(birdType);
 			removeFeather();
-			if (document.querySelector("#" + FIELD_GUIDE_ID)) {
+			if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 				removeFieldGuide();
 				insertFieldGuide();
 			}
@@ -646,7 +776,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function removeFeather() {
-		const feather = document.querySelector("#" + FEATHER_ID);
+		const feather = getShadowRoot().querySelector("#" + FEATHER_ID);
 		if (feather) {
 			feather.remove();
 		}
@@ -656,7 +786,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	 * Insert the hat as an item element in the document if possible
 	 */
 	function insertHat() {
-		if (document.querySelector("#" + HAT_ID)) {
+		if (getShadowRoot().querySelector("#" + HAT_ID)) {
 			return;
 		}
 		// Select a random hat that hasn't been unlocked yet
@@ -697,8 +827,8 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		hatCanvas.style.left = (rect.left + rect.width / 2 - hatCanvas.width / 2) + "px";
 		hatCanvas.style.top = (rect.top - hatCanvas.height + window.scrollY) + "px";
 
-		// Append to document
-		document.body.appendChild(hatCanvas);
+		// Append to shadow dom
+		getShadowRoot().appendChild(hatCanvas);
 	}
 
 	/**
@@ -736,7 +866,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function updateFeather() {
-		const feather = document.querySelector("#birb-feather");
+		const feather = getShadowRoot().querySelector("#birb-feather");
 		if (!feather || !(feather instanceof HTMLElement)) {
 			return;
 		}
@@ -760,7 +890,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	 * @param {HTMLElement} content
 	 */
 	function insertModal(title, content) {
-		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
+		if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 			return;
 		}
 
@@ -796,7 +926,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	};
 
 	function insertFieldGuide() {
-		if (document.querySelector("#" + FIELD_GUIDE_ID)) {
+		if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 			return;
 		}
 		// Remove wardrobe if open
@@ -884,7 +1014,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			if (unlocked) {
 				onClick(speciesElement, () => {
 					switchSpecies(id);
-					document.querySelectorAll(".birb-grid-item").forEach((element) => {
+					getShadowRoot().querySelectorAll(".birb-grid-item").forEach((element) => {
 						element.classList.remove("birb-grid-item-selected");
 					});
 					speciesElement.classList.add("birb-grid-item-selected");
@@ -905,7 +1035,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function removeFieldGuide() {
-		const fieldGuide = document.querySelector("#" + FIELD_GUIDE_ID);
+		const fieldGuide = getShadowRoot().querySelector("#" + FIELD_GUIDE_ID);
 		if (fieldGuide) {
 			fieldGuide.remove();
 		}
@@ -913,7 +1043,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 	function insertWardrobe() {
 		console.log("Inserting wardrobe");
-		if (document.querySelector("#" + WARDROBE_ID)) {
+		if (getShadowRoot().querySelector("#" + WARDROBE_ID)) {
 			return;
 		}
 		// Remove field guide if open
@@ -977,7 +1107,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			if (unlocked) {
 				onClick(hatElement, () => {
 					switchHat(hat);
-					document.querySelectorAll(".birb-grid-item").forEach((element) => {
+					getShadowRoot().querySelectorAll(".birb-grid-item").forEach((element) => {
 						element.classList.remove("birb-grid-item-selected");
 					});
 					hatElement.classList.add("birb-grid-item-selected");
@@ -998,7 +1128,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function removeWardrobe() {
-		const wardrobe = document.querySelector("#" + WARDROBE_ID);
+		const wardrobe = getShadowRoot().querySelector("#" + WARDROBE_ID);
 		if (wardrobe) {
 			wardrobe.remove();
 		}
@@ -1006,20 +1136,27 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 	/**
 	 * @param {string} type
+	 * @param {boolean} [updateSave]
 	 */
-	function switchSpecies(type) {
+	function switchSpecies(type, updateSave = true) {
 		currentSpecies = type;
-		// Update CSS variable --birb-highlight to be wing color
-		document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
-		save();
+		// document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+		setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+		/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+		if (updateSave) {
+			save();
+		}
 	}
 
 	/**
 	 * @param {string} hat
+	 * @param {boolean} [updateSave]
 	 */
-	function switchHat(hat) {
+	function switchHat(hat, updateSave = true) {
 		currentHat = hat;
-		save();
+		if (updateSave) {
+			save();
+		}
 	}
 
 	/**

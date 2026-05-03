@@ -12,7 +12,10 @@ module.exports = class PocketBird extends Plugin {
 	};
 
 	let debugMode = location.hostname === "127.0.0.1";
+	/** @type {import('./context.js').Context|null} */
 	let context = null;
+	/** @type {ShadowRoot|undefined} */
+	let shadowRoot;
 
 	/**
 	 * @returns {boolean} Whether debug mode is enabled
@@ -35,6 +38,9 @@ module.exports = class PocketBird extends Plugin {
 		return context;
 	}
 
+	/**
+	 * @param {import('./context.js').Context} newContext
+	 */
 	function setContext(newContext) {
 		context = newContext;
 	}
@@ -164,7 +170,7 @@ module.exports = class PocketBird extends Plugin {
 			onClick(closeButton, func);
 		}
 		document.addEventListener("keydown", (e) => {
-			if (closeButton && !document.body.contains(closeButton)) {
+			if (closeButton && !closeButton.isConnected) {
 				return;
 			}
 			if (allowEscape && e.key === "Escape") {
@@ -231,14 +237,35 @@ module.exports = class PocketBird extends Plugin {
 		return document.documentElement.clientHeight;
 	}
 
+	/**
+	 * @param {ShadowRoot} root 
+	 */
+	function setShadowRoot(root) {
+		shadowRoot = root;
+	}
+
+	/**
+	 * @returns {ShadowRoot}
+	 */
+	function getShadowRoot() {
+		if (!shadowRoot) {
+			throw new Error("Shadow root requested before being set");
+		}
+		return shadowRoot;
+	}
+
 	/** @typedef {Object} Species
 	 * @property {string} name
 	 * @property {string} description
+	 * @property {string} latinName
+	 * @property {string} url
 	 * @property {Record<string, string>} colors
 	 * @property {string[]} [tags]
+	 * @property {string} [rarity]
 	 */
 
-	var species = {
+	/** @type {Record<string, Species>} */
+	const species = {
 	  "bluebird": {
 	    "name": "Eastern Bluebird",
 	    "description": "Native to North American and very social, though can be timid around people.",
@@ -938,7 +965,7 @@ module.exports = class PocketBird extends Plugin {
 	const SPECIES = Object.fromEntries(
 		Object.entries(species).map(([id, data]) => [
 			id,
-			new BirdType(data.name, data.description, data.latinName, data.url, data.colors, data.tags, data.rarity)
+			new BirdType(data.name, data.description, data.latinName, data.url, data.colors, data.tags, /** @type {Rarity|undefined} */ (data.rarity))
 		]),
 	);
 
@@ -1044,6 +1071,7 @@ module.exports = class PocketBird extends Plugin {
 			this.loop = loop;
 			this.lastFrameIndex = -1;
 			this.lastDirection = null;
+			/** @type {number|null} */
 			this.lastTimeStart = null;
 		}
 
@@ -1195,21 +1223,21 @@ module.exports = class PocketBird extends Plugin {
 	 * @returns {{ base: Layer[], down: Layer[] }}
 	 */
 	function createHatLayers(spriteSheet) {
+		/** @type {{ base: Layer[], down: Layer[] }} */
 		const hatLayers = {
 			base: [],
 			down: []
 		};
-		for (let i = 0; i < Object.keys(HAT).length; i++) {
-			const hatName = Object.keys(HAT)[i];
+		let index = 0;
+		for (const [hatName, hatKey] of Object.entries(HAT)) {
 			if (hatName === 'NONE') {
 				continue;
 			}
-			const index = i - 1;
-			const hatKey = HAT[hatName];
 			const hatLayer = buildHatLayer(spriteSheet, hatKey, index);
 			const downHatLayer = buildHatLayer(spriteSheet, hatKey, index, 1);
 			hatLayers.base.push(hatLayer);
 			hatLayers.down.push(downHatLayer);
+			index++;
 		}
 		return hatLayers;
 	}
@@ -1386,9 +1414,7 @@ module.exports = class PocketBird extends Plugin {
 		 * @param {string[][]} hatSpriteSheet The loaded hat sprite sheet pixel data
 		 */
 		constructor(birbCssScale, canvasPixelSize, spriteSheet, spriteWidth, spriteHeight, hatSpriteSheet) {
-			this.birbCssScale = birbCssScale;
 			this.canvasPixelSize = canvasPixelSize;
-			this.windowPixelSize = canvasPixelSize * birbCssScale;
 			this.spriteWidth = spriteWidth;
 			this.spriteHeight = spriteHeight;
 
@@ -1469,10 +1495,10 @@ module.exports = class PocketBird extends Plugin {
 			this.canvas.width = this.frames.base.getPixels()[0].length * canvasPixelSize;
 			this.canvas.height = spriteHeight * canvasPixelSize;
 
-			this.ctx = this.canvas.getContext("2d");
+			this.ctx = /** @type {CanvasRenderingContext2D} */ (this.canvas.getContext("2d"));
 
-			// Append to document
-			document.body.appendChild(this.canvas);
+			// Append to shadow dom
+			getShadowRoot().appendChild(this.canvas);
 		}
 
 		/**
@@ -1524,7 +1550,7 @@ module.exports = class PocketBird extends Plugin {
 		 * @returns {number}
 		 */
 		getElementWidth() {
-			return this.canvas.width * this.birbCssScale;
+			return this.canvas.getBoundingClientRect().width;
 		}
 
 		/**
@@ -1532,7 +1558,7 @@ module.exports = class PocketBird extends Plugin {
 		 * @returns {number}
 		 */
 		getElementHeight() {
-			return this.canvas.height * this.birbCssScale;
+			return this.canvas.getBoundingClientRect().height;
 		}
 
 		getElementTop() {
@@ -1546,8 +1572,7 @@ module.exports = class PocketBird extends Plugin {
 		 */
 		setX(x) {
 			this.x = x;
-			let mod = this.getElementWidth() / -2 - (this.windowPixelSize * (this.direction === Directions.RIGHT ? 2 : -2));
-			this.canvas.style.left = `${x + mod}px`;
+			this.canvas.style.left = `${x - this.canvas.width / 2 - (this.direction === Directions.RIGHT ? 2 : -2)}px`;
 		}
 
 		/**
@@ -1630,7 +1655,7 @@ module.exports = class PocketBird extends Plugin {
 	class Birdsong {
 
 		/**
-		 * @type {AudioContext}
+		 * @type {AudioContext|undefined}
 		 */
 		audioContext;
 
@@ -1688,7 +1713,7 @@ module.exports = class PocketBird extends Plugin {
 
 		/**
 		 * @abstract
-		 * @returns {Promise<BirbSaveData|{}>}
+		 * @returns {Promise<Partial<BirbSaveData>>}
 		 */
 		async getSaveData() {
 			throw new Error("Method not implemented");
@@ -1766,6 +1791,10 @@ module.exports = class PocketBird extends Plugin {
 			return true;
 		}
 
+		isLinkBackEnabled() {
+			return false;
+		}
+
 		/**
 		 * @returns {string}
 		 */
@@ -1778,7 +1807,7 @@ module.exports = class PocketBird extends Plugin {
 
 		/**
 		 * @override
-		 * @returns {Promise<BirbSaveData|{}>}
+		 * @returns {Promise<Partial<BirbSaveData>>}
 		 */
 		async getSaveData() {
 			return new Promise((resolve) => {
@@ -1835,7 +1864,10 @@ module.exports = class PocketBird extends Plugin {
 			return this.getActiveEditorElement() ?? document.documentElement;
 		}
 
-		/** @override */
+		/**
+		 * @override
+		 * @param {string} path
+		 */
 		isPathApplicable(path) {
 			return path === this.getPath();
 		}
@@ -1956,6 +1988,7 @@ module.exports = class PocketBird extends Plugin {
 		}
 
 		if (textarea && textarea instanceof HTMLTextAreaElement) {
+			/** @type {ReturnType<typeof setTimeout>|undefined} */
 			let saveTimeout;
 			// Save after debounce
 			textarea.addEventListener("input", () => {
@@ -2049,6 +2082,20 @@ module.exports = class PocketBird extends Plugin {
 		}
 	}
 
+	class SpinnerMenuItem extends MenuItem {
+		/**
+		 * @param {string} text
+		 * @param {() => void} labelAction
+		 * @param {() => void} leftAction
+		 * @param {() => void} rightAction
+		 */
+		constructor(text, labelAction, leftAction, rightAction) {
+			super(text, labelAction, undefined, false);
+			this.leftAction = leftAction;
+			this.rightAction = rightAction;
+		}
+	}
+
 	class ConditionalMenuItem extends MenuItem {
 		/**
 		 * @param {string} text
@@ -2107,6 +2154,25 @@ module.exports = class PocketBird extends Plugin {
 			}
 			menuItem.prepend(iconCanvas);
 		}
+		if (item instanceof SpinnerMenuItem) {
+			menuItem.classList.add("birb-menu-item-spinner");
+			const container = makeElement("birb-menu-item-spinner-container");
+			// Prevent accidental resets
+			onClick(container, (e) => e.stopPropagation());
+			menuItem.appendChild(container);
+			const leftButton = makeElement("birb-spinner-button", "-");
+			const rightButton = makeElement("birb-spinner-button", "+");
+			onClick(leftButton, (e) => {
+				item.leftAction();
+				e.stopPropagation();
+			});
+			onClick(rightButton, (e) => {
+				item.rightAction();
+				e.stopPropagation();
+			});
+			container.appendChild(leftButton);
+			container.appendChild(rightButton);
+		}
 		onClick(menuItem, () => {
 			if (item.removeMenu) {
 				removeMenuCallback();
@@ -2123,7 +2189,7 @@ module.exports = class PocketBird extends Plugin {
 	 * @param {(menu: HTMLElement) => void} updateLocationCallback
 	 */
 	function insertMenu(menuItems, title, updateLocationCallback) {
-		if (document.querySelector("#" + MENU_ID)) {
+		if (getShadowRoot().querySelector("#" + MENU_ID)) {
 			return;
 		}
 		let menu = makeElement("birb-window", undefined, MENU_ID);
@@ -2139,12 +2205,12 @@ module.exports = class PocketBird extends Plugin {
 		}
 		menu.appendChild(header);
 		menu.appendChild(content);
-		document.body.appendChild(menu);
-		makeDraggable(document.querySelector(".birb-window-header"));
+		getShadowRoot().appendChild(menu);
+		makeDraggable(getShadowRoot().querySelector(".birb-window-header"));
 
 		let menuExit = makeElement("birb-window-exit", undefined, MENU_EXIT_ID);
 		onClick(menuExit, removeCallback);
-		document.body.appendChild(menuExit);
+		getShadowRoot().appendChild(menuExit);
 		makeClosable(removeCallback);
 
 		updateLocationCallback(menu);
@@ -2154,11 +2220,11 @@ module.exports = class PocketBird extends Plugin {
 	 * Remove the menu from the page
 	 */
 	function removeMenu() {
-		const menu = document.querySelector("#" + MENU_ID);
+		const menu = getShadowRoot().querySelector("#" + MENU_ID);
 		if (menu) {
 			menu.remove();
 		}
-		const exitMenu = document.querySelector("#" + MENU_EXIT_ID);
+		const exitMenu = getShadowRoot().querySelector("#" + MENU_EXIT_ID);
 		if (exitMenu) {
 			exitMenu.remove();
 		}
@@ -2168,7 +2234,7 @@ module.exports = class PocketBird extends Plugin {
 	 * @returns {boolean} Whether the menu element is on the page
 	 */
 	function isMenuOpen() {
-		return document.querySelector("#" + MENU_ID) !== null;
+		return getShadowRoot().querySelector("#" + MENU_ID) !== null;
 	}
 
 	/**
@@ -2176,7 +2242,7 @@ module.exports = class PocketBird extends Plugin {
 	 * @param {(menu: HTMLElement) => void} updateLocationCallback
 	 */
 	function switchMenuItems(menuItems, updateLocationCallback) {
-		const menu = document.querySelector("#" + MENU_ID);
+		const menu = getShadowRoot().querySelector("#" + MENU_ID);
 		if (!menu || !(menu instanceof HTMLElement)) {
 			return;
 		}
@@ -2216,7 +2282,9 @@ module.exports = class PocketBird extends Plugin {
 	 */
 	const DEFAULT_SETTINGS = {
 		birbMode: false,
-		soundEnabled: true
+		soundEnabled: true,
+		birbScaleMultiplier: 1,
+		uiScaleMultiplier: 1,
 	};
 
 	// Rendering constants
@@ -2238,17 +2306,17 @@ module.exports = class PocketBird extends Plugin {
 	--birb-border-color: var(--birb-highlight);
 	--birb-background-color: #ffecda;
 	--birb-mix-color: color-mix(in srgb, var(--birb-highlight) 50%, var(--birb-background-color));
-	--birb-scale: ${BIRB_CSS_SCALE};
-	--birb-ui-scale: ${UI_CSS_SCALE};
+	--birb-scale: 1;
+	--birb-ui-scale: 1;
 }
 
 #birb {
 	image-rendering: pixelated;
 	position: fixed;
 	bottom: 0;
-	transform: scale(var(--birb-scale)) !important;
+	transform: scale(var(--birb-scale));
 	transform-origin: bottom;
-	z-index: 2147483638 !important;
+	z-index: 2147483638;
 	cursor: pointer;
 }
 
@@ -2260,32 +2328,32 @@ module.exports = class PocketBird extends Plugin {
 	image-rendering: pixelated;
 	position: fixed;
 	bottom: 0;
-	transform: scale(var(--birb-scale)) !important;
+	transform: scale(var(--birb-scale));
 	transform-origin: bottom;
-	z-index: 2147483630 !important;
+	z-index: 2147483630;
 }
 
 .birb-item {
 	image-rendering: pixelated;
 	position: absolute;
 	bottom: 0;
-	transform: scale(calc(var(--birb-scale) * 1.5)) !important;
+	transform: scale(calc(var(--birb-scale) * 1.5));
 	transform-origin: bottom;
 	transition-duration: 0.15s;
-	z-index: 2147483630 !important;
+	z-index: 2147483630;
 	cursor: pointer;
 }
 
 .birb-item:hover {
-	transform: scale(calc(var(--birb-scale) * 1.9)) !important;
+	transform: scale(calc(var(--birb-scale) * 1.9));
 	transition-duration: 0.15s;
 }
 
 .birb-window {
-	font-family: "Monocraft", monospace !important;
-	line-height: initial !important;
-	color: #000000 !important;
-	z-index: 2147483639 !important;
+	font-family: "Monocraft", monospace;
+	line-height: initial;
+	color: #000000;
+	z-index: 2147483639;
 	position: fixed;
 	background-color: var(--birb-background-color);
 	box-shadow:
@@ -2306,7 +2374,7 @@ module.exports = class PocketBird extends Plugin {
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
-	transform: scale(var(--birb-ui-scale)) !important;
+	transform: scale(var(--birb-ui-scale));
 	animation: pop-in 0.08s;
 	transition-timing-function: ease-in;
 }
@@ -2315,7 +2383,7 @@ module.exports = class PocketBird extends Plugin {
 	transition-duration: 0.2s;
 	transition-timing-function: ease-out;
 	min-width: 140px;
-	z-index: 2147483639 !important;
+	z-index: 2147483639;
 }
 
 #birb-menu-exit {
@@ -2324,7 +2392,7 @@ module.exports = class PocketBird extends Plugin {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	z-index: 2147483637 !important;
+	z-index: 2147483637;
 }
 
 @keyframes pop-in {
@@ -2357,7 +2425,7 @@ module.exports = class PocketBird extends Plugin {
 		0 var(--birb-neg-border-size) var(--birb-highlight),
 		var(--birb-neg-border-size) var(--birb-border-size) var(--birb-border-color),
 		var(--birb-border-size) var(--birb-border-size) var(--birb-border-color);
-	color: var(--birb-border-color) !important;
+	color: var(--birb-border-color);
 	font-size: 16px;
 }
 
@@ -2445,20 +2513,20 @@ module.exports = class PocketBird extends Plugin {
 	padding-left: 2px;
 	padding-right: 10px;
 	box-sizing: border-box;
-	opacity: 0.7 !important;
+	opacity: 0.7;
 	user-select: none;
 	display: flex;
 	justify-content: left;
 	align-items: center;
 	cursor: pointer;
-	color: black !important;
+	color: black;
 	transition: background 0.1s, color 0.1s;
 }
 
-.birb-menu-item:hover {
-	opacity: 1 !important;
-	background: var(--birb-highlight) !important;
-	color: white !important;
+.birb-menu-item:hover:not(.birb-menu-item-spinner) {
+	opacity: 1;
+	background: var(--birb-highlight);
+	color: white;
 	box-shadow:
 		var(--birb-border-size) 0 var(--birb-highlight),
 		var(--birb-neg-border-size) 0 var(--birb-highlight),
@@ -2468,7 +2536,6 @@ module.exports = class PocketBird extends Plugin {
 }
 
 .birb-menu-item-icon {
-	width: calc(7 * var(--birb-border-size));
 	height: calc(6 * var(--birb-border-size));
 	padding-right: calc(5 * var(--birb-border-size));
 	flex-shrink: 0;
@@ -2485,6 +2552,55 @@ module.exports = class PocketBird extends Plugin {
 	display: inline-block;
 }
 
+.birb-menu-item-spinner {
+	display: flex;
+	justify-content: space-between;
+}
+
+.birb-menu-item-spinner-container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	gap: 8px;
+	margin-left: 10px;
+	justify-content:end;
+	width: 40px;
+}
+
+.birb-spinner-button {
+	box-sizing: border-box;
+	width: 1em;
+	height: calc(7 * var(--birb-border-size));
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	--spinner-border-color: var(--birb-highlight);
+	background-color: var(--birb-background-color);
+	/* color: var(--birb-highlight); */
+	font-size: 14px;
+	padding-top: 0.5px;
+	padding-left: 0.75px;
+	margin-top: -0.5px;
+	text-align: center;
+	box-shadow:
+		var(--birb-border-size) 0 var(--spinner-border-color),
+		var(--birb-neg-border-size) 0 var(--spinner-border-color),
+		0 var(--birb-neg-border-size) var(--spinner-border-color),
+		0 var(--birb-border-size) var(--spinner-border-color);
+	/* border-radius: 3px; */
+	cursor: pointer;
+}
+
+.birb-spinner-button:hover {
+	background-color: var(--birb-highlight);
+	box-shadow:
+		var(--birb-border-size) 0 var(--birb-highlight),
+		var(--birb-neg-border-size) 0 var(--birb-highlight),
+		0 var(--birb-neg-border-size) var(--birb-highlight),
+		0 var(--birb-border-size) var(--birb-highlight);
+	color: white;
+}
+
 .birb-window-separator {
 	width: 100%;
 	height: var(--birb-border-size);
@@ -2496,7 +2612,7 @@ module.exports = class PocketBird extends Plugin {
 }
 
 #birb-field-guide, #birb-wardrobe {
-	width: 322px !important;
+	width: 322px;
 }
 
 #birb-field-guide .birb-grid-content {
@@ -2539,7 +2655,7 @@ module.exports = class PocketBird extends Plugin {
 
 .birb-grid-item canvas {
 	image-rendering: pixelated;
-	transform: scale(2) !important;
+	transform: scale(2);
 	padding-bottom: var(--birb-border-size);
 }
 
@@ -2610,6 +2726,7 @@ module.exports = class PocketBird extends Plugin {
 	position: absolute;
 	box-sizing: border-box;
 	animation: fade-in 0.15s ease-in;
+	z-index: 2147483637;
 }
 
 @keyframes fade-in {
@@ -2629,28 +2746,34 @@ module.exports = class PocketBird extends Plugin {
 .birb-sticky-note-input {
 	width: 100%;
 	height: 100%;
-	padding: 10px !important;
-	resize: both !important;
-	min-width: 175px !important;
-	min-height: 135px !important;
-	box-sizing: border-box !important;
-	font-family: "Monocraft", monospace !important;
-	font-size: 14px !important;
-	color: black !important;
-	background-color: transparent !important;
-	border: none !important;
+	padding: 10px;
+	resize: both;
+	min-width: 175px;
+	min-height: 135px;
+	box-sizing: border-box;
+	font-family: "Monocraft", monospace;
+	font-size: 14px;
+	color: black;
+	background-color: transparent;
+	border: none;
 }
 
 .birb-sticky-note-input::placeholder {
-	font-family: "Monocraft", monospace !important;
-	font-size: 14px !important;
-	background-color: transparent !important;
-	color: rgba(0, 0, 0, 0.35) !important;
+	font-family: "Monocraft", monospace;
+	font-size: 14px;
+	background-color: transparent;
+	color: rgba(0, 0, 0, 0.35);
 }
 
 .birb-sticky-note-input:focus {
-	outline: none !important;
-	box-shadow: none !important;
+	outline: none;
+	box-shadow: none;
+}
+
+@media print {
+	#birb {
+		display: none;
+	}
 }`;
 	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABORJREFUeJztnU9IHFccx79vE6g0BEK7BJzNwR6apReFQElKjpZaeol7EHuRQhFaECIEIkF6LGkQGqyQ0EBa+u8iHjZCCfXQUw7qRVDwYKQEirtt0yVtMRaFdn857L7x7Tizf3Rn3oz7/cDi8+3s/t44733m9+afACGEEEII6SyU7QaQ+CMiEvSeUop9iCQWdt4EYFNAOnYukwEA5AuFmnIUbSCEdChSZdBxZNBxDpTrybFd8QcdR5Z6e0XGxg6Uw45PSJikbDeANCaXyeBGOo18LnegHCXLjx7hRjrtlglJOhRggrAloHyhgFulUk3drVLJnQITQkgomFPgpd5e9xXVFNivDVHGJoTEAPEh6tg2BWS2gfIjpMMQkcrBf+Nn1PFtC8iG/AkJk5O2G5A0lvv6rMRVSikREZuXnvByF0I6FJ356OyPWRAhyYd79BYwpcdsKHq8Ox1uA3JU2IFIItDy084TkcgFSAF3KH5nQDkFJBaQe4VBAWDtBFA1dqz7P8dp8zS8ENrc85ovNLhHtZ1QwAQA7hUGddHKCSCllNuGuGV/3nFhY5wmkbpngc0/ptH5oOtEBCIiYXYG79THqA89NokXH2UeWN3WNgXcDOZQGJ4qunX0XzCBAjTFs3DpbfRcexXny2eA1zKAcxYo1EoQIewV4yBgQjS2BVwHUUq50jvudJ9Q8tv/0pZtUTcDTJ1yoF7uxrtr68DaOsoj03A+fx/FNz7DuR+yGFrdrjko3U4RxkHAhCQACRLf5tZ25I0Jm+4TSt77soyHH6faIsHALzAF9NPkP279v38Cbz6dw693f8R06Xu3fq7vtP5ccLAWBCUikjrl1NSVR6bh3K8I+GHXX/jmq09841KEpEOoK7+VmSziOl2PC4EZoL7zAAAGxkex8MV9AEDu01HsnQWure3L7/KTHaSMYw5+HGa6Wt4p1gh4AcCdD//G1tM5nLm7BJSAodXtmrhmRui3Ts3GJiTODE8VrR7YG1rdduOnFvYzzdkJB0mSbt2GVoWF3fl+vHTpFQDA3tIzAMBIzwNcfrKDxcflA59763zKrddp+MpMtuVrt3R8+WPIFfDAeEXAI2tfu8uZ7ahuAL/vqqwwJUiOAUECNMdbyCIKzD6TJMGm7wXW4tPM9Z3GL1c38Pq5yhTUlN7i47J3QxzpTNTe0jMMjI/WtqNnX3yLxrLDU0VfAfNsGDlOfJsdwQcb+7Mw73iLQkCbW9vu+E8qh34Ywu58P7quZIGrGwCAza3a9/3Ed5Tsy6aACYkjd/7LYexkHohYfI0YnipidsKROLSlEQ2nwKhmT7vz/TXvPV9/DgBITy4HfXY/yCHFZ07B/ei68jMuVAXspd0CJiRulG5edDv3O79/59avzGSj6udywUhCTGYnnEQcdmrYMD8Jafn5kZ5cbtuK2xYwIXHHlCAq4yHqvi46CfGKUEswzuOvKQGiKqHSzYt1l22n/Mz4tgRMCGkKAQCvCJMgwIbHAPXlMNUVCZRgmOLRsVHZ4wUuR/kRYgWFytS7MvgCDkslGvNpGPnb192nYuhymA8o8Nzo7Rs/7DYQQhrjfWJO3MdjS/8WUymF/O3r7u9mGSFmXfp768Vn5kdIPKjejAAkYDy2dBmMORX1lqOgUfy4/7EJOe4kbQy21Nh66WwUK247PiHkePECZQPi+PbreqwAAAAASUVORK5CYII=";
 	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
@@ -2801,6 +2924,17 @@ module.exports = class PocketBird extends Plugin {
 				setDebug(false);
 			}),
 			new Separator(),
+			new ConditionalMenuItem(`Adopt A ${birdBirb()}`, () => {
+				const URL = "https://idreesinc.itch.io/pocket-bird";
+				window.open(URL, "_blank");
+			}, () => getContext().isLinkBackEnabled(), [
+				[0, 0, 1, 1, 0, 0, 0],
+				[0, 1, 0, 0, 1, 0, 0],
+				[1, 0, 1, 0, 0, 1, 0],
+				[1, 0, 0, 1, 0, 1, 0],
+				[1, 0, 0, 0, 0, 1, 0],
+				[0, 1, 1, 1, 1, 0, 0],
+			]),
 			new MenuItem("Settings", () => switchMenuItems(settingsItems, updateMenuLocation), [
 				[0, 0, 0, 0, 1, 1, 1],
 				[1, 1, 1, 1, 1, 0, 1],
@@ -2814,6 +2948,54 @@ module.exports = class PocketBird extends Plugin {
 		const settingsItems = [
 			new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), undefined, false),
 			new Separator(),
+			new SpinnerMenuItem(`${birdBirb()} Scale`,
+				() => {
+					userSettings.birbScaleMultiplier = 1;
+					save();
+					updateBirbScale();
+				},
+				() => {
+				const currentMultiplier = settings().birbScaleMultiplier;
+				let newMultiplier;
+				if (currentMultiplier <= 2) {
+					newMultiplier = currentMultiplier - 0.25;
+				} else {
+					newMultiplier = currentMultiplier - 1;
+				}
+				newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
+				userSettings.birbScaleMultiplier = newMultiplier;
+				save();
+				updateBirbScale();
+			}, () => {
+				const currentMultiplier = settings().birbScaleMultiplier;
+				let newMultiplier;
+				if (currentMultiplier < 2) {
+					newMultiplier = currentMultiplier + 0.25;
+				} else {
+					newMultiplier = currentMultiplier + 1;
+				}
+				newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
+				userSettings.birbScaleMultiplier = newMultiplier;
+				save();
+				updateBirbScale();
+			}),
+			new SpinnerMenuItem("UI Scale",
+				() => {
+					userSettings.uiScaleMultiplier = 1;
+					save();
+					updateUIScale();
+				},
+				() => {
+				const currentMultiplier = settings().uiScaleMultiplier;
+				userSettings.uiScaleMultiplier = Math.max(0.1, Math.round((currentMultiplier - 0.1) * 10) / 10);
+				save();
+				updateUIScale();
+			}, () => {
+				const currentMultiplier = settings().uiScaleMultiplier;
+				userSettings.uiScaleMultiplier = Math.round((currentMultiplier + 0.1) * 10) / 10;
+				save();
+				updateUIScale();
+			}),
 			new MenuItem(() => `${settings().soundEnabled ? "Disable" : "Enable"} Sound`, () => {
 				userSettings.soundEnabled = !settings().soundEnabled;
 				save();
@@ -2871,18 +3053,29 @@ module.exports = class PocketBird extends Plugin {
 		let currentHat = DEFAULT_HAT;
 		// let visible = true;
 		let lastPetTimestamp = 0;
+		/** Locking value to avoid race conditions during save/load */
+		let loadNonce = 0;
 		/** @type {StickyNote[]} */
 		let stickyNotes = [];
 
 		async function load() {
-			/** @type {BirbSaveData} */
+			const nonce = ++loadNonce;
+			/** @type {Partial<BirbSaveData>} */
 			let saveData = await getContext().getSaveData();
-
-			debug("Loaded data: " + JSON.stringify(saveData));
+			if (nonce !== loadNonce) {
+				console.warn("Aborting load due to newer load call");
+				return;
+			}
 
 			if (!('settings' in saveData)) {
 				log("No user settings found in save data, starting fresh");
 			}
+
+			saveData = mergeSaves(saveData, {
+				unlockedSpecies,
+				unlockedHats});
+
+			debug("Loaded data: " + JSON.stringify(saveData));
 
 			userSettings = saveData.settings ?? {};
 			unlockedSpecies = saveData.unlockedSpecies ?? [DEFAULT_BIRD];
@@ -2900,8 +3093,8 @@ module.exports = class PocketBird extends Plugin {
 			}
 
 			log(stickyNotes.length + " sticky notes loaded");
-			switchSpecies(currentSpecies);
-			switchHat(currentHat);
+			switchSpecies(currentSpecies, false);
+			switchHat(currentHat, false);
 		}
 
 		function save() {
@@ -2925,6 +3118,22 @@ module.exports = class PocketBird extends Plugin {
 			}
 
 			getContext().putSaveData(saveData);
+		}
+
+		/**
+		 * Merge new save data with the currently stored save data, ensuring that unlocks are not lost
+		 * @param {Partial<BirbSaveData>} storedSave
+		 * @param {Partial<BirbSaveData>} currentSave 
+		 * @returns {Partial<BirbSaveData>}
+		 */
+		function mergeSaves(storedSave, currentSave) {
+			const mergedUnlockedSpecies = Array.from(new Set([...(storedSave.unlockedSpecies ?? []), ...(currentSave.unlockedSpecies ?? [])]));
+			const mergedUnlockedHats = Array.from(new Set([...(storedSave.unlockedHats ?? []), ...(currentSave.unlockedHats ?? [])]));
+			return {
+				...storedSave,
+				unlockedSpecies: mergedUnlockedSpecies,
+				unlockedHats: mergedUnlockedHats
+			};
 		}
 
 		function resetSaveData() {
@@ -2956,23 +3165,35 @@ module.exports = class PocketBird extends Plugin {
 				return;
 			}
 
+			// Create shadow dom
+			const shadowHost = document.createElement("div");
+			shadowHost.id = "birb-shadow-host";
+			document.body.appendChild(shadowHost);
+			const shadowRoot = shadowHost.attachShadow({ mode: "open" });
+			setShadowRoot(shadowRoot);
+
 			load().then(onLoad);
 		}
 
 		function onLoad() {
 			injectStyleElement(getContext().getFontStyles());
 			injectStyleElement(STYLESHEET);
-
+			updateBirbScale();
+			updateUIScale();
 			birb = new Birb(BIRB_CSS_SCALE, CANVAS_PIXEL_SIZE, SPRITE_SHEET, SPRITE_WIDTH, SPRITE_HEIGHT, HATS_SPRITE_SHEET);
 			birb.setAnimation(Animations.BOB);
 
 			window.addEventListener("scroll", () => {
 				lastActionTimestamp = Date.now();
 			});
+			window.addEventListener("focus", () => {
+				load();
+			});
 
 			onClick(document, (e) => {
 				lastActionTimestamp = Date.now();
-				if (e.target instanceof Node && document.querySelector("#" + MENU_EXIT_ID)?.contains(e.target)) {
+				const path = e.composedPath();
+				if (path.some(el => el instanceof Element && el.id === MENU_EXIT_ID)) {
 					removeMenu();
 				}
 			});
@@ -3116,15 +3337,38 @@ module.exports = class PocketBird extends Plugin {
 		}
 
 		/**
+		 * Set the given CSS variable to the given value in the shadow dom and regular dom
+		 * @param {string} name The name of the CSS variable (including --)
+		 * @param {any} value The value to set the CSS variable to
+		 */
+		function setProperty(name, value) {
+			/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty(name, value);
+			document.documentElement.style.setProperty(name, value);
+		}
+
+		function updateBirbScale() {
+			setProperty("--birb-scale", settings().birbScaleMultiplier * BIRB_CSS_SCALE);
+		}
+
+		function updateUIScale() {
+			setProperty("--birb-ui-scale", settings().uiScaleMultiplier * UI_CSS_SCALE);
+		}
+
+		/**
 		 * @param {string|null} stylesheetContents
 		 */
 		function injectStyleElement(stylesheetContents) {
 			if (!stylesheetContents) {
 				return;
 			}
+			// Insert into shadow dom
 			const element = document.createElement("style");
 			element.textContent = stylesheetContents;
-			document.head.appendChild(element);
+			getShadowRoot().appendChild(element);
+			// Insert into actual dom
+			const documentElement = document.createElement("style");
+			documentElement.textContent = stylesheetContents;
+			document.head.appendChild(documentElement);
 		}
 
 		/**
@@ -3161,7 +3405,7 @@ module.exports = class PocketBird extends Plugin {
 			window.appendChild(header);
 			window.appendChild(contentWrapper);
 
-			document.body.appendChild(window);
+			getShadowRoot().appendChild(window);
 			makeDraggable(header);
 
 			makeClosable(() => {
@@ -3172,7 +3416,7 @@ module.exports = class PocketBird extends Plugin {
 		}
 
 		function activateFeather() {
-			if (document.querySelector("#" + FEATHER_ID)) {
+			if (getShadowRoot().querySelector("#" + FEATHER_ID)) {
 				return;
 			}
 			const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.COMMON;
@@ -3203,11 +3447,11 @@ module.exports = class PocketBird extends Plugin {
 				return;
 			}
 			FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type.colors, type.tags);
-			document.body.appendChild(featherCanvas);
+			getShadowRoot().appendChild(featherCanvas);
 			onClick(featherCanvas, () => {
 				unlockBird(birdType);
 				removeFeather();
-				if (document.querySelector("#" + FIELD_GUIDE_ID)) {
+				if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 					removeFieldGuide();
 					insertFieldGuide();
 				}
@@ -3215,7 +3459,7 @@ module.exports = class PocketBird extends Plugin {
 		}
 
 		function removeFeather() {
-			const feather = document.querySelector("#" + FEATHER_ID);
+			const feather = getShadowRoot().querySelector("#" + FEATHER_ID);
 			if (feather) {
 				feather.remove();
 			}
@@ -3225,7 +3469,7 @@ module.exports = class PocketBird extends Plugin {
 		 * Insert the hat as an item element in the document if possible
 		 */
 		function insertHat() {
-			if (document.querySelector("#" + HAT_ID)) {
+			if (getShadowRoot().querySelector("#" + HAT_ID)) {
 				return;
 			}
 			// Select a random hat that hasn't been unlocked yet
@@ -3266,8 +3510,8 @@ module.exports = class PocketBird extends Plugin {
 			hatCanvas.style.left = (rect.left + rect.width / 2 - hatCanvas.width / 2) + "px";
 			hatCanvas.style.top = (rect.top - hatCanvas.height + window.scrollY) + "px";
 
-			// Append to document
-			document.body.appendChild(hatCanvas);
+			// Append to shadow dom
+			getShadowRoot().appendChild(hatCanvas);
 		}
 
 		/**
@@ -3305,7 +3549,7 @@ module.exports = class PocketBird extends Plugin {
 		}
 
 		function updateFeather() {
-			const feather = document.querySelector("#birb-feather");
+			const feather = getShadowRoot().querySelector("#birb-feather");
 			if (!feather || !(feather instanceof HTMLElement)) {
 				return;
 			}
@@ -3329,7 +3573,7 @@ module.exports = class PocketBird extends Plugin {
 		 * @param {HTMLElement} content
 		 */
 		function insertModal(title, content) {
-			if (document.querySelector("#" + FIELD_GUIDE_ID)) {
+			if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 				return;
 			}
 
@@ -3364,7 +3608,7 @@ module.exports = class PocketBird extends Plugin {
 			menu.style.top = `${y}px`;
 		}
 		function insertFieldGuide() {
-			if (document.querySelector("#" + FIELD_GUIDE_ID)) {
+			if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 				return;
 			}
 			// Remove wardrobe if open
@@ -3452,7 +3696,7 @@ module.exports = class PocketBird extends Plugin {
 				if (unlocked) {
 					onClick(speciesElement, () => {
 						switchSpecies(id);
-						document.querySelectorAll(".birb-grid-item").forEach((element) => {
+						getShadowRoot().querySelectorAll(".birb-grid-item").forEach((element) => {
 							element.classList.remove("birb-grid-item-selected");
 						});
 						speciesElement.classList.add("birb-grid-item-selected");
@@ -3473,7 +3717,7 @@ module.exports = class PocketBird extends Plugin {
 		}
 
 		function removeFieldGuide() {
-			const fieldGuide = document.querySelector("#" + FIELD_GUIDE_ID);
+			const fieldGuide = getShadowRoot().querySelector("#" + FIELD_GUIDE_ID);
 			if (fieldGuide) {
 				fieldGuide.remove();
 			}
@@ -3481,7 +3725,7 @@ module.exports = class PocketBird extends Plugin {
 
 		function insertWardrobe() {
 			console.log("Inserting wardrobe");
-			if (document.querySelector("#" + WARDROBE_ID)) {
+			if (getShadowRoot().querySelector("#" + WARDROBE_ID)) {
 				return;
 			}
 			// Remove field guide if open
@@ -3545,7 +3789,7 @@ module.exports = class PocketBird extends Plugin {
 				if (unlocked) {
 					onClick(hatElement, () => {
 						switchHat(hat);
-						document.querySelectorAll(".birb-grid-item").forEach((element) => {
+						getShadowRoot().querySelectorAll(".birb-grid-item").forEach((element) => {
 							element.classList.remove("birb-grid-item-selected");
 						});
 						hatElement.classList.add("birb-grid-item-selected");
@@ -3566,7 +3810,7 @@ module.exports = class PocketBird extends Plugin {
 		}
 
 		function removeWardrobe() {
-			const wardrobe = document.querySelector("#" + WARDROBE_ID);
+			const wardrobe = getShadowRoot().querySelector("#" + WARDROBE_ID);
 			if (wardrobe) {
 				wardrobe.remove();
 			}
@@ -3574,20 +3818,27 @@ module.exports = class PocketBird extends Plugin {
 
 		/**
 		 * @param {string} type
+		 * @param {boolean} [updateSave]
 		 */
-		function switchSpecies(type) {
+		function switchSpecies(type, updateSave = true) {
 			currentSpecies = type;
-			// Update CSS variable --birb-highlight to be wing color
-			document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
-			save();
+			// document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+			setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+			/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+			if (updateSave) {
+				save();
+			}
 		}
 
 		/**
 		 * @param {string} hat
+		 * @param {boolean} [updateSave]
 		 */
-		function switchHat(hat) {
+		function switchHat(hat, updateSave = true) {
 			currentHat = hat;
-			save();
+			if (updateSave) {
+				save();
+			}
 		}
 
 		/**

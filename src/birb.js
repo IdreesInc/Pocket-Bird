@@ -1,4 +1,4 @@
-import { Directions, getLayerPixels, getWindowHeight, getFixedWindowHeight } from './shared.js';
+import { Directions, getLayerPixels, getWindowHeight, getFixedWindowHeight, getShadowRoot } from './shared.js';
 import Layer from './animation/layer.js';
 import Frame from './animation/frame.js';
 import Anim from './animation/anim.js';
@@ -35,9 +35,7 @@ export class Birb {
 	 * @param {string[][]} hatSpriteSheet The loaded hat sprite sheet pixel data
 	 */
 	constructor(birbCssScale, canvasPixelSize, spriteSheet, spriteWidth, spriteHeight, hatSpriteSheet) {
-		this.birbCssScale = birbCssScale;
 		this.canvasPixelSize = canvasPixelSize;
-		this.windowPixelSize = canvasPixelSize * birbCssScale;
 		this.spriteWidth = spriteWidth;
 		this.spriteHeight = spriteHeight;
 
@@ -118,10 +116,10 @@ export class Birb {
 		this.canvas.width = this.frames.base.getPixels()[0].length * canvasPixelSize;
 		this.canvas.height = spriteHeight * canvasPixelSize;
 
-		this.ctx = this.canvas.getContext("2d");
+		this.ctx = /** @type {CanvasRenderingContext2D} */ (this.canvas.getContext("2d"));
 
-		// Append to document
-		document.body.appendChild(this.canvas);
+		// Append to shadow dom
+		getShadowRoot().appendChild(this.canvas);
 	}
 
 	/**
@@ -173,7 +171,7 @@ export class Birb {
 	 * @returns {number}
 	 */
 	getElementWidth() {
-		return this.canvas.width * this.birbCssScale;
+		return this.canvas.getBoundingClientRect().width;
 	}
 
 	/**
@@ -181,7 +179,7 @@ export class Birb {
 	 * @returns {number}
 	 */
 	getElementHeight() {
-		return this.canvas.height * this.birbCssScale;
+		return this.canvas.getBoundingClientRect().height;
 	}
 
 	getElementTop() {
@@ -195,8 +193,7 @@ export class Birb {
 	 */
 	setX(x) {
 		this.x = x;
-		let mod = this.getElementWidth() / -2 - (this.windowPixelSize * (this.direction === Directions.RIGHT ? 2 : -2));
-		this.canvas.style.left = `${x + mod}px`;
+		this.canvas.style.left = `${x - this.canvas.width / 2 - (this.direction === Directions.RIGHT ? 2 : -2)}px`;
 	}
 
 	/**

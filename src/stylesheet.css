@@ -7,17 +7,17 @@
 	--birb-border-color: var(--birb-highlight);
 	--birb-background-color: #ffecda;
 	--birb-mix-color: color-mix(in srgb, var(--birb-highlight) 50%, var(--birb-background-color));
-	--birb-scale: ${BIRB_CSS_SCALE};
-	--birb-ui-scale: ${UI_CSS_SCALE};
+	--birb-scale: 1;
+	--birb-ui-scale: 1;
 }
 
 #birb {
 	image-rendering: pixelated;
 	position: fixed;
 	bottom: 0;
-	transform: scale(var(--birb-scale)) !important;
+	transform: scale(var(--birb-scale));
 	transform-origin: bottom;
-	z-index: 2147483638 !important;
+	z-index: 2147483638;
 	cursor: pointer;
 }
 
@@ -29,32 +29,32 @@
 	image-rendering: pixelated;
 	position: fixed;
 	bottom: 0;
-	transform: scale(var(--birb-scale)) !important;
+	transform: scale(var(--birb-scale));
 	transform-origin: bottom;
-	z-index: 2147483630 !important;
+	z-index: 2147483630;
 }
 
 .birb-item {
 	image-rendering: pixelated;
 	position: absolute;
 	bottom: 0;
-	transform: scale(calc(var(--birb-scale) * 1.5)) !important;
+	transform: scale(calc(var(--birb-scale) * 1.5));
 	transform-origin: bottom;
 	transition-duration: 0.15s;
-	z-index: 2147483630 !important;
+	z-index: 2147483630;
 	cursor: pointer;
 }
 
 .birb-item:hover {
-	transform: scale(calc(var(--birb-scale) * 1.9)) !important;
+	transform: scale(calc(var(--birb-scale) * 1.9));
 	transition-duration: 0.15s;
 }
 
 .birb-window {
-	font-family: "Monocraft", monospace !important;
-	line-height: initial !important;
-	color: #000000 !important;
-	z-index: 2147483639 !important;
+	font-family: "Monocraft", monospace;
+	line-height: initial;
+	color: #000000;
+	z-index: 2147483639;
 	position: fixed;
 	background-color: var(--birb-background-color);
 	box-shadow:
@@ -75,7 +75,7 @@
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
-	transform: scale(var(--birb-ui-scale)) !important;
+	transform: scale(var(--birb-ui-scale));
 	animation: pop-in 0.08s;
 	transition-timing-function: ease-in;
 }
@@ -84,7 +84,7 @@
 	transition-duration: 0.2s;
 	transition-timing-function: ease-out;
 	min-width: 140px;
-	z-index: 2147483639 !important;
+	z-index: 2147483639;
 }
 
 #birb-menu-exit {
@@ -93,7 +93,7 @@
 	left: 0;
 	width: 100%;
 	height: 100%;
-	z-index: 2147483637 !important;
+	z-index: 2147483637;
 }
 
 @keyframes pop-in {
@@ -126,7 +126,7 @@
 		0 var(--birb-neg-border-size) var(--birb-highlight),
 		var(--birb-neg-border-size) var(--birb-border-size) var(--birb-border-color),
 		var(--birb-border-size) var(--birb-border-size) var(--birb-border-color);
-	color: var(--birb-border-color) !important;
+	color: var(--birb-border-color);
 	font-size: 16px;
 }
 
@@ -214,20 +214,20 @@
 	padding-left: 2px;
 	padding-right: 10px;
 	box-sizing: border-box;
-	opacity: 0.7 !important;
+	opacity: 0.7;
 	user-select: none;
 	display: flex;
 	justify-content: left;
 	align-items: center;
 	cursor: pointer;
-	color: black !important;
+	color: black;
 	transition: background 0.1s, color 0.1s;
 }
 
-.birb-menu-item:hover {
-	opacity: 1 !important;
-	background: var(--birb-highlight) !important;
-	color: white !important;
+.birb-menu-item:hover:not(.birb-menu-item-spinner) {
+	opacity: 1;
+	background: var(--birb-highlight);
+	color: white;
 	box-shadow:
 		var(--birb-border-size) 0 var(--birb-highlight),
 		var(--birb-neg-border-size) 0 var(--birb-highlight),
@@ -237,7 +237,6 @@
 }
 
 .birb-menu-item-icon {
-	width: calc(7 * var(--birb-border-size));
 	height: calc(6 * var(--birb-border-size));
 	padding-right: calc(5 * var(--birb-border-size));
 	flex-shrink: 0;
@@ -254,6 +253,55 @@
 	display: inline-block;
 }
 
+.birb-menu-item-spinner {
+	display: flex;
+	justify-content: space-between;
+}
+
+.birb-menu-item-spinner-container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	gap: 8px;
+	margin-left: 10px;
+	justify-content:end;
+	width: 40px;
+}
+
+.birb-spinner-button {
+	box-sizing: border-box;
+	width: 1em;
+	height: calc(7 * var(--birb-border-size));
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	--spinner-border-color: var(--birb-highlight);
+	background-color: var(--birb-background-color);
+	/* color: var(--birb-highlight); */
+	font-size: 14px;
+	padding-top: 0.5px;
+	padding-left: 0.75px;
+	margin-top: -0.5px;
+	text-align: center;
+	box-shadow:
+		var(--birb-border-size) 0 var(--spinner-border-color),
+		var(--birb-neg-border-size) 0 var(--spinner-border-color),
+		0 var(--birb-neg-border-size) var(--spinner-border-color),
+		0 var(--birb-border-size) var(--spinner-border-color);
+	/* border-radius: 3px; */
+	cursor: pointer;
+}
+
+.birb-spinner-button:hover {
+	background-color: var(--birb-highlight);
+	box-shadow:
+		var(--birb-border-size) 0 var(--birb-highlight),
+		var(--birb-neg-border-size) 0 var(--birb-highlight),
+		0 var(--birb-neg-border-size) var(--birb-highlight),
+		0 var(--birb-border-size) var(--birb-highlight);
+	color: white;
+}
+
 .birb-window-separator {
 	width: 100%;
 	height: var(--birb-border-size);
@@ -265,7 +313,7 @@
 }
 
 #birb-field-guide, #birb-wardrobe {
-	width: 322px !important;
+	width: 322px;
 }
 
 #birb-field-guide .birb-grid-content {
@@ -308,7 +356,7 @@
 
 .birb-grid-item canvas {
 	image-rendering: pixelated;
-	transform: scale(2) !important;
+	transform: scale(2);
 	padding-bottom: var(--birb-border-size);
 }
 
@@ -379,6 +427,7 @@
 	position: absolute;
 	box-sizing: border-box;
 	animation: fade-in 0.15s ease-in;
+	z-index: 2147483637;
 }
 
 @keyframes fade-in {
@@ -398,26 +447,32 @@
 .birb-sticky-note-input {
 	width: 100%;
 	height: 100%;
-	padding: 10px !important;
-	resize: both !important;
-	min-width: 175px !important;
-	min-height: 135px !important;
-	box-sizing: border-box !important;
-	font-family: "Monocraft", monospace !important;
-	font-size: 14px !important;
-	color: black !important;
-	background-color: transparent !important;
-	border: none !important;
+	padding: 10px;
+	resize: both;
+	min-width: 175px;
+	min-height: 135px;
+	box-sizing: border-box;
+	font-family: "Monocraft", monospace;
+	font-size: 14px;
+	color: black;
+	background-color: transparent;
+	border: none;
 }
 
 .birb-sticky-note-input::placeholder {
-	font-family: "Monocraft", monospace !important;
-	font-size: 14px !important;
-	background-color: transparent !important;
-	color: rgba(0, 0, 0, 0.35) !important;
+	font-family: "Monocraft", monospace;
+	font-size: 14px;
+	background-color: transparent;
+	color: rgba(0, 0, 0, 0.35);
 }
 
 .birb-sticky-note-input:focus {
-	outline: none !important;
-	box-shadow: none !important;
+	outline: none;
+	box-shadow: none;
+}
+
+@media print {
+	#birb {
+		display: none;
+	}
 }

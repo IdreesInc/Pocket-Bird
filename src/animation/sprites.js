@@ -276,6 +276,6 @@ function getTemplateColorMatch(red, green, blue) {
 export const SPECIES = Object.fromEntries(
 	Object.entries(species).map(([id, data]) => [
 		id,
-		new BirdType(data.name, data.description, data.latinName, data.url, data.colors, data.tags, data.rarity)
+		new BirdType(data.name, data.description, data.latinName, data.url, data.colors, data.tags, /** @type {Rarity|undefined} */ (data.rarity))
 	]),
 );
