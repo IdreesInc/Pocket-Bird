@@ -234,6 +234,17 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			setDebug(false);
 		}),
 		new Separator(),
+		new ConditionalMenuItem(`Adopt A ${birdBirb()}`, () => {
+			const URL = "https://idreesinc.itch.io/pocket-bird";
+			window.open(URL, "_blank");
+		}, () => getContext().isLinkBackEnabled(), [
+			[0, 0, 1, 1, 0, 0, 0],
+			[0, 1, 0, 0, 1, 0, 0],
+			[1, 0, 1, 0, 0, 1, 0],
+			[1, 0, 0, 1, 0, 1, 0],
+			[1, 0, 0, 0, 0, 1, 0],
+			[0, 1, 1, 1, 1, 0, 0],
+		]),
 		new MenuItem("Settings", () => switchMenuItems(settingsItems, updateMenuLocation), [
 			[0, 0, 0, 0, 1, 1, 1],
 			[1, 1, 1, 1, 1, 0, 1],

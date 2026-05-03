@@ -94,6 +94,10 @@ export class Context {
 		return true;
 	}
 
+	isLinkBackEnabled() {
+		return false;
+	}
+
 	/**
 	 * @returns {string}
 	 */
@@ -120,6 +124,10 @@ export class LocalContext extends Context {
 	async putSaveData(saveData) {
 		log("Saving data to localStorage");
 		localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+	}
+
+	isLinkBackEnabled() {
+		return true;
 	}
 
 	/** @override */
