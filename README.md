@@ -13,7 +13,7 @@ It's a pet bird that hops around your computer, what more could you want?
 
 ### Get it for [Mozilla Firefox](https://addons.mozilla.org/en-US/firefox/addon/pocket-bird/)
 
-### Get it for [Obsidian (beta)](https://github.com/IdreesInc/Pocket-Bird#Obsidian)
+### Get it for [Obsidian](https://community.obsidian.md/plugins/pocket-bird)
 
 ### Get it for [TamperMonkey](https://github.com/IdreesInc/Pocket-Bird#Userscript)
 
@@ -43,11 +43,10 @@ It's a pet bird that hops around your computer, what more could you want?
 
 ### Obsidian
 
-1. Install the [Beta Plugin Manager (BRAT)](https://obsidian.md/plugins?id=obsidian42-brat) plugin for Obsidian
-2. Enable the BRAT plugin and open its settings
-3. In the BRAT settings, click "Add Beta Plugin" and enter the following URL: `https://github.com/IdreesInc/PB-Obsidian-Releases`
-4. Select "Latest version" and click "Add Plugin"
-5. Enjoy a pet bird in your Obsidian notes!
+1. Go to the [Obsidian Plugins page](https://community.obsidian.md/plugins/pocket-bird)
+2. Click "Add to Obsidian"
+3. Once your Obsidian app opens, click "Install" on the Pocket Bird plugin
+4. Click "Enable" and now you're ready to go!
 
 ### Userscript
 
