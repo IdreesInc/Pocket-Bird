@@ -768,10 +768,6 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		onClick(featherCanvas, () => {
 			unlockBird(birdType);
 			removeFeather();
-			if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
-				removeFieldGuide();
-				insertFieldGuide();
-			}
 		});
 	}
 
@@ -844,6 +840,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			bold.textContent = SPECIES[birdType].name;
 			message.appendChild(bold);
 			message.appendChild(document.createTextNode(" feather! Use the Field Guide to switch your bird's species."));
+			removeFieldGuide();
 			insertModal("New Bird Unlocked!", message);
 		}
 	}
@@ -861,6 +858,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			bold.textContent = HAT_METADATA[hatId].name;
 			message.appendChild(bold);
 			message.appendChild(document.createTextNode("! To see all of your unlocked accessories, click the Wardrobe from the menu."));
+			removeWardrobe();
 			insertModal("New Hat Found!", message);
 		}
 	}
