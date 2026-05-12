@@ -24,8 +24,11 @@ It's a pet bird that hops around your computer, what more could you want?
 ## Features
 
 - A cute little pixel art bird hops around your apps and websites
-- Collect rare falling feathers to unlock over 10+ different species of birds
-- Add sticky notes that stay on the page even after you refresh
+- Runs in your browser, so you can use it anywhere including at work or school
+- Catch rare falling feathers to unlock over 20+ different species of birds
+- Find over a dozen adorable hats for your bird to wear
+- Create sticky notes that stay on the page even after you refresh
+- It's all powered by open-source code written by hand
 - And most importantly, you can pet the bird!
 
 ## Adoption Guide

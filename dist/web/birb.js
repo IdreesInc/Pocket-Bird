@@ -2957,7 +2957,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("Build 2026.5.2", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.5.2"); }, undefined, false),
+			new MenuItem("Build 2026.5.12", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.5.12"); }, undefined, false),
 		];
 
 		/** @type {Birb} */

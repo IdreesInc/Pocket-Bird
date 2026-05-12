@@ -2,6 +2,7 @@
 .DS_Store
 /dist/birb.bundled.js
 obsidian-test.sh
+obsidian-build.sh
 build-cache.json
 .vscode/settings.json
 aseprite/birb-test.aseprite
