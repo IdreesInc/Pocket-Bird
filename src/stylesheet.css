@@ -21,8 +21,8 @@
 	cursor: pointer;
 }
 
-.birb-absolute {
-	position: absolute !important;
+#birb.birb-absolute {
+	position: absolute;
 }
 
 .birb-decoration {

@@ -162,9 +162,10 @@ export class BirdType {
  * Load a sprite sheet image and convert it to a 2D array of palette color names
  * @param {string} src URL or data URI of the sprite sheet image
  * @param {boolean} [templateColors] Whether to map pixel colors to palette names
+ * @param {boolean} [fuzzyMatch] If template colors are allowed, whether to use fuzzy matching or match exactly
  * @returns {Promise<string[][]>}
  */
-export function loadSpriteSheetPixels(src, templateColors = true) {
+export function loadSpriteSheetPixels(src, templateColors = true, fuzzyMatch = true) {
 	return new Promise((resolve, reject) => {
 		const img = new Image();
 		img.src = src;
@@ -194,7 +195,7 @@ export function loadSpriteSheetPixels(src, templateColors = true) {
 					} else if (!templateColors) {
 						row.push(rgbToHex(r, g, b));
 					} else {
-						row.push(getTemplateColorMatch(r, g, b));
+						row.push(getTemplateColorMatch(r, g, b, fuzzyMatch));
 					}
 				}
 				hexArray.push(row);
@@ -245,13 +246,17 @@ const SPRITE_SHEET_RGB = Object.entries(SPRITE_SHEET_COLOR_MAP)
  * @param {number} red The red channel value (0-255)
  * @param {number} green The green channel value (0-255)
  * @param {number} blue The blue channel value (0-255)
+ * @param {boolean} fuzzyMatch Whether to apply a tolerance or match exactly
  * @returns {PaletteColor | string} The name of the matching palette color, or the original color as a hex string if no match is found
  */
-function getTemplateColorMatch(red, green, blue) {
+function getTemplateColorMatch(red, green, blue, fuzzyMatch) {
 	const hex = rgbToHex(red, green, blue);
 	if (SPRITE_SHEET_COLOR_MAP[hex]) {
 		// Exact match
 		return SPRITE_SHEET_COLOR_MAP[hex];
+	}
+	if (!fuzzyMatch) {
+		return rgbToHex(red, green, blue);
 	}
 	// Rarely, certain platforms like Linux Mint do not properly convert colors requiring this fuzzy matching fallback
 	const TOLERANCE = 50;
@@ -267,7 +272,6 @@ function getTemplateColorMatch(red, green, blue) {
 	if (!closestMatch) {
 		return rgbToHex(red, green, blue);
 	}
-	// console.log("Fuzzy match of color", hex, "to palette color", closestMatch, "with distance", minDistance);
 	return closestMatch;
 }
 

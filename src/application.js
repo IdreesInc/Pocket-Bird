@@ -142,7 +142,7 @@ export async function initializeApplication(context) {
 	log("Loading sprite sheets...");
 	const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET);
 	const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET);
-	const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET);
+	const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET, true, false);
 	startApplication(birbPixels, featherPixels, hatsPixels);
 }
 
@@ -591,11 +591,13 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		}
 
 		if (birb.isVisible() && Date.now() - lastActionTimestamp < SUPER_AFK_TIME) {
-			if (Math.random() < FEATHER_CHANCE * (isPetBoostActive() ? PET_FEATHER_BOOST : 1)) {
+			const featherMod = getContext().getFeatherChanceMod();
+			const hatMod = getContext().getHatChanceMod();
+			if (Math.random() < FEATHER_CHANCE * featherMod * (isPetBoostActive() ? PET_FEATHER_BOOST : 1)) {
 				lastPetTimestamp = 0;
 				activateFeather();
 			}
-			if (Math.random() < (HAT_CHANCE * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
+			if (Math.random() < (HAT_CHANCE * hatMod * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
 				lastPetTimestamp = 0;
 				insertHat();
 			}
@@ -768,10 +770,6 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		onClick(featherCanvas, () => {
 			unlockBird(birdType);
 			removeFeather();
-			if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
-				removeFieldGuide();
-				insertFieldGuide();
-			}
 		});
 	}
 
@@ -844,6 +842,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			bold.textContent = SPECIES[birdType].name;
 			message.appendChild(bold);
 			message.appendChild(document.createTextNode(" feather! Use the Field Guide to switch your bird's species."));
+			removeFieldGuide();
 			insertModal("New Bird Unlocked!", message);
 		}
 	}
@@ -861,6 +860,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			bold.textContent = HAT_METADATA[hatId].name;
 			message.appendChild(bold);
 			message.appendChild(document.createTextNode("! To see all of your unlocked accessories, click the Wardrobe from the menu."));
+			removeWardrobe();
 			insertModal("New Hat Found!", message);
 		}
 	}
