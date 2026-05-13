@@ -104,6 +104,14 @@ export class Context {
 	getFontStyles() {
 		return getFontFaceImport(MONOCRAFT_URL);
 	}
+
+	getFeatherChanceMod() {
+		return 1;
+	}
+
+	getHatChanceMod() {
+		return 1;
+	}
 }
 
 export class LocalContext extends Context {
@@ -126,6 +134,7 @@ export class LocalContext extends Context {
 		localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
 	}
 
+	/** @override */
 	isLinkBackEnabled() {
 		return true;
 	}
@@ -134,6 +143,16 @@ export class LocalContext extends Context {
 	resetSaveData() {
 		log("Resetting save data in localStorage");
 		localStorage.removeItem(SAVE_KEY);
+	}
+
+	/** @override */
+	getFeatherChanceMod() {
+		return 4;
+	}
+
+	/** @override */
+	getHatChanceMod() {
+		return 2;
 	}
 }
 
@@ -302,6 +321,11 @@ export class ObsidianContext extends Context {
 		const activeLeaf = app.workspace.activeLeaf;
 		const leafElement = activeLeaf?.view?.containerEl;
 		return leafElement?.querySelector(".cm-scroller") ?? null;
+	}
+
+	/** @override */
+	getHatChanceMod() {
+		return 0.1;
 	}
 }
 

@@ -591,11 +591,13 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		}
 
 		if (birb.isVisible() && Date.now() - lastActionTimestamp < SUPER_AFK_TIME) {
-			if (Math.random() < FEATHER_CHANCE * (isPetBoostActive() ? PET_FEATHER_BOOST : 1)) {
+			let featherMod = getContext().getFeatherChanceMod();
+			let hatMod = getContext().getHatChanceMod();
+			if (Math.random() < FEATHER_CHANCE * featherMod * (isPetBoostActive() ? PET_FEATHER_BOOST : 1)) {
 				lastPetTimestamp = 0;
 				activateFeather();
 			}
-			if (Math.random() < (HAT_CHANCE * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
+			if (Math.random() < (HAT_CHANCE * hatMod * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
 				lastPetTimestamp = 0;
 				insertHat();
 			}
