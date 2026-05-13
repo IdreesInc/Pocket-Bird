@@ -846,9 +846,10 @@
 	 * Load a sprite sheet image and convert it to a 2D array of palette color names
 	 * @param {string} src URL or data URI of the sprite sheet image
 	 * @param {boolean} [templateColors] Whether to map pixel colors to palette names
+	 * @param {boolean} [fuzzyMatch] If template colors are allowed, whether to use fuzzy matching or match exactly
 	 * @returns {Promise<string[][]>}
 	 */
-	function loadSpriteSheetPixels(src, templateColors = true) {
+	function loadSpriteSheetPixels(src, templateColors = true, fuzzyMatch = true) {
 		return new Promise((resolve, reject) => {
 			const img = new Image();
 			img.src = src;
@@ -878,7 +879,7 @@
 						} else if (!templateColors) {
 							row.push(rgbToHex(r, g, b));
 						} else {
-							row.push(getTemplateColorMatch(r, g, b));
+							row.push(getTemplateColorMatch(r, g, b, fuzzyMatch));
 						}
 					}
 					hexArray.push(row);
@@ -929,13 +930,17 @@
 	 * @param {number} red The red channel value (0-255)
 	 * @param {number} green The green channel value (0-255)
 	 * @param {number} blue The blue channel value (0-255)
+	 * @param {boolean} fuzzyMatch Whether to apply a tolerance or match exactly
 	 * @returns {PaletteColor | string} The name of the matching palette color, or the original color as a hex string if no match is found
 	 */
-	function getTemplateColorMatch(red, green, blue) {
+	function getTemplateColorMatch(red, green, blue, fuzzyMatch) {
 		const hex = rgbToHex(red, green, blue);
 		if (SPRITE_SHEET_COLOR_MAP[hex]) {
 			// Exact match
 			return SPRITE_SHEET_COLOR_MAP[hex];
+		}
+		if (!fuzzyMatch) {
+			return rgbToHex(red, green, blue);
 		}
 		// Rarely, certain platforms like Linux Mint do not properly convert colors requiring this fuzzy matching fallback
 		const TOLERANCE = 50;
@@ -951,7 +956,6 @@
 		if (!closestMatch) {
 			return rgbToHex(red, green, blue);
 		}
-		// console.log("Fuzzy match of color", hex, "to palette color", closestMatch, "with distance", minDistance);
 		return closestMatch;
 	}
 
@@ -1796,6 +1800,14 @@
 		getFontStyles() {
 			return getFontFaceImport(MONOCRAFT_URL);
 		}
+
+		getFeatherChanceMod() {
+			return 1;
+		}
+
+		getHatChanceMod() {
+			return 1;
+		}
 	}
 
 	class LocalContext extends Context {
@@ -1818,6 +1830,7 @@
 			localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
 		}
 
+		/** @override */
 		isLinkBackEnabled() {
 			return true;
 		}
@@ -1826,6 +1839,16 @@
 		resetSaveData() {
 			log("Resetting save data in localStorage");
 			localStorage.removeItem(SAVE_KEY);
+		}
+
+		/** @override */
+		getFeatherChanceMod() {
+			return 4;
+		}
+
+		/** @override */
+		getHatChanceMod() {
+			return 2;
 		}
 	}
 
@@ -2263,8 +2286,8 @@
 	cursor: pointer;
 }
 
-.birb-absolute {
-	position: absolute !important;
+#birb.birb-absolute {
+	position: absolute;
 }
 
 .birb-decoration {
@@ -2775,7 +2798,7 @@
 		log("Loading sprite sheets...");
 		const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET);
 		const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET);
-		const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET);
+		const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET, true, false);
 		startApplication(birbPixels, featherPixels, hatsPixels);
 	}
 
@@ -3220,11 +3243,13 @@
 			}
 
 			if (birb.isVisible() && Date.now() - lastActionTimestamp < SUPER_AFK_TIME) {
-				if (Math.random() < FEATHER_CHANCE * (isPetBoostActive() ? PET_FEATHER_BOOST : 1)) {
+				const featherMod = getContext().getFeatherChanceMod();
+				const hatMod = getContext().getHatChanceMod();
+				if (Math.random() < FEATHER_CHANCE * featherMod * (isPetBoostActive() ? PET_FEATHER_BOOST : 1)) {
 					lastPetTimestamp = 0;
 					activateFeather();
 				}
-				if (Math.random() < (HAT_CHANCE * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
+				if (Math.random() < (HAT_CHANCE * hatMod * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
 					lastPetTimestamp = 0;
 					insertHat();
 				}
@@ -3394,10 +3419,6 @@
 			onClick(featherCanvas, () => {
 				unlockBird(birdType);
 				removeFeather();
-				if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
-					removeFieldGuide();
-					insertFieldGuide();
-				}
 			});
 		}
 
@@ -3470,6 +3491,7 @@
 				bold.textContent = SPECIES[birdType].name;
 				message.appendChild(bold);
 				message.appendChild(document.createTextNode(" feather! Use the Field Guide to switch your bird's species."));
+				removeFieldGuide();
 				insertModal("New Bird Unlocked!", message);
 			}
 		}
@@ -3487,6 +3509,7 @@
 				bold.textContent = HAT_METADATA[hatId].name;
 				message.appendChild(bold);
 				message.appendChild(document.createTextNode("! To see all of your unlocked accessories, click the Wardrobe from the menu."));
+				removeWardrobe();
 				insertModal("New Hat Found!", message);
 			}
 		}
