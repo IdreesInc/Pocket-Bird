@@ -19,8 +19,6 @@ It's a pet bird that hops around your computer, what more could you want?
 
 #### Join the [Discord](https://discord.gg/6yxE9prcNc) to help me beta test new features and suggest ideas!
 
-![](images/pocket-bird-on-code-block.gif)
-
 ## Features
 
 - A cute little pixel art bird hops around your apps and websites
@@ -30,6 +28,8 @@ It's a pet bird that hops around your computer, what more could you want?
 - Create sticky notes that stay on the page even after you refresh
 - It's all powered by open-source code written by hand
 - And most importantly, you can pet the bird!
+
+![](images/pocket-bird-on-code-block.gif)
 
 ## Adoption Guide
 
