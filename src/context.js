@@ -322,11 +322,6 @@ export class ObsidianContext extends Context {
 		const leafElement = activeLeaf?.view?.containerEl;
 		return leafElement?.querySelector(".cm-scroller") ?? null;
 	}
-
-	/** @override */
-	getHatChanceMod() {
-		return 0.1;
-	}
 }
 
 /**

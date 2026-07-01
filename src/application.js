@@ -590,7 +590,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			}
 		}
 
-		if (birb.isVisible() && Date.now() - lastActionTimestamp < SUPER_AFK_TIME) {
+		if (birb.isVisible() && document.hasFocus() && Date.now() - lastActionTimestamp < SUPER_AFK_TIME) {
 			const featherMod = getContext().getFeatherChanceMod();
 			const hatMod = getContext().getHatChanceMod();
 			if (Math.random() < FEATHER_CHANCE * featherMod * (isPetBoostActive() ? PET_FEATHER_BOOST : 1)) {
