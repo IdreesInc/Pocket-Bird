@@ -44,6 +44,10 @@ const spriteSheets = [
 		path: SPRITES_DIR + "/birb.png"
 	},
 	{
+		key: "__SPECIES_SPRITE_SHEET__",
+		path: SPRITES_DIR + "/species.png"
+	},
+	{
 		key: "__FEATHER_SPRITE_SHEET__",
 		path: SPRITES_DIR + "/feather.png"
 	},

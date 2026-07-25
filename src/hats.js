@@ -1,7 +1,6 @@
 import Anim from "./animation/anim.js";
 import Frame from "./animation/frame.js";
 import Layer, { TAG } from "./animation/layer.js";
-import { PALETTE } from "./animation/sprites.js";
 import { getLayerPixels } from "./shared.js";
 
 const HAT_WIDTH = 12;
@@ -161,25 +160,25 @@ function pad(pixels, top, bottom, left, right) {
 	const rowLength = pixels[0].length + left + right;
 	// Top padding
 	for (let y = 0; y < top; y++) {
-		paddedPixels.push(Array(rowLength).fill(PALETTE.TRANSPARENT));
+		paddedPixels.push(Array(rowLength).fill("transparent"));
 	}
 	// Left and right padding
 	for (let y = 0; y < pixels.length; y++) {
 		const row = [];
 		for (let x = 0; x < left; x++) {
-			row.push(PALETTE.TRANSPARENT);
+			row.push("transparent");
 		}
 		for (let x = 0; x < pixels[y].length; x++) {
 			row.push(pixels[y][x]);
 		}
 		for (let x = 0; x < right; x++) {
-			row.push(PALETTE.TRANSPARENT);
+			row.push("transparent");
 		}
 		paddedPixels.push(row);
 	}
 	// Bottom padding
 	for (let y = 0; y < bottom; y++) {
-		paddedPixels.push(Array(rowLength).fill(PALETTE.TRANSPARENT));
+		paddedPixels.push(Array(rowLength).fill("transparent"));
 	}
 	return paddedPixels;
 }
@@ -204,12 +203,12 @@ function drawOutline(pixels, outlineBottom = false) {
 	for (let y = 0; y < pixels.length; y++) {
 		for (let x = 0; x < pixels[y].length; x++) {
 			const pixel = pixels[y][x];
-			if (pixel !== PALETTE.TRANSPARENT && pixel !== PALETTE.BORDER) {
+			if (pixel !== "transparent" && pixel !== "#ffffff") {
 				for (let [dx, dy] of neighborOffsets) {
 					const newX = x + dx;
 					const newY = y + dy;
-					if (newY >= 0 && newY < pixels.length && newX >= 0 && newX < pixels[newY].length && pixels[newY][newX] === PALETTE.TRANSPARENT) {
-						pixels[newY][newX] = PALETTE.BORDER;
+					if (newY >= 0 && newY < pixels.length && newX >= 0 && newX < pixels[newY].length && pixels[newY][newX] === "transparent") {
+						pixels[newY][newX] = "#ffffff";
 					}
 				}
 			}
@@ -228,7 +227,7 @@ function pushToBottom(pixels) {
 	let trimCount = 0;
 	while (trimmedPixels.length > 1) {
 		const firstRow = trimmedPixels[trimmedPixels.length - 1];
-		if (firstRow.every(pixel => pixel === PALETTE.TRANSPARENT)) {
+		if (firstRow.every(pixel => pixel === "transparent")) {
 			trimmedPixels.pop();
 			trimCount++;
 		} else {

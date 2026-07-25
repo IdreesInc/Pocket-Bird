@@ -25,10 +25,11 @@ import {
 	getShadowRoot
 } from './shared.js';
 import {
-	PALETTE,
 	SPECIES,
 	RARITY,
+	createTemplateMapping,
 	loadSpriteSheetPixels,
+	extractPalette
 } from './animation/sprites.js';
 import {
 	StickyNote,
@@ -86,6 +87,7 @@ const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
 // Build-time assets
 const STYLESHEET = `___STYLESHEET___`;
 const SPRITE_SHEET = "__SPRITE_SHEET__";
+const SPECIES_SPRITE_SHEET = "__SPECIES_SPRITE_SHEET__";
 const FEATHER_SPRITE_SHEET = "__FEATHER_SPRITE_SHEET__";
 const HATS_SPRITE_SHEET = "__HATS_SPRITE_SHEET__";
 
@@ -132,7 +134,6 @@ const MIN_FOCUS_ELEMENT_WIDTH = 100;
 /** @type {Partial<Settings>} */
 let userSettings = {};
 
-
 /** 
  * @param {Context} context
  */
@@ -140,9 +141,15 @@ export async function initializeApplication(context) {
 	log("birbOS booting up...");
 	setContext(context);
 	log("Loading sprite sheets...");
-	const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET);
-	const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET);
-	const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET, true, false);
+	const templateMapping = await createTemplateMapping(SPRITE_SHEET, 32);
+	const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET, templateMapping);
+	const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET, templateMapping);
+	const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET, {});
+
+	for (const species of Object.values(SPECIES)) {
+		species.setColorScheme(await extractPalette(SPECIES_SPRITE_SHEET, species.spriteIndex * 32, 32));
+	}
+	
 	startApplication(birbPixels, featherPixels, hatsPixels);
 }
 
@@ -152,7 +159,6 @@ export async function initializeApplication(context) {
  * @param {string[][]} hatsPixels
  */
 function startApplication(birbPixels, featherPixels, hatsPixels) {
-
 	const SPRITE_SHEET = birbPixels;
 	const FEATHER_SPRITE_SHEET = featherPixels;
 	const HATS_SPRITE_SHEET = hatsPixels;
@@ -765,7 +771,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		if (!featherCtx) {
 			return;
 		}
-		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type.colors, type.tags);
+		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type.getColorScheme(), type.tags);
 		getShadowRoot().appendChild(featherCanvas);
 		onClick(featherCanvas, () => {
 			unlockBird(birdType);
@@ -818,7 +824,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 		// Create hat animation
 		const hatAnimation = createHatItemAnimation(hatId, HATS_SPRITE_SHEET);
-		hatAnimation.draw(hatCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, SPECIES[currentSpecies].colors, [TAG.DEFAULT]);
+		hatAnimation.draw(hatCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, {}, [TAG.DEFAULT]);
 
 		// Position hat above the element
 		const rect = element.getBoundingClientRect();
@@ -1004,7 +1010,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			if (!speciesCtx) {
 				return;
 			}
-			birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.colors, type.tags);
+			birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.getColorScheme(), type.tags);
 			speciesElement.appendChild(speciesCanvas);
 			let section = familiarBirds;
 			if (type.rarity === RARITY.UNCOMMON) {
@@ -1042,7 +1048,6 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function insertWardrobe() {
-		console.log("Inserting wardrobe");
 		if (getShadowRoot().querySelector("#" + WARDROBE_ID)) {
 			return;
 		}
@@ -1099,7 +1104,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 				hatCtx,
 				Directions.RIGHT,
 				CANVAS_PIXEL_SIZE,
-				SPECIES[currentSpecies].colors,
+				SPECIES[currentSpecies].getColorScheme(),
 				[...SPECIES[currentSpecies].tags, hat]
 			);
 			hatElement.appendChild(hatCanvas);
@@ -1140,9 +1145,8 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	 */
 	function switchSpecies(type, updateSave = true) {
 		currentSpecies = type;
-		// document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
-		setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
-		/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+		setProperty("--birb-highlight", SPECIES[type].highlightColor);
+		/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty("--birb-highlight", SPECIES[type].highlightColor);
 		if (updateSave) {
 			save();
 		}

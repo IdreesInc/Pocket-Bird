@@ -254,7 +254,8 @@
 	 * @property {string} description
 	 * @property {string} latinName
 	 * @property {string} url
-	 * @property {Record<string, string>} colors
+	 * @property {number} spriteIndex
+	 * @property {string} highlightColor
 	 * @property {string[]} [tags]
 	 * @property {string} [rarity]
 	 */
@@ -263,47 +264,27 @@
 	const species = {
 	  "bluebird": {
 	    "name": "Eastern Bluebird",
-	    "description": "Native to North American and very social, though can be timid around people.",
+	    "description": "Native to North America and very social, though can be timid around people.",
 	    "latinName": "Sialia sialis",
 	    "url": "https://en.wikipedia.org/wiki/Eastern_bluebird",
-	    "colors": {
-	      "foot": "#af8e75",
-	      "face": "#639bff",
-	      "belly": "#f8b143",
-	      "underbelly": "#ec8637",
-	      "wing": "#578ae6",
-	      "wing-edge": "#326ed9"
-	    }
+	    "spriteIndex": 0,
+	    "highlightColor": "#639bff"
 	  },
 	  "shimaEnaga": {
 	    "name": "Shima Enaga",
 	    "description": "Small, fluffy birds found in the snowy regions of Japan, these birds are highly sought after by ornithologists and nature photographers.",
 	    "latinName": "Aegithalos caudatus",
 	    "url": "https://en.wikipedia.org/wiki/Long-tailed_tit",
-	    "colors": {
-	      "foot": "#af8e75",
-	      "face": "#ffffff",
-	      "belly": "#ebe9e8",
-	      "underbelly": "#ebd9d0",
-	      "wing": "#f3d3c1",
-	      "wing-edge": "#2d2d2d",
-	      "theme-highlight": "#d7ac93"
-	    }
+	    "spriteIndex": 1,
+	    "highlightColor": "#d7ac93"
 	  },
 	  "tuftedTitmouse": {
 	    "name": "Tufted Titmouse",
 	    "description": "Native to the eastern United States, full of personality, and notably my wife's favorite bird.",
 	    "latinName": "Baeolophus bicolor",
 	    "url": "https://en.wikipedia.org/wiki/Tufted_titmouse",
-	    "colors": {
-	      "foot": "#af8e75",
-	      "face": "#c7cad7",
-	      "belly": "#e4e5eb",
-	      "underbelly": "#d7cfcb",
-	      "wing": "#b1b5c5",
-	      "wing-edge": "#9d9fa9",
-	      "theme-highlight": "#b9abcf"
-	    },
+	    "spriteIndex": 2,
+	    "highlightColor": "#b9abcf",
 	    "tags": [
 	      "tuft"
 	    ]
@@ -313,34 +294,16 @@
 	    "description": "Native to western Europe, this is the quintessential robin. Quite friendly, you'll often find them searching for worms.",
 	    "latinName": "Erithacus rubecula",
 	    "url": "https://en.wikipedia.org/wiki/European_robin",
-	    "colors": {
-	      "foot": "#af8e75",
-	      "face": "#ffaf34",
-	      "hood": "#aaa094",
-	      "belly": "#ffaf34",
-	      "underbelly": "#babec2",
-	      "wing": "#aaa094",
-	      "wing-edge": "#888580",
-	      "theme-highlight": "#ffaf34"
-	    }
+	    "spriteIndex": 3,
+	    "highlightColor": "#ffaf34"
 	  },
 	  "redCardinal": {
 	    "name": "Red Cardinal",
 	    "description": "Native to the eastern United States, this strikingly red bird is hard to miss.",
 	    "latinName": "Cardinalis cardinalis",
 	    "url": "https://en.wikipedia.org/wiki/Red_cardinal",
-	    "colors": {
-	      "beak": "#d93619",
-	      "foot": "#af8e75",
-	      "face": "#31353d",
-	      "hood": "#e83a1b",
-	      "belly": "#e83a1b",
-	      "underbelly": "#dc3719",
-	      "wing": "#d23215",
-	      "wing-edge": "#b1321c",
-	      "collar": "#e83a1b",
-	      "scruff": "#d23215",
-	    },
+	    "spriteIndex": 4,
+	    "highlightColor": "#e83a1b",
 	    "tags": [
 	      "tuft"
 	    ]
@@ -350,115 +313,56 @@
 	    "description": "Coloured a brilliant yellow, this bird feeds almost entirely on the seeds of plants such as thistle, sunflowers, and coneflowers.",
 	    "latinName": "Spinus tristis",
 	    "url": "https://en.wikipedia.org/wiki/American_goldfinch",
-	    "colors": {
-	      "beak": "#ffaf34",
-	      "foot": "#af8e75",
-	      "face": "#fff255",
-	      "nose": "#383838",
-	      "hood": "#383838",
-	      "belly": "#fff255",
-	      "underbelly": "#f5ea63",
-	      "wing": "#e8e079",
-	      "wing-edge": "#191919",
-	      "theme-highlight": "#ffcc00"
-	    }
+	    "spriteIndex": 5,
+	    "highlightColor": "#ffcc00"
 	  },
 	  "barnSwallow": {
 	    "name": "Barn Swallow",
 	    "description": "Agile birds that often roost in man-made structures, these birds are known to build nests near Ospreys for protection.",
 	    "latinName": "Hirundo rustica",
 	    "url": "https://en.wikipedia.org/wiki/Barn_swallow",
-	    "colors": {
-	      "foot": "#af8e75",
-	      "face": "#db7c4d",
-	      "belly": "#f7e1c9",
-	      "underbelly": "#ebc9a3",
-	      "wing": "#2252a9",
-	      "wing-edge": "#1c448b",
-	      "hood": "#2252a9"
-	    }
+	    "spriteIndex": 6,
+	    "highlightColor": "#2252a9"
 	  },
 	  "mistletoebird": {
 	    "name": "Mistletoebird",
 	    "description": "Native to Australia, these birds eat mainly mistletoe and in turn spread the seeds far and wide.",
 	    "latinName": "Dicaeum hirundinaceum",
 	    "url": "https://en.wikipedia.org/wiki/Mistletoebird",
-	    "colors": {
-	      "foot": "#6c6a7c",
-	      "face": "#352e6d",
-	      "belly": "#fd6833",
-	      "underbelly": "#e6e1d8",
-	      "wing": "#342b7c",
-	      "wing-edge": "#282065"
-	    }
+	    "spriteIndex": 7,
+	    "highlightColor": "#352e6d"
 	  },
 	  "scarletRobin": {
 	    "name": "Scarlet Robin",
 	    "description": "Native to Australia, this striking robin can be found in Eucalyptus forests.",
 	    "latinName": "Petroica boodang",
 	    "url": "https://en.wikipedia.org/wiki/Scarlet_robin",
-	    "colors": {
-	      "foot": "#494949",
-	      "face": "#3d3d3d",
-	      "belly": "#fc5633",
-	      "underbelly": "#dcdcdc",
-	      "wing": "#2b2b2b",
-	      "wing-edge": "#ebebeb",
-	      "nose": "#ebebeb",
-	      "theme-highlight": "#fc5633"
-	    }
+	    "spriteIndex": 8,
+	    "highlightColor": "#fc5633"
 	  },
 	  "americanRobin": {
 	    "name": "American Robin",
 	    "description": "While not a true robin, this social North American bird is so named due to its orange coloring. It seems unbothered by nearby humans.",
 	    "latinName": "Turdus migratorius",
 	    "url": "https://en.wikipedia.org/wiki/American_robin",
-	    "colors": {
-	      "beak": "#e89f30",
-	      "foot": "#9f8075",
-	      "face": "#2d2d2d",
-	      "belly": "#eb7a3a",
-	      "underbelly": "#eb7a3a",
-	      "wing": "#444444",
-	      "wing-edge": "#232323",
-	      "theme-highlight": "#eb7a3a"
-	    }
+	    "spriteIndex": 9,
+	    "highlightColor": "#eb7a3a"
 	  },
 	  "carolinaWren": {
 	    "name": "Carolina Wren",
 	    "description": "Native to the eastern United States, these little birds are known for their curious and energetic nature.",
 	    "latinName": "Thryothorus ludovicianus",
 	    "url": "https://en.wikipedia.org/wiki/Carolina_wren",
-	    "colors": {
-	      "foot": "#af8e75",
-	      "face": "#edc7a9",
-	      "nose": "#f7eee5",
-	      "hood": "#c58a5b",
-	      "belly": "#e1b796",
-	      "underbelly": "#c79e7c",
-	      "wing": "#c58a5b",
-	      "wing-edge": "#866348"
-	    }
+	    "spriteIndex": 10,
+	    "highlightColor": "#c58a5b"
 	  },
 	  "blackCappedChickadee": {
 	    "name": "Black-capped Chickadee",
 	    "description": "Native to North America, these small and curious birds are known for their distinctive call from which they get their name.",
 	    "latinName": "Poecile atricapillus",
 	    "url": "https://en.wikipedia.org/wiki/Black-capped_chickadee",
-	    "colors": {
-	      "hood": "#363636",
-	      "cheek": "#363636",
-	      "eyebrow": "#363636",
-	      "nose": "#363636",
-	      "collar": "#363636",
-	      "belly": "#d6d4cf",
-	      "underbelly": "#cfc5b4",
-	      "face": "#eaeaea",
-	      "wing": "#8f8e9a",
-	      "wing-edge": "#706f7d",
-	      "scruff": "#8f8e9a",
-	      "foot": "#535259"
-	    },
+	    "spriteIndex": 11,
+	    "highlightColor": "#363636",
 	    "tags": []
 	  },
 	  "blueJay": {
@@ -466,18 +370,8 @@
 	    "description": "This loud and rambunctious bird is native to North America and is known for challenging anything in its path.",
 	    "latinName": "Cyanocitta cristata",
 	    "url": "https://en.wikipedia.org/wiki/Blue_jay",
-	    "colors": {
-	      "foot": "#5a626b",
-	      "face": "#ebf2ff",
-	      "belly": "#e5ecfa",
-	      "underbelly": "#c4cbd6",
-	      "wing": "#5890ff",
-	      "wing-edge": "#3a77e8",
-	      "hood": "#6391e8",
-	      "nose": "#6391e8",
-	      "collar": "#2e3136",
-	      "scruff": "#6391e8"
-	    },
+	    "spriteIndex": 12,
+	    "highlightColor": "#6391e8",
 	    "tags": [
 	      "tuft"
 	    ]
@@ -487,64 +381,32 @@
 	    "description": "Native across North America, these social birds will often be seen hopping along the ground in winter.",
 	    "latinName": "Junco hyemalis",
 	    "url": "https://en.wikipedia.org/wiki/Dark-eyed_junco",
-	    "colors": {
-	      "face": "#55565e",
-	      "wing": "#5c5f69",
-	      "wing-edge": "#444547",
-	      "belly": "#6c7180",
-	      "underbelly": "#b8bbcc",
-	      "foot": "#87776d",
-	      "beak": "#ab8a98"
-	    }
+	    "spriteIndex": 13,
+	    "highlightColor": "#55565e"
 	  },
 	  "houseFinch": {
 	    "name": "House Finch",
 	    "description": "Native to North America, these highly social birds sing cheerful songs and are often seen at bird feeders.",
 	    "latinName": "Haemorhous mexicanus",
 	    "url": "https://en.wikipedia.org/wiki/House_finch",
-	    "colors": {
-	      "face": "#cc3a3f",
-	      "wing": "#ae8e78",
-	      "wing-edge": "#8f6c54",
-	      "belly": "#d97c77",
-	      "underbelly": "#c5a489",
-	      "foot": "#705b4c",
-	      "beak": "#cf8479",
-	      "hood": "#b02f35",
-	      "nose": "#ab2b31",
-	      "theme-highlight": "#ef444d"
-	    }
+	    "spriteIndex": 14,
+	    "highlightColor": "#ef444d"
 	  },
 	  "pigeon": {
 	    "name": "Rock Pigeon",
 	    "description": "Descended from the Rock Dove, these once domesticated birds are often found in cities worldwide. Quite friendly and intelligent, they were favored companions of Nikola Tesla.",
 	    "latinName": "Columba livia",
 	    "url": "https://en.wikipedia.org/wiki/Rock_dove",
-	    "colors": {
-	      "foot": "#ef6e5b",
-	      "face": "#5a6c91",
-	      "wing-edge": "#65686e",
-	      "nose": "#ebebeb",
-	      "belly": "#977699",
-	      "underbelly": "#b0b3ba",
-	      "wing": "#c7cbd4"
-	    }
+	    "spriteIndex": 15,
+	    "highlightColor": "#5a6c91"
 	  },
 	  "redAvadavat": {
 	    "name": "Red Avadavat",
 	    "description": "Native to India and southeast Asia, these birds are also known as Strawberry Finches due to their speckled plumage.",
 	    "latinName": "Amandava amandava",
 	    "url": "https://en.wikipedia.org/wiki/Red_avadavat",
-	    "colors": {
-	      "beak": "#f71919",
-	      "foot": "#af7575",
-	      "face": "#cb092b",
-	      "belly": "#ae1724",
-	      "underbelly": "#831b24",
-	      "wing": "#7e3030",
-	      "wing-edge": "#490f0f",
-	      "wing-spots": "#e8e4e4",
-	    },
+	    "spriteIndex": 16,
+	    "highlightColor": "#cb092b",
 	    "rarity": "uncommon"
 	  },
 	  "pinkRobin": {
@@ -552,15 +414,8 @@
 	    "description": "Native to Australia, these bubblegum-pink puffballs are quieter than most, instead relying on their vibrant colours to attract partners.",
 	    "latinName": "Petroica rodinogaster",
 	    "url": "https://en.wikipedia.org/wiki/Pink_robin",
-	    "colors": {
-	      "face": "#403a46",
-	      "wing": "#38333d",
-	      "wing-edge": "#252325",
-	      "underbelly": "#ff7eb8",
-	      "belly": "#ff6eaf",
-	      "foot": "#3c393c",
-	      "theme-highlight": "#ff82ba"
-	    },
+	    "spriteIndex": 17,
+	    "highlightColor": "#ff82ba",
 	    "rarity": "uncommon"
 	  },
 	  "spangledCotinga": {
@@ -568,17 +423,8 @@
 	    "description": "This South American bird can be found in the Amazon rainforest, flashing its iridescent turquoise feathers high above in the canopy.",
 	    "latinName": "Cotinga cayana",
 	    "url": "https://en.wikipedia.org/wiki/Spangled_cotinga",
-	    "colors": {
-	      "face": "#62eafe",
-	      "chin": "#a12457",
-	      "collar": "#a12457",
-	      "belly": "#62eafe",
-	      "underbelly": "#5cd8ea",
-	      "wing": "#227c89",
-	      "wing-edge": "#13353a",
-	      "foot": "#68696b",
-	      "collar-scruff": "#62eafe"
-	    },
+	    "spriteIndex": 18,
+	    "highlightColor": "#62eafe",
 	    "rarity": "uncommon"
 	  },
 	  "elegantEuphonia": {
@@ -586,23 +432,8 @@
 	    "description": "This vividly coloured finch is found throughout Central America and is known for the distinctive blue hood that crowns its head.",
 	    "latinName": "Chlorophonia elegantissima",
 	    "url": "https://en.wikipedia.org/wiki/Elegant_euphonia",
-	    "colors": {
-	      "wing": "#2d31a1",
-	      "wing-edge": "#191c6d",
-	      "face": "#1f2392",
-	      "hood": "#6bc6ed",
-	      "nose-tip": "#fd7e1d",
-	      "foot": "#555650",
-	      "belly": "#ff952b",
-	      "underbelly": "#fd7e1d",
-	      "temple": "#57c8fa",
-	      "upper-corner-eye": "#57c8fa",
-	      "upper-eyelid": "#57c8fa",
-	      "collar-scruff": "#57c8fa",
-	      "scruff": "#57c8fa",
-	      "beak": "#252c31",
-	      "collar": "#191c6d"
-	    },
+	    "spriteIndex": 19,
+	    "highlightColor": "#6bc6ed",
 	    "rarity": "uncommon"
 	  },
 	  "paintedBunting": {
@@ -610,15 +441,8 @@
 	    "description": "A remarkably colourful bird, this North American species is quite difficult to observe despite its vivid palette due to its shy nature and vulnerable habitat.",
 	    "latinName": "Passerina ciris",
 	    "url": "https://en.wikipedia.org/wiki/Painted_bunting",
-	    "colors": {
-	      "face": "#5567f0",
-	      "underbelly": "#f16534",
-	      "belly": "#ef3b3b",
-	      "wing": "#a3e65a",
-	      "wing-edge": "#91cc50",
-	      "shoulder": "#f6fe40",
-	      "foot": "#767980"
-	    },
+	    "spriteIndex": 20,
+	    "highlightColor": "#5567f0",
 	    "rarity": "uncommon"
 	  },
 	  "redWarbler": {
@@ -626,20 +450,8 @@
 	    "description": "Endemic to the highlands of Mexico, this bird has the rare distinction of being one of the very few toxic birds in the world.",
 	    "latinName": "Cardellina rubra",
 	    "url": "https://en.wikipedia.org/wiki/Red_warbler",
-	    "colors": {
-	      "face": "#e80a28",
-	      "belly": "#d90921",
-	      "underbelly": "#c70c18",
-	      "wing": "#ba121d",
-	      "wing-edge": "#5b3535",
-	      "foot": "#5e4645",
-	      "behind-eye": "#deedff",
-	      "temple": "#e8f0fa",
-	      "corner-eye": "#d5e4f5",
-	      "lower-eyelid": "#e34a61",
-	      "beak": "#873535",
-	      "cheek": "#db1734"
-	    },
+	    "spriteIndex": 21,
+	    "highlightColor": "#e80a28",
 	    "rarity": "uncommon"
 	  },
 	  "cubanTody": {
@@ -647,20 +459,8 @@
 	    "description": "As the name suggests, this little green bird is only found on the island of Cuba and is known for being particularly round.",
 	    "latinName": "Todus multicolor",
 	    "url": "https://en.wikipedia.org/wiki/Cuban_tody",
-	    "colors": {
-	      "beak": "#f16f54",
-	      "face": "#5ad63e",
-	      "chin": "#e8273b",
-	      "collar": "#f12d3e",
-	      "belly": "#f6f5e4",
-	      "collar-scruff": "#a3ebff",
-	      "underbelly": "#eae9d2",
-	      "wing": "#11c751",
-	      "wing-edge": "#156631",
-	      "foot": "#ac7055",
-	      "scruff": "#11c751",
-	      "theme-highlight": "#4adc67"
-	    },
+	    "spriteIndex": 22,
+	    "highlightColor": "#4adc67",
 	    "rarity": "uncommon"
 	  },
 	  "violetBackedStarling": {
@@ -668,122 +468,11 @@
 	    "description": "Native to Sub-Saharan Africa, these small starlings are known for being the most vividly purple birds in the world.",
 	    "latinName": "Cinnyricinclus leucogaster",
 	    "url": "https://en.wikipedia.org/wiki/Violet-backed_starling",
-	    "colors": {
-	      "face": "#9c3af2",
-	      "wing": "#8f37ed",
-	      "wing-edge": "#5b20c2",
-	      "belly": "#ffffff",
-	      "underbelly": "#f2f2f2",
-	      "foot": "#736a66",
-	      "collar": "#b760e6",
-	      "nose": "#7a2ec7",
-	      "cheek": "#7a2ec7",
-	      "nose-tip": "#7a2ec7"
-	    },
+	    "spriteIndex": 23,
+	    "highlightColor": "#9c3af2",
 	    "rarity": "uncommon"
 	  }
 	};
-
-	const PALETTE = Object.freeze(/** @type {const} */ ({
-		THEME_HIGHLIGHT: "theme-highlight",
-		TRANSPARENT: "transparent",
-		OUTLINE: "outline",
-		BORDER: "border",
-		FOOT: "foot",
-		BEAK: "beak",
-		EYE: "eye",
-		FACE: "face",
-		HOOD: "hood",
-		EYEBROW: "eyebrow",
-		UPPER_EYELID: "upper-eyelid",
-		UPPER_CORNER_EYE: "upper-corner-eye",
-		BEHIND_EYE: "behind-eye",
-		CORNER_EYE: "corner-eye",
-		TEMPLE: "temple",
-		LOWER_EYELID: "lower-eyelid",
-		NOSE: "nose",
-		NOSE_TIP: "nose-tip",
-		CHEEK: "cheek",
-		SCRUFF: "scruff",
-		CHIN: "chin",
-		COLLAR: "collar",
-		COLLAR_SCRUFF: "collar-scruff",
-		BELLY: "belly",
-		UNDERBELLY: "underbelly",
-		WING: "wing",
-		SHOULDER: "shoulder",
-		WING_SPOTS: "wing-spots",
-		WING_EDGE: "wing-edge",
-		HEART: "heart",
-		HEART_BORDER: "heart-border",
-		HEART_SHINE: "heart-shine",
-		FEATHER_SPINE: "feather-spine",
-	}));
-
-	/** @typedef {typeof PALETTE[keyof typeof PALETTE]} PaletteColor */
-
-	/**
-	 * Mapping of sprite sheet colors to palette colors
-	 * @type {Record<string, PaletteColor>} 
-	 */
-	const SPRITE_SHEET_COLOR_MAP = {
-		"transparent": PALETTE.TRANSPARENT,
-		"#fff000": PALETTE.THEME_HIGHLIGHT,
-		"#ffffff": PALETTE.BORDER,
-		"#000000": PALETTE.OUTLINE,
-		"#010a19": PALETTE.BEAK,
-		"#190301": PALETTE.EYE,
-		"#af8e75": PALETTE.FOOT,
-		"#639bff": PALETTE.FACE,
-		"#99e550": PALETTE.HOOD,
-		"#ff5573": PALETTE.EYEBROW,
-		"#ff768e": PALETTE.UPPER_EYELID,
-		"#ff90a4": PALETTE.UPPER_CORNER_EYE,
-		"#ff2c88": PALETTE.BEHIND_EYE,
-		"#e34f9c": PALETTE.CORNER_EYE,
-		"#b53477": PALETTE.TEMPLE,
-		"#ae65f1": PALETTE.LOWER_EYELID,
-		"#d95763": PALETTE.NOSE,
-		"#b93844": PALETTE.NOSE_TIP,
-		"#ff67a9": PALETTE.CHEEK,
-		"#c5e550": PALETTE.SCRUFF,
-		"#b87af1": PALETTE.CHIN,
-		"#ffe955": PALETTE.COLLAR,
-		"#f8ff55": PALETTE.COLLAR_SCRUFF,
-		"#f8b143": PALETTE.BELLY,
-		"#ec8637": PALETTE.UNDERBELLY,
-		"#578ae6": PALETTE.WING,
-		"#55d1f3": PALETTE.SHOULDER,
-		"#90b0e8": PALETTE.WING_SPOTS,
-		"#326ed9": PALETTE.WING_EDGE,
-		"#c82e2e": PALETTE.HEART,
-		"#501a1a": PALETTE.HEART_BORDER,
-		"#ff6b6b": PALETTE.HEART_SHINE,
-		"#373737": PALETTE.FEATHER_SPINE,
-	};
-
-	/**
-	 * @type {Partial<Record<PaletteColor, PaletteColor>>}
-	 */
-	({
-		[PALETTE.HOOD]: PALETTE.FACE,
-		[PALETTE.EYEBROW]: PALETTE.FACE,
-		[PALETTE.UPPER_EYELID]: PALETTE.EYEBROW,
-		[PALETTE.UPPER_CORNER_EYE]: PALETTE.EYEBROW,
-		[PALETTE.BEHIND_EYE]: PALETTE.FACE,
-		[PALETTE.CORNER_EYE]: PALETTE.FACE,
-		[PALETTE.TEMPLE]: PALETTE.FACE,
-		[PALETTE.LOWER_EYELID]: PALETTE.FACE,
-		[PALETTE.NOSE]: PALETTE.FACE,
-		[PALETTE.NOSE_TIP]: PALETTE.NOSE,
-		[PALETTE.CHEEK]: PALETTE.FACE,
-		[PALETTE.SCRUFF]: PALETTE.FACE,
-		[PALETTE.CHIN]: PALETTE.FACE,
-		[PALETTE.COLLAR]: PALETTE.FACE,
-		[PALETTE.COLLAR_SCRUFF]: PALETTE.COLLAR,
-		[PALETTE.WING_SPOTS]: PALETTE.WING,
-		[PALETTE.SHOULDER]: PALETTE.WING,
-	});
 
 	const RARITY = Object.freeze(/** @type {const} */ ({
 		COMMON: "common",
@@ -798,58 +487,113 @@
 		 * @param {string} description
 		 * @param {string} latinName
 		 * @param {string} url
-		 * @param {Record<string, string>} colors
+		 * @param {number} spriteIndex
+		 * @param {string} highlightColor
 		 * @param {string[]} [tags]
 		 * @param {Rarity} [rarity]
 		 */
-		constructor(name, description, latinName, url, colors, tags = [], rarity = RARITY.COMMON) {
+		constructor(name, description, latinName, url, spriteIndex, highlightColor, tags = [], rarity = RARITY.COMMON) {
 			this.name = name;
 			this.description = description;
 			this.latinName = latinName;
 			this.url = url;
-			const defaultColors = {
-				[PALETTE.TRANSPARENT]: "transparent",
-				[PALETTE.OUTLINE]: "#000000",
-				[PALETTE.BORDER]: "#ffffff",
-				[PALETTE.BEAK]: "#000000",
-				[PALETTE.EYE]: "#000000",
-				[PALETTE.HEART]: "#c82e2e",
-				[PALETTE.HEART_BORDER]: "#501a1a",
-				[PALETTE.HEART_SHINE]: "#ff6b6b",
-				[PALETTE.FEATHER_SPINE]: "#373737",
-				[PALETTE.HOOD]: colors.face,
-				[PALETTE.EYEBROW]: colors.face,
-				[PALETTE.UPPER_EYELID]: colors.eyebrow || colors.face,
-				[PALETTE.UPPER_CORNER_EYE]: colors.eyebrow || colors.face,
-				[PALETTE.BEHIND_EYE]: colors.face,
-				[PALETTE.CORNER_EYE]: colors.face,
-				[PALETTE.TEMPLE]: colors.face,
-				[PALETTE.LOWER_EYELID]: colors.face,
-				[PALETTE.NOSE]: colors.face,
-				[PALETTE.NOSE_TIP]: colors.nose || colors.face,
-				[PALETTE.CHEEK]: colors.face,
-				[PALETTE.SCRUFF]: colors.face,
-				[PALETTE.CHIN]: colors.face,
-				[PALETTE.COLLAR]: colors.face,
-				[PALETTE.COLLAR_SCRUFF]: colors.collar || colors.face,
-				[PALETTE.SHOULDER]: colors.wing,
-			};
-			/** @type {Record<string, string>} */
-			this.colors = { ...defaultColors, ...colors, [PALETTE.THEME_HIGHLIGHT]: colors[PALETTE.THEME_HIGHLIGHT] ?? colors.hood ?? colors.face };
+			this.spriteIndex = spriteIndex;
+			this.highlightColor = highlightColor;
 			this.tags = tags;
 			/** @type {Rarity} */
 			this.rarity = rarity;
 		}
+
+		/**
+		 * @param {Object<string, string>} colorScheme
+		 */
+		setColorScheme(colorScheme) {
+			this.colorScheme = colorScheme;
+		}
+
+		/**
+		 * @returns {Object<string, string>}
+		 */
+		getColorScheme() {
+			if (!this.colorScheme) {
+				throw new Error("Color scheme requested before generation");
+			}
+			return this.colorScheme;
+		}
 	}
 
 	/**
-	 * Load a sprite sheet image and convert it to a 2D array of palette color names
-	 * @param {string} src URL or data URI of the sprite sheet image
-	 * @param {boolean} [templateColors] Whether to map pixel colors to palette names
-	 * @param {boolean} [fuzzyMatch] If template colors are allowed, whether to use fuzzy matching or match exactly
-	 * @returns {Promise<string[][]>}
+	 * @param {string} src
+	 * @param {number} width
 	 */
-	function loadSpriteSheetPixels(src, templateColors = true, fuzzyMatch = true) {
+	async function createTemplateMapping(src, width) {
+		/** @type {{ [key: string]: string }} */
+		let map = {};
+		const imageData = await getImageData(src);
+		const pixels = imageData.data;
+		for (let row = 0; row < imageData.height; row++) {
+			for (let col = 0; col < width; col++) {
+				const index = (row * imageData.width + col) * 4;
+				const r = pixels[index];
+				const g = pixels[index + 1];
+				const b = pixels[index + 2];
+				const a = pixels[index + 3];
+				if (a === 0) {
+					 continue;
+				}
+				const color = rgbToHex(r, g, b);
+				if (!map[color]) {
+					map[color] = key(row, col);
+				}
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * @param {string} src
+	 * @param {number} start
+	 * @param {number} width
+	 * @returns {Promise<{ [key: string]: string }>}
+	 */
+	async function extractPalette(src, start, width) {
+		/** @type {{ [key: string]: string }} */
+		let map = {};
+		const imageData = await getImageData(src);
+		const pixels = imageData.data;
+		for (let row = 0; row < imageData.height; row++) {
+			for (let col = start; col < start + width; col++) {
+				const index = (row * imageData.width + col) * 4;
+				const r = pixels[index];
+				const g = pixels[index + 1];
+				const b = pixels[index + 2];
+				const a = pixels[index + 3];
+				const color = a === 0 ? "transparent" : rgbToHex(r, g, b);
+				const id = key(row, col - start);
+				if (!map[id]) {
+					map[id] = color;
+				}
+			}
+		}
+		return map;
+	}
+
+
+
+	/**
+	 * @param {number} row
+	 * @param {number} col
+	 * @returns {string}
+	 */
+	function key(row, col) {
+		return row + "x" + col;
+	}
+
+	/**
+	 * @param {string} src
+	 * @returns {Promise<ImageData>}
+	 */
+	function getImageData(src) {
 		return new Promise((resolve, reject) => {
 			const img = new Image();
 			img.src = src;
@@ -864,27 +608,7 @@
 				}
 				ctx.drawImage(img, 0, 0);
 				const imageData = ctx.getImageData(0, 0, img.width, img.height);
-				const pixels = imageData.data;
-				const hexArray = [];
-				for (let y = 0; y < img.height; y++) {
-					const row = [];
-					for (let x = 0; x < img.width; x++) {
-						const index = (y * img.width + x) * 4;
-						const r = pixels[index];
-						const g = pixels[index + 1];
-						const b = pixels[index + 2];
-						const a = pixels[index + 3];
-						if (a === 0) {
-							row.push(PALETTE.TRANSPARENT);
-						} else if (!templateColors) {
-							row.push(rgbToHex(r, g, b));
-						} else {
-							row.push(getTemplateColorMatch(r, g, b, fuzzyMatch));
-						}
-					}
-					hexArray.push(row);
-				}
-				resolve(hexArray);
+				resolve(imageData);
 			};
 			img.onerror = (err) => {
 				reject(err);
@@ -892,13 +616,31 @@
 		});
 	}
 
+
 	/**
-	 * @param {string} hex The hex color to convert
-	 * @returns {[number, number, number]} The RGB values as an array of [red, green, blue]
+	 * Load a sprite sheet image and convert it to a 2D array of palette color names
+	 * @param {string} src URL or data URI of the sprite sheet image
+	 * @param {Object<string, string>} templateMapping Mapping of template colors to location keys
+	 * @returns {Promise<string[][]>}
 	 */
-	function hexToRgb(hex) {
-		const n = parseInt(hex.slice(1), 16);
-		return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+	async function loadSpriteSheetPixels(src, templateMapping) {
+		const imageData = await getImageData(src);
+		const pixels = imageData.data;
+		const hexArray = [];
+		for (let y = 0; y < imageData.height; y++) {
+			const row = [];
+			for (let x = 0; x < imageData.width; x++) {
+				const index = (y * imageData.width + x) * 4;
+				const r = pixels[index];
+				const g = pixels[index + 1];
+				const b = pixels[index + 2];
+				const a = pixels[index + 3];
+				const color = a === 0 ? "transparent" : rgbToHex(r, g, b);
+				row.push(templateMapping[color] || color);
+			}
+			hexArray.push(row);
+		}
+		return hexArray;
 	}
 
 	/**
@@ -911,60 +653,11 @@
 		return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 	}
 
-	/**
-	 * Get the euclidean distance between two colors in RGB space
-	 * @param {[number, number, number]} colorA The first color as [r, g, b]
-	 * @param {[number, number, number]} colorB The second color as [r, g, b]
-	 * @returns {number} The distance between the two colors, where 0 is an exact match
-	 */
-	function colorDistance(colorA, colorB) {
-		return Math.abs(colorA[0] - colorB[0]) + Math.abs(colorA[1] - colorB[1]) + Math.abs(colorA[2] - colorB[2]);
-	}
-
-	const SPRITE_SHEET_RGB = Object.entries(SPRITE_SHEET_COLOR_MAP)
-	    .filter(([hex]) => hex !== "transparent")
-	    .map(([hex, palette]) => ({ rgb: hexToRgb(hex), palette }));
-
-	/**
-	 * Get the closest sprite sheet color that matches the given color within a tolerance, or return the original color if no match is found
-	 * @param {number} red The red channel value (0-255)
-	 * @param {number} green The green channel value (0-255)
-	 * @param {number} blue The blue channel value (0-255)
-	 * @param {boolean} fuzzyMatch Whether to apply a tolerance or match exactly
-	 * @returns {PaletteColor | string} The name of the matching palette color, or the original color as a hex string if no match is found
-	 */
-	function getTemplateColorMatch(red, green, blue, fuzzyMatch) {
-		const hex = rgbToHex(red, green, blue);
-		if (SPRITE_SHEET_COLOR_MAP[hex]) {
-			// Exact match
-			return SPRITE_SHEET_COLOR_MAP[hex];
-		}
-		if (!fuzzyMatch) {
-			return rgbToHex(red, green, blue);
-		}
-		// Rarely, certain platforms like Linux Mint do not properly convert colors requiring this fuzzy matching fallback
-		const TOLERANCE = 50;
-		let closestMatch = null;
-		let minDistance = 256;
-		for (const { rgb, palette } of SPRITE_SHEET_RGB) {
-			const distance = colorDistance([red, green, blue], rgb);
-			if (distance <= TOLERANCE && distance < minDistance) {
-				minDistance = distance;
-				closestMatch = palette;
-			}
-		}
-		if (!closestMatch) {
-			return rgbToHex(red, green, blue);
-		}
-		return closestMatch;
-	}
-
-
 	/** @type {Record<string, BirdType>} */
 	const SPECIES = Object.fromEntries(
 		Object.entries(species).map(([id, data]) => [
 			id,
-			new BirdType(data.name, data.description, data.latinName, data.url, data.colors, data.tags, /** @type {Rarity|undefined} */ (data.rarity))
+			new BirdType(data.name, data.description, data.latinName, data.url, data.spriteIndex, data.highlightColor, data.tags, /** @type {Rarity|undefined} */ (data.rarity))
 		]),
 	);
 
@@ -1005,7 +698,7 @@
 				this.pixels = layers[0].pixels.map(row => row.slice());
 				// Pad from top with transparent pixels
 				while (this.pixels.length < maxHeight) {
-					this.pixels.unshift(new Array(this.pixels[0].length).fill(PALETTE.TRANSPARENT));
+					this.pixels.unshift(new Array(this.pixels[0].length).fill("transparent"));
 				}
 				// Combine layers
 				for (let i = 1; i < layers.length; i++) {
@@ -1014,7 +707,7 @@
 						let topMargin = maxHeight - layerPixels.length;
 						for (let y = 0; y < layerPixels.length; y++) {
 							for (let x = 0; x < layerPixels[y].length; x++) {
-								this.pixels[y + topMargin][x] = layerPixels[y][x] !== PALETTE.TRANSPARENT ? layerPixels[y][x] : this.pixels[y + topMargin][x];
+								this.pixels[y + topMargin][x] = layerPixels[y][x] !== "transparent" ? layerPixels[y][x] : this.pixels[y + topMargin][x];
 							}
 						}
 					}
@@ -1305,25 +998,25 @@
 		const rowLength = pixels[0].length + left + right;
 		// Top padding
 		for (let y = 0; y < top; y++) {
-			paddedPixels.push(Array(rowLength).fill(PALETTE.TRANSPARENT));
+			paddedPixels.push(Array(rowLength).fill("transparent"));
 		}
 		// Left and right padding
 		for (let y = 0; y < pixels.length; y++) {
 			const row = [];
 			for (let x = 0; x < left; x++) {
-				row.push(PALETTE.TRANSPARENT);
+				row.push("transparent");
 			}
 			for (let x = 0; x < pixels[y].length; x++) {
 				row.push(pixels[y][x]);
 			}
 			for (let x = 0; x < right; x++) {
-				row.push(PALETTE.TRANSPARENT);
+				row.push("transparent");
 			}
 			paddedPixels.push(row);
 		}
 		// Bottom padding
 		for (let y = 0; y < bottom; y++) {
-			paddedPixels.push(Array(rowLength).fill(PALETTE.TRANSPARENT));
+			paddedPixels.push(Array(rowLength).fill("transparent"));
 		}
 		return paddedPixels;
 	}
@@ -1348,12 +1041,12 @@
 		for (let y = 0; y < pixels.length; y++) {
 			for (let x = 0; x < pixels[y].length; x++) {
 				const pixel = pixels[y][x];
-				if (pixel !== PALETTE.TRANSPARENT && pixel !== PALETTE.BORDER) {
+				if (pixel !== "transparent" && pixel !== "#ffffff") {
 					for (let [dx, dy] of neighborOffsets) {
 						const newX = x + dx;
 						const newY = y + dy;
-						if (newY >= 0 && newY < pixels.length && newX >= 0 && newX < pixels[newY].length && pixels[newY][newX] === PALETTE.TRANSPARENT) {
-							pixels[newY][newX] = PALETTE.BORDER;
+						if (newY >= 0 && newY < pixels.length && newX >= 0 && newX < pixels[newY].length && pixels[newY][newX] === "transparent") {
+							pixels[newY][newX] = "#ffffff";
 						}
 					}
 				}
@@ -1372,7 +1065,7 @@
 		let trimCount = 0;
 		while (trimmedPixels.length > 1) {
 			const firstRow = trimmedPixels[trimmedPixels.length - 1];
-			if (firstRow.every(pixel => pixel === PALETTE.TRANSPARENT)) {
+			if (firstRow.every(pixel => pixel === "transparent")) {
 				trimmedPixels.pop();
 				trimCount++;
 			} else {
@@ -1508,7 +1201,7 @@
 		 */
 		draw(species, hat) {
 			const anim = this.animations[this.currentAnimation];
-			return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species.colors, [...species.tags, hat || '']);
+			return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species.getColorScheme(), [...species.tags, hat || '']);
 		}
 
 
@@ -2742,7 +2435,8 @@
 	}
 }`;
 	const SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAAgCAYAAABjE6FEAAAAAXNSR0IArs4c6QAABORJREFUeJztnU9IHFccx79vE6g0BEK7BJzNwR6apReFQElKjpZaeol7EHuRQhFaECIEIkF6LGkQGqyQ0EBa+u8iHjZCCfXQUw7qRVDwYKQEirtt0yVtMRaFdn857L7x7Tizf3Rn3oz7/cDi8+3s/t44733m9+afACGEEEII6SyU7QaQ+CMiEvSeUop9iCQWdt4EYFNAOnYukwEA5AuFmnIUbSCEdChSZdBxZNBxDpTrybFd8QcdR5Z6e0XGxg6Uw45PSJikbDeANCaXyeBGOo18LnegHCXLjx7hRjrtlglJOhRggrAloHyhgFulUk3drVLJnQITQkgomFPgpd5e9xXVFNivDVHGJoTEAPEh6tg2BWS2gfIjpMMQkcrBf+Nn1PFtC8iG/AkJk5O2G5A0lvv6rMRVSikREZuXnvByF0I6FJ356OyPWRAhyYd79BYwpcdsKHq8Ox1uA3JU2IFIItDy084TkcgFSAF3KH5nQDkFJBaQe4VBAWDtBFA1dqz7P8dp8zS8ENrc85ovNLhHtZ1QwAQA7hUGddHKCSCllNuGuGV/3nFhY5wmkbpngc0/ptH5oOtEBCIiYXYG79THqA89NokXH2UeWN3WNgXcDOZQGJ4qunX0XzCBAjTFs3DpbfRcexXny2eA1zKAcxYo1EoQIewV4yBgQjS2BVwHUUq50jvudJ9Q8tv/0pZtUTcDTJ1yoF7uxrtr68DaOsoj03A+fx/FNz7DuR+yGFrdrjko3U4RxkHAhCQACRLf5tZ25I0Jm+4TSt77soyHH6faIsHALzAF9NPkP279v38Cbz6dw693f8R06Xu3fq7vtP5ccLAWBCUikjrl1NSVR6bh3K8I+GHXX/jmq09841KEpEOoK7+VmSziOl2PC4EZoL7zAAAGxkex8MV9AEDu01HsnQWure3L7/KTHaSMYw5+HGa6Wt4p1gh4AcCdD//G1tM5nLm7BJSAodXtmrhmRui3Ts3GJiTODE8VrR7YG1rdduOnFvYzzdkJB0mSbt2GVoWF3fl+vHTpFQDA3tIzAMBIzwNcfrKDxcflA59763zKrddp+MpMtuVrt3R8+WPIFfDAeEXAI2tfu8uZ7ahuAL/vqqwwJUiOAUECNMdbyCIKzD6TJMGm7wXW4tPM9Z3GL1c38Pq5yhTUlN7i47J3QxzpTNTe0jMMjI/WtqNnX3yLxrLDU0VfAfNsGDlOfJsdwQcb+7Mw73iLQkCbW9vu+E8qh34Ywu58P7quZIGrGwCAza3a9/3Ed5Tsy6aACYkjd/7LYexkHohYfI0YnipidsKROLSlEQ2nwKhmT7vz/TXvPV9/DgBITy4HfXY/yCHFZ07B/ei68jMuVAXspd0CJiRulG5edDv3O79/59avzGSj6udywUhCTGYnnEQcdmrYMD8Jafn5kZ5cbtuK2xYwIXHHlCAq4yHqvi46CfGKUEswzuOvKQGiKqHSzYt1l22n/Mz4tgRMCGkKAQCvCJMgwIbHAPXlMNUVCZRgmOLRsVHZ4wUuR/kRYgWFytS7MvgCDkslGvNpGPnb192nYuhymA8o8Nzo7Rs/7DYQQhrjfWJO3MdjS/8WUymF/O3r7u9mGSFmXfp768Vn5kdIPKjejAAkYDy2dBmMORX1lqOgUfy4/7EJOe4kbQy21Nh66WwUK247PiHkePECZQPi+PbreqwAAAAASUVORK5CYII=";
-	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlbENwjAQRf8hSiZIRQ+9WQNRUFIAKzACBSsAA1Ag1mAABqCCBomG3hQQ9OMEx4ZDNH5SikSJ3/fZ5wCJRCKRSPwZ0RzMWmtLAhGvQyUAi9mXP/aFaGjJRQQiguHihMvcFMJUVUYlAMuHixPGy4en1WmVQqgHYHkuZjiEj6a2/LjtYzTY0eiZbgC37Mxh1UN3sn/dr6cCz/LHB/DJj9s+2oMdbtdz6TtfFwQHcMvOInfmQNjsgchNWLXmdfK6gyioAu/6uKrsm1kWLAciKuCuey5nYuXAh234bdmZ6INIUw4E/Ix49xtjCmXfzLL8nY/ktdgnAKwxxgIoXIyqmAOwvIqfiN0ALNd21HYBO9XXGMAdnZTYyHWzWjQAAAAASUVORK5CYII=";
+	const SPECIES_SPRITE_SHEET = "data:image/png;base64,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";
+	const FEATHER_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAARhJREFUWIXtlSEOwjAUhv9HwHECFG4Ch2nCLQgCxxGQHAGB5Ag4BOEcGDzBIAgKh0QUw8i/bnQtPILpl0ys2fb9fa/tgEQikUgk/oxofsxaa0sCEa9DJQCL2ZcP+0I0tOQiAhFBf3rAdW4KYaoqoxKA5f3pAePFBQDQ7rVLIdQDsDwXMxzCR1Nb3tpNMMCKRjLdAG7ZmdNmiO5o+7pfzzrwtD8+gE/e2k1wNyscz7fSe75dEBzALTuL3JkjcPaIXYRVPa+T1x1EQRV4t4+ryr5fZsFyxFTA7XsuZ2Ll+HQbflt2Jvog0pQj5GfEq98YUyj7fpnlz3wkr8U+AWCNMRZA4WJUxRyA5VX8ROwGYLm2o3YXsFO9xwAeGaDXaICHtP0AAAAASUVORK5CYII=";
 	const HATS_SPRITE_SHEET = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIQAAAAMCAYAAACjpxUSAAAAAXNSR0IArs4c6QAAA29JREFUWIXtl11oW2UYx3+v3ZCuc1ktIpvowrCBjmkdtl6ouBthWMeGTkQxuA9QKCiym20OBfVG3YUVOobYIszLyXY16HYxvOicns3NRoR267ZG04aOdc3Jx8lJsujjRZOzeE5y+raETjR/CJyc9/98vv/zvOdAAw000EADDWhB3e0E6gURkfK1Uuo/U9dS4567GFs0OHqOymJIKud/JeoV5/8AjyBaV7bJhrWdEmxtl3pumgv195tUEO1wRAGwdzg4F6whCm14BHFvU/NCfYjrp4WWF05TV2EEBIKjfFN4CUpi6Fy3mf0/hfys3Hnr1rDQenW4futLJmiPIO5vaSNrZ3XtZebJ5/k51M13wY3IhQA6hXf1GgQCqxaTb1U47wwBYc8DJ/h0YhOd6zaz65GjtK18yNf2Un/Yyavv1Wd0wkksFsMwDAzDQKfeQmSQxNkvAETMqnwZvvgrNYTpXvPYLuaBrIVl7htlMUQT4wt2drinFbkAqjspfi+sZ187SPvXn+u6dRdZ1a9SSpWPhoPrR4ARdslR9m38ft4Al/rDZFImFyOJeXOJxWLE43HGx7X6I4XIIFY6RcacRkwg2oGYo6JW1+yPHO47gplI8sEn788vttFDpNIWtpXEti1CPQM1ex9sbZcVzSugtM8Ve+zwPYI4/9R6bs3Okk88CsATV6/qFO5AdSd9C+jqNdj0bROUjg1raIufeCR84EcArv8+TTGf4vyJnb5iU0px8r1tjI1dRimFiFT76nAafeXUhHNzjXe90k6Mjh1ce/ZtJuNTACRu5+gnxLtcqZaTAJzbdryCH+IdcxS12pv3WHSKgeND5P+YwEwkSc6m2f36Wzz9ysuMRaeq9gZgePsxUnkb888imcl05VrNHvmdAI5RWT1ZO0smlwJgxr5RletOys+vm9/Va2AVmvjlzf20fbYPa2iLL/+5HX1YmQT54nIAfjvzoR9fF1JxVJBJmc51eUrsPfaDO44zHcooT4lwOOzhFiKDAFjp1J045rRz/fDWQx6bj/q+Ij85STH/FzO3bpLNZVnz+GN8+fEBr/9rg1CYnZsOudvY6ZtzKyVWqGfAbcOL7W9IJmuRy88JIkcGgMjMOYe31N/rugKab1QuOm8RkdLEWGgMLf6/0L8APHjfWpqXtVB5ZNhFixvp+D+M/gZZI68eaJ1OpQAAAABJRU5ErkJggg==";
 
 	// Element IDs
@@ -2788,7 +2482,6 @@
 	/** @type {Partial<Settings>} */
 	let userSettings = {};
 
-
 	/** 
 	 * @param {Context} context
 	 */
@@ -2796,9 +2489,15 @@
 		log("birbOS booting up...");
 		setContext(context);
 		log("Loading sprite sheets...");
-		const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET);
-		const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET);
-		const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET, true, false);
+		const templateMapping = await createTemplateMapping(SPRITE_SHEET, 32);
+		const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET, templateMapping);
+		const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET, templateMapping);
+		const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET, {});
+
+		for (const species of Object.values(SPECIES)) {
+			species.setColorScheme(await extractPalette(SPECIES_SPRITE_SHEET, species.spriteIndex * 32, 32));
+		}
+		
 		startApplication(birbPixels, featherPixels, hatsPixels);
 	}
 
@@ -2808,7 +2507,6 @@
 	 * @param {string[][]} hatsPixels
 	 */
 	function startApplication(birbPixels, featherPixels, hatsPixels) {
-
 		const SPRITE_SHEET = birbPixels;
 		const FEATHER_SPRITE_SHEET = featherPixels;
 		const HATS_SPRITE_SHEET = hatsPixels;
@@ -2980,7 +2678,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("Build 2026.5.12", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.5.12"); }, undefined, false),
+			new MenuItem("Build 2026.7.25", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.7.25"); }, undefined, false),
 		];
 
 		/** @type {Birb} */
@@ -3242,7 +2940,7 @@
 				}
 			}
 
-			if (birb.isVisible() && Date.now() - lastActionTimestamp < SUPER_AFK_TIME) {
+			if (birb.isVisible() && document.hasFocus() && Date.now() - lastActionTimestamp < SUPER_AFK_TIME) {
 				const featherMod = getContext().getFeatherChanceMod();
 				const hatMod = getContext().getHatChanceMod();
 				if (Math.random() < FEATHER_CHANCE * featherMod * (isPetBoostActive() ? PET_FEATHER_BOOST : 1)) {
@@ -3414,7 +3112,7 @@
 			if (!featherCtx) {
 				return;
 			}
-			FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type.colors, type.tags);
+			FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type.getColorScheme(), type.tags);
 			getShadowRoot().appendChild(featherCanvas);
 			onClick(featherCanvas, () => {
 				unlockBird(birdType);
@@ -3467,7 +3165,7 @@
 
 			// Create hat animation
 			const hatAnimation = createHatItemAnimation(hatId, HATS_SPRITE_SHEET);
-			hatAnimation.draw(hatCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, SPECIES[currentSpecies].colors, [TAG.DEFAULT]);
+			hatAnimation.draw(hatCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, {}, [TAG.DEFAULT]);
 
 			// Position hat above the element
 			const rect = element.getBoundingClientRect();
@@ -3652,7 +3350,7 @@
 				if (!speciesCtx) {
 					return;
 				}
-				birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.colors, type.tags);
+				birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.getColorScheme(), type.tags);
 				speciesElement.appendChild(speciesCanvas);
 				let section = familiarBirds;
 				if (type.rarity === RARITY.UNCOMMON) {
@@ -3690,7 +3388,6 @@
 		}
 
 		function insertWardrobe() {
-			console.log("Inserting wardrobe");
 			if (getShadowRoot().querySelector("#" + WARDROBE_ID)) {
 				return;
 			}
@@ -3747,7 +3444,7 @@
 					hatCtx,
 					Directions.RIGHT,
 					CANVAS_PIXEL_SIZE,
-					SPECIES[currentSpecies].colors,
+					SPECIES[currentSpecies].getColorScheme(),
 					[...SPECIES[currentSpecies].tags, hat]
 				);
 				hatElement.appendChild(hatCanvas);
@@ -3788,9 +3485,8 @@
 		 */
 		function switchSpecies(type, updateSave = true) {
 			currentSpecies = type;
-			// document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
-			setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
-			/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+			setProperty("--birb-highlight", SPECIES[type].highlightColor);
+			/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty("--birb-highlight", SPECIES[type].highlightColor);
 			if (updateSave) {
 				save();
 			}
