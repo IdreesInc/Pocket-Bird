@@ -173,7 +173,7 @@ const species = {
     "latinName": "Cotinga cayana",
     "url": "https://en.wikipedia.org/wiki/Spangled_cotinga",
     "spriteIndex": 18,
-    "highlightColor": "#62eafe",
+    "highlightColor": "#4ddef4",
     "rarity": "uncommon"
   },
   "elegantEuphonia": {

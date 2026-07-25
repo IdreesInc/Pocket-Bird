@@ -429,7 +429,7 @@ module.exports = class PocketBird extends Plugin {
 	    "latinName": "Cotinga cayana",
 	    "url": "https://en.wikipedia.org/wiki/Spangled_cotinga",
 	    "spriteIndex": 18,
-	    "highlightColor": "#62eafe",
+	    "highlightColor": "#4ddef4",
 	    "rarity": "uncommon"
 	  },
 	  "elegantEuphonia": {
@@ -2316,12 +2316,16 @@ module.exports = class PocketBird extends Plugin {
 	opacity: 0.4;
 }
 
-#birb-field-guide, #birb-wardrobe {
+#birb-field-guide {
+	width: 388px;
+}
+
+#birb-wardrobe {
 	width: 322px;
 }
 
 #birb-field-guide .birb-grid-content {
-	grid-template-columns: repeat(4, auto);
+	grid-template-columns: repeat(5, auto);
 }
 
 #birb-wardrobe .birb-grid-content {
@@ -2401,7 +2405,7 @@ module.exports = class PocketBird extends Plugin {
 	padding: 8px;
 	padding-top: 4px;
 	padding-bottom: 4px;
-	margin-bottom: 10px;
+	margin-bottom: 2px;
 	font-size: 14px;
 	box-sizing: border-box;
 	color: #7c6c4b;
