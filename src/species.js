@@ -265,6 +265,15 @@ const species = {
     "spriteIndex": 24,
     "highlightColor": "#1a273a"
   },
+    "redpoll": {
+    "name": "Redpoll",
+    "description": "Native to the Arctic, this incredible bird is capable of withstanding temperatures as low as -65 degrees Fahrenheit (-54 Celsius).",
+    "latinName": "Acanthis flammea",
+    "url": "https://en.wikipedia.org/wiki/Redpoll",
+    "spriteIndex": 29,
+    "highlightColor": "#1a273a",
+    "rarity": "uncommon"
+  },
 }
 
 export default species;
