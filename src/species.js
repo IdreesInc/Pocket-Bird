@@ -246,6 +246,17 @@ const species = {
     "highlightColor": "#0a33cf",
     "rarity": "uncommon"
   },
+    "stellarsJay": {
+    "name": "Steller's Jay",
+    "description": "Native to western North America, I've always appreciated the coincidence of this bird's name and its deep blue plumage resembling the night sky.",
+    "latinName": "Cyanocitta stelleri",
+    "url": "https://en.wikipedia.org/wiki/Steller%27s_jay",
+    "spriteIndex": 27,
+    "highlightColor": "#0469bc",
+    "tags": [
+      "tuft"
+    ]
+  },
 }
 
 export default species;
