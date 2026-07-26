@@ -316,6 +316,13 @@
 	width: 388px;
 }
 
+#birb-field-guide .birb-window-content {
+	max-height: 90vh;
+	overflow-x: hidden;
+	overflow-y: auto;
+	justify-content: flex-start;
+}
+
 #birb-wardrobe {
 	width: 322px;
 }
@@ -395,10 +402,12 @@
 
 .birb-field-guide-description {
 	max-width: calc(100% - 20px);
+	min-height: 120px;
 	margin-left: 10px;
 	margin-right: 10px;
 	margin-top: 5px;
 	padding: 8px;
+	padding-right: 4px;
 	padding-top: 4px;
 	padding-bottom: 4px;
 	margin-bottom: 2px;

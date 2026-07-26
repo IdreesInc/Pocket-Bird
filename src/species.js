@@ -29,7 +29,7 @@ const species = {
   },
   "tuftedTitmouse": {
     "name": "Tufted Titmouse",
-    "description": "Native to the eastern United States, full of personality, and notably my wife's favorite bird.",
+    "description": "Native to the eastern United States, these birds are full of personality, and notably my wife's favorite bird.",
     "latinName": "Baeolophus bicolor",
     "url": "https://en.wikipedia.org/wiki/Tufted_titmouse",
     "spriteIndex": 2,
