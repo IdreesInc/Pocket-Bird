@@ -1144,6 +1144,10 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	 * @param {boolean} [updateSave]
 	 */
 	function switchSpecies(type, updateSave = true) {
+		if (!SPECIES[type]) {
+			console.warn(`Species ${type} missing, falling back to bluebird`);
+			type = DEFAULT_BIRD;
+		}
 		currentSpecies = type;
 		setProperty("--birb-highlight", SPECIES[type].highlightColor);
 		/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty("--birb-highlight", SPECIES[type].highlightColor);
