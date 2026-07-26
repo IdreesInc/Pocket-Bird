@@ -326,7 +326,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 				message.appendChild(document.createElement("br"));
 				message.appendChild(document.createTextNode("Welcome back to 2012"));
 			}
-			insertModal(`${birdBirb()} Mode`, message);
+			insertModal(`${birdBirb()} Mode`, message, settings().birbMode ? "radical, dude" : "sounds good");
 		}),
 		new Separator(),
 		new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
@@ -564,6 +564,13 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		setInterval(update, UPDATE_INTERVAL);
 
 		flyToElement(true);
+
+
+
+		// TODO: Remove, only for testing
+		const message = makeElement("birb-message-content");
+		message.appendChild(document.createTextNode(`Yousa bitch!`));
+		insertModal(`Important Notice`, message, "not a fan", "radical, dude", () => {});
 	}
 
 	function update() {
@@ -849,7 +856,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			message.appendChild(bold);
 			message.appendChild(document.createTextNode(" feather! Use the Field Guide to switch your bird's species."));
 			removeFieldGuide();
-			insertModal("New Bird Unlocked!", message);
+			insertModal("New Bird Unlocked!", message, "love it");
 		}
 	}
 
@@ -867,7 +874,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			message.appendChild(bold);
 			message.appendChild(document.createTextNode("! To see all of your unlocked accessories, click the Wardrobe from the menu."));
 			removeWardrobe();
-			insertModal("New Hat Found!", message);
+			insertModal("New Hat Found!", message, "good stuff");
 		}
 	}
 
@@ -894,15 +901,41 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	/**
 	 * @param {string} title
 	 * @param {HTMLElement} content
+	 * @param {string} closeText
+	 * @param {string} [actionText]
+	 * @param {() => void} [actionCallback]
 	 */
-	function insertModal(title, content) {
+	function insertModal(title, content, closeText, actionText, actionCallback) {
 		if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 			return;
 		}
+		const innerContainer = makeElement("birb-modal-content");
+		const buttonContainer = makeElement("birb-modal-buttons");
+		const defaultButton = makeElement("birb-modal-button", closeText);
+		const actionButton = actionText ? makeElement("birb-modal-button", actionText) : null;
+		innerContainer.appendChild(content);
+		buttonContainer.appendChild(defaultButton);
+		if (actionButton) {
+			actionButton.classList.add("birb-modal-action-button");
+			defaultButton.classList.add("birb-modal-negative-button");
+			buttonContainer.appendChild(actionButton);
+		}
+		innerContainer.appendChild(buttonContainer);
 
-		const modal = createWindow("birb-modal", title, content);
+		const modal = createWindow("birb-modal", title, innerContainer);
+		makeClosable(() => {
+			modal.remove();
+		}, defaultButton);
+		if (actionButton) {
+			buttonContainer.appendChild(actionButton);
+			onClick(actionButton, () => {
+				if (actionCallback) {
+					actionCallback();
+				}
+				modal.remove();
+			});
+		}
 
-		modal.style.width = "270px";
 		centerElement(modal);
 	}
 

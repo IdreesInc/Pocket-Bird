@@ -2345,7 +2345,7 @@
 	padding-bottom: var(--birb-border-size);
 }
 
-.birb-grid-item, .birb-field-guide-description, .birb-message-content {
+.birb-grid-item, .birb-field-guide-description {
 	border: var(--birb-border-size) solid #ffcf90;
 	box-shadow: 0 0 0 var(--birb-border-size) white;
 	background: rgba(255, 221, 177, 0.5);
@@ -2401,13 +2401,67 @@
 	cursor: pointer;
 }
 
+.birb-modal-content {
+	box-sizing: border-box;
+	/* background: red; */
+	display: flex;
+	flex-direction: column;
+	margin: 2px;
+}
+
+.birb-modal-buttons {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: 20px;
+	margin: 3px 0;
+}
+
+.birb-modal-button {
+	flex-grow: 0;
+	box-sizing: border-box;
+	padding: 0px 6px;
+	cursor: pointer;
+	text-align: center;
+	user-select: none;
+	--button-color: var(--birb-highlight);
+	background-color: var(--button-color);
+	color: white;
+	font-size: 14px;
+	margin-top: calc(var(--birb-border-size) * 2);
+	text-align: center;
+	box-shadow:
+		var(--birb-border-size) 0 var(--button-color),
+		var(--birb-neg-border-size) 0 var(--button-color),
+		0 var(--birb-neg-border-size) var(--button-color),
+		0 var(--birb-border-size) var(--button-color);
+}
+
+.birb-modal-button:active {
+	--button-color: #ffcf90;
+}
+
+.birb-modal-negative-button {
+	--button-color: #ff7c7c;
+}
+
+.birb-modal-action-button {
+	--button-color: #79bcff;
+}
+
 .birb-message-content {
 	box-sizing: border-box;
 	margin: 2px;
-	width: 100%;
+	margin-left: 4px;
+	margin-right: 4px;
+	width: 270px;
 	padding: 10px;
 	font-size: 14px;
 	color: #7c6c4b;
+	border: var(--birb-border-size) solid #ffcf90;
+	box-shadow: 0 0 0 var(--birb-border-size) white;
+	background: rgba(255, 221, 177, 0.5);
 }
 
 .birb-sticky-note {
@@ -2703,7 +2757,7 @@
 					message.appendChild(document.createElement("br"));
 					message.appendChild(document.createTextNode("Welcome back to 2012"));
 				}
-				insertModal(`${birdBirb()} Mode`, message);
+				insertModal(`${birdBirb()} Mode`, message, settings().birbMode ? "radical, dude" : "sounds good");
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
@@ -2937,6 +2991,13 @@
 			setInterval(update, UPDATE_INTERVAL);
 
 			flyToElement(true);
+
+
+
+			// TODO: Remove, only for testing
+			const message = makeElement("birb-message-content");
+			message.appendChild(document.createTextNode(`Yousa bitch!`));
+			insertModal(`Important Notice`, message, "not a fan", "radical, dude", () => {});
 		}
 
 		function update() {
@@ -3219,7 +3280,7 @@
 				message.appendChild(bold);
 				message.appendChild(document.createTextNode(" feather! Use the Field Guide to switch your bird's species."));
 				removeFieldGuide();
-				insertModal("New Bird Unlocked!", message);
+				insertModal("New Bird Unlocked!", message, "love it");
 			}
 		}
 
@@ -3237,7 +3298,7 @@
 				message.appendChild(bold);
 				message.appendChild(document.createTextNode("! To see all of your unlocked accessories, click the Wardrobe from the menu."));
 				removeWardrobe();
-				insertModal("New Hat Found!", message);
+				insertModal("New Hat Found!", message, "good stuff");
 			}
 		}
 
@@ -3264,15 +3325,41 @@
 		/**
 		 * @param {string} title
 		 * @param {HTMLElement} content
+		 * @param {string} closeText
+		 * @param {string} [actionText]
+		 * @param {() => void} [actionCallback]
 		 */
-		function insertModal(title, content) {
+		function insertModal(title, content, closeText, actionText, actionCallback) {
 			if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 				return;
 			}
+			const innerContainer = makeElement("birb-modal-content");
+			const buttonContainer = makeElement("birb-modal-buttons");
+			const defaultButton = makeElement("birb-modal-button", closeText);
+			const actionButton = actionText ? makeElement("birb-modal-button", actionText) : null;
+			innerContainer.appendChild(content);
+			buttonContainer.appendChild(defaultButton);
+			if (actionButton) {
+				actionButton.classList.add("birb-modal-action-button");
+				defaultButton.classList.add("birb-modal-negative-button");
+				buttonContainer.appendChild(actionButton);
+			}
+			innerContainer.appendChild(buttonContainer);
 
-			const modal = createWindow("birb-modal", title, content);
+			const modal = createWindow("birb-modal", title, innerContainer);
+			makeClosable(() => {
+				modal.remove();
+			}, defaultButton);
+			if (actionButton) {
+				buttonContainer.appendChild(actionButton);
+				onClick(actionButton, () => {
+					if (actionCallback) {
+						actionCallback();
+					}
+					modal.remove();
+				});
+			}
 
-			modal.style.width = "270px";
 			centerElement(modal);
 		}
 
