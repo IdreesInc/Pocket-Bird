@@ -141,6 +141,14 @@ const species = {
     "spriteIndex": 14,
     "highlightColor": "#ef444d"
   },
+  "redWingedBlackbird": {
+    "name": "Red-winged Blackbird",
+    "description": "Native across North America, these birds can be seen flocking in massive groups. Their songs are often heard in wetlands around the continent.",
+    "latinName": "Agelaius phoeniceus",
+    "url": "https://en.wikipedia.org/wiki/Red-winged_blackbird",
+    "spriteIndex": 28,
+    "highlightColor": "#fc2e00"
+  },
   "pigeon": {
     "name": "Rock Pigeon",
     "description": "Descended from the Rock Dove, these once domesticated birds are often found in cities worldwide. Quite friendly and intelligent, they were favored companions of Nikola Tesla.",
@@ -221,13 +229,16 @@ const species = {
     "highlightColor": "#9c3af2",
     "rarity": "uncommon"
   },
-  "littleCrow": {
-    "name": "Little Crow",
-    "description": "Native to Australia, this species of crow is the smallest in the world, but no less clever than its larger siblings.",
-    "latinName": "Corvus bennetti",
-    "url": "https://en.wikipedia.org/wiki/Little_crow_(bird)",
-    "spriteIndex": 24,
-    "highlightColor": "#1a273a"
+  "stellarsJay": {
+    "name": "Steller's Jay",
+    "description": "Native to western North America, I've always appreciated the coincidence of this bird's name and its deep blue plumage resembling the night sky.",
+    "latinName": "Cyanocitta stelleri",
+    "url": "https://en.wikipedia.org/wiki/Steller%27s_jay",
+    "spriteIndex": 27,
+    "highlightColor": "#0e5ac0",
+    "tags": [
+      "tuft"
+    ]
   },
   "mourningDove": {
     "name": "Mourning Dove",
@@ -239,23 +250,20 @@ const species = {
   },
   "whiteWingedFairywren": {
     "name": "White-winged Fairywren",
-    "description": "Native across Australia, these birds are known for their spectacularly blue feathers and contrasting white wings.",
+    "description": "Native across Australia, these birds are known for their spectacular lapis lazuli coloured feathers and contrasting white wings.",
     "latinName": "Malurus leucopterus",
     "url": "https://en.wikipedia.org/wiki/White-winged_fairywren",
     "spriteIndex": 26,
     "highlightColor": "#0a33cf",
     "rarity": "uncommon"
   },
-    "stellarsJay": {
-    "name": "Steller's Jay",
-    "description": "Native to western North America, I've always appreciated the coincidence of this bird's name and its deep blue plumage resembling the night sky.",
-    "latinName": "Cyanocitta stelleri",
-    "url": "https://en.wikipedia.org/wiki/Steller%27s_jay",
-    "spriteIndex": 27,
-    "highlightColor": "#0469bc",
-    "tags": [
-      "tuft"
-    ]
+  "littleCrow": {
+    "name": "Little Crow",
+    "description": "Native to Australia, this species of crow is the smallest in the world, but no less clever than its larger siblings.",
+    "latinName": "Corvus bennetti",
+    "url": "https://en.wikipedia.org/wiki/Little_crow_(bird)",
+    "spriteIndex": 24,
+    "highlightColor": "#1a273a"
   },
 }
 
