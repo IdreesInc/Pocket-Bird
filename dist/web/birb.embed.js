@@ -1862,8 +1862,9 @@
 	 * @param {MenuItem[]} menuItems
 	 * @param {string} title
 	 * @param {(menu: HTMLElement) => void} updateLocationCallback
+	 * @param {() => void} [titleClickCallback]
 	 */
-	function insertMenu(menuItems, title, updateLocationCallback) {
+	function insertMenu(menuItems, title, updateLocationCallback, titleClickCallback) {
 		if (getShadowRoot().querySelector("#" + MENU_ID)) {
 			return;
 		}
@@ -1873,6 +1874,13 @@
 		header.appendChild(titleDiv);
 		let content = makeElement("birb-window-content");
 		const removeCallback = () => removeMenu();
+		if (titleClickCallback) {
+			onClick(titleDiv, () => {
+				removeCallback();
+				titleClickCallback();
+			});
+			titleDiv.classList.add("birb-window-title-clickable");
+		}
 		for (const item of menuItems) {
 			if (!(item instanceof ConditionalMenuItem) || item.condition()) {
 				content.appendChild(createMenuItem(item, removeCallback));
@@ -1960,7 +1968,8 @@
 		soundEnabled: true,
 		birbScaleMultiplier: 1,
 		uiScaleMultiplier: 1,
-		name: ""
+		name: "",
+		firstTime: true
 	};
 
 	// Rendering constants
@@ -2111,6 +2120,10 @@
 	user-select: none;
 	color: var(--birb-background-color);
 	white-space: nowrap;
+}
+
+.birb-window-title-clickable {
+	cursor: pointer;
 }
 
 .birb-window-close {
@@ -2967,11 +2980,15 @@
 					// Currently being pet, don't open menu
 					return;
 				}
-				let menuTitle = `${birdBirb().toLowerCase()}OS`;
-				if (hasName()) {
-					menuTitle = settings().name;
+				if (settings().firstTime) {
+					firstTimeSetup();
+				} else {
+					let menuTitle = `${birdBirb().toLowerCase()}OS`;
+					if (hasName()) {
+						menuTitle = settings().name;
+					}
+					insertMenu(menuItems, menuTitle, updateMenuLocation, requestNewName);
 				}
-				insertMenu(menuItems, menuTitle, updateMenuLocation);
 			});
 
 			birbElement.addEventListener("mouseover", () => {
@@ -3009,11 +3026,12 @@
 			setInterval(update, UPDATE_INTERVAL);
 
 			flyToElement(true);
+		}
 
-
-
-			// TODO: Remove, only for testing
+		function firstTimeSetup() {
 			requestNewName();
+			userSettings.firstTime = false;
+			save();
 		}
 
 		function update() {
@@ -3644,7 +3662,11 @@
 		 */
 		function requestNewName() {
 			const message = makeElement("birb-message-content");
-			message.appendChild(document.createTextNode(`What would you like to name your ${birdBirb().toLowerCase()}?`));
+			let text = `What would you like to name your ${birdBirb().toLowerCase()}?`;
+			if (settings().firstTime) {
+				text = "Congratulations on adopting your new friend! " + text + "\n (You can always change this later in the settings)";
+			}
+			message.appendChild(document.createTextNode(text));
 			const input = document.createElement("input");
 			input.placeholder = "Type here...";
 			if (settings().name) {

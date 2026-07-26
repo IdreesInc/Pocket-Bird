@@ -138,6 +138,10 @@
 	white-space: nowrap;
 }
 
+.birb-window-title-clickable {
+	cursor: pointer;
+}
+
 .birb-window-close {
 	position: absolute;
 	top: 1px;

@@ -73,7 +73,8 @@ const DEFAULT_SETTINGS = {
 	soundEnabled: true,
 	birbScaleMultiplier: 1,
 	uiScaleMultiplier: 1,
-	name: ""
+	name: "",
+	firstTime: true
 };
 
 // Rendering constants
@@ -529,11 +530,15 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 				// Currently being pet, don't open menu
 				return;
 			}
-			let menuTitle = `${birdBirb().toLowerCase()}OS`;
-			if (hasName()) {
-				menuTitle = settings().name;
+			if (settings().firstTime) {
+				firstTimeSetup();
+			} else {
+				let menuTitle = `${birdBirb().toLowerCase()}OS`;
+				if (hasName()) {
+					menuTitle = settings().name;
+				}
+				insertMenu(menuItems, menuTitle, updateMenuLocation, requestNewName);
 			}
-			insertMenu(menuItems, menuTitle, updateMenuLocation);
 		});
 
 		birbElement.addEventListener("mouseover", () => {
@@ -571,11 +576,12 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		setInterval(update, UPDATE_INTERVAL);
 
 		flyToElement(true);
+	}
 
-
-
-		// TODO: Remove, only for testing
+	function firstTimeSetup() {
 		requestNewName();
+		userSettings.firstTime = false;
+		save();
 	}
 
 	function update() {
@@ -1210,7 +1216,11 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	 */
 	function requestNewName() {
 		const message = makeElement("birb-message-content");
-		message.appendChild(document.createTextNode(`What would you like to name your ${birdBirb().toLowerCase()}?`));
+		let text = `What would you like to name your ${birdBirb().toLowerCase()}?`;
+		if (settings().firstTime) {
+			text = "Congratulations on adopting your new friend! " + text + "\n (You can always change this later in the settings)";
+		}
+		message.appendChild(document.createTextNode(text));
 		const input = document.createElement("input");
 		input.placeholder = "Type here...";
 		if (settings().name) {

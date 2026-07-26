@@ -131,8 +131,9 @@ function createMenuItem(item, removeMenuCallback) {
  * @param {MenuItem[]} menuItems
  * @param {string} title
  * @param {(menu: HTMLElement) => void} updateLocationCallback
+ * @param {() => void} [titleClickCallback]
  */
-export function insertMenu(menuItems, title, updateLocationCallback) {
+export function insertMenu(menuItems, title, updateLocationCallback, titleClickCallback) {
 	if (getShadowRoot().querySelector("#" + MENU_ID)) {
 		return;
 	}
@@ -142,6 +143,13 @@ export function insertMenu(menuItems, title, updateLocationCallback) {
 	header.appendChild(titleDiv);
 	let content = makeElement("birb-window-content");
 	const removeCallback = () => removeMenu();
+	if (titleClickCallback) {
+		onClick(titleDiv, () => {
+			removeCallback();
+			titleClickCallback();
+		});
+		titleDiv.classList.add("birb-window-title-clickable");
+	}
 	for (const item of menuItems) {
 		if (!(item instanceof ConditionalMenuItem) || item.condition()) {
 			content.appendChild(createMenuItem(item, removeCallback));
