@@ -3,7 +3,8 @@ import species from "../species.js"
 
 export const RARITY = Object.freeze(/** @type {const} */ ({
 	COMMON: "common",
-	UNCOMMON: "uncommon"
+	UNCOMMON: "uncommon",
+	SECRET: "secret"
 }));
 
 /** @typedef {typeof RARITY[keyof typeof RARITY]} Rarity */

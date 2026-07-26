@@ -506,7 +506,8 @@
 
 	const RARITY = Object.freeze(/** @type {const} */ ({
 		COMMON: "common",
-		UNCOMMON: "uncommon"
+		UNCOMMON: "uncommon",
+		SECRET: "secret"
 	}));
 
 	/** @typedef {typeof RARITY[keyof typeof RARITY]} Rarity */
@@ -3430,6 +3431,19 @@
 			menu.style.left = `${x}px`;
 			menu.style.top = `${y}px`;
 		}
+		/**
+		 * @returns Whether the user has unlocked any secret birds
+		 */
+		function hasUnlockedSecrets() {
+			for (const [id, type] of Object.entries(SPECIES)) {
+				const unlocked = unlockedSpecies.includes(id);
+				if (type.rarity === RARITY.SECRET && unlocked) {
+					return true;
+				}
+			}
+			return false;
+		}
+
 		function insertFieldGuide() {
 			if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 				return;
@@ -3440,6 +3454,7 @@
 			const contentContainer = document.createElement("div");
 			const familiarBirds = makeElement("birb-grid-content");
 			const uncommonBirds = makeElement("birb-grid-content");
+			const secretBirds = makeElement("birb-grid-content");
 
 			const familiarLabel = document.createElement("div");
 			familiarLabel.className = "birb-field-guide-section-label";
@@ -3450,11 +3465,20 @@
 			uncommonLabel.textContent = `----- Uncommon ${birdBirb()}s -----`;
 			uncommonLabel.title = "Arbitrarily classified birds that are a little harder to find, but worth the wait!";
 
+			const secretLabel = document.createElement("div");
+			secretLabel.className = "birb-field-guide-section-label";
+			secretLabel.textContent = `----- Secret ${birdBirb()}s -----`;
+			secretLabel.title = "Why wait for Easter to collect easter eggs?";
+
 			const description = makeElement("birb-field-guide-description");
 			contentContainer.appendChild(familiarLabel);
 			contentContainer.appendChild(familiarBirds);
 			contentContainer.appendChild(uncommonLabel);
 			contentContainer.appendChild(uncommonBirds);
+			if (hasUnlockedSecrets()) {
+				contentContainer.appendChild(secretLabel);
+				contentContainer.appendChild(secretBirds);
+			}
 			contentContainer.appendChild(description);
 
 			const fieldGuide = createWindow(
@@ -3514,6 +3538,8 @@
 				let section = familiarBirds;
 				if (type.rarity === RARITY.UNCOMMON) {
 					section = uncommonBirds;
+				} else if (type.rarity === RARITY.SECRET) {
+					section = secretBirds;
 				}
 				section.appendChild(speciesElement);
 				if (unlocked) {
