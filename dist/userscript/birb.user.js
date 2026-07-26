@@ -1841,7 +1841,9 @@
 			onClick(container, (e) => e.stopPropagation());
 			menuItem.appendChild(container);
 			const leftButton = makeElement("birb-spinner-button", "-");
+			leftButton.classList.add("birb-spinner-button-negative");
 			const rightButton = makeElement("birb-spinner-button", "+");
+			rightButton.classList.add("birb-spinner-button-positive");
 			onClick(leftButton, (e) => {
 				item.leftAction();
 				e.stopPropagation();
@@ -2268,31 +2270,33 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	--spinner-border-color: var(--birb-highlight);
-	background-color: var(--birb-background-color);
-	/* color: var(--birb-highlight); */
+	--button-color: var(--birb-highlight);
+	background-color: var(--button-color);
+	color: white;
 	font-size: 14px;
 	padding-top: 0.5px;
 	padding-left: 0.75px;
 	margin-top: -0.5px;
 	text-align: center;
 	box-shadow:
-		var(--birb-border-size) 0 var(--spinner-border-color),
-		var(--birb-neg-border-size) 0 var(--spinner-border-color),
-		0 var(--birb-neg-border-size) var(--spinner-border-color),
-		0 var(--birb-border-size) var(--spinner-border-color);
+		var(--birb-border-size) 0 var(--button-color),
+		var(--birb-neg-border-size) 0 var(--button-color),
+		0 var(--birb-neg-border-size) var(--button-color),
+		0 var(--birb-border-size) var(--button-color);
 	/* border-radius: 3px; */
 	cursor: pointer;
 }
 
-.birb-spinner-button:hover {
-	background-color: var(--birb-highlight);
-	box-shadow:
-		var(--birb-border-size) 0 var(--birb-highlight),
-		var(--birb-neg-border-size) 0 var(--birb-highlight),
-		0 var(--birb-neg-border-size) var(--birb-highlight),
-		0 var(--birb-border-size) var(--birb-highlight);
-	color: white;
+.birb-spinner-button:active {
+	--button-color: #ffcf90;
+}
+
+.birb-spinner-button-negative {
+	--button-color: #ff7c7c;
+}
+
+.birb-spinner-button-positive {
+	--button-color: #79bcff;
 }
 
 .birb-window-separator {

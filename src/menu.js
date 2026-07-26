@@ -105,7 +105,9 @@ function createMenuItem(item, removeMenuCallback) {
 		onClick(container, (e) => e.stopPropagation());
 		menuItem.appendChild(container);
 		const leftButton = makeElement("birb-spinner-button", "-");
+		leftButton.classList.add("birb-spinner-button-negative");
 		const rightButton = makeElement("birb-spinner-button", "+");
+		rightButton.classList.add("birb-spinner-button-positive");
 		onClick(leftButton, (e) => {
 			item.leftAction();
 			e.stopPropagation();
