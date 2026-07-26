@@ -220,6 +220,14 @@ const species = {
     "spriteIndex": 23,
     "highlightColor": "#9c3af2",
     "rarity": "uncommon"
+  },
+  "crow": {
+    "name": "Little Crow",
+    "description": "Native to Australia, this species of crow is the smallest in the world, but no less clever than its larger siblings.",
+    "latinName": "Corvus bennetti",
+    "url": "https://en.wikipedia.org/wiki/Little_crow_(bird)",
+    "spriteIndex": 24,
+    "highlightColor": "#1a273a"
   }
 }
 
