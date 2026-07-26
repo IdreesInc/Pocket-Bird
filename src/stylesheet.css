@@ -490,6 +490,17 @@
 	background: rgba(255, 221, 177, 0.5);
 }
 
+.birb-message-input {
+	all: unset;
+	box-sizing: border-box;
+	margin-top: 12px;
+	padding: 3px 3px;
+	width: 100%;
+	border: var(--birb-border-size) solid #ffcf90;
+	background: rgba(255, 255, 255, 0.5);
+	color: #7c6c4b;
+}
+
 .birb-sticky-note {
 	position: absolute;
 	box-sizing: border-box;

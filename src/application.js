@@ -73,6 +73,7 @@ const DEFAULT_SETTINGS = {
 	soundEnabled: true,
 	birbScaleMultiplier: 1,
 	uiScaleMultiplier: 1,
+	name: ""
 };
 
 // Rendering constants
@@ -264,7 +265,10 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	const settingsItems = [
 		new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), undefined, false),
 		new Separator(),
-		new SpinnerMenuItem(`${birdBirb()} Scale`,
+		new MenuItem(() => `Rename Your ${birdBirb()}`, () => {
+			requestNewName();
+		}),
+		new SpinnerMenuItem(() => `${birdBirb()} Scale`,
 			() => {
 				userSettings.birbScaleMultiplier = 1;
 				save();
@@ -525,8 +529,11 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 				// Currently being pet, don't open menu
 				return;
 			}
-
-			insertMenu(menuItems, `${birdBirb().toLowerCase()}OS`, updateMenuLocation);
+			let menuTitle = `${birdBirb().toLowerCase()}OS`;
+			if (hasName()) {
+				menuTitle = settings().name;
+			}
+			insertMenu(menuItems, menuTitle, updateMenuLocation);
 		});
 
 		birbElement.addEventListener("mouseover", () => {
@@ -568,9 +575,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 
 		// TODO: Remove, only for testing
-		const message = makeElement("birb-message-content");
-		message.appendChild(document.createTextNode(`Yousa bitch!`));
-		insertModal(`Important Notice`, message, "not a fan", "radical, dude", () => {});
+		requestNewName();
 	}
 
 	function update() {
@@ -1198,6 +1203,50 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		if (updateSave) {
 			save();
 		}
+	}
+
+	/**
+	 * Prompt the user for a new name for their pet
+	 */
+	function requestNewName() {
+		const message = makeElement("birb-message-content");
+		message.appendChild(document.createTextNode(`What would you like to name your ${birdBirb().toLowerCase()}?`));
+		const input = document.createElement("input");
+		input.placeholder = "Type here...";
+		if (settings().name) {
+			input.value = settings().name;
+		}
+		input.maxLength = 25;
+		input.className = "birb-message-input";
+		message.appendChild(input);
+		insertModal(`Name Your Pet`, message, "never mind", "go for it", () => {
+			const name = input.value.trim();
+			setName(name);
+			if (name === "") {
+				const confirm = makeElement("birb-message-content", `Your ${birdBirb().toLowerCase()} shall remain nameless for now!`);
+				insertModal(`Name Reset`, confirm, "no worries");
+			} else {
+				const confirm = makeElement("birb-message-content", `Great choice, your ${birdBirb().toLowerCase()} shall now be known as ${name}!`);
+				insertModal(`Name Confirmed`, confirm, "nice");
+			}
+		});
+	}
+	
+	/**
+	 * Set the name of the bird and save it to settings
+	 * @param {string} name
+	 */
+	function setName(name) {
+		name = name.trim();
+		userSettings.name = name;
+		save();
+	}
+
+	/**
+	 * @returns Whether the user has set a name or not
+	 */
+	function hasName() {
+		return settings().name && settings().name != "";
 	}
 
 	/**

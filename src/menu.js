@@ -28,7 +28,7 @@ export class MenuItem {
 
 export class SpinnerMenuItem extends MenuItem {
 	/**
-	 * @param {string} text
+	 * @param {string|(() => string)} text
 	 * @param {() => void} labelAction
 	 * @param {() => void} leftAction
 	 * @param {() => void} rightAction
