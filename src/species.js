@@ -237,6 +237,15 @@ const species = {
     "spriteIndex": 25,
     "highlightColor": "#dba17c"
   },
+  "whiteWingedFairywren": {
+    "name": "White-winged Fairywren",
+    "description": "Native across Australia, these birds are known for their spectacularly blue feathers and contrasting white wings.",
+    "latinName": "Malurus leucopterus",
+    "url": "https://en.wikipedia.org/wiki/White-winged_fairywren",
+    "spriteIndex": 26,
+    "highlightColor": "#0a33cf",
+    "rarity": "uncommon"
+  },
 }
 
 export default species;
