@@ -136,6 +136,7 @@ const MIN_FOCUS_ELEMENT_WIDTH = 100;
 /** @type {Record<string, string>} */
 const SECRET_BIRDS = {
 	"invisible": "invisible",
+	"pride": "pride",
 };
 
 /** @type {Partial<Settings>} */
@@ -1091,6 +1092,9 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			if (type.rarity === RARITY.UNCOMMON) {
 				section = uncommonBirds;
 			} else if (type.rarity === RARITY.SECRET) {
+				if (!unlocked) {
+					continue;
+				}
 				section = secretBirds;
 			}
 			section.appendChild(speciesElement);
@@ -1264,18 +1268,19 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		message.appendChild(input);
 		insertModal(`Name Your Pet`, message, "never mind", "go for it", () => {
 			const name = input.value.trim();
-			setName(name);
 			if (name === "") {
 				const confirm = makeElement("birb-message-content", `Your ${birdBirb().toLowerCase()} shall remain nameless for now!`);
 				insertModal(`Name Reset`, confirm, "no worries");
+				setName(name);
 			} else if (SECRET_BIRDS[name] !== undefined) {
 				const speciesId = name;
 				unlockBird(speciesId, false);
-				const confirm = makeElement("birb-message-content", `Well done, you've found a secret ${birdBirb().toLowerCase()}! Check the field guide to see your new discovery.`);
+				const confirm = makeElement("birb-message-content", `Well done, you've unlocked a secret ${birdBirb().toLowerCase()}! Check the field guide to see your new discovery.`);
 				insertModal(`Easter Egg`, confirm, "oh dang");
 			} else {
 				const confirm = makeElement("birb-message-content", `Great choice, your ${birdBirb().toLowerCase()} shall now be known as ${name}!`);
 				insertModal(`Name Confirmed`, confirm, "nice");
+				setName(name);
 			}
 		});
 	}

@@ -283,6 +283,15 @@ const species = {
     "highlightColor": "#000000",
     "rarity": "secret"
   },
+  "pride": {
+    "name": "Pride",
+    "description": "A rather brightly colored bird, this species is known to allow a variety of birds to join its flock.",
+    "latinName": "Communitas iris",
+    "url": "https://en.wikipedia.org/wiki/Invisibility",
+    "spriteIndex": 31,
+    "highlightColor": "#f82b2b",
+    "rarity": "secret"
+  },
 }
 
 export default species;
