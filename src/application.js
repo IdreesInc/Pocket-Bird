@@ -137,6 +137,7 @@ const MIN_FOCUS_ELEMENT_WIDTH = 100;
 const SECRET_BIRDS = {
 	"invisible": "invisible",
 	"pride": "pride",
+	"trans": "trans",
 };
 
 /** @type {Partial<Settings>} */

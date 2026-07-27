@@ -285,11 +285,20 @@ const species = {
   },
   "pride": {
     "name": "Pride",
-    "description": "A rather brightly colored bird, this species is known to allow a variety of birds to join its flock.",
+    "description": "A rather brightly colored bird with a global distribution, this species is known to allow a variety of birds to join its flock.",
     "latinName": "Communitas iris",
-    "url": "https://en.wikipedia.org/wiki/Invisibility",
+    "url": "https://en.wikipedia.org/wiki/Rainbow_flag_(LGBTQ)",
     "spriteIndex": 31,
-    "highlightColor": "#f82b2b",
+    "highlightColor": "#fa3e6d",
+    "rarity": "secret"
+  },
+  "trans": {
+    "name": "Trans",
+    "description": "A pastel coloured bird with a global distribution, this species is known for its remarkable ability to adapt.",
+    "latinName": "Communitas transitus",
+    "url": "https://en.wikipedia.org/wiki/Transgender_flag",
+    "spriteIndex": 32,
+    "highlightColor": "#f5a9b8",
     "rarity": "secret"
   },
 }
