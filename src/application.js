@@ -135,9 +135,10 @@ const MIN_FOCUS_ELEMENT_WIDTH = 100;
 
 /** @type {Record<string, string>} */
 const SECRET_BIRDS = {
-	"invisible": "invisible",
-	"pride": "pride",
-	"trans": "trans",
+	"now you see me": "invisible",
+	"🏳️‍🌈": "pride",
+	"🏳️‍⚧️": "trans",
+	"gotta catch em all": "pidgey",
 };
 
 /** @type {Partial<Settings>} */
@@ -243,7 +244,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			}
 		}),
 		new DebugMenuItem("Add Feather", () => {
-			activateFeather();
+			addFeather();
 		}),
 		new DebugMenuItem("Disable Debug", () => {
 			setDebug(false);
@@ -626,7 +627,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			const hatMod = getContext().getHatChanceMod();
 			if (Math.random() < FEATHER_CHANCE * featherMod * (isPetBoostActive() ? PET_FEATHER_BOOST : 1)) {
 				lastPetTimestamp = 0;
-				activateFeather();
+				addFeather();
 			}
 			if (Math.random() < (HAT_CHANCE * hatMod * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
 				lastPetTimestamp = 0;
@@ -765,10 +766,11 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		return window;
 	}
 
-	function activateFeather() {
+	function addFeather() {
 		if (getShadowRoot().querySelector("#" + FEATHER_ID)) {
 			return;
 		}
+		// Notably excludes secret birds
 		const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.COMMON;
 		const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species) && SPECIES[species].rarity === rarity);
 		if (speciesToUnlock.length === 0) {
@@ -1273,11 +1275,13 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 				const confirm = makeElement("birb-message-content", `Your ${birdBirb().toLowerCase()} shall remain nameless for now!`);
 				insertModal(`Name Reset`, confirm, "no worries");
 				setName(name);
-			} else if (SECRET_BIRDS[name] !== undefined) {
-				const speciesId = name;
+			} else if (SECRET_BIRDS[name.toLowerCase()] !== undefined) {
+				const speciesId = name.toLowerCase();
 				unlockBird(speciesId, false);
 				const confirm = makeElement("birb-message-content", `Well done, you've unlocked a secret ${birdBirb().toLowerCase()}! Check the field guide to see your new discovery.`);
 				insertModal(`Easter Egg`, confirm, "oh dang");
+			} else if (name === "open sesame") {
+				setDebug(true);
 			} else {
 				const confirm = makeElement("birb-message-content", `Great choice, your ${birdBirb().toLowerCase()} shall now be known as ${name}!`);
 				insertModal(`Name Confirmed`, confirm, "nice");

@@ -301,6 +301,15 @@ const species = {
     "highlightColor": "#f5a9b8",
     "rarity": "secret"
   },
+  "pidgey": {
+    "name": "Pidgey",
+    "description": "Native to Japan, these birds are known for their ability to fly long distances while carrying objects as heavy as a ten year old child.",
+    "latinName": "Pokemonum poppo",
+    "url": "https://en.wikipedia.org/wiki/Transgender_flag",
+    "spriteIndex": 33,
+    "highlightColor": "#cd835a",
+    "rarity": "secret",
+  },
 }
 
 export default species;
