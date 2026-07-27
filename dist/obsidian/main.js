@@ -3846,7 +3846,7 @@ module.exports = class PocketBird extends Plugin {
 					insertModal(`Name Reset`, confirm, "no worries");
 					setName(name);
 				} else if (SECRET_BIRDS[name.toLowerCase()] !== undefined) {
-					const speciesId = name.toLowerCase();
+					const speciesId = SECRET_BIRDS[name.toLowerCase()];
 					unlockBird(speciesId, false);
 					const confirm = makeElement("birb-message-content", `Well done, you've unlocked a secret ${birdBirb().toLowerCase()}! Check the field guide to see your new discovery.`);
 					insertModal(`Easter Egg`, confirm, "oh dang");
