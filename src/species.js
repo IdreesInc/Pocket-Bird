@@ -265,14 +265,23 @@ const species = {
     "spriteIndex": 24,
     "highlightColor": "#1a273a"
   },
-    "redpoll": {
+  "redpoll": {
     "name": "Redpoll",
     "description": "Native to the Arctic, this incredible bird is capable of withstanding temperatures as low as -65 degrees Fahrenheit (-54 Celsius).",
     "latinName": "Acanthis flammea",
     "url": "https://en.wikipedia.org/wiki/Redpoll",
     "spriteIndex": 29,
-    "highlightColor": "#1a273a",
+    "highlightColor": "#ba3044",
     "rarity": "uncommon"
+  },
+  "invisible": {
+    "name": "Invisible",
+    "description": "An unusual species, this bird is rarely seen.",
+    "latinName": "Invisibilis noseeum",
+    "url": "https://en.wikipedia.org/wiki/Invisibility",
+    "spriteIndex": 30,
+    "highlightColor": "#000000",
+    "rarity": "secret"
   },
 }
 

@@ -133,6 +133,11 @@ const PET_HAT_BOOST = 1.5;
 // Focus element constraints
 const MIN_FOCUS_ELEMENT_WIDTH = 100;
 
+/** @type {Record<string, string>} */
+const SECRET_BIRDS = {
+	"invisible": "invisible",
+};
+
 /** @type {Partial<Settings>} */
 let userSettings = {};
 
@@ -855,8 +860,9 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 	/**
 	 * @param {string} birdType
+	 * @param {boolean} [showMessage]
 	 */
-	function unlockBird(birdType) {
+	function unlockBird(birdType, showMessage = true) {
 		if (!unlockedSpecies.includes(birdType)) {
 			unlockedSpecies.push(birdType);
 			save();
@@ -867,7 +873,9 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			message.appendChild(bold);
 			message.appendChild(document.createTextNode(" feather! Use the Field Guide to switch your bird's species."));
 			removeFieldGuide();
-			insertModal("New Bird Unlocked!", message, "love it");
+			if (showMessage) {
+				insertModal("New Bird Unlocked!", message, "love it");
+			}
 		}
 	}
 
@@ -1260,6 +1268,11 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			if (name === "") {
 				const confirm = makeElement("birb-message-content", `Your ${birdBirb().toLowerCase()} shall remain nameless for now!`);
 				insertModal(`Name Reset`, confirm, "no worries");
+			} else if (SECRET_BIRDS[name] !== undefined) {
+				const speciesId = name;
+				unlockBird(speciesId, false);
+				const confirm = makeElement("birb-message-content", `Well done, you've found a secret ${birdBirb().toLowerCase()}! Check the field guide to see your new discovery.`);
+				insertModal(`Easter Egg`, confirm, "oh dang");
 			} else {
 				const confirm = makeElement("birb-message-content", `Great choice, your ${birdBirb().toLowerCase()} shall now be known as ${name}!`);
 				insertModal(`Name Confirmed`, confirm, "nice");
