@@ -14,5 +14,8 @@
     "archiver": "^7.0.1",
     "nodemon": "^3.1.10",
     "rollup": "^4.52.5"
+  },
+  "dependencies": {
+    "pngjs": "^7.0.0"
   }
 }

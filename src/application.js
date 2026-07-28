@@ -26,10 +26,7 @@ import {
 } from './shared.js';
 import {
 	SPECIES,
-	RARITY,
-	createTemplateMapping,
-	loadSpriteSheetPixels,
-	extractPalette
+	RARITY
 } from './animation/sprites.js';
 import {
 	StickyNote,
@@ -88,10 +85,18 @@ const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
 
 // Build-time assets
 const STYLESHEET = `___STYLESHEET___`;
-const SPRITE_SHEET = "__SPRITE_SHEET__";
-const SPECIES_SPRITE_SHEET = "__SPECIES_SPRITE_SHEET__";
-const FEATHER_SPRITE_SHEET = "__FEATHER_SPRITE_SHEET__";
-const HATS_SPRITE_SHEET = "__HATS_SPRITE_SHEET__";
+/** @type {string[][]} */
+// @ts-expect-error
+const BIRB_PIXELS = "__BIRB_PIXELS__";
+/** @type {string[][]} */
+// @ts-expect-error
+const FEATHER_PIXELS = "__FEATHER_PIXELS__";
+/** @type {string[][]} */
+// @ts-expect-error
+const HAT_PIXELS = "__HAT_PIXELS__";
+/** @type {Record<string, Record<string, string>>} */
+// @ts-expect-error
+const SPECIES_PALETTES = "__SPECIES_PALETTES__";
 
 // Element IDs
 const FIELD_GUIDE_ID = "birb-field-guide";
@@ -151,16 +156,12 @@ export async function initializeApplication(context) {
 	log("birbOS booting up...");
 	setContext(context);
 	log("Loading sprite sheets...");
-	const templateMapping = await createTemplateMapping(SPRITE_SHEET, 32);
-	const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET, templateMapping);
-	const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET, templateMapping);
-	const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET, {});
 
-	for (const species of Object.values(SPECIES)) {
-		species.setColorScheme(await extractPalette(SPECIES_SPRITE_SHEET, species.spriteIndex * 32, 32));
+	for (const [id, species] of Object.entries(SPECIES)) {
+		species.setColorScheme(SPECIES_PALETTES[id]);
 	}
 	
-	startApplication(birbPixels, featherPixels, hatsPixels);
+	startApplication(BIRB_PIXELS, FEATHER_PIXELS, HAT_PIXELS);
 }
 
 /**
