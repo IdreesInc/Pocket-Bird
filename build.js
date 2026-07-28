@@ -3,6 +3,9 @@
 import { rollup } from 'rollup';
 import { readFileSync, writeFileSync, mkdirSync, unlinkSync, cpSync, createWriteStream } from 'fs';
 import archiver from 'archiver';
+import { PNG } from 'pngjs';
+
+import species from "./src/species.js";
 
 // Path constants
 const BUILD_CACHE_PATH = "./build-cache.json";
@@ -37,21 +40,10 @@ const VERSION_KEY = "__VERSION__";
 const STYLESHEET_KEY = "___STYLESHEET___";
 const MONOCRAFT_URL_KEY = "__MONOCRAFT_URL__";
 const CODE_KEY = "__CODE__";
-
-const spriteSheets = [
-	{
-		key: "__SPRITE_SHEET__",
-		path: SPRITES_DIR + "/birb.png"
-	},
-	{
-		key: "__FEATHER_SPRITE_SHEET__",
-		path: SPRITES_DIR + "/feather.png"
-	},
-	{
-		key: "__HATS_SPRITE_SHEET__",
-		path: SPRITES_DIR + "/hats.png"
-	}
-];
+const BIRB_PIXELS_KEY = "__BIRB_PIXELS__";
+const FEATHER_PIXELS_KEY = "__FEATHER_PIXELS__";
+const HAT_PIXELS_KEY = "__HAT_PIXELS__";
+const SPECIES_PALETTES_KEY = "__SPECIES_PALETTES__";
 
 /** @type {Record<string, any>} */
 let buildCache = {};
@@ -76,8 +68,7 @@ if (buildCache.version && buildCache.version.startsWith(versionDate)) {
 	}
 }
 
-// const version = `${versionDate}.${buildNumber}`;
-const version = `${versionDate}`; // Disable build number for now
+const version = `${versionDate}`;
 
 // Update build cache
 buildCache.version = version;
@@ -85,12 +76,23 @@ writeFileSync(BUILD_CACHE_PATH, JSON.stringify(buildCache), 'utf8');
 
 /**
  * @param {string} entryPoint
- * @param {boolean} [embedFont] When true, the Monocraft font is base64-encoded
- *   and substituted into the __MONOCRAFT_FONT_FACE__ placeholder so the
- *   build is fully self-contained (used for Obsidian).
+ * @param {boolean} [embedFont]
  * @returns {Promise<string>}
  */
 async function generateCode(entryPoint, embedFont = false) {
+	// Generate sprite data
+	const birbImageData = getImageData(SPRITES_DIR + "/birb.png");
+	const templateMapping = createTemplateMapping(SPRITES_DIR + "/birb.png", 32);
+	const birbPixels = loadSpriteSheetPixels(SPRITES_DIR + "/birb.png", templateMapping);
+	const featherPixels = loadSpriteSheetPixels(SPRITES_DIR + "/feather.png", templateMapping);
+	const hatPixels = loadSpriteSheetPixels(SPRITES_DIR + "/hats.png", {});
+	const speciesPalettes = Object.fromEntries(
+		Object.entries(species).map(([id, data]) => [
+			id,
+			extractPalette(SPRITES_DIR + "/species.png", data.spriteIndex * 32, 32)
+		])
+	);
+
 	// Bundle with rollup
 	const bundle = await rollup({
 		input: entryPoint,
@@ -120,17 +122,134 @@ async function generateCode(entryPoint, embedFont = false) {
 		birbJs = birbJs.replaceAll(MONOCRAFT_URL_KEY, MONOCRAFT_URL);
 	}
 
-	// Compile and insert sprite sheets
-	for (const spriteSheet of spriteSheets) {
-		const dataUri = readFileSync(spriteSheet.path, 'base64');
-		birbJs = birbJs.replaceAll(spriteSheet.key, `data:image/png;base64,${dataUri}`);
-	}
+	birbJs = birbJs.replace(`"${BIRB_PIXELS_KEY}"`, JSON.stringify(birbPixels));
+	birbJs = birbJs.replace(`"${FEATHER_PIXELS_KEY}"`, JSON.stringify(featherPixels));
+	birbJs = birbJs.replace(`"${HAT_PIXELS_KEY}"`, JSON.stringify(hatPixels));
+	birbJs = birbJs.replace(`"${SPECIES_PALETTES_KEY}"`, JSON.stringify(speciesPalettes));
 
 	// Insert stylesheet
 	const stylesheetContent = readFileSync(STYLESHEET_PATH, 'utf8');
 	birbJs = birbJs.replace(STYLESHEET_KEY, stylesheetContent);
 
 	return birbJs;
+}
+
+/**
+ * @param {string} src
+ * @returns {{width: number, height: number, data: Uint8Array}}
+ */
+function getImageData(src) {
+	return PNG.sync.read(readFileSync(src));
+}
+
+/**
+ * Load a sprite sheet image and convert it to a 2D array of palette color names
+ * @param {string} src URL or data URI of the sprite sheet image
+ * @param {Object<string, string>} templateMapping Mapping of template colors to location keys
+ * @returns {string[][]}
+ */
+function loadSpriteSheetPixels(src, templateMapping) {
+	const imageData = getImageData(src);
+	const pixels = imageData.data;
+	const hexArray = [];
+	for (let y = 0; y < imageData.height; y++) {
+		const row = [];
+		for (let x = 0; x < imageData.width; x++) {
+			const index = (y * imageData.width + x) * 4;
+			const r = pixels[index];
+			const g = pixels[index + 1];
+			const b = pixels[index + 2];
+			const a = pixels[index + 3];
+			const color = a === 0 ? "transparent" : rgbToHex(r, g, b);
+			row.push(templateMapping[color] || color);
+		}
+		hexArray.push(row);
+	}
+	return hexArray;
+}
+
+/**
+ * @param {string} src
+ * @param {number} start
+ * @param {number} width
+ * @returns {{ [key: string]: string }}
+ */
+function extractPalette(src, start, width) {
+	/** @type {{ [key: string]: string }} */
+	let map = {};
+	const imageData = getImageData(src);
+	const pixels = imageData.data;
+	for (let row = 0; row < imageData.height; row++) {
+		for (let col = start; col < start + width; col++) {
+			const index = (row * imageData.width + col) * 4;
+			const r = pixels[index];
+			const g = pixels[index + 1];
+			const b = pixels[index + 2];
+			const a = pixels[index + 3];
+			const color = a === 0 ? "transparent" : rgbToHex(r, g, b);
+			const id = key(row, col - start);
+			if (!map[id]) {
+				map[id] = color;
+			}
+		}
+	}
+	return map;
+}
+
+/**
+ * @param {string} src
+ * @param {number} width
+ */
+function createTemplateMapping(src, width) {
+	/** @type {{ [key: string]: string }} */
+	let map = {};
+	const imageData = getImageData(src);
+	const pixels = imageData.data;
+	for (let row = 0; row < imageData.height; row++) {
+		for (let col = 0; col < width; col++) {
+			const index = (row * imageData.width + col) * 4;
+			const r = pixels[index];
+			const g = pixels[index + 1];
+			const b = pixels[index + 2];
+			const a = pixels[index + 3];
+			if (a === 0) {
+				 continue;
+			}
+			const color = rgbToHex(r, g, b);
+			if (!map[color]) {
+				map[color] = key(row, col);
+			}
+		}
+	}
+	return map;
+}
+
+/**
+ * @param {number} row
+ * @param {number} col
+ * @returns {string}
+ */
+function key(row, col) {
+	return row + "x" + col;
+}
+
+/**
+ * @param {number} r Red channel value (0-255)
+ * @param {number} g Green channel value (0-255)
+ * @param {number} b Blue channel value (0-255)
+ * @returns {string} The rgb color as a hex string
+ */
+function rgbToHex(r, g, b) {
+	return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
+
+/**
+ * @param {string} hex The hex color to convert
+ * @returns {[number, number, number]} The RGB values as an array of [red, green, blue]
+ */
+function hexToRgb(hex) {
+	const n = parseInt(hex.slice(1), 16);
+	return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
 async function buildWeb() {
@@ -180,7 +299,7 @@ async function buildExtension() {
 		console.log(`Created zip file: ${archive.pointer()} total bytes`);
 	});
 
-	archive.on('error', (err) => {
+	archive.on('error', /** @param {Error} err */ (err) => {
 		throw err;
 	});
 

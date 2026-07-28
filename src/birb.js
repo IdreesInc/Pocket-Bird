@@ -2,7 +2,7 @@ import { Directions, getLayerPixels, getWindowHeight, getFixedWindowHeight, getS
 import Layer from './animation/layer.js';
 import Frame from './animation/frame.js';
 import Anim from './animation/anim.js';
-import { BirdType, PALETTE } from './animation/sprites.js';
+import { BirdType } from './animation/sprites.js';
 import { createHatLayers } from './hats.js';
 
 /**
@@ -130,7 +130,7 @@ export class Birb {
 	 */
 	draw(species, hat) {
 		const anim = this.animations[this.currentAnimation];
-		return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species.colors, [...species.tags, hat || '']);
+		return anim.draw(this.ctx, this.direction, this.animStart, this.canvasPixelSize, species.getColorScheme(), [...species.tags, hat || '']);
 	}
 
 

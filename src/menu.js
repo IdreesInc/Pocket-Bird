@@ -28,7 +28,7 @@ export class MenuItem {
 
 export class SpinnerMenuItem extends MenuItem {
 	/**
-	 * @param {string} text
+	 * @param {string|(() => string)} text
 	 * @param {() => void} labelAction
 	 * @param {() => void} leftAction
 	 * @param {() => void} rightAction
@@ -105,7 +105,9 @@ function createMenuItem(item, removeMenuCallback) {
 		onClick(container, (e) => e.stopPropagation());
 		menuItem.appendChild(container);
 		const leftButton = makeElement("birb-spinner-button", "-");
+		leftButton.classList.add("birb-spinner-button-negative");
 		const rightButton = makeElement("birb-spinner-button", "+");
+		rightButton.classList.add("birb-spinner-button-positive");
 		onClick(leftButton, (e) => {
 			item.leftAction();
 			e.stopPropagation();
@@ -131,8 +133,9 @@ function createMenuItem(item, removeMenuCallback) {
  * @param {MenuItem[]} menuItems
  * @param {string} title
  * @param {(menu: HTMLElement) => void} updateLocationCallback
+ * @param {() => void} [titleClickCallback]
  */
-export function insertMenu(menuItems, title, updateLocationCallback) {
+export function insertMenu(menuItems, title, updateLocationCallback, titleClickCallback) {
 	if (getShadowRoot().querySelector("#" + MENU_ID)) {
 		return;
 	}
@@ -142,6 +145,13 @@ export function insertMenu(menuItems, title, updateLocationCallback) {
 	header.appendChild(titleDiv);
 	let content = makeElement("birb-window-content");
 	const removeCallback = () => removeMenu();
+	if (titleClickCallback) {
+		onClick(titleDiv, () => {
+			removeCallback();
+			titleClickCallback();
+		});
+		titleDiv.classList.add("birb-window-title-clickable");
+	}
 	for (const item of menuItems) {
 		if (!(item instanceof ConditionalMenuItem) || item.condition()) {
 			content.appendChild(createMenuItem(item, removeCallback));

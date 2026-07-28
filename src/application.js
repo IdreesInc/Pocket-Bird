@@ -25,10 +25,8 @@ import {
 	getShadowRoot
 } from './shared.js';
 import {
-	PALETTE,
 	SPECIES,
-	RARITY,
-	loadSpriteSheetPixels,
+	RARITY
 } from './animation/sprites.js';
 import {
 	StickyNote,
@@ -72,6 +70,8 @@ const DEFAULT_SETTINGS = {
 	soundEnabled: true,
 	birbScaleMultiplier: 1,
 	uiScaleMultiplier: 1,
+	name: "",
+	firstTime: true
 };
 
 // Rendering constants
@@ -85,9 +85,18 @@ const WINDOW_PIXEL_SIZE = CANVAS_PIXEL_SIZE * BIRB_CSS_SCALE;
 
 // Build-time assets
 const STYLESHEET = `___STYLESHEET___`;
-const SPRITE_SHEET = "__SPRITE_SHEET__";
-const FEATHER_SPRITE_SHEET = "__FEATHER_SPRITE_SHEET__";
-const HATS_SPRITE_SHEET = "__HATS_SPRITE_SHEET__";
+/** @type {string[][]} */
+// @ts-expect-error
+const BIRB_PIXELS = "__BIRB_PIXELS__";
+/** @type {string[][]} */
+// @ts-expect-error
+const FEATHER_PIXELS = "__FEATHER_PIXELS__";
+/** @type {string[][]} */
+// @ts-expect-error
+const HAT_PIXELS = "__HAT_PIXELS__";
+/** @type {Record<string, Record<string, string>>} */
+// @ts-expect-error
+const SPECIES_PALETTES = "__SPECIES_PALETTES__";
 
 // Element IDs
 const FIELD_GUIDE_ID = "birb-field-guide";
@@ -129,9 +138,16 @@ const PET_HAT_BOOST = 1.5;
 // Focus element constraints
 const MIN_FOCUS_ELEMENT_WIDTH = 100;
 
+/** @type {Record<string, string>} */
+const SECRET_BIRDS = {
+	"now you see me": "invisible",
+	"🏳️‍🌈": "pride",
+	"🏳️‍⚧️": "trans",
+	"gotta catch em all": "pidgey",
+};
+
 /** @type {Partial<Settings>} */
 let userSettings = {};
-
 
 /** 
  * @param {Context} context
@@ -140,10 +156,12 @@ export async function initializeApplication(context) {
 	log("birbOS booting up...");
 	setContext(context);
 	log("Loading sprite sheets...");
-	const birbPixels = await loadSpriteSheetPixels(SPRITE_SHEET);
-	const featherPixels = await loadSpriteSheetPixels(FEATHER_SPRITE_SHEET);
-	const hatsPixels = await loadSpriteSheetPixels(HATS_SPRITE_SHEET, true, false);
-	startApplication(birbPixels, featherPixels, hatsPixels);
+
+	for (const [id, species] of Object.entries(SPECIES)) {
+		species.setColorScheme(SPECIES_PALETTES[id]);
+	}
+	
+	startApplication(BIRB_PIXELS, FEATHER_PIXELS, HAT_PIXELS);
 }
 
 /**
@@ -152,7 +170,6 @@ export async function initializeApplication(context) {
  * @param {string[][]} hatsPixels
  */
 function startApplication(birbPixels, featherPixels, hatsPixels) {
-
 	const SPRITE_SHEET = birbPixels;
 	const FEATHER_SPRITE_SHEET = featherPixels;
 	const HATS_SPRITE_SHEET = hatsPixels;
@@ -228,7 +245,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			}
 		}),
 		new DebugMenuItem("Add Feather", () => {
-			activateFeather();
+			addFeather();
 		}),
 		new DebugMenuItem("Disable Debug", () => {
 			setDebug(false);
@@ -258,7 +275,10 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	const settingsItems = [
 		new MenuItem("Go Back", () => switchMenuItems(menuItems, updateMenuLocation), undefined, false),
 		new Separator(),
-		new SpinnerMenuItem(`${birdBirb()} Scale`,
+		new MenuItem(() => `Rename Your ${birdBirb()}`, () => {
+			requestNewName();
+		}),
+		new SpinnerMenuItem(() => `${birdBirb()} Scale`,
 			() => {
 				userSettings.birbScaleMultiplier = 1;
 				save();
@@ -320,7 +340,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 				message.appendChild(document.createElement("br"));
 				message.appendChild(document.createTextNode("Welcome back to 2012"));
 			}
-			insertModal(`${birdBirb()} Mode`, message);
+			insertModal(`${birdBirb()} Mode`, message, settings().birbMode ? "radical, dude" : "sounds good");
 		}),
 		new Separator(),
 		new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
@@ -519,8 +539,15 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 				// Currently being pet, don't open menu
 				return;
 			}
-
-			insertMenu(menuItems, `${birdBirb().toLowerCase()}OS`, updateMenuLocation);
+			if (settings().firstTime) {
+				firstTimeSetup();
+			} else {
+				let menuTitle = `${birdBirb().toLowerCase()}OS`;
+				if (hasName()) {
+					menuTitle = settings().name;
+				}
+				insertMenu(menuItems, menuTitle, updateMenuLocation, requestNewName);
+			}
 		});
 
 		birbElement.addEventListener("mouseover", () => {
@@ -560,6 +587,12 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		flyToElement(true);
 	}
 
+	function firstTimeSetup() {
+		requestNewName();
+		userSettings.firstTime = false;
+		save();
+	}
+
 	function update() {
 		ticks++;
 
@@ -590,12 +623,12 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			}
 		}
 
-		if (birb.isVisible() && Date.now() - lastActionTimestamp < SUPER_AFK_TIME) {
+		if (birb.isVisible() && document.hasFocus() && Date.now() - lastActionTimestamp < SUPER_AFK_TIME) {
 			const featherMod = getContext().getFeatherChanceMod();
 			const hatMod = getContext().getHatChanceMod();
 			if (Math.random() < FEATHER_CHANCE * featherMod * (isPetBoostActive() ? PET_FEATHER_BOOST : 1)) {
 				lastPetTimestamp = 0;
-				activateFeather();
+				addFeather();
 			}
 			if (Math.random() < (HAT_CHANCE * hatMod * (isPetBoostActive() ? PET_HAT_BOOST : 1))) {
 				lastPetTimestamp = 0;
@@ -734,10 +767,11 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		return window;
 	}
 
-	function activateFeather() {
+	function addFeather() {
 		if (getShadowRoot().querySelector("#" + FEATHER_ID)) {
 			return;
 		}
+		// Notably excludes secret birds
 		const rarity = Math.random() < UNCOMMON_FEATHER_CHANCE ? RARITY.UNCOMMON : RARITY.COMMON;
 		const speciesToUnlock = Object.keys(SPECIES).filter((species) => !unlockedSpecies.includes(species) && SPECIES[species].rarity === rarity);
 		if (speciesToUnlock.length === 0) {
@@ -765,7 +799,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		if (!featherCtx) {
 			return;
 		}
-		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type.colors, type.tags);
+		FEATHER_ANIMATIONS.feather.draw(featherCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, type.getColorScheme(), type.tags);
 		getShadowRoot().appendChild(featherCanvas);
 		onClick(featherCanvas, () => {
 			unlockBird(birdType);
@@ -818,7 +852,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 		// Create hat animation
 		const hatAnimation = createHatItemAnimation(hatId, HATS_SPRITE_SHEET);
-		hatAnimation.draw(hatCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, SPECIES[currentSpecies].colors, [TAG.DEFAULT]);
+		hatAnimation.draw(hatCtx, Directions.LEFT, Date.now(), CANVAS_PIXEL_SIZE, {}, [TAG.DEFAULT]);
 
 		// Position hat above the element
 		const rect = element.getBoundingClientRect();
@@ -831,8 +865,9 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 
 	/**
 	 * @param {string} birdType
+	 * @param {boolean} [showMessage]
 	 */
-	function unlockBird(birdType) {
+	function unlockBird(birdType, showMessage = true) {
 		if (!unlockedSpecies.includes(birdType)) {
 			unlockedSpecies.push(birdType);
 			save();
@@ -843,7 +878,9 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			message.appendChild(bold);
 			message.appendChild(document.createTextNode(" feather! Use the Field Guide to switch your bird's species."));
 			removeFieldGuide();
-			insertModal("New Bird Unlocked!", message);
+			if (showMessage) {
+				insertModal("New Bird Unlocked!", message, "love it");
+			}
 		}
 	}
 
@@ -861,7 +898,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			message.appendChild(bold);
 			message.appendChild(document.createTextNode("! To see all of your unlocked accessories, click the Wardrobe from the menu."));
 			removeWardrobe();
-			insertModal("New Hat Found!", message);
+			insertModal("New Hat Found!", message, "good stuff");
 		}
 	}
 
@@ -888,15 +925,40 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	/**
 	 * @param {string} title
 	 * @param {HTMLElement} content
+	 * @param {string} closeText
+	 * @param {string} [actionText]
+	 * @param {() => void} [actionCallback]
 	 */
-	function insertModal(title, content) {
+	function insertModal(title, content, closeText, actionText, actionCallback) {
 		if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 			return;
 		}
+		const innerContainer = makeElement("birb-modal-content");
+		const buttonContainer = makeElement("birb-modal-buttons");
+		const defaultButton = makeElement("birb-modal-button", closeText);
+		const actionButton = actionText ? makeElement("birb-modal-button", actionText) : null;
+		innerContainer.appendChild(content);
+		buttonContainer.appendChild(defaultButton);
+		if (actionButton) {
+			actionButton.classList.add("birb-modal-action-button");
+			defaultButton.classList.add("birb-modal-negative-button");
+			buttonContainer.appendChild(actionButton);
+		}
+		innerContainer.appendChild(buttonContainer);
 
-		const modal = createWindow("birb-modal", title, content);
+		const modal = createWindow("birb-modal", title, innerContainer);
+		makeClosable(() => {
+			modal.remove();
+		}, defaultButton);
+		if (actionButton) {
+			onClick(actionButton, () => {
+				if (actionCallback) {
+					actionCallback();
+				}
+				modal.remove();
+			});
+		}
 
-		modal.style.width = "270px";
 		centerElement(modal);
 	}
 
@@ -925,6 +987,19 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		menu.style.top = `${y}px`;
 	};
 
+	/**
+	 * @returns Whether the user has unlocked any secret birds
+	 */
+	function hasUnlockedSecrets() {
+		for (const [id, type] of Object.entries(SPECIES)) {
+			const unlocked = unlockedSpecies.includes(id);
+			if (type.rarity === RARITY.SECRET && unlocked) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	function insertFieldGuide() {
 		if (getShadowRoot().querySelector("#" + FIELD_GUIDE_ID)) {
 			return;
@@ -935,6 +1010,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		const contentContainer = document.createElement("div");
 		const familiarBirds = makeElement("birb-grid-content");
 		const uncommonBirds = makeElement("birb-grid-content");
+		const secretBirds = makeElement("birb-grid-content");
 
 		const familiarLabel = document.createElement("div");
 		familiarLabel.className = "birb-field-guide-section-label";
@@ -945,11 +1021,20 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		uncommonLabel.textContent = `----- Uncommon ${birdBirb()}s -----`;
 		uncommonLabel.title = "Arbitrarily classified birds that are a little harder to find, but worth the wait!";
 
+		const secretLabel = document.createElement("div");
+		secretLabel.className = "birb-field-guide-section-label";
+		secretLabel.textContent = `----- Secret ${birdBirb()}s -----`;
+		secretLabel.title = "Why wait for Easter to collect easter eggs?";
+
 		const description = makeElement("birb-field-guide-description");
 		contentContainer.appendChild(familiarLabel);
 		contentContainer.appendChild(familiarBirds);
 		contentContainer.appendChild(uncommonLabel);
 		contentContainer.appendChild(uncommonBirds);
+		if (hasUnlockedSecrets()) {
+			contentContainer.appendChild(secretLabel);
+			contentContainer.appendChild(secretBirds);
+		}
 		contentContainer.appendChild(description);
 
 		const fieldGuide = createWindow(
@@ -1004,11 +1089,16 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			if (!speciesCtx) {
 				return;
 			}
-			birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.colors, type.tags);
+			birb.getFrames().base.draw(speciesCtx, Directions.RIGHT, CANVAS_PIXEL_SIZE, type.getColorScheme(), type.tags);
 			speciesElement.appendChild(speciesCanvas);
 			let section = familiarBirds;
 			if (type.rarity === RARITY.UNCOMMON) {
 				section = uncommonBirds;
+			} else if (type.rarity === RARITY.SECRET) {
+				if (!unlocked) {
+					continue;
+				}
+				section = secretBirds;
 			}
 			section.appendChild(speciesElement);
 			if (unlocked) {
@@ -1042,7 +1132,6 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	}
 
 	function insertWardrobe() {
-		console.log("Inserting wardrobe");
 		if (getShadowRoot().querySelector("#" + WARDROBE_ID)) {
 			return;
 		}
@@ -1099,7 +1188,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 				hatCtx,
 				Directions.RIGHT,
 				CANVAS_PIXEL_SIZE,
-				SPECIES[currentSpecies].colors,
+				SPECIES[currentSpecies].getColorScheme(),
 				[...SPECIES[currentSpecies].tags, hat]
 			);
 			hatElement.appendChild(hatCanvas);
@@ -1139,10 +1228,13 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	 * @param {boolean} [updateSave]
 	 */
 	function switchSpecies(type, updateSave = true) {
+		if (!SPECIES[type]) {
+			console.warn(`Species ${type} missing, falling back to bluebird`);
+			type = DEFAULT_BIRD;
+		}
 		currentSpecies = type;
-		// document.documentElement.style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
-		setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
-		/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty("--birb-highlight", SPECIES[type].colors[PALETTE.THEME_HIGHLIGHT]);
+		setProperty("--birb-highlight", SPECIES[type].highlightColor);
+		/** @type {HTMLElement} */ (getShadowRoot().host).style.setProperty("--birb-highlight", SPECIES[type].highlightColor);
 		if (updateSave) {
 			save();
 		}
@@ -1157,6 +1249,62 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		if (updateSave) {
 			save();
 		}
+	}
+
+	/**
+	 * Prompt the user for a new name for their pet
+	 */
+	function requestNewName() {
+		const message = makeElement("birb-message-content");
+		let text = `What would you like to name your ${birdBirb().toLowerCase()}?`;
+		if (settings().firstTime) {
+			text = "Congratulations on adopting your new friend! " + text + "\n (You can always change this later in the settings)";
+		}
+		message.appendChild(document.createTextNode(text));
+		const input = document.createElement("input");
+		input.placeholder = "Type here...";
+		if (settings().name) {
+			input.value = settings().name;
+		}
+		input.maxLength = 25;
+		input.className = "birb-message-input";
+		message.appendChild(input);
+		insertModal(`Name Your Pet`, message, "never mind", "go for it", () => {
+			const name = input.value.trim();
+			if (name === "") {
+				const confirm = makeElement("birb-message-content", `Your ${birdBirb().toLowerCase()} shall remain nameless for now!`);
+				insertModal(`Name Reset`, confirm, "no worries");
+				setName(name);
+			} else if (SECRET_BIRDS[name.toLowerCase()] !== undefined) {
+				const speciesId = SECRET_BIRDS[name.toLowerCase()];
+				unlockBird(speciesId, false);
+				const confirm = makeElement("birb-message-content", `Well done, you've unlocked a secret ${birdBirb().toLowerCase()}! Check the field guide to see your new discovery.`);
+				insertModal(`Easter Egg`, confirm, "oh dang");
+			} else if (name === "open sesame") {
+				setDebug(true);
+			} else {
+				const confirm = makeElement("birb-message-content", `Great choice, your ${birdBirb().toLowerCase()} shall now be known as ${name}!`);
+				insertModal(`Name Confirmed`, confirm, "nice");
+				setName(name);
+			}
+		});
+	}
+	
+	/**
+	 * Set the name of the bird and save it to settings
+	 * @param {string} name
+	 */
+	function setName(name) {
+		name = name.trim();
+		userSettings.name = name;
+		save();
+	}
+
+	/**
+	 * @returns Whether the user has set a name or not
+	 */
+	function hasName() {
+		return settings().name && settings().name != "";
 	}
 
 	/**
@@ -1245,7 +1393,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			return false;
 		}
 		const previousElement = focusedElement;
-		focusedElement = getRandomValidElement();
+		focusedElement = getContext().isFlyingEnabled() ? getRandomValidElement() : null;
 		updateFocusedElementBounds();
 		if (teleport) {
 			teleportTo(getFocusedElementRandomX(), getFocusedY());
