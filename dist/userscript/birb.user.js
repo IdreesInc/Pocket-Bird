@@ -2384,7 +2384,7 @@
 }
 
 #birb-field-guide {
-	width: 388px;
+	width: 380px;
 }
 
 #birb-field-guide .birb-window-content {
@@ -2395,7 +2395,7 @@
 }
 
 #birb-wardrobe {
-	width: 322px;
+	width: 312px;
 }
 
 #birb-field-guide .birb-grid-content {
@@ -2410,7 +2410,7 @@
 .birb-grid-content {
 	display: grid;
 	grid-auto-flow: row;
-	gap: 10px;
+	gap: 8px;
 	padding-top: 8px;
 	padding-bottom: 8px;
 	padding-left: 10px;
