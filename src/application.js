@@ -951,7 +951,6 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			modal.remove();
 		}, defaultButton);
 		if (actionButton) {
-			buttonContainer.appendChild(actionButton);
 			onClick(actionButton, () => {
 				if (actionCallback) {
 					actionCallback();

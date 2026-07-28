@@ -305,7 +305,7 @@ const species = {
     "name": "Pidgey",
     "description": "Native to Japan, these birds are known for their ability to fly long distances while carrying objects as heavy as a ten year old child.",
     "latinName": "Pokemonum poppo",
-    "url": "https://en.wikipedia.org/wiki/Transgender_flag",
+    "url": "https://bulbapedia.bulbagarden.net/wiki/Pidgey_(Pok%C3%A9mon)",
     "spriteIndex": 33,
     "highlightColor": "#cd835a",
     "rarity": "secret",
