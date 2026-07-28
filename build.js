@@ -68,8 +68,7 @@ if (buildCache.version && buildCache.version.startsWith(versionDate)) {
 	}
 }
 
-// const version = `${versionDate}.${buildNumber}`;
-const version = `${versionDate}`; // Disable build number for now
+const version = `${versionDate}`;
 
 // Update build cache
 buildCache.version = version;
@@ -122,12 +121,6 @@ async function generateCode(entryPoint, embedFont = false) {
 	} else {
 		birbJs = birbJs.replaceAll(MONOCRAFT_URL_KEY, MONOCRAFT_URL);
 	}
-
-	// Compile and insert sprite sheets
-	// for (const spriteSheet of spriteSheets) {
-	// 	const dataUri = readFileSync(spriteSheet.path, 'base64');
-	// 	birbJs = birbJs.replaceAll(spriteSheet.key, `data:image/png;base64,${dataUri}`);
-	// }
 
 	birbJs = birbJs.replace(`"${BIRB_PIXELS_KEY}"`, JSON.stringify(birbPixels));
 	birbJs = birbJs.replace(`"${FEATHER_PIXELS_KEY}"`, JSON.stringify(featherPixels));
