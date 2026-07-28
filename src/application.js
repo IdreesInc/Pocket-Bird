@@ -1393,7 +1393,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			return false;
 		}
 		const previousElement = focusedElement;
-		focusedElement = getRandomValidElement();
+		focusedElement = getContext().isFlyingEnabled() ? getRandomValidElement() : null;
 		updateFocusedElementBounds();
 		if (teleport) {
 			teleportTo(getFocusedElementRandomX(), getFocusedY());

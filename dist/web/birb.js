@@ -1352,6 +1352,7 @@
 
 	const SAVE_KEY = "birbSaveData";
 	const MONOCRAFT_URL = "https://cdn.jsdelivr.net/gh/idreesinc/Monocraft@99b32ab40612ff2533a69d8f14bd8b3d9e604456/dist/Monocraft.otf";
+	const FLYING_BLACKLIST = ["youtube.com/watch", "twitch.tv/"];
 
 	/**
 	 * @typedef {import('./application.js').BirbSaveData} BirbSaveData
@@ -1460,6 +1461,15 @@
 		getHatChanceMod() {
 			return 1;
 		}
+
+		isFlyingEnabled() {
+			for (const site of FLYING_BLACKLIST) {
+				if (this.getPath().includes(site)) {
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 
 	class LocalContext extends Context {
@@ -1501,6 +1511,11 @@
 		/** @override */
 		getHatChanceMod() {
 			return 2;
+		}
+
+		/** @override */
+		isFlyingEnabled() {
+			return true;
 		}
 	}
 
@@ -3783,7 +3798,7 @@
 				return false;
 			}
 			const previousElement = focusedElement;
-			focusedElement = getRandomValidElement();
+			focusedElement = getContext().isFlyingEnabled() ? getRandomValidElement() : null;
 			updateFocusedElementBounds();
 			if (teleport) {
 				teleportTo(getFocusedElementRandomX(), getFocusedY());

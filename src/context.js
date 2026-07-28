@@ -4,6 +4,7 @@ export const SAVE_KEY = "birbSaveData";
 const ROOT_PATH = "";
 const SET_CONTEXT = "__CONTEXT__"
 const MONOCRAFT_URL = "__MONOCRAFT_URL__";
+const FLYING_BLACKLIST = ["youtube.com/watch", "twitch.tv/"];
 
 /**
  * @typedef {import('./application.js').BirbSaveData} BirbSaveData
@@ -112,6 +113,15 @@ export class Context {
 	getHatChanceMod() {
 		return 1;
 	}
+
+	isFlyingEnabled() {
+		for (const site of FLYING_BLACKLIST) {
+			if (this.getPath().includes(site)) {
+				return false;
+			}
+		}
+		return true;
+	}
 }
 
 export class LocalContext extends Context {
@@ -153,6 +163,11 @@ export class LocalContext extends Context {
 	/** @override */
 	getHatChanceMod() {
 		return 2;
+	}
+
+	/** @override */
+	isFlyingEnabled() {
+		return true;
 	}
 }
 
@@ -321,6 +336,11 @@ export class ObsidianContext extends Context {
 		const activeLeaf = app.workspace.activeLeaf;
 		const leafElement = activeLeaf?.view?.containerEl;
 		return leafElement?.querySelector(".cm-scroller") ?? null;
+	}
+
+	/** @override */
+	isFlyingEnabled() {
+		return true;
 	}
 }
 
