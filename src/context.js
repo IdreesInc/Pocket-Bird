@@ -42,7 +42,7 @@ export class Context {
 	 * @returns {string[]} A list of CSS selectors for focusable elements
 	 */
 	getFocusableElements() {
-		return ["img", "video", ".birb-sticky-note"];
+		return ["img", "video", ".birb-sticky-note", "[data-birb-target]"];
 	}
 
 	getFocusElementTopMargin() {
