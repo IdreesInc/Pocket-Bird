@@ -12,6 +12,8 @@ import {
  * @property {string} content
  * @property {number} top
  * @property {number} left
+ * @property {number} [width]
+ * @property {number} [height]
  */
 
 export class StickyNote {
@@ -21,13 +23,17 @@ export class StickyNote {
 	 * @param {string} [content]
 	 * @param {number} [top]
 	 * @param {number} [left]
+	 * @param {number} [width]
+	 * @param {number} [height]
 	 */
-	constructor(id, site = "", content = "", top = 0, left = 0) {
+	constructor(id, site = "", content = "", top = 0, left = 0, width, height) {
 		this.id = id;
 		this.site = site;
 		this.content = content;
 		this.top = top;
 		this.left = left;
+		this.width = width;
+		this.height = height;
 	}
 }
 
@@ -56,7 +62,8 @@ export function renderStickyNote(stickyNote, page, onSave, onDelete) {
 	const content = makeElement("birb-window-content");
 	const textarea = document.createElement("textarea");
 	textarea.className = "birb-sticky-note-input";
-	textarea.style.width = "150px";
+	textarea.style.width = stickyNote.width ? `${stickyNote.width}px` : "150px";
+	textarea.style.height = stickyNote.height ? `${stickyNote.height}px` : "";
 	textarea.placeholder = "Write your notes here and they'll stick to the page!";
 	textarea.value = stickyNote.content;
 	content.appendChild(textarea);
@@ -96,6 +103,21 @@ export function renderStickyNote(stickyNote, page, onSave, onDelete) {
 				onSave();
 			}, 250);
 		});
+
+		// Persist size on resize
+		/** @type {ReturnType<typeof setTimeout>|undefined} */
+		let resizeTimeout;
+		const resizeObserver = new ResizeObserver(() => {
+			stickyNote.width = textarea.offsetWidth;
+			stickyNote.height = textarea.offsetHeight;
+			if (resizeTimeout) {
+				clearTimeout(resizeTimeout);
+			}
+			resizeTimeout = setTimeout(() => {
+				onSave();
+			}, 250);
+		});
+		resizeObserver.observe(textarea);
 	}
 
 	// On window resize

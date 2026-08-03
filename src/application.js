@@ -304,7 +304,7 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 			} else {
 				newMultiplier = currentMultiplier + 1;
 			}
-			newMultiplier = Math.max(0.25, Math.round(newMultiplier * 4) / 4);
+			newMultiplier = Math.max(0.25, Math.min(5, Math.round(newMultiplier * 4) / 4));
 			userSettings.birbScaleMultiplier = newMultiplier;
 			save();
 			updateBirbScale();
