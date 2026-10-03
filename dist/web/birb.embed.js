@@ -1359,6 +1359,12 @@
 	 */
 
 	/**
+	 * @typedef {Object} EditableSettings
+	 * @property {() => string[]} getPerchSelectors
+	 * @property {(selectors: string[]) => void} setPerchSelectors
+	 */
+
+	/**
 	 * @abstract
 	 */
 	class Context {
@@ -1395,6 +1401,14 @@
 
 		getFocusElementTopMargin() {
 			return 80;
+		}
+
+		/**
+		 * Add a settings screen where the user can edit these settings, if the platform has one
+		 * @param {EditableSettings} editableSettings
+		 */
+		registerSettingsTab(editableSettings) {
+			// No settings screen by default
 		}
 
 		/**
@@ -1929,7 +1943,9 @@
 		birbScaleMultiplier: 1,
 		uiScaleMultiplier: 1,
 		name: "",
-		firstTime: true
+		firstTime: true,
+		/** @type {string[]} */
+		extraPerchSelectors: []
 	};
 
 	// Rendering constants
@@ -2763,7 +2779,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("Build 2026.7.30", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.7.30"); }, undefined, false),
+			new MenuItem("Build 2026.10.2", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.10.2"); }, undefined, false),
 		];
 
 		/** @type {Birb} */
@@ -2937,6 +2953,14 @@
 			});
 			window.addEventListener("focus", () => {
 				load();
+			});
+
+			getContext().registerSettingsTab({
+				getPerchSelectors: () => settings().extraPerchSelectors,
+				setPerchSelectors: (selectors) => {
+					userSettings.extraPerchSelectors = selectors;
+					save();
+				}
 			});
 
 			onClick(document, (e) => {
@@ -3750,6 +3774,19 @@
 			return Math.random() * (focusedBounds.right - focusedBounds.left) + focusedBounds.left;
 		}
 
+		/**
+		 * @param {string} selector
+		 * @returns {boolean} Whether the selector can be passed to querySelectorAll
+		 */
+		function isValidSelector(selector) {
+			try {
+				document.createDocumentFragment().querySelector(selector);
+				return true;
+			} catch (e) {
+				return false;
+			}
+		}
+
 		function isWithinHorizontalBounds() {
 			return birdX >= focusedBounds.left && birdX <= focusedBounds.right;
 		}
@@ -3763,7 +3800,8 @@
 		 */
 		function getRandomValidElement() {
 			const MIN_FOCUS_ELEMENT_TOP = getContext().getFocusElementTopMargin();
-			const elements = document.querySelectorAll(getContext().getFocusableElements().join(", "));
+			const selectors = getContext().getFocusableElements().concat(settings().extraPerchSelectors.filter(isValidSelector));
+			const elements = document.querySelectorAll(selectors.join(", "));
 			const inWindow = Array.from(elements).filter((img) => {
 				const rect = img.getBoundingClientRect();
 				return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= getWindowHeight();

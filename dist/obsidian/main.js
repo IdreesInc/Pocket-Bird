@@ -1,7 +1,32 @@
-const { Plugin, Notice } = require('obsidian');
+const { Plugin, Notice, PluginSettingTab, Setting } = require('obsidian');
+
+class PocketBirdSettingTab extends PluginSettingTab {
+	/**
+	 * @param {Plugin} plugin
+	 * @param {import('../../context.js').EditableSettings} birdSettings
+	 */
+	constructor(plugin, birdSettings) {
+		super(plugin.app, plugin);
+		this.birdSettings = birdSettings;
+	}
+
+	display() {
+		this.containerEl.empty();
+		new Setting(this.containerEl)
+			.setName("Extra perch selectors")
+			.setDesc("CSS selectors for more elements the bird can land on, one per line (for example .my-plugin-card)")
+			.addTextArea((text) => text
+				.setPlaceholder(".my-plugin-card")
+				.setValue(this.birdSettings.getPerchSelectors().join("\n"))
+				.onChange((value) => {
+					this.birdSettings.setPerchSelectors(value.split("\n").map((line) => line.trim()).filter(Boolean));
+				}));
+	}
+}
+
 module.exports = class PocketBird extends Plugin {
 	onload() {
-		console.log("Loading Pocket Bird version 2026.7.30...");
+		console.log("Loading Pocket Bird version 2026.10.2...");
 		const OBSIDIAN_PLUGIN = this;
 		(function () {
 	'use strict';
@@ -1364,6 +1389,12 @@ module.exports = class PocketBird extends Plugin {
 	 */
 
 	/**
+	 * @typedef {Object} EditableSettings
+	 * @property {() => string[]} getPerchSelectors
+	 * @property {(selectors: string[]) => void} setPerchSelectors
+	 */
+
+	/**
 	 * @abstract
 	 */
 	class Context {
@@ -1400,6 +1431,14 @@ module.exports = class PocketBird extends Plugin {
 
 		getFocusElementTopMargin() {
 			return 80;
+		}
+
+		/**
+		 * Add a settings screen where the user can edit these settings, if the platform has one
+		 * @param {EditableSettings} editableSettings
+		 */
+		registerSettingsTab(editableSettings) {
+			// No settings screen by default
 		}
 
 		/**
@@ -1504,6 +1543,12 @@ module.exports = class PocketBird extends Plugin {
 		/** @override */
 		resetSaveData() {
 			this.putSaveData({});
+		}
+
+		/** @override */
+		registerSettingsTab(editableSettings) {
+			// @ts-expect-error
+			OBSIDIAN_PLUGIN.addSettingTab(new PocketBirdSettingTab(OBSIDIAN_PLUGIN, editableSettings));
 		}
 
 		/** @override */
@@ -1975,7 +2020,9 @@ module.exports = class PocketBird extends Plugin {
 		birbScaleMultiplier: 1,
 		uiScaleMultiplier: 1,
 		name: "",
-		firstTime: true
+		firstTime: true,
+		/** @type {string[]} */
+		extraPerchSelectors: []
 	};
 
 	// Rendering constants
@@ -2809,7 +2856,7 @@ module.exports = class PocketBird extends Plugin {
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("Build 2026.7.30", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.7.30"); }, undefined, false),
+			new MenuItem("Build 2026.10.2", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.10.2"); }, undefined, false),
 		];
 
 		/** @type {Birb} */
@@ -2983,6 +3030,14 @@ module.exports = class PocketBird extends Plugin {
 			});
 			window.addEventListener("focus", () => {
 				load();
+			});
+
+			getContext().registerSettingsTab({
+				getPerchSelectors: () => settings().extraPerchSelectors,
+				setPerchSelectors: (selectors) => {
+					userSettings.extraPerchSelectors = selectors;
+					save();
+				}
 			});
 
 			onClick(document, (e) => {
@@ -3796,6 +3851,19 @@ module.exports = class PocketBird extends Plugin {
 			return Math.random() * (focusedBounds.right - focusedBounds.left) + focusedBounds.left;
 		}
 
+		/**
+		 * @param {string} selector
+		 * @returns {boolean} Whether the selector can be passed to querySelectorAll
+		 */
+		function isValidSelector(selector) {
+			try {
+				document.createDocumentFragment().querySelector(selector);
+				return true;
+			} catch (e) {
+				return false;
+			}
+		}
+
 		function isWithinHorizontalBounds() {
 			return birdX >= focusedBounds.left && birdX <= focusedBounds.right;
 		}
@@ -3809,7 +3877,8 @@ module.exports = class PocketBird extends Plugin {
 		 */
 		function getRandomValidElement() {
 			const MIN_FOCUS_ELEMENT_TOP = getContext().getFocusElementTopMargin();
-			const elements = document.querySelectorAll(getContext().getFocusableElements().join(", "));
+			const selectors = getContext().getFocusableElements().concat(settings().extraPerchSelectors.filter(isValidSelector));
+			const elements = document.querySelectorAll(selectors.join(", "));
 			const inWindow = Array.from(elements).filter((img) => {
 				const rect = img.getBoundingClientRect();
 				return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= getWindowHeight();

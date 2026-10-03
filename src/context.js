@@ -11,6 +11,12 @@ const FLYING_BLACKLIST = ["youtube.com/watch", "twitch.tv/"];
  */
 
 /**
+ * @typedef {Object} EditableSettings
+ * @property {() => string[]} getPerchSelectors
+ * @property {(selectors: string[]) => void} setPerchSelectors
+ */
+
+/**
  * @abstract
  */
 export class Context {
@@ -47,6 +53,14 @@ export class Context {
 
 	getFocusElementTopMargin() {
 		return 80;
+	}
+
+	/**
+	 * Add a settings screen where the user can edit these settings, if the platform has one
+	 * @param {EditableSettings} editableSettings
+	 */
+	registerSettingsTab(editableSettings) {
+		// No settings screen by default
 	}
 
 	/**
@@ -283,6 +297,12 @@ export class ObsidianContext extends Context {
 	/** @override */
 	resetSaveData() {
 		this.putSaveData({});
+	}
+
+	/** @override */
+	registerSettingsTab(editableSettings) {
+		// @ts-expect-error
+		OBSIDIAN_PLUGIN.addSettingTab(new PocketBirdSettingTab(OBSIDIAN_PLUGIN, editableSettings));
 	}
 
 	/** @override */

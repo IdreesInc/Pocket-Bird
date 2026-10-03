@@ -71,7 +71,9 @@ const DEFAULT_SETTINGS = {
 	birbScaleMultiplier: 1,
 	uiScaleMultiplier: 1,
 	name: "",
-	firstTime: true
+	firstTime: true,
+	/** @type {string[]} */
+	extraPerchSelectors: []
 };
 
 // Rendering constants
@@ -522,6 +524,14 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		});
 		window.addEventListener("focus", () => {
 			load();
+		});
+
+		getContext().registerSettingsTab({
+			getPerchSelectors: () => settings().extraPerchSelectors,
+			setPerchSelectors: (selectors) => {
+				userSettings.extraPerchSelectors = selectors;
+				save();
+			}
 		});
 
 		onClick(document, (e) => {
@@ -1339,6 +1349,19 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 		return Math.random() * (focusedBounds.right - focusedBounds.left) + focusedBounds.left;
 	}
 
+	/**
+	 * @param {string} selector
+	 * @returns {boolean} Whether the selector can be passed to querySelectorAll
+	 */
+	function isValidSelector(selector) {
+		try {
+			document.createDocumentFragment().querySelector(selector);
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+
 	function isWithinHorizontalBounds() {
 		return birdX >= focusedBounds.left && birdX <= focusedBounds.right;
 	}
@@ -1352,7 +1375,8 @@ function startApplication(birbPixels, featherPixels, hatsPixels) {
 	 */
 	function getRandomValidElement() {
 		const MIN_FOCUS_ELEMENT_TOP = getContext().getFocusElementTopMargin();
-		const elements = document.querySelectorAll(getContext().getFocusableElements().join(", "));
+		const selectors = getContext().getFocusableElements().concat(settings().extraPerchSelectors.filter(isValidSelector));
+		const elements = document.querySelectorAll(selectors.join(", "));
 		const inWindow = Array.from(elements).filter((img) => {
 			const rect = img.getBoundingClientRect();
 			return rect.left >= 0 && rect.top >= MIN_FOCUS_ELEMENT_TOP && rect.right <= window.innerWidth && rect.top <= getWindowHeight();
