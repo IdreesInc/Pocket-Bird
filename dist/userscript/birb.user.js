@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pocket Bird
 // @namespace    https://idreesinc.com
-// @version      2026.7.30
+// @version      2026.10.2
 // @description  It's a pet bird in your browser, what more could you want?
 // @author       Idrees
 // @downloadURL  https://github.com/IdreesInc/Pocket-Bird/raw/refs/heads/main/dist/userscript/birb.user.js
@@ -1404,7 +1404,7 @@
 		 * @returns {string[]} A list of CSS selectors for focusable elements
 		 */
 		getFocusableElements() {
-			return ["img", "video", ".birb-sticky-note"];
+			return ["img", "video", ".birb-sticky-note", "[data-birb-target]"];
 		}
 
 		getFocusElementTopMargin() {
@@ -2763,7 +2763,7 @@
 			}),
 			new Separator(),
 			new MenuItem(() => `Source Code ${isPetBoostActive() ? " ❤" : ""}`, () => { window.open("https://github.com/IdreesInc/Pocket-Bird"); }),
-			new MenuItem("Build 2026.7.30", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.7.30"); }, undefined, false),
+			new MenuItem("Build 2026.10.2", () => { alert("Thank you for using Pocket Bird! You are on version: 2026.10.2"); }, undefined, false),
 		];
 
 		/** @type {Birb} */

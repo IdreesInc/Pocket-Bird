@@ -68,6 +68,14 @@ Pocket Bird can also be embedded directly into your own website! Just include th
 <script src="https://cdn.jsdelivr.net/gh/IdreesInc/Pocket-Bird@main/dist/web/birb.embed.js"></script>
 ```
 
+By default the bird perches on images and videos. Add the `data-birb-target` attribute to any other element (a card, a button...) to let the bird land on it too:
+
+```html
+<div class="card" data-birb-target>...</div>
+```
+
+This works in every version of Pocket Bird, so plugins and themes that render their own elements can opt in as well.
+
 ## FAQ
 
 ### How do I pet the bird?
