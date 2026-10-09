@@ -291,6 +291,10 @@ export class ObsidianContext extends Context {
 			".workspace-leaf",
 			".cm-callout",
 			".HyperMD-codeblock-begin",
+			".workspace-leaf.mod-active .cm-line.HyperMD-header-1",
+			".workspace-leaf.mod-active .cm-line.HyperMD-header-2",
+			".workspace-leaf.mod-active .markdown-reading-view h1",
+			".workspace-leaf.mod-active .markdown-reading-view h2",
 			".status-bar",
 			".mobile-navbar"
 		];
